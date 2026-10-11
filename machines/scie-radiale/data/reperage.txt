@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = carter, bras et protecteur translucides (organes intérieurs)
+#     colonne      = colonne et réglages du bras, de près
+#     3/4, opérateur, dessus, lame, butée = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « lame, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+guide
+table
+poignee        | opérateur
+protecteur     | lame                | protecteur avant
+carter         | lame                | carter de lame
+butee          | butée               | butée de longueur
+regle_butee    | butée
+servante
+colonne
+bras
+rotation       | colonne             | réglage de l'angle du bras
+manivelle      | colonne             | manivelle de hauteur
+arret          | opérateur           | arrêt d'urgence
+lame           | lame, transparence
+chariot        | colonne, transparence | chariot porte-lame

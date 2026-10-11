@@ -1,0 +1,26 @@
+/* Cotes de la scie radiale (mètres, repère de la scène).
+   X = le long du guide (sens de la longueur des planches) : la planche arrive par la gauche (−X, servante à rouleaux),
+   les pièces débitées sortent à droite (+X), entre la lame et la butée de longueur.
+   Z = profondeur : l'opérateur est devant (+Z), le guide et la colonne derrière (−Z).
+   Lame à 0° : plan x = 0. La tête coulisse le long du bras, de la position arrière (derrière le guide)
+   vers l'opérateur. Travail en avalant : les dents de devant descendent dans le bois, celles du bas vont vers le guide. */
+export const TABLE_Y = 0.90;               // plan de travail (900 mm du sol)
+export const R = 0.20;                     // lame Ø 400
+export const DROP = 0.005;                 // la lame descend 5 mm dans la table en bois
+export const KERF = 4.0;                   // trait de scie (mm)
+export const FENCE_Z = -0.30;              // face avant du guide
+export const FENCE_T = 0.04, FENCE_H = 0.07;
+export const Z_COL = -0.85;                // axe de la colonne (pivot du bras)
+export const Z_PARK = -0.60;               // centre de la lame en position arrière : lame entièrement derrière le guide
+export const STROKE = 0.90;                // course de la tête le long du bras
+export const ARM_Y = 1.62;                 // axe du bras
+export const TABLE_X0 = -0.80, TABLE_X1 = 0.80, TABLE_Z0 = -0.66, TABLE_Z1 = 0.45;
+export const SERV_X0 = -3.10;              // bout de la servante à rouleaux (gauche)
+export const EXT_X1 = 2.55;                // bout de la table de sortie (droite)
+export const STOP_MIN = 150, STOP_MAX = 2000;   // course de la butée de longueur (mm depuis la face droite du trait)
+export const ZONE = 150;                   // zone dangereuse marquée sur la table : 150 mm de part et d'autre du trait
+export const MIN_LEN = 300;                // longueur minimale d'une pièce à tronçonner (tenue à la main hors de la zone)
+export const MIN_USE = 350;                // longueur minimale d'une pièce utile (passage en raboteuse)
+export const PROT_GAP = [1, 10];           // protecteur : 1 à 10 mm au-dessus de la pièce
+export const ANGLES = [-45, -30, -15, 0, 15, 30, 45];   // rotation du bras (positions indexées)
+export const TILTS = [0, 15, 30, 45];      // inclinaison de la lame

@@ -1,7 +1,8 @@
 /* Parcours évalué (paquetage SCORM, actif seulement si window.PARCOURS) :
    repérage d'organes, QCM, scénarios notés. Barème : repérage 20, QCM 20, 20 par scénario
    (5 critères de 4 points dont « aucune faute grave »). Réussite : 70 / 100 ET aucune faute grave.
-   Faute grave = alerte « danger » active au moment où une coupe commence (recordDangers). */
+   Faute grave = alerte « danger » active au moment où une coupe commence (recordDangers), ou liste d'alertes
+   passée par la machine (recordDangers(liste) : geste dangereux hors coupe, ex. pièce touchée lame en avant). */
 import { createScorm } from './scorm.js';
 
 const $ = id=>document.getElementById(id);
@@ -41,7 +42,7 @@ export function createParcours(app, { reperage, qcm }, P){
 
   /* --- scénarios --- */
   function startScen(){ parc.ph='scen'; /* les fautes d'une tentative interrompue sont conservées */ const S=SCENS[parc.si]; ex.setMode(S.mode); stage.setView(S.view||Object.keys(stage.VIEWS)[0]); scorm.save(); render(); }
-  function recordDangers(){ if(!PARC_ON||parc.ph!=='scen') return; for(const [l,t] of app.alerts()) if(l==='danger'){ const k=t.split('. ')[0].slice(0,170); if(!parc.dangers.includes(k)) parc.dangers.push(k); } }
+  function recordDangers(list){ if(!PARC_ON||parc.ph!=='scen') return; for(const [l,t] of (list||app.alerts())) if(l==='danger'){ const k=t.split('. ')[0].slice(0,170); if(!parc.dangers.includes(k)) parc.dangers.push(k); } }
   const criteria=m=>P.criteria(m, { dangers:parc.dangers.length, ok:parc.dangers.length===0 });
   function finishScen(){ const S=SCENS[parc.si], C=criteria(S.mode), pts=C.reduce((a,c)=>a+(c[2]?4:0),0);
     parc.scens[parc.si]={pts, crit:C.map(c=>[c[0],c[1],c[2]?1:0]), dangers:parc.dangers.slice()};
