@@ -91,13 +91,15 @@ function woodTex(wood,kind,slope,mark){ const key=[wood,kind,slope.toFixed(3),ma
   const [base,dark,light]=WOOD[wood]||WOOD.hetre; let s=11;
   const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
   const t=canvasTex(1024,128,(g,w,h)=>{ g.fillStyle=kind==='raw'?dark:base; g.fillRect(0,0,w,h);
+    if(kind==='raw'){ g.fillStyle='rgba(110,104,94,.5)'; g.fillRect(0,0,w,h); }   // bois brut de sciage : terne, grisé
     if(kind==='end'){ for(let r=8;r<w;r+=9){ g.strokeStyle=`rgba(90,60,30,${0.25+rnd()*0.2})`; g.lineWidth=1.5; g.beginPath(); g.arc(w*0.5,h*1.6,r,0,7); g.stroke(); } return; }
     g.fillStyle=kind==='raw'?base:light; g.globalAlpha=kind==='raw'?0.55:0.35; g.fillRect(0,0,w,h); g.globalAlpha=1;
-    if(kind==='raw') for(let x=0;x<w;x+=6+rnd()*5){ g.strokeStyle=`rgba(60,38,20,${0.08+rnd()*0.1})`; g.lineWidth=2; g.beginPath(); g.moveTo(x,0); g.quadraticCurveTo(x+6,h/2,x,h); g.stroke(); }   // traits de scie
+    if(kind==='raw'){ for(let x=0;x<w;x+=5+rnd()*4){ g.strokeStyle=`rgba(55,35,18,${0.18+rnd()*0.17})`; g.lineWidth=2+rnd()*2; g.beginPath(); g.moveTo(x,0); g.quadraticCurveTo(x+8,h/2,x,h); g.stroke(); }   // traits de scie marqués
+      for(let i=0;i<900;i++){ const v=rnd(); g.fillStyle=v<0.5?`rgba(40,26,14,${0.25+rnd()*0.3})`:`rgba(235,215,180,${0.2+rnd()*0.25})`; g.fillRect(rnd()*w,rnd()*h,1+rnd()*3,1+rnd()*2); } }   // fibres soulevées
     // fibres : pente réelle du fil (lisible sur la face), réparties sur toute la longueur
     const span=Math.abs(slope)*w+h, n=Math.max(7,Math.round(span/34));
     for(let i=0;i<n;i++){ const y0=(slope>0?-Math.abs(slope)*w:0)+i*span/n+rnd()*4, dark=i%3!==1;
-      g.strokeStyle= dark?`rgba(80,46,20,${0.5+rnd()*0.2})`:`rgba(245,222,180,0.45)`; g.lineWidth=dark?3+rnd()*2.5:2;
+      g.strokeStyle= dark?`rgba(80,46,20,${(kind==='raw'?0.25:0.5)+rnd()*0.2})`:`rgba(245,222,180,${kind==='raw'?0.2:0.45})`; g.lineWidth=dark?3+rnd()*2.5:2;
       g.beginPath(); for(let x=0;x<=w;x+=16){ const y=y0+slope*x+Math.sin(x*0.012+i)*1.8; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); }
     if(kind==='tear') for(let i=0;i<70;i++){ const x=rnd()*w, y=rnd()*h, l=8+rnd()*26; g.fillStyle='rgba(70,40,18,.55)'; g.beginPath(); g.moveTo(x,y); g.lineTo(x+l,y+slope*l-3); g.lineTo(x+l*0.8,y+slope*l+4); g.closePath(); g.fill(); }
     if(mark) for(const m of mark.split('+')){ g.strokeStyle='#222'; g.lineWidth=5; g.lineCap='round'; g.beginPath();
@@ -119,7 +121,10 @@ function faceMat(f){ const fs=p.face[f], kind=fs.passes===0?'raw':fs.tear?'tear'
     parts.push(`arm:${other.endsWith('1')?'b':'t'}:${dx}:${dy}`); }
   const mark=parts.length?parts.join('+'):null;
   const key=[p.wood,kind,s.toFixed(3),mark].join('|');
-  return MATS[key]||(MATS[key]=new THREE.MeshStandardMaterial({map:woodTex(p.wood,kind,s,mark),roughness:kind==='raw'?0.9:0.6})); }
+  if(MATS[key]) return MATS[key]; const map=woodTex(p.wood,kind,s,mark);
+  // brut : mat et rugueux (relief) ; dressé : lisse, léger brillant (surface rabotée)
+  return MATS[key]= kind==='raw'? new THREE.MeshStandardMaterial({map,roughness:1,bumpMap:map,bumpScale:2.5})
+    : new THREE.MeshPhysicalMaterial({map,roughness:kind==='tear'?0.75:0.42,clearcoat:kind==='tear'?0:0.35,clearcoatRoughness:0.35,sheen:0.4,sheenRoughness:0.5,sheenColor:new THREE.Color(0xfff2dc)}); }
 function endMat(){ return MATS['end'+p.wood]||(MATS['end'+p.wood]=new THREE.MeshStandardMaterial({map:woodTex(p.wood,'end',0,null),roughness:0.85})); }
 const EX=3;   // à l'affichage seulement, les écarts de forme (cintrage, brut de sciage) sont exagérés ×3
 const exag=a=>{ const n=a.length-1; return a.map((x,i)=>{ const lin=a[0]+(a[n]-a[0])*i/n; return x+(EX-1)*(x-lin); }); };
@@ -193,10 +198,23 @@ export function rot(n){ p.k+=n; }
 export function endForEnd(){ p.flip=!p.flip; }
 export function toGuide(){ place(); p.zOff=0; place(); }
 export function setZOff(z){ p.zOff=z; }
-/* repère au crayon sur la face du dessus */
-export function markTop(){ const f=faces().up, fs=p.face[f];
-  if(isF(f)) fs.mark='loop';
-  else { // repère d'angle : trait sur SR1 côté angle droit + trait sur SR2, qui se rejoignent à l'arête commune
-    const ref=fs.angle?.ref || (p.face.F1.mark?'F1':p.face.F2.mark?'F2':'F1'); fs.mark='v'; fs.markRef=ref; p.vmark={s1:ref,s2:f}; }
-  build(); return f; }
+/* Repère au crayon. On prend la pièce en main et on la tourne pour voir les faces dressées (la pièce est réorientée) :
+   - SR1 seul (ou pas encore repéré) : boucle de parement sur SR1, SR1 dessus ;
+   - SR1 et SR2 dressés : repère d'angle, un trait sur SR1 côté angle droit qui repart sur SR2 (petit V à cheval sur l'arête),
+     SR1 dessus, SR2 côté opérateur.
+   Rend {kind:'loop'|'v', s1, s2} ou {err} ; ne touche pas aux faces brutes. */
+export function markRef(){ if(!p) return {err:'Pas de pièce.'};
+  const fl=['F1','F2'].filter(f=>p.face[f].passes>0&&isFlat(f)&&!p.face[f].tear);
+  if(!fl.length) return {err:'Aucun plat n\'est dressé : dressez d\'abord la face de référence (SR1), puis repérez-la.'};
+  const s1=fl.find(f=>p.face[f].mark==='loop')||fl[0];
+  const ch=['C1','C2'].filter(f=>p.face[f].passes>0&&isFlat(f)&&p.face[f].angle&&p.face[f].angle.ref===s1);
+  const s2=ch.find(f=>p.face[f].mark)||ch[0]||null;
+  p.k=(RING.indexOf(s1)+2)%4;                                   // SR1 dessus
+  if(p.face[s1].mark!=='loop' || !s2){ p.face[s1].mark='loop'; build(); return {kind:'loop', s1}; }
+  p.flip = RING[(p.k+3)%4]!==s2;                                 // SR2 côté opérateur
+  const fs=p.face[s2]; fs.mark='v'; fs.markRef=s1; p.vmark={s1,s2}; build(); return {kind:'v', s1, s2}; }
+/* point à regarder pour le repère (scène) : sur le dessus, au droit du dessin ; arête avant pour le V */
+export function markFocus(kind){ const b=pieceBox(); if(!b) return null;
+  const u= kind==='v'? 0.72 : 0.42, cx=(b.min.x+b.max.x)/2, L=b.max.x-b.min.x, x=cx+(u-0.5)*L*(p.flip?-1:1);
+  return kind==='v'? [x, b.max.y, b.max.z] : [x, b.max.y, (b.min.z+b.max.z)/2]; }
 export function back(){ st.t=0; cut.done=false; cut.started=false; cut.inProgress=false; cut.lastT=0; place(); }

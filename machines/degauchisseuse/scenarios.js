@@ -2,11 +2,10 @@
    tracer le repère d'angle (petit V à cheval sur l'arête SR1 / SR2), arrêter la machine, contrôler.
    Trois pièces : rectiligne, cintrée sur le plat (creux sur la table, plusieurs passes), fil incliné (sens d'usinage). */
 import { st } from './state.js';
-import { p, newPiece, faces, mode, isFlat, againstGuide, concaveDown } from './piece.js';
+import { p, newPiece, faces, mode, againstGuide, concaveDown } from './piece.js';
 import { engaged, sr1, sr2, measureD } from './rules.js';
 
 const fmt=(v,n=2)=>v.toLocaleString('fr-FR',{maximumFractionDigits:n});
-const isF=f=>f[0]==='F';
 
 /* ---------- étapes communes ---------- */
 const prep=(c)=>({k:'Préparation', t:'Préparer la machine', c,
@@ -15,16 +14,17 @@ const prep=(c)=>({k:'Préparation', t:'Préparer la machine', c,
 const sr1Step=(c,extra=[])=>({k:'SR1', t:'Dresser le plat (SR1)', c,
   checks:[['Pièce à plat sur la table',()=>!!p&&mode()==='plat'],...extra,['Bec d\'engagement horizontal (dressage du plat)',()=>st.bec==='plat'],['Moteur en marche',()=>st.motor]],
   done:()=>!!sr1()});
+const back0=['Pièce ramenée sur la table d\'entrée',()=>!!p&&st.t===0];
 const mark1={k:'Repère', t:'Marquer SR1 au crayon',
-  c:'Ramenez la pièce et retournez-la (« Retourner ») pour voir la face dressée. Tracez le repère de parement : une boucle dont la queue rejoint l\'arête (« Repère au crayon »). Il dit, pour la suite du corroyage, quelle face est la référence.',
-  checks:[['Face dressée sur le dessus',()=>{ if(!p) return false; const f=faces().up; return isF(f)&&isFlat(f); }]],
+  c:'Ramenez la pièce en la soulevant, puis « Repère au crayon » : on prend la pièce en main, face dressée sur le dessus, et on trace le repère de parement, une boucle dont la queue rejoint l\'arête. Il dit, pour la suite du corroyage, quelle face est la référence.',
+  checks:[back0],
   done:()=>{ const s=sr1(); return !!s&&p.face[s].mark==='loop'; }};
 const sr2Step=(c)=>({k:'SR2', t:'Dresser le chant (SR2) d\'équerre', c,
   checks:[['Pièce sur chant',()=>!!p&&mode()==='chant'],['Face SR1 contre le guide',()=>!!p&&againstGuide()&&faces().back===sr1()],['Guide à 90°',()=>st.ga===90],['Bec d\'engagement vertical (dressage du chant)',()=>st.bec==='chant'],['Moteur en marche',()=>st.motor]],
   done:()=>!!sr2()});
 const mark2={k:'Repère', t:'Marquer l\'angle droit SR1 / SR2',
-  c:'Ramenez la pièce et tournez-la pour voir le chant dressé. Tracez le repère d\'angle (« Repère au crayon ») : un petit trait sur SR1, côté angle droit, qui repart sur SR2. Les deux traits forment un petit V à la rencontre des deux faces dégauchies : il montre quel angle est droit pour la suite du corroyage.',
-  checks:[['Chant dressé sur le dessus',()=>{ if(!p) return false; const f=faces().up; return !isF(f)&&isFlat(f); }]],
+  c:'Ramenez la pièce, puis « Repère au crayon » : la vue se rapproche de l\'arête où se rencontrent les deux faces dégauchies. Le repère d\'angle est un petit trait sur SR1, côté angle droit, qui repart sur SR2 : les deux traits forment un petit V qui montre quel angle est droit pour la suite du corroyage.',
+  checks:[back0],
   done:()=>{ const s=sr2(); return !!s&&!!p.face[s].mark&&p.face[s].markRef===sr1(); }};
 const fin={k:'Fin', t:'Remettre en sécurité',
   c:'Le travail est fini. Vérifiez que la couverture du protecteur est revenue seule sur la table, contre le guide (rappel par ressort) : l\'arbre est entièrement recouvert. Arrêtez le moteur.',

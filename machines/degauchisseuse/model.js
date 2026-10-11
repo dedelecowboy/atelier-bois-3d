@@ -10,6 +10,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const YEL = new THREE.MeshStandardMaterial({color:0xf0b323, metalness:0.15, roughness:0.45});
   const CAST = new THREE.MeshStandardMaterial({color:0xb9bec3, metalness:0.55, roughness:0.32});
   const TX = (TABLE_L/2)+LIP;           // centre X d'une table
+  const MOT=[0.10,0.36], BZ=TABLE_B-0.065;   // axe du moteur (x, y) ; plan des poulies (z)
 
   /* ---------- Bâti ---------- */
   const bati = new THREE.Group(); root.add(bati);
@@ -27,6 +28,16 @@ export function buildModel({ root, tagPart, partMeshes }){
     const m=new THREE.Mesh(new THREE.PlaneGeometry(0.52,0.13),new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false})); m.position.set(-0.30,0.66,0.3135); bati.add(m);
     document.fonts?.ready.then(()=>{ draw(t.userData.canvas.getContext('2d'),1024,256); t.needsUpdate=true; }); }
   for(const x of [-0.45,0.45]) add(bati, rbox(0.14,0.10,0.40,CAST,0.01), x,0.80,0);   // consoles des tables
+  // capot de courroie : enveloppe des deux poulies, contre le flanc arrière du bâti (translucide en vue intérieure)
+  { const hull=(pad)=>{ const pts=[]; for(const [c,r] of [[[0,ARBRE_Y],0.035+pad],[MOT,0.055+pad]]) for(let i=0;i<48;i++){ const a=i/48*Math.PI*2; pts.push([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r]); }
+      pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]); const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]); const lo=[],up=[];
+      for(const q of pts){ while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0) lo.pop(); lo.push(q); }
+      for(const q of pts.slice().reverse()){ while(up.length>1&&cr(up[up.length-2],up[up.length-1],q)<=0) up.pop(); up.push(q); }
+      return lo.slice(0,-1).concat(up.slice(0,-1)); };
+    const sh=new THREE.Shape(hull(0.022).map(q=>new THREE.Vector2(...q)));
+    const D=0.30+0.004-(BZ-0.032), g=new THREE.ExtrudeGeometry(sh,{depth:D-0.008,bevelEnabled:true,bevelThickness:0.004,bevelSize:0.004,bevelSegments:2,curveSegments:24});
+    g.translate(0,0,BZ-0.032+0.004); const capot=new THREE.Mesh(g,M.body); bati.add(capot);
+    for(const [x,y] of [[0.0,ARBRE_Y+0.035],[MOT[0]+0.03,MOT[1]-0.05]]) add(bati, cyl(0.006,0.004,M.dark,12,'z'), x,y,BZ-0.034); }   // vis de fixation
   tagPart(bati,'bati');
   for(const m of partMeshes.bati) m.material=m.material.clone();
 
@@ -55,7 +66,6 @@ export function buildModel({ root, tagPart, partMeshes }){
   tagPart(bearings,'arbre');
 
   /* ---------- Moteur et transmission (intérieur) ---------- */
-  const MOT=[0.10,0.36], BZ=TABLE_B-0.065;
   const moteur=new THREE.Group(); root.add(moteur);
   add(moteur, cyl(0.09,0.30,MI.motor,32,'z'), MOT[0],MOT[1],-0.09);
   for(let i=0;i<9;i++) add(moteur, cyl(0.097,0.005,MI.motor,32,'z'), MOT[0],MOT[1],-0.21+i*0.03);
@@ -127,22 +137,38 @@ export function buildModel({ root, tagPart, partMeshes }){
   const carterPlate=add(carter, rbox(0.15,0.006,1,YEL,0), 0,TABLE_Y+0.004,0);
   tagPart(carter,'carter');
 
-  /* ---------- Protecteur SUVAMATIC : boîtier côté opérateur, couverture rappelée par ressort, bec d'engagement orientable ----------
-     La couverture repose sur la table, contre le guide. Bec horizontal (plat) : la pièce la soulève, elle glisse sur la pièce.
-     Bec vertical (chant) : la pièce l'écarte du guide de son épaisseur, elle plaque la pièce contre le guide. Elle revient seule. */
-  const PZ=TABLE_F+0.07, PX=0.0;
+  /* ---------- Protecteur SUVAMATIC (d'après photos) ----------
+     Colonne jaune fixée au chant avant de la table ; boîtier noir à ressorts qui coulisse sur la colonne (hauteur) ;
+     bras jaune de section ovale qui traverse le boîtier (écartement), embout noir et bec d'engagement jaune coudé, à lumière,
+     qui pivote de 90° autour de l'axe du bras d'embout : horizontal pour le plat, vertical pour le chant.
+     Plat : la pièce soulève le bras, qui glisse sur elle. Chant : la pièce repousse le bras vers l'opérateur. Retour par ressort. */
+  const PZ=TABLE_F+0.075, PX=0.0, ARM_L=0.60, AH=0.028;            // AH : épaisseur du bras
   const prot=new THREE.Group(); root.add(prot);
-  add(prot, rbox(0.06,0.30,0.03,YEL,0.006), PX,TABLE_Y-0.20,TABLE_F+0.025);        // console jaune fixée au chant de la table
-  add(prot, rbox(0.13,0.22,0.10,M.dark,0.012), PX,TABLE_Y-0.07,PZ);                // boîtier (ressorts de rappel)
-  add(prot, cyl(0.007,0.05,M.dark,10,'x'), PX+0.09,TABLE_Y-0.10,PZ); add(prot, new THREE.Mesh(new THREE.SphereGeometry(0.014,12,8),M.dark), PX+0.12,TABLE_Y-0.10,PZ); // blocage pour travaux de série
-  const slide=new THREE.Group(); prot.add(slide);                                   // tête mobile : monte avec la couverture
-  add(slide, rbox(0.14,0.035,0.11,YEL,0.006), 0,0.0175,0);
-  const post=add(prot, rbox(0.05,1,0.05,M.steel,0), PX,0,PZ);                    // tige de guidage de la tête (sort du boîtier)
-  const cover=add(prot, rbox(0.10,0.012,1,YEL,0.003), 0,0,0);                      // couverture, étirée en Z
-  const coverEdge=add(prot, rbox(0.004,0.010,1,M.dark,0), 0,0,0);                  // bord crénelé côté entrée
-  const becG=new THREE.Group(); prot.add(becG);                                     // bec d'engagement, pivote de 90°
-  const flap=add(becG, rbox(0.07,0.004,0.06,YEL,0.002), 0.03,0,0.03); flap.rotation.z=0.45;
-  add(becG, cyl(0.006,0.064,M.dark,10,'z'), 0,0,0.03);
+  const oval=(rx,ry,len,mat,axis)=>{ const g=new THREE.CylinderGeometry(1,1,len,40); g.scale(rx,1,ry); if(axis==='z') g.rotateX(Math.PI/2); return new THREE.Mesh(g,mat); };
+  // colonne verticale (fixe) sous le boîtier, sa console sur le chant de la table, tige qui sort quand le boîtier monte
+  const colX=PX-0.035, colZ=PZ+0.015, colTop=TABLE_Y-0.03;
+  add(prot, oval(0.026,0.02,0.28,YEL,'y'), colX,colTop-0.14,colZ);
+  add(prot, oval(0.027,0.021,0.02,M.dark,'y'), colX,colTop-0.29,colZ);                  // embout bas
+  add(prot, rbox(0.06,0.06,0.09,M.dark,0.006), colX,TABLE_Y-0.20,TABLE_F+0.04);          // console de fixation
+  const rod=add(prot, cyl(0.012,1,M.steel,16,'y'), colX,0,colZ);
+  // boîtier noir (monte avec le bras)
+  const head=new THREE.Group(); prot.add(head);
+  add(head, rbox(0.13,0.11,0.11,M.dark,0.008), 0,0,0);
+  const lbl=add(head, new THREE.Mesh(new THREE.PlaneGeometry(0.07,0.014),new THREE.MeshStandardMaterial({color:0xf3f3f0,roughness:0.6})), 0,0.0555,0.01); lbl.rotation.x=-Math.PI/2;
+  { const lv=add(head, rbox(0.012,0.012,0.05,M.dark,0.003), 0.05,-0.06,0.05); lv.rotation.x=0.4; }   // levier de blocage (travaux de série)
+  { const kn=add(head, cyl(0.008,0.04,M.dark,10,'x'), 0.085,0.01,-0.02); add(head, rbox(0.012,0.03,0.012,M.dark,0.003), 0.105,0.01,-0.02); }
+  // bras ovale (coulisse dans le boîtier) + embout noir arrière
+  const arm=add(prot, oval(0.038,AH/2,ARM_L,YEL,'z'), 0,0,0);
+  const armCap=add(prot, oval(0.040,AH/2+0.002,0.03,M.dark,'z'), 0,0,0);
+  // embout noir côté guide + bec d'engagement
+  const tip=new THREE.Group(); prot.add(tip);
+  add(tip, rbox(0.085,AH+0.004,0.02,M.dark,0.004), 0.0,0,0.01);                          // embout (contre le guide ou la pièce)
+  const becG=new THREE.Group(); becG.position.set(0.04,-AH/2+0.007,0.01); tip.add(becG);  // pivot du bec : axe X, près du bas de l'embout
+  { add(becG, rbox(0.06,0.012,0.018,M.dark,0.003), 0.03,0,0);                             // barrette noire du bec
+    const yb=new THREE.Group(); yb.position.set(0.06,0,0); yb.rotation.y=-0.62; becG.add(yb);   // partie jaune coudée vers l'opérateur (plat) / vers le haut (chant)
+    add(yb, rbox(0.12,0.008,0.026,YEL,0.003), 0.06,0,0);
+    const slot=add(yb, rbox(0.06,0.0085,0.007,M.dark,0.002), 0.055,0,0);
+    const chf=add(yb, rbox(0.03,0.007,0.026,YEL,0.002), 0.123,-0.002,0); chf.rotation.z=-0.25; }   // bout chanfreiné
   tagPart(prot,'protecteur');
 
   /* ---------- Boîtier de commande + arrêt d'urgence ---------- */
@@ -171,13 +197,13 @@ export function buildModel({ root, tagPart, partMeshes }){
     setBetween(gArm, tmpA.set(0.20,-0.03,-0.06), tmpB.set(0.20,-0.03,TABLE_B-0.15-zg));
     // carter : de la face du guide jusqu'au bord arrière des tables
     const cz0=TABLE_B-0.02, cz1=zg-0.002; carterPlate.scale.z=Math.max(0.001,cz1-cz0); carterPlate.position.z=(cz0+cz1)/2;
-    // protecteur : pose = {y : hauteur du dessous de la couverture au-dessus de la table (m), zTip : bout côté guide}
-    const P=pose||{y:0,zTip:zg}, hy=TABLE_Y+P.y, zt=Math.min(PZ-0.09,P.zTip);
-    slide.position.set(PX,hy,PZ);
-    const py0=TABLE_Y+0.03; post.scale.y=Math.max(0.001,hy-py0); post.position.y=(hy+py0)/2;
-    const z1=PZ-0.055; cover.scale.z=Math.max(0.001,z1-zt); cover.position.set(PX,hy+0.006,(zt+z1)/2);
-    coverEdge.scale.z=cover.scale.z; coverEdge.position.set(PX+0.05,hy+0.006,(zt+z1)/2);
-    becG.position.set(PX+0.05,hy+0.012,zt); becG.rotation.x= st.bec==='chant'? -Math.PI/2 : 0;
+    // protecteur : pose = {y : hauteur du dessous du bras au-dessus de la table (m), zTip : bout côté guide}
+    const P=pose||{y:0,zTip:zg}, yb=TABLE_Y+P.y+AH/2, zt=Math.min(PZ-0.13,P.zTip);
+    head.position.set(PX,yb+0.02,PZ);
+    const hb=yb+0.02-0.055; rod.scale.y=Math.max(0.001,hb-colTop+0.01); rod.position.y=(hb+colTop-0.01)/2;
+    arm.position.set(PX,yb,zt+0.02+ARM_L/2); armCap.position.set(PX,yb,zt+0.02+ARM_L+0.012);
+    tip.position.set(PX,yb,zt);
+    becG.rotation.x = st.bec==='chant'? -Math.PI/2 : 0;
   }
   /* rotation de l'arbre, ralentie à l'affichage (les fers du haut vont vers l'opérateur) */
   let spin=st.motor?1:0;

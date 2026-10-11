@@ -6,7 +6,7 @@ import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import { st, ctx, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markTop, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
+import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markRef, markFocus, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, protState, coverPose } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -70,7 +70,13 @@ function doOp(op){ F.level='warn';
   stopPass(); F.msg='';
   if(op==='rot') rot(1); else if(op==='flip') rot(2); else if(op==='end') endForEnd();
   else if(op==='guide') toGuide();
-  else if(op==='mark'){ const f=markTop(); if(p.face[f].passes===0||!isFlat(f)){ F.msg=`Le ${FACE_NAME[f].toLowerCase()} n'est pas dressé : on ne repère que les faces dressées.`; } }
+  else if(op==='mark'){ const r=markRef();
+    if(r.err) F.msg=r.err;
+    else { place(); const c=markFocus(r.kind);   // vue rapprochée sur le repère
+      if(c){ const o= r.kind==='v'? [0.10,0.22,0.32] : [0.12,0.36,0.32]; stage.setCam(c.map((v,i)=>v+o[i]), c); }
+      F.level='info'; F.msg= r.kind==='v'
+        ? `Repère d'angle tracé : un trait sur SR1 (${FACE_NAME[r.s1].toLowerCase()}) qui repart sur SR2 (${FACE_NAME[r.s2].toLowerCase()}). Le petit V montre l'angle droit. Bouton « Opérateur » pour revenir à la vue de travail.`
+        : `Repère de parement tracé sur SR1 (${FACE_NAME[r.s1].toLowerCase()}), face sur le dessus. Bouton « Opérateur » pour revenir à la vue de travail.`; } }
   place(); app.stage.dirty(); app.ex.invalidate(); apply(); }
 
 /* ---------- commandes ---------- */

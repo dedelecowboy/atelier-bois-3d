@@ -61,6 +61,10 @@ Ajouter une machine : `machines/<id>/config.js` + `data/` + `main.js` qui appell
 - Autres dangers : pièce de moins de 320 mm, pièce posée sur son bombé (instable). Attention : passe > 2 mm, aspiration arrêtée, guide pas à 90° ou face non dressée contre le guide pour le chant.
 - Après la passe, la pièce est ramenée en la soulevant (« Ramener la pièce ») : jamais tirée en arrière sur l'arbre.
 - Repères (validé par l'enseignant) : boucle de parement sur SR1 ; repère d'angle = un petit trait sur SR1, côté angle droit, qui repart sur SR2 : les deux traits forment un petit V à cheval sur l'arête commune.
+- « Repère au crayon » (demandé par l'enseignant) : la pièce est prise en main et réorientée (SR1 dessus ; pour le V, SR2 côté opérateur), la vue se rapproche du repère (arête SR1 / SR2 pour le V). On ne repère que des faces dressées ; la boucle de SR1 reste après le V.
+- Aspect des faces (demandé par l'enseignant) : brut de sciage terne, grisé, traits de scie et fibres soulevées (relief) ; face dressée claire, lisse, léger brillant.
+- Protecteur, forme d'après les photos fournies : colonne jaune sous un boîtier noir à ressorts, bras jaune de section ovale qui traverse le boîtier, embout noir côté guide, bec jaune coudé à lumière qui pivote de 90° (horizontal : coudé vers l'opérateur ; vertical : coudé vers le haut).
+- Capot de courroie sur la transmission, contre le flanc arrière du bâti (dans le groupe « bâti », translucide en vue intérieure).
 - Guide (validé par l'enseignant) : il s'incline vers l'arrière, loin de l'opérateur.
 - Aspiration (d'après le détail fourni par l'enseignant) : bac ouvert sous l'arbre sur toute la largeur, fond incliné, conduit qui se resserre vers la buse Ø 120 mm sur le côté du bâti, côté table de sortie.
 - Contrôle et barème des scénarios : SR1 dressé, SR2 dressé, angle 90 ± 0,2°, puis repères (rectiligne), épaisseur ≥ 29,5 mm (cintrée) ou absence d'arrachement (fil incliné), et « aucune faute grave ».
