@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = bâti et table translucides (organes intérieurs)
+#     rapprochée   = vue rapprochée de la lame, côté guide parallèle
+#     3/4, opérateur, dessus, lames = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « lames, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+protecteur
+lame        | rapprochée
+couteau     | rapprochée
+guide
+regle
+chariot
+cadre
+support
+pupitre
+bras
+rallonge
+table       |                     | table de la machine (table fonte)
+inciseur    | lames, transparence
+moteur      | transparence
+inclinaison | transparence        | mécanisme d'inclinaison de la lame

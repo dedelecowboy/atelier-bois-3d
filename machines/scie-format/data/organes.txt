@@ -1,0 +1,75 @@
+# Nomenclature de la scie à format KANAK 550
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Caisson acier : porte le groupe de sciage, le moteur et les commandes.
+
+[table] 02 Table fonte
+Table fixe de référence, rainurée, avec la lumière de lame.
+
+[chariot] 03 Chariot à format
+Chariot « X-Roll » : profilé aluminium guidé par galets disposés en X, longueur de coupe 2 800 mm.
+
+[lame] 04 Lame de scie
+Ø 400 mm, 48 dents (la machine accepte Ø 250 à 550). Hauteur de coupe 202 mm max avec Ø 550, 146 mm à 45°. Inclinable de 0 à 46°.
+
+[couteau] 05 Couteau diviseur
+Suit la lame dans le trait de scie : évite le pincement et le rejet.
+
+[protecteur] 06 Protecteur suspendu
+Capot de lame avec visière et aspiration haute, porté par le bras.
+
+[bras] 07 Colonne et bras
+Porte le protecteur et le pupitre au-dessus de la table.
+
+[pupitre] 08 Pupitre de commande
+Écran de réglage des axes motorisés, arrêt d'urgence.
+
+[guide] 09 Guide parallèle
+Guide de 1 200 mm, largeur de coupe 1 000 mm. Bloc de serrage sur la barre ronde avant, règle graduée sur le chant de la table.
+
+[rallonge] 10 Rallonge de table
+Rallonge latérale côté guide parallèle et rallonge arrière jusqu'à 1 200 mm derrière l'axe de lame.
+
+[cadre] 11 Cadre de tronçonnage
+Table coulissante 1 250 × 650 mm fixée au chariot, rouleau d'appui en bout.
+
+[regle] 12 Règle de tronçonnage
+Règle de 3 200 mm orientable de 90° à 45°, 2 butées escamotables et afficheur de cote.
+
+[support] 13 Bras support
+Bras pivotant et jambe télescopique : soutiennent le cadre quand le chariot avance.
+
+[moteur] 15 Moteur principal
+Moteur triphasé 7,35 kW (10 CV), 3 vitesses 3 000 / 4 000 / 5 000 tr/min, démarrage étoile-triangle. Il monte et s'incline avec la lame.
+
+[transmission] 16 Transmission
+Courroie poly-V entre la poulie moteur et la poulie de l'arbre de lame, monté sur roulements doubles. Courroie tendue par ressort, changée par la trappe arrière.
+
+[relevage] 17 Relevage de lame
+Le groupe de sciage en fonte coulisse sur des glissières graissées, entraîné par une vis et un motoréducteur (positionnement numérique).
+
+[inclinaison] 18 Inclinaison
+Segments d'inclinaison centrés sur la ligne de table : la lame pivote de 0 à 46° sans déplacer son trait. Pignon et motoréducteur.
+
+[inciseur] 19 Inciseur
+Lame Ø 120 mm, 1,1 kW, 8 600 tr/min, placée avant la lame principale et tournant en sens inverse : entaille le dessous du panneau contre les éclats.
+
+[aspiration] 20 Aspiration basse
+Carter sous la table relié à la buse Ø 120 mm à l'arrière ; le protecteur supérieur aspire en Ø 80 mm.
+
+[armoire] 21 Armoire électrique
+Contacteurs, variateurs des axes, sectionneur et automate du pupitre.
+
+[sabot] 22 Butée de délignage (sabot)
+Sabot à griffes monté en bout de chariot : il retient le bout d'une planche brute pendant le délignage de rive.
+
+[piece] 14 Pièces usinées
+Pièces posées sur le chariot. Cliquez une pièce pour la rendre active ; chants sciés en vert (A, B, C…), chants bruts numérotés.

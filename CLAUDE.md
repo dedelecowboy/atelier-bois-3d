@@ -10,11 +10,18 @@ Langue de l'interface et des messages : français. Consignes simples et directes
 
 ## Organisation actuelle
 
-- `machines/scie-format/scie-format.html` : la scie à format, fichier HTML autonome (three.js par importmap depuis cdn.jsdelivr.net, three@0.160.0 ; logo du lycée en webp base64 dans `.stage::before`). Publiée aussi comme artifact claude.ai : https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E (republier à cette URL, ne pas en créer une autre).
-- `machines/scie-format/build_scorm.py` : fabrique le paquetage SCORM (copie three dans `lib/`, réécrit l'importmap, ajoute `window.PARCOURS=true`, zippe avec `imsmanifest.xml`). Prérequis : `npm install`.
-- `tests/` : scénarios Playwright headless (chromium + swiftshader) qui jouent les exercices de bout en bout.
+Étape 1 faite (octobre 2026) : moteur commun extrait, la scie à format est le premier module construit dessus. Le comportement est identique à l'ancien fichier unique (mêmes sorties des tests, même note du parcours).
 
-Étape suivante prévue : extraire un moteur commun (rendu, vues, sélection, alertes, étapes, parcours, SCORM, tests) et ne garder dans chaque machine que le modèle, les réglages, les règles et les données (organes, QCM, scénarios). Les QCM et listes d'organes doivent finir dans des fichiers de données lisibles que l'enseignant peut corriger lui-même. Ordre des machines envisagé : dégauchisseuse, raboteuse, scie à ruban, toupie.
+- `engine/` : moteur commun. `app.js` (assemblage, dispositions `data-ui`, démarrage ; liste des crochets qu'une machine fournit en tête de fichier), `stage.js` (rendu, caméra, vues, boucle, perte de contexte, plein écran, toast), `kit.js` (matériaux M / MI, rbox, cyl, link/setBetween, poulies, courroies, secteurs, textures bois et règle), `parts.js` (registre des organes, nomenclature, surbrillance, vue intérieure, clic/toucher dans la 3D), `exercise.js` (modes, étapes, contrôles, résultats, alertes), `parcours.js` + `scorm.js` (parcours évalué SCORM 1.2), `data.js` (lecture et contrôle des fichiers de données), `poly.js` (géométrie 2D des pièces), `shell.js` + `engine.css` (squelette HTML produit à la fabrication, styles communs).
+- `machines/scie-format/` : `config.js` (textes, modes, vues, xray, SCORM), `model.js` (modèle 3D + mise à jour + rotation des lames), `pieces.js` (pièces, découpe, cycle de coupe, manipulation, pièces débitées), `rules.js` (alertes, mesures), `scenarios.js` (étapes guidées, pièces de départ, critères notés), `main.js` (commandes, assemblage), `constants.js`, `state.js` (état `st`), fragments `settings.html`, `dock.html`, `panel.html`, `style.css`.
+- `machines/scie-format/data/` : `organes.txt`, `qcm.txt`, `reperage.txt`, que l'enseignant corrige lui-même (mode d'emploi en tête de chaque fichier). Les codes entre crochets relient les organes au modèle 3D (`tagPart(obj,'code')`) : la fabrication vérifie que chaque code utilisé existe.
+- `tools/build.mjs` (`npm run build`) : contrôle des données (message « fichier, ligne N : … » en français), bundle esbuild (three externe, `.txt` en texte), puis dans `dist/` : `<machine>.html` (fragment autonome, three par importmap depuis cdn.jsdelivr.net, three@0.160.0) et le zip SCORM (three copié dans `lib/`, importmap réécrite, `window.PARCOURS=true`, manifeste généré). `dist/` n'est pas versionné.
+- La page `dist/scie-format.html` est publiée comme artifact claude.ai : https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E (republier à cette URL, ne pas en créer une autre). Logo du lycée en webp base64 dans `.stage::before` (engine.css).
+- `tests/` : `harness.py` (banc commun, fausse API SCORM), `run.py` (`npm test`), `tests/<machine>/test_*.py` avec assertions (voir tests/README.md).
+
+Ajouter une machine : `machines/<id>/config.js` + `data/` + `main.js` qui appelle `createApp(config, données)`, construit son modèle avec `app.parts.tagPart` et `app.stage.root`, puis `app.start(crochets)` ; `tests/<id>/` sur le modèle de la scie. Chaque nouvelle disposition `data-ui` va aussi dans la media query de `engine.css`.
+
+Étapes suivantes envisagées : machines dans l'ordre dégauchisseuse, raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée. Les textes des scénarios (consignes, libellés de contrôle) sont encore dans `scenarios.js` (ils sont liés au code des contrôles).
 
 ## Scie à format : conventions géométriques
 
@@ -50,7 +57,7 @@ Chants bruts numérotés (1, 2, 3, 4 ; U = chant d'usine), chants sciés en lett
 ## Interface
 
 - Modes `data-ui` : `pres` (nomenclature | 3D | réglages), `ex` (3D | consigne + dock en bas), `parcours` (SCORM). Le bloc #settings est déplacé entre #presSlot et #dockSlot.
-- Pas de barres de défilement sur ordinateur. Sous 900 px : une colonne. Ajouter CHAQUE nouveau `data-ui` dans la media query (bug déjà rencontré : 3D écrasée à 36 px sur Android).
+- Pas de barres de défilement sur ordinateur (`body{margin:0}` dans engine.css : la marge par défaut du navigateur en créait une). Sous 900 px : une colonne. Ajouter CHAQUE nouveau `data-ui` dans la media query (bug déjà rencontré : 3D écrasée à 36 px sur Android).
 - En portrait, le champ vertical de la caméra s'élargit (fov max 55°) pour que la machine tienne à l'écran.
 - Repérage tactile : toucher = surbrillance SANS le nom, puis Valider / Annuler (barre au-dessus de la 3D). Tolérance de glissé : 14 px au doigt, 5 px à la souris.
 
@@ -72,6 +79,8 @@ Chants bruts numérotés (1, 2, 3, 4 ; U = chant d'usine), chants sciés en lett
 - Moodle sert les .js en `application/x-javascript` avec nosniff : accepté pour les modules ES.
 
 ## Vérifier avant de livrer
+
+`npm run build` puis `npm test` couvre les points 1 à 4 (compter une dizaine de minutes en headless) ; regarder les captures de `tests/out/`.
 
 1. `node --check` du script module extrait.
 2. Les trois exercices guidés de bout en bout (format → 800 × 450 ; planche → 160 sans flache ; inciseur → 800 × 400 sans éclat).

@@ -1,0 +1,131 @@
+# QCM sécurité de la scie à format (parcours évalué)
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: Pour scier un panneau de 19 mm, à quelle hauteur réglez-vous la lame ?
+- Au ras du dessus du panneau
++ Environ 10 mm au-dessus du panneau
+- Au maximum, pour couper plus vite
+= La denture doit dépasser d'environ 10 mm : coupe nette, et lame peu exposée.
+
+Q: Quel est le rôle du couteau diviseur ?
+- Guider la pièce le long de la lame
++ Empêcher le trait de se refermer sur la lame et limiter le rejet
+- Protéger les mains de l'opérateur
+= Il maintient le trait ouvert derrière la lame : la pièce ne pince pas la lame et n'est pas projetée.
+
+Q: On tronçonne une pièce courte en la poussant contre le guide parallèle, règle en position longue. C'est…
+- La bonne méthode pour des pièces identiques
+- Sans incidence si la pièce est tenue
++ Un risque majeur de rejet de la chute
+= La chute se coince entre la lame et le guide et elle est projetée. Utilisez la butée de la règle de tronçonnage.
+
+Q: Sur un panneau mélaminé, à quoi sert l'inciseur ?
++ À entailler le dessous du panneau pour éviter les éclats
+- À couper plus vite
+- À remplacer le couteau diviseur
+= Il entaille la face de dessous avant le passage de la lame principale : pas d'éclats à la sortie des dents.
+
+Q: Pour déligner une baguette de 60 mm de large :
+- Règle du guide en position courte, mains près de la lame
++ Règle du guide en position longue et poussoir
+- Sans guide, à main levée
+= Pièce étroite : elle doit rester guidée jusqu'après la lame, et les mains restent loin grâce au poussoir.
+
+Q: La coupe est terminée, le chariot est en bout de course. Que faites-vous avant de le ramener ?
++ J'évacue la chute
+- Je ramène directement le chariot
+- Je recule la pièce contre la lame pour la dégager
+= On dégage la chute avant le retour : la pièce ne doit jamais repasser contre la lame.
+
+Q: Peut-on appuyer une rive en flache (non sciée) contre le guide parallèle ?
+- Oui, si on appuie fort
++ Non : la planche peut basculer et être rejetée
+- Oui, c'est même conseillé
+= On déligne d'abord une rive droite au sabot, puis cette rive sciée va contre le guide.
+
+Q: Le protecteur supérieur de lame doit être réglé :
++ Au plus près du dessus de la pièce
+- Au plus haut, pour bien voir le trait
+- Retiré pour les petites pièces
+= Au plus près de la pièce, il couvre la lame et aspire les copeaux à la source.
+
+Q: Peut-on porter des gants pour scier à la scie à format ?
+- Oui, toujours
++ Non : un gant peut être happé par la lame
+- Oui, s'ils sont anti-coupure
+= Pendant la coupe, pas de gants : ils peuvent être entraînés. On les met seulement pour manutentionner les panneaux, lame arrêtée.
+
+Q: Quel écart laisser entre le couteau diviseur et la denture de la lame ?
++ Entre 3 et 8 mm
+- Entre 15 et 20 mm
+- Aucun : il touche la lame
+= Le couteau suit la denture de près (3 à 8 mm) : le trait ne peut pas se refermer avant de l'atteindre.
+
+Q: Où lit-on la vitesse de rotation maximale admissible d'une lame ?
+- Sur le pupitre de la machine
++ Elle est marquée sur la lame
+- Elle est la même pour toutes les lames
+= Chaque lame porte sa vitesse maximale : la vitesse choisie sur la machine ne doit jamais la dépasser.
+
+Q: Après un appui sur l'arrêt d'urgence, en combien de temps le frein doit-il arrêter la lame ?
++ Moins de 10 secondes
+- Environ 1 minute
+- La lame s'arrête seule, sans frein
+= Les machines actuelles sont freinées : la lame doit s'immobiliser en moins de 10 secondes.
+
+Q: Où se place l'opérateur pendant la coupe ?
+- Dans l'axe de la lame, pour bien suivre le trait
+- Derrière la machine, pour recevoir la pièce
++ Côté chariot, hors de l'axe de la lame
+= En cas de rejet, la pièce part dans l'axe de la lame, vers l'avant : on se tient côté chariot, en dehors de cet axe.
+
+Q: Pourquoi l'aspiration doit-elle fonctionner pendant le sciage ?
+- Pour refroidir la lame
++ Parce que les poussières de bois sont cancérogènes
+- Pour que la machine démarre
+= Les poussières de bois, surtout de bois durs (chêne, hêtre), peuvent provoquer des cancers : on les capte à la source.
+
+Q: Pour équerrer un panneau, quel chant plaquez-vous contre la règle de tronçonnage ?
+- Un chant brut, peu importe lequel
++ Le chant qui vient d'être dressé (scié)
+- Le chant le plus court
+= La règle est d'équerre au trait de lame : en y plaquant un chant dressé, la nouvelle coupe est d'équerre à ce chant.
+
+Q: Dans quel ordre fait-on une mise au format ?
++ Dresser un chant, équerrer, mettre à largeur, mettre à longueur
+- Mettre à longueur, puis à largeur, sans dresser
+- Mettre à largeur, puis dresser
+= Chaque coupe prend appui sur un chant déjà scié : dresser, équerrer, puis largeur et longueur.
+
+Q: Quelle largeur doit avoir le trait de l'inciseur ?
+- La moitié du trait de lame
++ Égale ou légèrement supérieure au trait de lame
+- Le double du trait de lame
+= Si l'incision est plus étroite que le trait de lame, les dents de la lame principale font quand même éclater les bords.
+
+Q: Sans inciseur, de quel côté placez-vous la face de parement d'un panneau mélaminé ?
+- Vers le bas
+- Peu importe
++ Vers le haut
+= Les dents entrent par le dessus et sortent par le dessous : c'est la face de dessous qui éclate.
+
+Q: Avant de changer la lame :
+- J'arrête le moteur, cela suffit
++ Je coupe et je consigne l'alimentation (sectionneur cadenassé)
+- Je baisse la lame au maximum
+= Machine consignée : personne ne peut la remettre en marche pendant l'intervention.
+
+Q: Qu'est-ce que le rejet ?
++ La projection de la pièce vers l'opérateur par les dents arrière de la lame
+- Le refus de la machine de démarrer
+- La chute qui tombe derrière la machine
+= Les dents arrière remontent : si la pièce les touche (trait qui se referme, pièce coincée), elle est projetée vers l'avant, vers l'opérateur.
