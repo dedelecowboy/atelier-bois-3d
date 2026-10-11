@@ -9,10 +9,9 @@ BASE = r"""
  const off=id=>{ if($(id).getAttribute('aria-pressed')==='true') $(id).click(); };
  const man=m=>document.querySelector(`[data-man=${m}]`).click();
  const passe=async()=>{ grab(); $('pass').click(); await sleep(200); let n=0; while($('pass').getAttribute('aria-pressed')==='true' && n<600){ await sleep(100); n++; } await sleep(100); };
- const take=w=>{ const b=[...document.querySelectorAll('[data-take]')].find(b=>!b.disabled && b.closest('li').innerText.startsWith(w)); if(b) b.click(); return !!b; };
 """
 END = r"""
- off('motor'); log.push(state('fin')); next();
+ op('aside'); off('tapis'); off('motor'); log.push(state('fin')); next();
  log.push(state('contrôle'));
  return {log, res:results(), info:$('stepRes').textContent, msgs};
 """
@@ -26,9 +25,13 @@ AVIVE = BASE + r"""
  on('asp'); log.push(state('préparation')); next();
  setN('gw-n',85); op('guide'); setN('pres-n',25); on('motor');
  msgs.push('ampèremètre bas à 24 m/min:'+alerts().some(a=>a.includes('vous pouvez augmenter')));
- setR('speed',42); log.push(state('réglages')); next();
+ $('pass').click(); msgs.push('passe refusée tapis arrêté:'+alerts().some(a=>a.includes('Tapis arrêté : mettez le tapis en marche')));
+ on('tapis'); setR('speed',42); log.push(state('réglages')); next();
  await passe(); log.push(state('passe 1'));
- next(); msgs.push('reprise 91,8:'+take('91,8')); op('guide'); log.push(state('passe 2 prête'));
+ next(); $('pass').click(); msgs.push('sortie à dégager:'+alerts().some(a=>a.includes('Dégagez d')));
+ op('back'); msgs.push('ramener refusé sans évacuer:'+alerts().some(a=>a.includes('Évacuez d')));
+ op('evac'); op('back'); msgs.push('reprise 91,8:'+!!document.querySelector('#stepChecks li[data-ok=true]')?.textContent.includes('91,8'));
+ op('guide'); log.push(state('passe 2 prête'));
  await passe(); log.push(state('passe 2')); next();
 """ + END
 
@@ -42,14 +45,14 @@ PLOT = BASE + r"""
  let n=0; while(!ok(3) && n<500){ op('zp1'); n++; }
  msgs.push('décalage:'+n);
  log.push(state('position')); next();
- on('motor'); msgs.push('surcharge à 24 m/min:'+alerts().some(a=>a.includes('surcharge')));
+ on('motor'); on('tapis'); msgs.push('surcharge à 24 m/min:'+alerts().some(a=>a.includes('surcharge')));
  setR('speed',14); log.push(state('passe prête'));
  await passe(); log.push(state('passe')); next();
 """ + END
 
 MULTI = BASE + r"""
  man('m4'); on('asp'); log.push(state('préparation')); next();
- setN('gw-n',45); op('guide'); setN('pres-n',25); on('motor');
+ setN('gw-n',45); op('guide'); setN('pres-n',25); on('motor'); on('tapis');
  msgs.push('surcharge 4 lames à 24 m/min:'+alerts().some(a=>a.includes('surcharge')));
  setR('speed',14); log.push(state('réglages')); next();
  await passe(); log.push(state('passe')); next();

@@ -3,6 +3,7 @@ import { B1Z, KERF, MANCHONS } from './constants.js';
 
 export const st = {
   motor:false,   // lames en rotation
+  tapis:false,   // tapis d'amenage en marche (la pièce ne s'engage que tapis en marche)
   asp:false,     // aspiration
   laser:false,   // laser de ligne de coupe
   v:24,          // vitesse d'avance du tapis (m/min)

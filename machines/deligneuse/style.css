@@ -17,5 +17,6 @@
 .debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .debit-list small{display:block;color:var(--muted);font-size:12px}
 .debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
+.d-act{display:flex;flex-direction:column;gap:4px}
 .debit-empty{font-size:13px;color:var(--muted)}
 @media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}

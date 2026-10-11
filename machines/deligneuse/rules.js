@@ -7,13 +7,14 @@
    - rive en flache contre le guide → danger (comme à la scie à format). */
 import { MIN_LEN, GREEN } from './constants.js';
 import { st, guideZ } from './state.js';
-import { pieces, cut, cur, faceStats, guideSideFlache, againstGuide, predict, bladesIn, load, measure, fmt } from './piece.js';
+import { pieces, cut, cur, exitPieces, faceStats, guideSideFlache, againstGuide, predict, bladesIn, load, measure, fmt } from './piece.js';
 
 /* réglage correct des presseurs : 1 à 4 mm sous l'épaisseur de la pièce */
 export const presOk=p=>!!p && st.H<=p.T-1 && st.H>=p.T-4;
 /* raison de refuser la passe (pas une faute : la machine ne le permet pas) */
 export function passBlock(p){
   if(!st.motor) return 'Lames arrêtées : démarrez-les avant d\'engager la pièce.';
+  if(!st.tapis) return 'Tapis arrêté : mettez le tapis en marche. La pièce s\'engage toujours tapis en marche, jamais en la poussant sous les lames.';
   if(st.H<p.T-4) return `La pièce (${p.T} mm) bute contre les rouleaux presseurs réglés à ${st.H} mm : réglez-les 1 à 4 mm sous l'épaisseur de la pièce.`;
   return ''; }
 /* une pièce de bois sain (sans flache) sortirait-elle entre deux traits ? */
@@ -36,11 +37,14 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
     else if(L>0 && L<GREEN[0]) out.push(['info',`Ampèremètre à ${L} % : vous pouvez augmenter la vitesse d'avance.`]); }
   if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant de démarrer les lames (poussières de bois cancérogènes, sciure qui engorge la machine).']);
   if(!st.motor) out.push(['info','Lames arrêtées.']);
+  if(cut.inProgress && !st.tapis) out.push(['warn','Tapis arrêté : la pièce est immobilisée sous les lames. Remettez le tapis en marche pour la faire sortir.']);
+  else if(!st.tapis) out.push(['info','Tapis arrêté.']);
+  if(!cut.inProgress && exitPieces().length) out.push(['info','Pièces à la sortie : gardez la pièce utile (contour orange), « Évacuer les chutes », puis « Ramener la pièce » ou « Mettre de côté ».']);
   if(cut.inProgress) out.push(['info','Sciage en cours : restez sur le côté, hors de l\'axe de la pièce. Ne touchez jamais une pièce engagée.']);
   return out; }
 
 /* ---------- mesures des pièces produites par les passes ---------- */
-export const produced=()=>pieces.filter(q=>q.gen>0).map(q=>({q, m:measure(q)}));
+export const produced=()=>pieces.filter(q=>q.gen>0&&q.state!=='moving').map(q=>({q, m:measure(q)}));
 export const goodOf=(W,tol=0.5)=>produced().filter(({m})=>m.kind==='avivé' && Math.abs(m.W-W)<=tol);
 export const loadOk=()=>cut.maxLoad<=100;
 export { fmt };

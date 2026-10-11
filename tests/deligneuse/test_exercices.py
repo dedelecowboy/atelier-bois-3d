@@ -21,7 +21,10 @@ async def main():
                 check('presseurs trop hauts au départ:true' in m, 'presseurs à 60 mm pour 27 mm : alerte rouge « presseurs trop hauts »')
                 check('manchon refusé lames en marche:true' in m, 'changement de manchon refusé tant que les lames tournent')
                 check('ampèremètre bas à 24 m/min:true' in m, '1 lame dans du sapin à 24 m/min : on peut accélérer')
-                check('reprise 91,8:true' in m, 'la chute de 91,8 mm est reprise pour la deuxième passe')
+                check('passe refusée tapis arrêté:true' in m, 'pièce engagée tapis arrêté : refusé')
+                check('sortie à dégager:true' in m, 'nouvelle passe refusée tant que la sortie n\'est pas dégagée')
+                check('ramener refusé sans évacuer:true' in m, '« Ramener la pièce » refusé avant d\'évacuer les chutes')
+                check('reprise 91,8:true' in m, 'la pièce de 91,8 mm (gardée, contour orange) est ramenée pour la deuxième passe')
             if mode == 'plot':
                 check('alertes rouges au départ:3' in m, 'plateau au départ : presseurs trop hauts, posé sur sa petite face, rive en flache contre le guide')
                 check('petit bout en premier:true' in m, 'petit bout vers la machine : alerte « engagez par le gros bout »')

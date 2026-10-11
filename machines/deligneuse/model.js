@@ -70,7 +70,8 @@ export function buildModel({ root, tagPart, partMeshes }){
     for(const x0 of [8,30,50]){ g.fillStyle='#262a2e'; g.fillRect(x0-3,0,8,h); for(let y=0;y<h;y+=8){ g.fillStyle='#9aa1a8'; g.beginPath(); g.moveTo(x0-3,y); g.lineTo(x0+1,y+4); g.lineTo(x0+5,y); g.fill(); } } });
   const slatMat=new THREE.MeshStandardMaterial({color:0xffffff,map:slatTex,metalness:0.6,roughness:0.45});
   const slats=new THREE.InstancedMesh(new THREE.BoxGeometry(SLAT-0.003,0.022,CHAIN_W),slatMat,NSL); tapis.add(slats);
-  for(const x of [CHAIN_X0,CHAIN_X1]) add(tapis, cyl(RS-0.012,CHAIN_W-0.02,M.steel,24,'z'), x,YT-RS,0);
+  const sprockets=[CHAIN_X0,CHAIN_X1].map(x=>{ const g=new THREE.Group(); g.position.set(x,YT-RS,0); tapis.add(g); g.add(cyl(RS-0.012,CHAIN_W-0.02,M.steel,24,'z'));
+    for(let k=0;k<6;k++){ const t=rbox(0.02,0.03,CHAIN_W-0.01,M.dark,0.003); t.rotation.z=k*Math.PI/3; t.translateY(RS-0.02); g.add(t); } return g; });
   for(const z of [-CHAIN_W/2-0.02,CHAIN_W/2+0.02]) add(tapis, rbox(LR+0.10,0.10,0.01,M.dark,0.004), (CHAIN_X0+CHAIN_X1)/2,YT-RS,z);   // flasques (carter de chaîne)
   let chainS=0;
   const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _p=new THREE.Vector3(), _s=new THREE.Vector3(1,1,1), _e=new THREE.Euler();
@@ -172,25 +173,34 @@ export function buildModel({ root, tagPart, partMeshes }){
     for(const x of [x0-0.25,x1+0.12]) for(const z of [-0.30,0.30]) add(tOut, rbox(0.04,TABLE_Y-0.10,0.04,WHITE2,0.006), x,(TABLE_Y-0.10)/2,z); }
   tagPart(tOut,'table_sortie');
 
-  /* ---------- Guide d'entrée escamotable ---------- */
-  const guide=new THREE.Group(); root.add(guide);
-  const GL=1.24-0.47;
-  add(guide, rbox(GL,0.075,0.03,M.alu,0.004), (1.24+0.47)/2,0.0375,-0.015);
-  add(guide, rbox(GL,0.01,0.05,M.aluDk,0.003), (1.24+0.47)/2,0.075,-0.03);
-  add(guide, rbox(0.10,0.06,0.06,M.dark,0.006), 1.15,0.04,-0.06);
-  const gArm=link(new THREE.BoxGeometry(0.04,0.025,1),M.dark); root.add(gArm);
-  tagPart(guide,'guide'); tagPart(gArm,'guide');
+  /* ---------- Guide d'entrée escamotable, sur coulisseau ----------
+     Rail fixe SOUS la table, en bout de table (rien au-dessus de la table du côté de la pièce).
+     Le coulisseau suit le guide le long du rail (volant + vis) ; le guide et son équerre montent et descendent
+     sur la colonne du coulisseau : escamoté, tout passe sous le dessus de la table. */
+  const GX1=1.24, RX=1.335, RY=TABLE_Y-0.17;
+  const guide=new THREE.Group(); root.add(guide);            // profil + équerre : translaté en Z, descend à l'escamotage
+  const GL=GX1-0.47;
+  add(guide, rbox(GL,0.075,0.03,M.alu,0.004), (GX1+0.47)/2,0.0375,-0.015);
+  add(guide, rbox(GL,0.01,0.05,M.aluDk,0.003), (GX1+0.47)/2,0.075,-0.03);
+  add(guide, rbox(RX-GX1+0.02,0.022,0.03,M.dark,0.004), (GX1+RX)/2,0.045,-0.045);          // équerre : bras au-dessus du bout de table, derrière la face
+  add(guide, rbox(0.03,0.12,0.04,M.dark,0.005), RX,-0.005,-0.045);                          // équerre : patin vertical sur la colonne
+  tagPart(guide,'guide');
+  const gSlide=new THREE.Group(); root.add(gSlide);          // coulisseau : translaté en Z seulement
+  add(gSlide, rbox(0.07,0.06,0.09,M.body,0.008), RX,RY,-0.045);
+  add(gSlide, rbox(0.018,TABLE_Y-0.06-RY,0.018,M.steel,0.003), RX,(TABLE_Y-0.06+RY)/2,-0.045);   // colonne d'escamotage
+  { const lv=add(gSlide, cyl(0.006,0.08,M.dark,10,'x'), RX+0.07,RY+0.01,-0.045); add(gSlide, new THREE.Mesh(new THREE.SphereGeometry(0.014,12,8),M.red), RX+0.11,RY+0.01,-0.045); }
+  add(gSlide, rbox(0.03,0.0012,0.0016,M.red,0), 1.275,TABLE_Y+0.0008,0);                     // index sur la règle, au droit de la face du guide
   const regG=new THREE.Group(); root.add(regG);
-  add(regG, rbox(0.10,0.07,0.12,M.body,0.008), 1.15,TABLE_Y+0.03,-0.44);
-  add(regG, cyl(0.012,0.40,M.steel,12,'z'), 1.15,TABLE_Y+0.02,-0.26);
-  { const w=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.009,10,28),M.dark); w.rotation.y=Math.PI/2; w.position.set(1.36,0.62,-0.30); regG.add(w);
-    for(let k=0;k<3;k++){ const s=rbox(0.006,0.06,0.006,M.dark,0); s.position.set(1.36,0.62,-0.30); s.rotation.x=k*Math.PI*2/3; s.translateY(0.03); regG.add(s); }
-    add(regG, cyl(0.014,0.25,M.steel,12,'x'), 1.24,0.62,-0.30); add(regG, cyl(0.009,0.06,M.dark,10,'x'), 1.39,0.66,-0.30);
-    const lv=add(regG, cyl(0.007,0.10,M.dark,10), 1.25,TABLE_Y+0.07,-0.44); lv.rotation.x=0.5; add(regG, new THREE.Mesh(new THREE.SphereGeometry(0.016,12,8),M.red), 1.25,TABLE_Y+0.115,-0.415); }
+  add(regG, cyl(0.014,0.74,M.steel,14,'z'), RX,RY,-0.20);                                     // rail
+  for(const z of [-0.565,0.165]) add(regG, rbox(0.05,TABLE_Y-0.045-RY+0.02,0.03,WHITE2,0.004), RX-0.02,(TABLE_Y-0.045+RY)/2,z);   // supports sous la table
+  { const c=[RX,RY,-0.62];
+    const w=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.009,10,28),M.dark); w.position.set(...c); regG.add(w);
+    for(let k=0;k<3;k++){ const sp=rbox(0.006,0.06,0.006,M.dark,0); sp.position.set(...c); sp.rotation.z=k*Math.PI*2/3; sp.translateY(0.03); regG.add(sp); }
+    add(regG, cyl(0.012,0.06,M.steel,12,'z'), RX,RY,-0.59); add(regG, cyl(0.009,0.06,M.dark,10,'z'), RX+0.045,RY+0.025,-0.65); }
   const rulerT=canvasTex(1024,64,(g,w,h)=>{ g.fillStyle='#e4e7e2'; g.fillRect(0,0,w,h); g.fillStyle='#1c1f22'; g.font='bold 22px monospace';
     const px=w/250; for(let mm=0;mm<=250;mm+=5){ const x=w-mm*px; const L=mm%50===0?34:mm%10===0?22:12; g.fillRect(x-1,0,1.5,L); if(mm%50===0&&mm>0&&mm<250) g.fillText(String(mm),x-18,58); } });
   { const r=new THREE.Mesh(new THREE.PlaneGeometry(0.25,0.03),new THREE.MeshBasicMaterial({map:rulerT,toneMapped:false})); r.rotation.set(-Math.PI/2,0,-Math.PI/2); r.position.set(1.275,TABLE_Y+0.0006,B1Z-0.0016-0.125); regG.add(r); }
-  tagPart(regG,'reglage_guide');
+  tagPart(regG,'reglage_guide'); tagPart(gSlide,'reglage_guide');
 
   /* ---------- Pupitre de commande (entrée, côté moteur) + ampèremètre + arrêt d'urgence ---------- */
   const pup=new THREE.Group(); root.add(pup);
@@ -285,10 +295,9 @@ export function buildModel({ root, tagPart, partMeshes }){
   let laserKey='';
   function update(S){
     // guide
-    const gy=S.guideUp?TABLE_Y:TABLE_Y-0.078;
+    const gy=S.guideUp?TABLE_Y:TABLE_Y-0.085;   // escamoté : profil et équerre sous le dessus de la table
     guide.position.set(0,gy,S.guideZ);
-    setBetween(gArm, tmpA.set(1.15,TABLE_Y+0.03,S.guideZ-0.08), tmpB.set(1.15,TABLE_Y+0.03,-0.40));
-    gArm.visible=true;
+    gSlide.position.set(0,0,S.guideZ);
     // presseurs : hauteur de passage, soulevés par la pièce
     for(const R of rollers){ const h=Math.max(S.H/1000,S.under(R.x,-0.10),S.under(R.x,0),S.under(R.x,0.10)); R.y=h; R.g.position.y=TABLE_Y+h+RR; }
     presPtr.position.set(HOOD_X1+0.012,1.02-0.05+Math.min(100,S.H)*0.0009+0.005,-0.222);
@@ -307,9 +316,12 @@ export function buildModel({ root, tagPart, partMeshes }){
   }
   /* animation : lames (ralenties à l'affichage), tapis et rouleaux pendant la passe */
   let spin=0, bladeAng=0;
-  function tick(dt, motorOn, feed){ spin += ((motorOn?1:0)-spin)*Math.min(1,dt*0.8); const w=spin*dt*1.3; bladeAng+=w;
+  /* feed : distance parcourue par la pièce ; chain : distance parcourue par le tapis (en marche, avec ou sans pièce).
+     Le brin du dessus va vers la sortie (−X), dans le sens d'avance ; les dents du bas des lames vont vers l'entrée (opposition). */
+  function tick(dt, motorOn, feed, chain=0){ spin += ((motorOn?1:0)-spin)*Math.min(1,dt*0.8); const w=spin*dt*1.3; bladeAng+=w;
+    if(chain){ chainS+=chain; placeSlats(); for(const g of sprockets) g.rotation.z += chain/RS; }
     rotor.rotation.z += w; pA.rotation.z += w; pM.rotation.z += w*0.07/0.09;   // opposition : les dents du bas vont vers +X
-    if(feed){ chainS+=feed; placeSlats(); for(const R of rollers) R.r.rotation.z -= feed/RR; }   // le bas du rouleau suit la pièce (−X)
+    if(feed){ for(const R of rollers) R.r.rotation.z -= feed/RR; }   // le bas du rouleau suit la pièce (−X)
     return spin; }
   const pieceRoot=new THREE.Group(); root.add(pieceRoot);
   return { update, tick, setManchon, pieceRoot, get spin(){ return spin; }, stopNow(){ spin=0; } };

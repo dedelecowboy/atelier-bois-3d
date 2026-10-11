@@ -8,7 +8,7 @@ import reperage from './data/reperage.txt';
 import { GREEN, MANCHONS, KERF } from './constants.js';
 import { st, ctx, bladeZ, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPieces, pieces, cut, entry, startPass, tickPass, under, surf, laserKey, load, measure, mirror, take, flip, endForEnd, toGuide, nudge, clampZ, fmt } from './piece.js';
+import { initPieces, pieces, cut, entry, exitPieces, keepPiece, startPass, tickPass, chainSpeed, under, surf, laserKey, load, measure, mirror, take, setKeep, setKind, evacuate, bringBack, aside, flip, endForEnd, toGuide, nudge, clampZ, fmt, label } from './piece.js';
 import { computeAlerts, passBlock } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -60,21 +60,22 @@ stage.controls.addEventListener('change',updateNudge);
 
 /* ---------- pièces débitées ---------- */
 let debitKey='';
-function renderDebit(){ const list=pieces.filter(q=>q.gen>0&&q.state!=='moving'), key=JSON.stringify([list.map(q=>[q.id,q.state]),cut.inProgress]); if(key===debitKey) return; debitKey=key;
-  $('debitN').textContent=list.length?`${list.length}`:'';
+function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!entry()&&!exitPieces().length&&!cut.inProgress;
+  const key=JSON.stringify([list.map(q=>[q.id,q.kind]),free]); if(key===debitKey) return; debitKey=key;
+  const np=list.filter(q=>q.kind==='piece').length; $('debitN').textContent=list.length?`${np} pièce${np>1?'s':''} · ${list.length-np} chute${list.length-np>1?'s':''}`:'';
   $('debit').innerHTML= list.length? list.map(q=>{ const m=measure(q);
-      const where= q.state==='entry'?'à l\'entrée':q.state==='exit'?'à la sortie':'rangée';
-      return `<li data-k="${m.kind==='délignure'?'chute':'piece'}"><div><b>${fmt(m.kind==='avivé'?m.W:m.Wmax)} mm</b> <small>${m.kind==='avivé'?'avivé':m.kind==='délignure'?'délignure (déchet)':`en flache, ${fmt(m.W)} mm sans flache`} · ${q.T} × ${q.L} · ${where}</small></div>
-        <button class="toggle mini" type="button" data-take="${q.id}" ${q.state==='entry'||cut.inProgress?'disabled':''}>Reprendre</button></li>`; }).join('')
-    : '<li class="debit-empty">Aucune pièce sciée pour l\'instant.</li>';
-  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ take(+b.dataset.take); F.msg=''; clampZ(entry()); app.ex.invalidate(); apply(); }); }
+      return `<li data-k="${q.kind}"><div><b>${fmt(m.kind==='avivé'?m.W:m.Wmax)} mm</b> <small>${m.kind==='avivé'?'avivé':m.kind==='délignure'?'délignure':`en flache, ${fmt(m.W)} mm sans flache`} · ${q.T} × ${q.L}</small></div>
+        <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Libérez d\'abord la machine : entrée et sortie dégagées"'}>Reprendre</button></div></li>`; }).join('')
+    : '<li class="debit-empty">Les pièces évacuées ou mises de côté apparaissent ici.</li>';
+  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; clampZ(entry()); app.ex.invalidate(); apply(); });
+  document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; renderDebit(); }); }
 
 /* ---------- mise à jour complète ---------- */
 function update(){
   if(st.man!==curMan){ curMan=st.man; model.setManchon(bladeZ()); stage.dirty(); }
   const e=entry(); if(e && !cut.inProgress) clampZ(e);          // le guide en place repousse la pièce
   model.update({ H:st.H, guideZ:guideZ(), guideUp:st.guideUp, under, laser:st.laser, bladeZs:bladeZ(), surf, laserKey:laserKey(), amp:ampNow() });
-  for(const k of ['motor','asp','laser']) $(k).setAttribute('aria-pressed',String(st[k]));
+  for(const k of ['motor','tapis','asp','laser']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
   $('gup').setAttribute('aria-pressed',String(st.guideUp)); $('gup').textContent=st.guideUp?'Guide en place':'Guide escamoté';
   document.querySelectorAll('[data-man]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.man===st.man)));
@@ -90,7 +91,10 @@ const say=(msg,level='warn')=>{ F.msg=msg; F.level=level; app.ex.invalidate(); a
 function doOp(op){
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
   if(cut.inProgress) return say('Sciage en cours : ne touchez jamais une pièce engagée. Restez hors de son axe.');
-  const p=entry(); if(!p) return say('Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».');
+  if(op==='evac'){ if(!exitPieces().length) return say('Aucune pièce à la sortie.'); evacuate(); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
+  if(op==='back'){ const why=bringBack(); if(why) return say(why); F.msg=''; clampZ(entry()); debitKey=''; app.ex.invalidate(); apply(); return; }
+  if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
+  const p=entry(); if(!p) return say(exitPieces().length? 'La pièce est à la sortie : « Évacuer les chutes », puis « Ramener la pièce ».' : 'Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».');
   F.msg='';
   if(op==='flip') flip(p); else if(op==='end') endForEnd(p);
   else if(op==='guide'){ if(!st.guideUp) return say('Guide escamoté : remettez-le en place pour y plaquer la pièce.'); toGuide(p); }
@@ -108,6 +112,7 @@ $('gup').onclick=()=>{ if(cut.inProgress) return; st.guideUp=!st.guideUp; apply(
 $('motor').onclick=()=>{ if(cut.inProgress) return say('Pièce en cours de sciage : laissez-la sortir avant d\'arrêter les lames (ou arrêt d\'urgence en cas de problème).');
   if(!st.motor && !st.asp) F.msg=''; st.motor=!st.motor; apply(); };
 $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
+$('tapis').onclick=()=>{ st.tapis=!st.tapis; apply(); };
 $('laser').onclick=()=>{ st.laser=!st.laser; apply(); };
 document.querySelectorAll('[data-man]').forEach(b=>b.onclick=()=>{ if(st.man===b.dataset.man) return;
   if(st.motor||model.spin>0.05||cut.inProgress) return say('Arrêtez les lames et attendez l\'arrêt complet de l\'arbre : la porte d\'accès aux lames reste verrouillée tant qu\'il tourne.');
@@ -121,10 +126,11 @@ app.start({
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cut.msgSeq; planKey=ampKey=debitKey=''; if(m!=='libre') stage.setView('vop'); },
   renderExtra:renderDebit,
-  panelKey:()=>[cut.inProgress,pieces.length,entry()?.id],
+  panelKey:()=>[cut.inProgress,pieces.length,entry()?.id,exitPieces().length,cut.keep,st.tapis],
   onPanel(){ document.querySelectorAll('#tools button,#nudge button').forEach(b=>b.disabled=cut.inProgress && b.dataset.op!=='reset'); },
   onPick(hit){ const q=hit && pieces.find(x=>x.id===hit.object.userData.pieceId); if(!q) return false; const m=measure(q);
+    if(q.state==='exit' && !cut.inProgress && setKeep(q.id)){ F.level='info'; F.msg=`Pièce gardée : ${label(m)} (contour orange).`; app.ex.invalidate(); apply(); }
     $('info').innerHTML=`<b>${m.kind[0].toUpperCase()+m.kind.slice(1)} · ${fmt(m.W)} mm</b><span>${q.L} × ${q.T} mm · ${m.flache?'flache sur une rive au moins':'rives sciées'}</span>`; return true; },
-  tick(dt,now){ const d=tickPass(now); model.tick(dt,st.motor,d); if(d||cut.inProgress) apply(); else if(cut.msgSeq!==lastSeq) apply(); updateNudge(); },
+  tick(dt,now){ const d=tickPass(now); model.tick(dt,st.motor,d,st.tapis?chainSpeed()*dt:0); if(d) apply(); else if(cut.msgSeq!==lastSeq) apply(); updateNudge(); },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });

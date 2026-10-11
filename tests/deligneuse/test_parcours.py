@@ -78,7 +78,7 @@ async def faute_grave(mid):
         r = await pg.eval(js(r"""
           const on=id=>{ if($(id).getAttribute('aria-pressed')!=='true') $(id).click(); };
           document.querySelector('[data-man=m1]').click(); on('asp'); $('stepNext').click();
-          setN('gw-n',85); op('guide'); on('motor'); setR('speed',42);     // presseurs laissés à 60 mm pour une pièce de 27 mm
+          setN('gw-n',85); op('guide'); on('motor'); on('tapis'); setR('speed',42);     // presseurs laissés à 60 mm pour une pièce de 27 mm
           const before=alerts().filter(a=>a.startsWith('danger'));
           $('pass').click(); await sleep(400);
           return {before, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))

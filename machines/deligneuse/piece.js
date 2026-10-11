@@ -20,7 +20,10 @@ export function initPieces(a, model){ app=a; pieceRoot=model.pieceRoot; partMesh
 
 /* ---------- état ---------- */
 export const pieces=[];   // toutes les pièces du mode : state 'entry' | 'moving' | 'exit' | 'stock'
-export const cut={ inProgress:false, src:null, outs:[], t0:0, dur:1, x0:LEAD0, x1:0, passes:0, maxLoad:0, lastMsg:'', msgSeq:0, blocked:'' };
+export const cut={ inProgress:false, src:null, outs:[], x0:LEAD0, x1:0, passes:0, maxLoad:0, lastMsg:'', msgSeq:0, blocked:'', keep:null };
+export const exitPieces=()=>pieces.filter(q=>q.state==='exit');
+export const keepPiece=()=>pieces.find(q=>q.id===cut.keep && q.state==='exit')||null;
+const SPEEDUP=4;   // l'animation va 4 fois plus vite que l'avance réelle du tapis
 export const entry=()=>pieces.find(q=>q.state==='entry')||null;
 /* pièce sur la machine : à l'entrée, ou en cours de sciage */
 export const cur=()=>cut.inProgress? cut.src : entry();
@@ -41,7 +44,7 @@ function normalize(p){ let lo=1e9, hi=-1e9;
   for(let i=0;i<N;i++){ lo=Math.min(lo,bLow(p,i,0),bLow(p,i,p.T)); hi=Math.max(hi,bHigh(p,i,0),bHigh(p,i,p.T)); }
   for(const k of ['a1','a2','b1','b2']) p[k]=p[k].map(x=>x-lo); if(p.c1>-1e8) p.c1-=lo; if(p.c2<1e8) p.c2-=lo;
   p.W=hi-lo; return lo; }
-export function clearPieces(){ for(const p of pieces) dispose(p); pieces.length=0; partMeshes.piece=[]; cut.inProgress=false; cut.src=null; cut.outs=[]; setClip(false); }
+export function clearPieces(){ for(const p of pieces) dispose(p); pieces.length=0; partMeshes.piece=[]; cut.inProgress=false; cut.src=null; cut.outs=[]; cut.keep=null; setClip(false); }
 function dispose(p){ if(p.group){ pieceRoot.remove(p.group); p.group.traverse(o=>o.geometry?.dispose()); p.group=null; } }
 
 /* ---------- géométrie ---------- */
@@ -113,7 +116,7 @@ function woodTex(wood,kind){ const key=wood+kind; if(texCache[key]) return texCa
     for(let x=0;x<w;x+=10+rnd()*6){ g.strokeStyle=`rgba(60,40,20,${0.10+rnd()*0.12})`; g.lineWidth=1.5; g.beginPath(); g.arc(x+180,h/2,190,Math.PI*0.88,Math.PI*1.12); g.stroke(); }
     for(let i=0;i<600;i++){ g.fillStyle=rnd()<0.5?`rgba(40,26,14,${0.2+rnd()*0.25})`:`rgba(240,220,185,${0.2+rnd()*0.2})`; g.fillRect(rnd()*w,rnd()*h,1+rnd()*3,1+rnd()*2); } });
   t.wrapS=THREE.RepeatWrapping; return texCache[key]=t; }
-const matCache={};
+const matCache={}, LINE_KEEP=new THREE.LineBasicMaterial({color:0xd27a1c});
 function mats(p){ const clip=p.role==='out'?planeOut:planeIn, key=p.wood+p.role; if(matCache[key]) return matCache[key];
   const m=(kind)=>{ const map=woodTex(p.wood,kind); return kind==='saw'? new THREE.MeshStandardMaterial({map,roughness:0.95,bumpMap:map,bumpScale:1.5,clippingPlanes:[clip],side:THREE.DoubleSide})
     : new THREE.MeshStandardMaterial({map,roughness:kind==='bark'?1:0.85,bumpMap:kind==='bark'?map:null,bumpScale:3,clippingPlanes:[clip],side:THREE.DoubleSide}); };
@@ -157,7 +160,11 @@ export function build(p){ dispose(p); if(p.state==='stock') return;
   const all=[...idx[0],...idx[1],...idx[2]]; geo.setIndex(all); geo.addGroup(0,idx[0].length,0); geo.addGroup(idx[0].length,idx[1].length,1); geo.addGroup(idx[0].length+idx[1].length,idx[2].length,2);
   geo.computeVertexNormals();
   const mesh=new THREE.Mesh(geo,mats(p)); mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece'; mesh.userData.pieceId=p.id;
-  const g=new THREE.Group(); g.add(mesh); pieceRoot.add(g); p.group=g; p.mesh=mesh; place(p);
+  const g=new THREE.Group(); g.add(mesh);
+  if(p.state==='exit' && p.id===cut.keep && exitPieces().length>1){   // pièce gardée : contour orange sur la face du dessus
+    const [a,b]=p.flip?[0,5]:[2,3], lift=v=>new THREE.Vector3(v[0],v[1]+0.0008,v[2]);
+    const loop=[...sec.map(q=>lift(q.P[a])),...sec.slice().reverse().map(q=>lift(q.P[b]))]; loop.push(loop[0].clone());
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(loop),LINE_KEEP)); } pieceRoot.add(g); p.group=g; p.mesh=mesh; place(p);
   partMeshes.piece=pieces.filter(q=>q.group).map(q=>q.mesh); app.stage.dirty(); }
 export function place(p){ if(p.group) p.group.position.set(p.xLead,TABLE_Y,p.zPos); }
 
@@ -179,35 +186,56 @@ export function load(p=cur()){ if(!p) return 0; const n=bladesIn(p); if(!n) retu
 export const againstGuide=p=>!!p && st.guideUp && Math.abs(p.zPos-guideZ())<0.0008;
 export function startPass(blockWhy){ const p=entry(); cut.blocked='';
   if(cut.inProgress) return '';
-  if(!p) return 'Pas de pièce à l\'entrée : reprenez une pièce dans « Pièces débitées » ou « Nouvelle pièce ».';
+  if(exitPieces().length) return 'Dégagez d\'abord la sortie : « Évacuer les chutes » puis « Ramener la pièce », ou « Mettre de côté ».';
+  if(!p) return 'Pas de pièce à l\'entrée : « Ramener la pièce », « Reprendre » dans « Pièces débitées », ou « Nouvelle pièce ».';
   const why=blockWhy(p); if(why) return why;
   cut.maxLoad=Math.max(cut.maxLoad,load(p));
   app.recordDangers();                              // faute grave : alerte danger active au moment d'engager la pièce
-  for(const q of pieces) if(q.state==='exit'){ q.state='stock'; dispose(q); }
   const outs=predict(p).map(q=>{ q.id=++uid; q.state='moving'; q.role='out'; q.gen=cut.passes+1; return q; });
   p.state='moving'; cut.src=p; cut.outs=outs; pieces.push(...outs);
   for(const q of outs) build(q);
-  cut.x0=p.xLead; cut.x1=EXIT_X-p.L/1000; cut.dur=Math.max(2.5,(cut.x0-cut.x1)/(st.v/60)/4); cut.t0=performance.now()/1000;
-  cut.inProgress=true; setClip(true); return ''; }
-/* avance de la pièce ; rend la distance parcourue (pour animer le tapis), ou 0 */
-export function tickPass(now){ if(!cut.inProgress) return 0;
-  const t=Math.min(1,(now-cut.t0)/cut.dur), x=cut.x0+(cut.x1-cut.x0)*t, d=cut.src.xLead-x;
+  cut.x0=p.xLead; cut.x1=EXIT_X-p.L/1000; cut.inProgress=true; setClip(true); return ''; }
+/* vitesse du tapis à l'affichage (m/s) */
+export const chainSpeed=()=>st.v/60*SPEEDUP;
+/* la pièce avance avec le tapis (immobile si le tapis est arrêté) ; rend la distance parcourue, ou 0 */
+export function tickPass(now){ const dt=Math.min(0.5,now-(cut.tPrev??now)); cut.tPrev=now;   // temps réel (pas le pas d'image plafonné)
+  if(!cut.inProgress || !st.tapis) return 0;
+  const x=Math.max(cut.x1, cut.src.xLead-chainSpeed()*dt), d=cut.src.xLead-x;
   for(const q of [cut.src,...cut.outs]){ q.xLead=x; place(q); }
-  if(t>=1){ const src=cut.src; pieces.splice(pieces.indexOf(src),1); dispose(src);
+  if(x<=cut.x1){ const src=cut.src; pieces.splice(pieces.indexOf(src),1); dispose(src);
     for(const q of cut.outs){ q.state='exit'; q.role='out'; }
     cut.passes++; cut.inProgress=false; setClip(false);
-    const good=cut.outs.map(q=>measure(q));
-    cut.lastMsg=`Passe terminée : ${good.length} pièce${good.length>1?'s':''} sortie${good.length>1?'s':''} (${good.map(label).join(' ; ')}). « Reprendre » remet une pièce à l'entrée pour une nouvelle passe.`;
+    const ms=cut.outs.map(q=>({q,m:measure(q)})), useful=ms.filter(o=>o.m.kind!=='délignure');
+    const keep=(useful.length?useful:ms).slice().sort((a,b)=>b.m.Wmax-a.m.Wmax)[0];
+    cut.keep=keep?keep.q.id:null; for(const q of cut.outs) build(q);
+    cut.lastMsg=`Passe terminée : ${ms.length} pièce${ms.length>1?'s':''} sortie${ms.length>1?'s':''} (${ms.map(o=>label(o.m)).join(' ; ')}).`
+      + (ms.length>1? ` Pièce gardée : ${label(keep.m)} (contour orange) ; cliquez une autre pièce pour la garder. « Évacuer les chutes », puis « Ramener la pièce » pour une nouvelle passe, ou « Mettre de côté ».` : ' « Ramener la pièce » pour une nouvelle passe, ou « Mettre de côté ».');
     cut.msgSeq++; cut.src=null; cut.outs=[]; partMeshes.piece=pieces.filter(q=>q.group).map(q=>q.mesh); }
-  return Math.max(0,d); }
+  return d; }
 /* largeur affichée : sans flache pour un avivé, encombrement pour une délignure ou une pièce en flache */
 export const label=m=> m.kind==='avivé'? `${fmt(m.W)} mm` : m.kind==='délignure'? `délignure de ${fmt(m.Wmax)} mm` : `${fmt(m.Wmax)} mm en flache (${fmt(m.W)} mm sans flache)`;
 export const fmt=(v,n=1)=>(+v).toLocaleString('fr-FR',{minimumFractionDigits:n,maximumFractionDigits:n});
 
 /* ---------- manipulations ---------- */
-export function take(id){ const q=pieces.find(x=>x.id===id); if(!q||cut.inProgress) return;
-  const e=entry(); if(e){ e.state='stock'; dispose(e); }
-  q.state='entry'; q.role='in'; q.xLead=LEAD0; q.zPos=st.guideUp? guideZ() : q.zPos; build(q); }
+const autoKind=q=>measure(q).kind==='avivé'?'piece':'chute';
+const toStock=(q,kind)=>{ q.state='stock'; q.kind=kind; dispose(q); };
+export function setKeep(id){ if(!exitPieces().some(q=>q.id===id)) return false; cut.keep=id; for(const q of exitPieces()) build(q); return true; }
+/* retire de la sortie toutes les pièces sauf la pièce gardée (rangées dans « Pièces débitées ») */
+export function evacuate(){ const k=keepPiece(); for(const q of exitPieces()) if(q!==k) toStock(q,autoKind(q)); if(k) build(k); }
+/* ramène la pièce gardée à l'entrée (la sortie doit être dégagée des autres pièces) */
+export function bringBack(){ const k=keepPiece(); if(!k) return 'Aucune pièce à la sortie.';
+  if(exitPieces().length>1) return 'Évacuez d\'abord les chutes (« Évacuer les chutes ») : seule la pièce gardée (contour orange) est ramenée.';
+  if(entry()) return 'Une pièce est déjà sur la table d\'entrée : mettez-la de côté d\'abord.';
+  k.state='entry'; k.role='in'; k.xLead=LEAD0; if(st.guideUp) k.zPos=guideZ(); cut.keep=null; build(k); return ''; }
+/* range la pièce gardée (et les autres pièces sorties), ou la pièce de l'entrée */
+export function aside(){ const ex=exitPieces();
+  if(ex.length){ const k=keepPiece(); for(const q of ex) toStock(q, q===k?'piece':autoKind(q)); cut.keep=null; return ''; }
+  const e=entry(); if(!e) return 'Aucune pièce sur la machine.'; toStock(e,'piece'); return ''; }
+export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'chute':'piece'; }
+/* reprend une pièce rangée : machine libre (entrée et sortie dégagées) */
+export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cut.inProgress) return '';
+  if(entry()||exitPieces().length) return 'Libérez d\'abord la machine : entrée et sortie dégagées (« Mettre de côté »).';
+  q.state='entry'; q.role='in'; q.xLead=LEAD0; if(st.guideUp) q.zPos=guideZ(); build(q); return ''; }
 export function flip(p){ p.flip=!p.flip; build(p); }
 export function endForEnd(p){ p.rev=!p.rev; build(p); }
 export function toGuide(p){ p.zPos=guideZ(); place(p); }

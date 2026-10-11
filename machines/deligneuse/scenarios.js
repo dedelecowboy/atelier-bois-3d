@@ -5,7 +5,7 @@
    - Multidélignage : avivé de 200 mm → 4 tasseaux de 45 mm en une passe (manchon à 4 lames), vitesse réduite. */
 import { GREEN } from './constants.js';
 import { st } from './state.js';
-import { cut, cur, newPiece, clearPieces, againstGuide, faceStats, predict, measure, load } from './piece.js';
+import { cut, cur, exitPieces, newPiece, clearPieces, againstGuide, faceStats, predict, measure, load } from './piece.js';
 import { presOk, produced, goodOf, loadOk, fmt } from './rules.js';
 
 /* ---------- pièces de départ ---------- */
@@ -28,15 +28,15 @@ const SETUP={ libre:{man:'m2',gw:120,H:27,v:20,guideUp:false,laser:true},
   plot:{man:'m1',gw:120,H:60,v:24,guideUp:true,laser:false},
   multi:{man:'m1',gw:80,H:60,v:24,guideUp:true,laser:false} };
 export const LOADERS=Object.fromEntries(Object.keys(SPECS).map(k=>[k,()=>{ clearPieces(); cut.passes=0; cut.maxLoad=0; cut.lastMsg='';
-  Object.assign(st,{motor:false,asp:false},SETUP[k]); newPiece(SPECS[k]()); }]));
+  Object.assign(st,{motor:false,tapis:false,asp:false},SETUP[k]); newPiece(SPECS[k]()); }]));
 
 /* ---------- étapes communes ---------- */
 const loadIn=()=>{ const L=load(); return L>=GREEN[0]&&L<=GREEN[1]; };
 const ampChk=['Ampèremètre (charge prévue) dans la zone verte, 40 à 90 %',loadIn];
 const presChk=T=>[`Presseurs réglés pour ${T} mm (${T-4} à ${T-1} mm)`,()=>presOk(cur())];
 const fin={k:'Fin', t:'Arrêter la machine',
-  c:'Le débit est fini. Arrêtez les lames et le tapis, attendez l\'arrêt complet avant de quitter le poste. Les pièces sorties sont reprises côté sortie, jamais en passant les mains dans la machine.',
-  checks:[['Aucune pièce en cours de sciage',()=>!cut.inProgress],['Lames arrêtées',()=>!st.motor]],
+  c:'Le débit est fini. Rangez les pièces sorties (« Mettre de côté ») : elles sont reprises côté sortie, jamais en passant les mains dans la machine. Arrêtez le tapis puis les lames, et attendez l\'arrêt complet avant de quitter le poste.',
+  checks:[['Aucune pièce en cours de sciage',()=>!cut.inProgress],['Pièces de la sortie rangées (« Mettre de côté »)',()=>!exitPieces().length],['Tapis arrêté',()=>!st.tapis],['Lames arrêtées',()=>!st.motor]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler les pièces', c, checks:[], results, done:()=>false});
 const man=(m,lbl)=>[`Manchon « ${lbl} » monté`,()=>st.man===m];
@@ -59,12 +59,12 @@ export const STEPS={
   avive:[
     {k:'Préparation', t:'Monter le manchon', c:'Avivé de sapin 2 000 × 180 × 27 mm (4 faces sciées). Fiche de débit : 2 pièces de 85 mm de large. Le manchon resté sur la machine porte 4 lames. Lames à l\'arrêt (la porte d\'accès aux lames est verrouillée tant que l\'arbre tourne), montez le manchon à 1 lame. Mettez l\'aspiration en marche.',
       checks:[man('m1','1 lame'),['Aspiration en marche',()=>st.asp]], done:s=>s.checks.every(c=>c[1]())},
-    {k:'Réglages', t:'Régler guide, presseurs et vitesse', c:'Guide en place à 85 mm : la première pièce sort entre le guide et la lame. Plaquez l\'avivé contre le guide (« Contre le guide »). Presseurs 1 à 4 mm sous l\'épaisseur (27 mm). Démarrez les lames, puis réglez la vitesse d\'avance pour que l\'aiguille de l\'ampèremètre (charge prévue) reste dans la zone verte : avec une seule lame dans du sapin, on peut avancer vite.',
-      checks:[['Guide en place à 85 mm',()=>st.guideUp&&st.gw===85],['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())],presChk(27),['Lames en marche',()=>st.motor],ampChk], done:s=>s.checks.every(c=>c[1]())},
-    {k:'Passe 1', t:'Déligner la première pièce', c:'Engagez la pièce, puis placez-vous sur le côté, hors de l\'axe : le tapis l\'entraîne, les presseurs la plaquent, les linguets empêchent tout rejet. Une pièce de 85 mm sort entre le guide et la lame, la chute de 91,8 mm à côté.',
+    {k:'Réglages', t:'Régler guide, presseurs et vitesse', c:'Guide en place à 85 mm : la première pièce sort entre le guide et la lame. Plaquez l\'avivé contre le guide (« Contre le guide »). Presseurs 1 à 4 mm sous l\'épaisseur (27 mm). Démarrez les lames, puis le tapis, et réglez la vitesse d\'avance pour que l\'aiguille de l\'ampèremètre (charge prévue) reste dans la zone verte : avec une seule lame dans du sapin, on peut avancer vite.',
+      checks:[['Guide en place à 85 mm',()=>st.guideUp&&st.gw===85],['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())],presChk(27),['Lames en marche',()=>st.motor],['Tapis en marche',()=>st.tapis],ampChk], done:s=>s.checks.every(c=>c[1]())},
+    {k:'Passe 1', t:'Déligner la première pièce', c:'Tapis en marche, engagez la pièce, puis placez-vous sur le côté, hors de l\'axe : le tapis l\'entraîne, les presseurs la plaquent, les linguets empêchent tout rejet. Une pièce de 85 mm sort entre le guide et la lame, une autre de 91,8 mm à côté.',
       checks:[['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(85).length>0]], done:()=>goodOf(85).length>=1},
-    {k:'Passe 2', t:'Déligner la deuxième pièce', c:'Dans « Pièces débitées », reprenez la pièce de 91,8 mm (« Reprendre »). Plaquez-la contre le guide, toujours à 85 mm, et engagez-la. Il reste une délignure de 3,6 mm : c\'est un déchet.',
-      checks:[['Pièce de 91,8 mm reprise à l\'entrée',()=>{ const e=cur(); return !!e&&Math.abs(measure(e).W-91.8)<1 || goodOf(85).length>=2; }],['Contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(85).length>=2]],
+    {k:'Passe 2', t:'Déligner la deuxième pièce', c:'À la sortie, gardez la pièce de 91,8 mm (contour orange ; cliquez-la si besoin). « Évacuer les chutes » range la pièce de 85 mm dans « Pièces débitées ». « Ramener la pièce » remet la pièce de 91,8 mm à l\'entrée : plaquez-la contre le guide, toujours à 85 mm, et engagez-la. Il reste une délignure de 3,6 mm : c\'est un déchet.',
+      checks:[['Pièce de 91,8 mm ramenée à l\'entrée',()=>{ const e=cur(); return !!e&&Math.abs(measure(e).W-91.8)<1 || goodOf(85).length>=2; }],['Contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(85).length>=2]],
       done:()=>goodOf(85).length>=2},
     fin,
     ctrl('Cahier des charges : 2 pièces de 85 mm ± 0,5, rives sciées parallèles, sans flache, moteur jamais en surcharge.',resAvive)],
@@ -76,15 +76,15 @@ export const STEPS={
         ['Gros bout engagé en premier',()=>{ const e=cur(); if(!e) return false; const f=faceStats(e); return f.lead>=f.trail; }],presChk(41),
         ['Les deux traits laser dans le bois sain sur toute la longueur',()=>{ const e=cur(); return !!e && predict(e).some(q=>q.c1>-1e8&&q.c2<1e8&&!measure(q).flache&&Math.abs(measure(q).W-140)<=0.5); }]],
       done:s=>s.checks.every(c=>c[1]())},
-    {k:'Passe', t:'Déligner le plateau', c:'Démarrez les lames. Le chêne de 41 mm est dur et épais : réglez la vitesse d\'avance pour que l\'ampèremètre reste dans la zone verte. Engagez le plateau sans le toucher pendant le sciage, et restez hors de son axe. Les deux délignures en flache sortent avec l\'avivé.',
-      checks:[['Lames en marche',()=>st.motor||produced().length>0],['Ampèremètre (charge prévue) dans la zone verte, 40 à 90 %',()=>loadIn()||produced().length>0]], done:()=>goodOf(140).length>=1},
+    {k:'Passe', t:'Déligner le plateau', c:'Démarrez les lames, puis le tapis. Le chêne de 41 mm est dur et épais : réglez la vitesse d\'avance pour que l\'ampèremètre reste dans la zone verte. Engagez le plateau sans le toucher pendant le sciage, et restez hors de son axe. Les deux délignures en flache sortent avec l\'avivé.',
+      checks:[['Lames en marche',()=>st.motor||produced().length>0],['Tapis en marche',()=>st.tapis||produced().length>0],['Ampèremètre (charge prévue) dans la zone verte, 40 à 90 %',()=>loadIn()||produced().length>0]], done:()=>goodOf(140).length>=1},
     fin,
     ctrl('Cahier des charges : avivé de 140 mm ± 0,5, sans flache, deux rives sciées parallèles, moteur jamais en surcharge.',resPlot)],
   multi:[
     {k:'Préparation', t:'Monter le manchon à 4 lames', c:'Avivé de hêtre 2 000 × 200 × 27 mm. Fiche de débit : 4 tasseaux de 45 mm en une seule passe. Lames à l\'arrêt, montez le manchon à 4 lames : les entretoises écartent les lames de 48,2 mm (45 mm de pièce + 3,2 mm de trait). Aspiration en marche.',
       checks:[man('m4','4 lames · 45'),['Aspiration en marche',()=>st.asp]], done:s=>s.checks.every(c=>c[1]())},
-    {k:'Réglages', t:'Régler guide, presseurs et vitesse', c:'Guide en place à 45 mm : le premier tasseau sort entre le guide et la première lame, les trois autres entre les lames. Plaquez l\'avivé contre le guide. Presseurs pour 27 mm. Quatre lames dans du hêtre demandent beaucoup plus de puissance qu\'une seule : démarrez les lames et réduisez la vitesse d\'avance pour que l\'ampèremètre reste dans la zone verte, sans surcharge.',
-      checks:[['Guide en place à 45 mm',()=>st.guideUp&&st.gw===45],['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())],presChk(27),['Lames en marche',()=>st.motor],ampChk], done:s=>s.checks.every(c=>c[1]())},
+    {k:'Réglages', t:'Régler guide, presseurs et vitesse', c:'Guide en place à 45 mm : le premier tasseau sort entre le guide et la première lame, les trois autres entre les lames. Plaquez l\'avivé contre le guide. Presseurs pour 27 mm. Quatre lames dans du hêtre demandent beaucoup plus de puissance qu\'une seule : démarrez les lames et le tapis, et réduisez la vitesse d\'avance pour que l\'ampèremètre reste dans la zone verte, sans surcharge.',
+      checks:[['Guide en place à 45 mm',()=>st.guideUp&&st.gw===45],['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())],presChk(27),['Lames en marche',()=>st.motor],['Tapis en marche',()=>st.tapis],ampChk], done:s=>s.checks.every(c=>c[1]())},
     {k:'Passe', t:'Déligner les 4 tasseaux', c:'Engagez l\'avivé, puis restez hors de son axe. Les 4 tasseaux et une délignure de 7,2 mm sortent ensemble.',
       checks:[['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(45).length>0]], done:()=>goodOf(45).length>=4},
     fin,
