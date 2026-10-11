@@ -1,0 +1,22 @@
+/* Styles propres à la déligneuse : manchon, ampèremètre, guide, vue de dessus, pièces débitées. */
+.man,.amp,.gctl{grid-template-columns:1fr auto;align-items:center}
+.man-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.man-g .toggle,.gctl .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 4px}
+.gctl .toggle{grid-column:1/-1}
+.amp-svg{grid-column:1/-1;width:100%;max-width:220px;height:auto;justify-self:center;display:block}
+#dockSlot .amp-svg{max-height:74px}
+.nudge{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+.nudge button{padding:7px 2px;text-transform:none;letter-spacing:0;font-size:12px}
+.nudge-l{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:4px}
+.plan-svg{width:100%;height:auto;max-height:150px;display:block;margin-top:8px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.debit{margin-top:14px}
+.debit h2 span{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-size:12px;color:var(--muted);margin-left:6px}
+.debit-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.debit-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.debit-list li[data-k="chute"]{opacity:.7}
+.debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.debit-list small{display:block;color:var(--muted);font-size:12px}
+.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
+.d-act{display:flex;flex-direction:column;gap:4px}
+.debit-empty{font-size:13px;color:var(--muted)}
+@media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}

@@ -1,0 +1,72 @@
+# Nomenclature de la déligneuse multilames KANAK 300 M
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Bâti monobloc en fonte (environ 1 800 kg) : porte le tapis, l'arbre porte-lames, les moteurs et les tables.
+
+[capot] 02 Capot de protection des lames
+Carter fermé qui recouvre les lames, les presseurs et les linguets. Sa porte d'accès aux lames est interverrouillée : elle ne s'ouvre qu'après l'arrêt complet de l'arbre.
+
+[table_entree] 03 Table d'entrée
+Table de présentation sur laquelle on pose et on positionne la pièce avant de l'engager. Une servante à rouleau soutient les pièces longues.
+
+[tapis] 04 Tapis d'amenage
+Chaîne à patins en fonte, à dents, qui entraîne la pièce à vitesse constante sous les lames. C'est la référence horizontale. Lubrification automatique.
+
+[lames] 05 Lames de scie
+Lames circulaires à dents carbure, Ø 200 à 350 mm, 4 200 tr/min, montées au-dessus du tapis. Elles tournent en opposition : les dents du bas vont vers l'opérateur, contre l'avance de la pièce.
+
+[manchon] 06 Manchon porte-lames
+Manchon Ø 70 mm à clavettes sur lequel les lames sont serrées entre des entretoises. On le prépare à l'atelier d'affûtage, puis on le monte sur l'arbre, lames à l'arrêt : l'écartement des lames donne la largeur des pièces.
+
+[presseurs] 07 Rouleaux presseurs
+Deux rouleaux avant et deux arrière, rappelés par ressorts : ils plaquent la pièce sur le tapis pendant tout le sciage. Réglés un peu en dessous de l'épaisseur de la pièce.
+
+[linguets] 08 Barrières anti-recul (linguets)
+Trois rangées de linguets à dents, une rangée de lamelles et une barrière inférieure, à l'entrée. Ils se soulèvent au passage de la pièce et se plantent dedans si elle est rejetée vers l'opérateur. On ne les relève que lames arrêtées.
+
+[guide] 09 Guide d'entrée
+Référence verticale pour les pièces qui ont un chant scié (avivés). Il se règle à la largeur voulue de la première pièce et s'escamote sous la table pour les plateaux en flache.
+
+[reglage_guide] 10 Réglage du guide
+Volant, crémaillère et règle graduée en bout de table : position du guide par rapport à la première lame. Manette d'escamotage du guide.
+
+[laser] 11 Laser de ligne de coupe
+Projette sur la pièce l'emplacement exact de chaque trait de scie : on positionne les plateaux en flache sans guide, en gardant le bois sain.
+
+[pupitre] 12 Pupitre de commande
+Marche et arrêt des lames et du tapis, laser, et ampèremètre qui montre la charge du moteur : on règle la vitesse d'avance pour rester dans la zone verte.
+
+[arret] 13 Arrêts d'urgence
+Coup-de-poing rouge sur fond jaune, à l'entrée (pupitre) et à la sortie : arrêt immédiat des lames et du tapis.
+
+[reglage_presseurs] 14 Réglage des presseurs
+Volant et échelle graduée : hauteur de passage sous les rouleaux presseurs, selon l'épaisseur des pièces.
+
+[vitesse] 15 Variateur de vitesse d'avance
+Volant du variateur du tapis : 6 à 48 m/min. On ralentit pour le bois épais, dur, ou quand plusieurs lames scient en même temps.
+
+[aspiration] 16 Aspiration
+Hotte Ø 200 mm sur les lames et buse Ø 120 mm sur le carter du tapis, raccordées à la centrale d'aspiration avant toute mise en marche.
+
+[rideau] 17 Rideau de sortie
+Bavettes souples à la sortie : elles retiennent les éclats et la sciure et laissent passer les pièces.
+
+[table_sortie] 18 Table de sortie à rouleaux
+Reçoit les pièces sciées à la sortie. Le second opérateur les reprend sans jamais mettre les mains dans la machine.
+
+[moteur] 19 Moteur principal
+Moteur triphasé de 18,5 kW (25 ch) environ, démarrage étoile-triangle, qui entraîne l'arbre porte-lames. Contrôle électronique de l'arrêt de l'arbre.
+
+[transmission] 20 Transmission
+Poulies et courroies entre le moteur principal et l'arbre porte-lames, sous carter fixe.
+
+[moteur_avance] 21 Moteur d'avance
+Moteur (1,5 ch) et réducteur qui entraînent le tapis, avec embrayage sur le variateur et avance par impulsions.
