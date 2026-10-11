@@ -1,7 +1,9 @@
 """Dégauchisseuse : parcours évalué SCORM avec une fausse API Moodle.
 1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed.
 2. Reprise : un scénario interrompu reprend à son introduction, fautes graves conservées.
-3. Faute grave : dressage du plat avec le bec d'engagement horizontal → relevée, conservée."""
+3. Faute grave : dressage du plat avec le bec d'engagement horizontal → relevée, conservée.
+4. Repérage : un bouton de vue (« Arbre ») n'impose pas la vue intérieure, chaque question remet la transparence qu'elle demande,
+   et les tables restent cliquables (bug : vue intérieure bloquée, organes plus cliquables)."""
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import Page, js, check, run
@@ -88,7 +90,34 @@ async def faute_grave(mid):
         sd = json.loads(await pg.eval("__store['cmi.suspend_data']"))
         check(sd['ph'] == 'scen' and len(sd['dangers']) >= 1, 'fenêtre fermée : faute enregistrée dans suspend_data')
 
+XR = "__atelier.app.parts.xray"
+async def transparence():
+    print('Repérage : vue intérieure jamais bloquée')
+    async with Page('degauchisseuse', scorm=True) as pg:
+        tg = await pg.eval('__atelier.REP_TARGETS')
+        await pg.page.click('#varbre'); await pg.page.wait_for_timeout(200)
+        check(not await pg.eval(XR), 'bouton « Arbre » pendant le repérage : pas de vue intérieure imposée')
+        await pg.eval("__atelier.app.parts.setXray(true,false)")              # transparence restée active (ancien bug)
+        await pg.eval(f"__atelier.repAnswer('{tg[0]}')"); await pg.page.wait_for_function('__atelier.parc.ri>0', timeout=60000)
+        check(not await pg.eval(XR), 'question suivante : transparence remise comme la question le demande')
+        await pg.page.click('#v34'); await pg.page.wait_for_timeout(800)
+        xy = await pg.eval("""()=>{ const st=__atelier.app.stage; st.camera.updateMatrixWorld(); const v=new st.THREE.Vector3(0.75,0.856,0.0).project(st.camera), r=st.canvas.getBoundingClientRect();
+          return [r.left+(v.x+1)/2*r.width, r.top+(1-v.y)/2*r.height]; }""")
+        cand = None
+        for _ in range(3):                      # en headless, un rendu lent peut faire manquer le premier clic
+            await pg.page.mouse.click(*xy); await pg.page.wait_for_timeout(300)
+            cand = await pg.eval('__atelier.parc.cand')
+            if cand == 'table_entree': break
+        check(cand == 'table_entree', 'clic sur la table d\'entrée : organe proposé')
+        i = tg.index('arbre')
+        for k in range(1, i):
+            await pg.eval(f"__atelier.repAnswer('{tg[k]}')"); await pg.page.wait_for_function(f'__atelier.parc.ri>{k}', timeout=60000)
+        check(await pg.eval(XR), 'question « arbre » : vue intérieure affichée')
+        await pg.eval(f"__atelier.repAnswer('arbre')"); await pg.page.wait_for_function(f'__atelier.parc.ri>{i}', timeout=60000)
+        check(not await pg.eval(XR), 'question suivante (carter) : vue intérieure retirée')
+
 async def main():
+    await transparence()
     mid = await complet()
     await reprise(mid)
     await faute_grave(mid)

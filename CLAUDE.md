@@ -85,6 +85,7 @@ Chants bruts numérotés (1, 2, 3, 4 ; U = chant d'usine), chants sciés en lett
 - Actif seulement si `window.PARCOURS` (le paquetage le définit ; la version web ne l'affiche pas).
 - Repérage 15 organes (lame et couteau en vue rapprochée avec la lame montée à 80 mm ; inciseur, moteur, inclinaison en vue transparente), QCM 20 questions, 3 scénarios (format, planche, inciseur).
 - Barème : repérage 20, QCM 20, 3 × 20 pour les scénarios (5 critères de 4 points dont « aucune faute grave »). Réussite : ≥ 70 ET aucune faute grave sur tout le module ; le module pose lui-même passed/failed (pas de masteryscore dans le manifeste).
+- Repérage : la vue intérieure est imposée par chaque question (remise à chaque question et à la sortie du repérage). Le bouton « Vue intérieure » est caché pendant le parcours : un bouton de vue (« Arbre ») ne fait que déplacer la caméra (bug corrigé : vue intérieure bloquée, tables et bâti plus cliquables).
 - Faute grave = alerte danger active au moment où une coupe commence. Les fautes d'un scénario interrompu sont conservées à la reprise.
 - SCORM : LMSInitialize, lesson_status incomplete au départ, suspend_data JSON (v:2, ≤ 4096 caractères), interactions (ids sans espaces ; types choice / numeric / performance), score.raw/min/max, session_time, exit=suspend.
 

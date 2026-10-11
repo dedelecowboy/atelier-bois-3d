@@ -47,7 +47,8 @@ export function createApp(config, raw){
       parc=createParcours(app, {reperage, qcm}, hooks.parcours||{scenarios:[]});
       parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); return !!hooks.onPick?.(hit); });
       /* boutons des vues ; une vue peut imposer la vue intérieure (avec un message) */
-      for(const v of config.views) if(!v.hidden) $(v.id).onclick=()=>{ stage.setView(v.id); if(v.xray&&!parts.xray){ parts.setXray(true,false); if(v.toast) stage.toast(v.toast); } };
+      /* pendant le repérage du parcours, la vue ne fait que déplacer la caméra : la transparence reste celle de la question */
+      for(const v of config.views) if(!v.hidden) $(v.id).onclick=()=>{ stage.setView(v.id); if(v.xray&&!parts.xray&&!parc.inRep()){ parts.setXray(true,false); if(v.toast) stage.toast(v.toast); } };
       document.querySelectorAll('button[data-ui]').forEach(b=>b.onclick=()=>app.setUI(b.dataset.ui));
       ex.setMode(config.modes[0].id); app.setUI('pres');
       if(parc.PARC_ON) parc.start();
