@@ -2,6 +2,7 @@
 #dockSlot .settings .prot{grid-column:span 2}
 .prot{grid-template-columns:1fr auto;align-items:center}
 .prot-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.prot-g .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 4px}
 .prot-g label{display:grid;gap:3px;font-size:12px;color:var(--muted)}
 .prot-g input.num{width:100%;justify-self:stretch}
 .prot-svg{grid-column:1/-1;width:100%;height:auto;max-height:76px;display:block}

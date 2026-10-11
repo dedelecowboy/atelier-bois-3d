@@ -22,8 +22,8 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 
 ## Dégauchisseuse KANAK 520 D
 
-- **Présentation** : nomenclature de 15 organes (arbre à 4 fers, protecteur à pont, guide inclinable, carter derrière le guide…), vue intérieure.
-- **Exercices guidés** : SR1 (plat) puis SR2 (chant d'équerre contre SR1), repères au crayon, protecteur remis contre le guide. Trois pièces : rectiligne, cintrée (creux sur la table, plusieurs passes), fil incliné (sens d'usinage, arrachements).
+- **Présentation** : nomenclature de 15 organes (arbre à 4 fers, protecteur SUVAMATIC à bec d'engagement orientable, guide inclinable, carter derrière le guide…), vue intérieure.
+- **Exercices guidés** : SR1 (plat) puis SR2 (chant d'équerre contre SR1), bec du protecteur orienté selon le travail, repère de parement puis repère d'angle en V. Trois pièces : rectiligne, cintrée (creux sur la table, plusieurs passes), fil incliné (sens d'usinage, arrachements).
 - **Parcours évalué (SCORM)** : repérage de 13 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
 ## Corriger les QCM, la nomenclature ou le repérage

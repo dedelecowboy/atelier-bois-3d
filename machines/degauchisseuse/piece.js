@@ -37,7 +37,7 @@ export function newPiece(spec){ clearPiece();
   p={ L:spec.L, W0:spec.W, T0:spec.T, wood:spec.wood||'hetre', sT:spec.sT||0, sW:spec.sW||0,
       w1,w2,v1,v2, k:spec.k||0, flip:!!spec.flip, zOff:0.05,
       face:{ F1:{passes:0,tear:false,mark:null}, F2:{passes:0,tear:false,mark:null}, C1:{passes:0,tear:false,mark:null,angle:null}, C2:{passes:0,tear:false,mark:null,angle:null} },
-      group:null, mesh:null, texKey:'' };
+      group:null, mesh:null, texKey:'', vmark:null };
   cut.started=false; cut.done=false; cut.inProgress=false; cut.lastT=0; st.t=0;
   return p; }
 export function clearPiece(){ if(p&&p.group){ pieceRoot.remove(p.group); disposeGroup(p.group); } if(partMeshes) partMeshes.piece=[]; p=null; }
@@ -84,7 +84,9 @@ export function place(){ if(!p||!p.group) return;
 const WOOD={ hetre:['#d9ab83','#c08b63','#e8c4a0'], chene:['#c99d68','#9c7448','#dcb88a'], frene:['#e4cfa8','#b89a6c','#f0e2c4'] };
 const texCache={};
 /* kind : raw (brut de sciage) | planed (dressé) | tear (arrachements) | end (bois de bout). slopePx : pente des fibres dans le dessin.
-   mark : null | 'loop' (repère du plat) | 'v-lo' | 'v-hi' (repère du chant, pointe vers l'arête de la face de référence) */
+   mark : null ou liste séparée par « + » : 'loop' (repère de parement SR1) ;
+          'arm:b|t:dx:dy' (un des deux traits du repère d'angle : il part de l'arête du bas (b) ou du haut (t) du dessin
+          et rentre dans la face ; les deux traits, sur SR1 et SR2, forment un petit V à cheval sur l'arête commune) */
 function woodTex(wood,kind,slope,mark){ const key=[wood,kind,slope.toFixed(3),mark].join('|'); if(texCache[key]) return texCache[key];
   const [base,dark,light]=WOOD[wood]||WOOD.hetre; let s=11;
   const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
@@ -98,9 +100,10 @@ function woodTex(wood,kind,slope,mark){ const key=[wood,kind,slope.toFixed(3),ma
       g.strokeStyle= dark?`rgba(80,46,20,${0.5+rnd()*0.2})`:`rgba(245,222,180,0.45)`; g.lineWidth=dark?3+rnd()*2.5:2;
       g.beginPath(); for(let x=0;x<=w;x+=16){ const y=y0+slope*x+Math.sin(x*0.012+i)*1.8; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); }
     if(kind==='tear') for(let i=0;i<70;i++){ const x=rnd()*w, y=rnd()*h, l=8+rnd()*26; g.fillStyle='rgba(70,40,18,.55)'; g.beginPath(); g.moveTo(x,y); g.lineTo(x+l,y+slope*l-3); g.lineTo(x+l*0.8,y+slope*l+4); g.closePath(); g.fill(); }
-    if(mark){ g.strokeStyle='#222'; g.lineWidth=5; g.lineCap='round'; g.beginPath();
-      if(mark==='loop'){ const cx=w*0.42, cy=h*0.5; g.ellipse(cx,cy,46,30,0,0,Math.PI*2); g.moveTo(cx+40,cy+16); g.quadraticCurveTo(cx+110,cy+40,cx+170,h-4); }
-      else { const lo=mark==='v-lo', yTip=lo?h-4:4, yTop=lo?8:h-8, cx=w*0.62; g.lineWidth=6; g.moveTo(cx-70,yTop); g.lineTo(cx,yTip); g.lineTo(cx+70,yTop); }
+    if(mark) for(const m of mark.split('+')){ g.strokeStyle='#222'; g.lineWidth=5; g.lineCap='round'; g.beginPath();
+      if(m==='loop'){ const cx=w*0.42, cy=h*0.5; g.ellipse(cx,cy,46,30,0,0,Math.PI*2); g.moveTo(cx+40,cy+16); g.quadraticCurveTo(cx+110,cy+40,cx+170,h-4); }
+      else if(m.startsWith('arm:')){ const [,side,dx,dy]=m.split(':'), b=side==='b', y0=b?h-1:1, cx=w*0.72;
+        g.lineWidth=6; g.moveTo(cx,y0); g.lineTo(cx+(+dx), b? y0-(+dy) : y0+(+dy)); }
       g.stroke(); } });
   t.wrapS=THREE.ClampToEdgeWrapping; return texCache[key]=t; }
 
@@ -109,7 +112,12 @@ const MATS={};
 function faceMat(f){ const fs=p.face[f], kind=fs.passes===0?'raw':fs.tear?'tear':'planed';
   // pente du fil dans le dessin : sur un chant (C) on voit la pente dans l'épaisseur, sur un plat (F) celle dans la largeur
   const across=isF(f)?p.W0:p.T0, s=-(isF(f)?p.sW:p.sT)*(128/across)/(1024/p.L);   // y du dessin vers le bas = vers la face v1 / w1
-  let mark=null; if(fs.mark==='loop') mark='loop'; else if(fs.mark) mark=fs.mark;
+  const parts=[]; if(fs.mark==='loop') parts.push('loop');
+  const vm=p.vmark; if(vm&&(f===vm.s1||f===vm.s2)){ const other=f===vm.s1?vm.s2:vm.s1;
+    // l'arête avec une face « 1 » (F1 ou C1) est en bas du dessin, avec une face « 2 » en haut ; trait de 14 mm le long, 18 mm vers l'intérieur
+    const dx=Math.round(14*1024/p.L), dy=Math.round(Math.min(18,0.7*across)*128/across);
+    parts.push(`arm:${other.endsWith('1')?'b':'t'}:${dx}:${dy}`); }
+  const mark=parts.length?parts.join('+'):null;
   const key=[p.wood,kind,s.toFixed(3),mark].join('|');
   return MATS[key]||(MATS[key]=new THREE.MeshStandardMaterial({map:woodTex(p.wood,kind,s,mark),roughness:kind==='raw'?0.9:0.6})); }
 function endMat(){ return MATS['end'+p.wood]||(MATS['end'+p.wood]=new THREE.MeshStandardMaterial({map:woodTex(p.wood,'end',0,null),roughness:0.85})); }
@@ -169,7 +177,7 @@ function applyCut(d){ const f=faces().down, fs=p.face[f]; cut.lastMsg='';
   const a={F1:p.w1,F2:p.w2,C1:p.v1,C2:p.v2}[f], lo=f==='F1'||f==='C1';
   if(lo){ const lvl=minA(a)+d; for(let i=0;i<N;i++) a[i]=Math.max(a[i],lvl); }
   else { const lvl=maxA(a)-d; for(let i=0;i<N;i++) a[i]=Math.min(a[i],lvl); }
-  fs.passes++; fs.mark=null;
+  fs.passes++; fs.mark=null; if(p.vmark&&(p.vmark.s1===f||p.vmark.s2===f)) p.vmark=null;
   const gs=grainSign();
   if(gs<0){ fs.tear=true; cut.lastMsg=`Arrachements sur le ${FACE_NAME[f].toLowerCase()} : la pièce est passée contre le fil. Pivotez-la bout pour bout et repassez (1 mm au moins).`; }
   else if(fs.tear){ if(d>=1){ fs.tear=false; cut.lastMsg='Passe dans le sens du fil : les arrachements ont disparu.'; } else cut.lastMsg='Passe trop fine pour effacer les arrachements : 1 mm au moins.'; }
@@ -188,6 +196,7 @@ export function setZOff(z){ p.zOff=z; }
 /* repère au crayon sur la face du dessus */
 export function markTop(){ const f=faces().up, fs=p.face[f];
   if(isF(f)) fs.mark='loop';
-  else { const ref=fs.angle?.ref || (p.face.F1.mark?'F1':p.face.F2.mark?'F2':'F1'); fs.mark= ref==='F1'?'v-lo':'v-hi'; fs.markRef=ref; }
+  else { // repère d'angle : trait sur SR1 côté angle droit + trait sur SR2, qui se rejoignent à l'arête commune
+    const ref=fs.angle?.ref || (p.face.F1.mark?'F1':p.face.F2.mark?'F2':'F1'); fs.mark='v'; fs.markRef=ref; p.vmark={s1:ref,s2:f}; }
   build(); return f; }
 export function back(){ st.t=0; cut.done=false; cut.started=false; cut.inProgress=false; cut.lastT=0; place(); }

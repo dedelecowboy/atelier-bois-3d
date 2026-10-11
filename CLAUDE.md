@@ -57,10 +57,12 @@ Ajouter une machine : `machines/<id>/config.js` + `data/` + `main.js` qui appell
 - Pièce : 4 faces F1/F2 (plats) et C1/C2 (chants) décrites par des profils le long de la pièce ; une passe de profondeur d enlève la matière jusqu'à d au-dessus des points d'appui (une pièce cintrée se dresse en plusieurs passes). Orientation : k quarts de tour vers le guide + bout pour bout. Les écarts de forme sont exagérés ×3 à l'affichage seulement.
 - Fil : bon sens si, depuis la face usinée, les fibres montent vers le bout qui passe en premier ; sinon arrachements, effacés par une passe dans le bon sens d'au moins 1 mm. Scénario « fil incliné » : fil incliné dans l'épaisseur seulement (avec une pente aussi dans la largeur, une seule des deux faces possibles pour SR1 permet un SR2 sans arrachement : trop subtil pour le bac pro).
 - Angle de SR2 : celui du guide si la face contre le guide est dressée et plaquée ; sinon erreur d'angle.
-- Protecteur à pont : à plat, au-dessus de la pièce (0 à 2 mm) et jusqu'au guide ; sur chant, abaissé sur la table et à 2 mm de la pièce ; en fin de travail, rabattu contre le guide. Seuils : 2 à 10 mm = attention, plus de 10 mm = danger (faute grave si la passe commence).
+- Protecteur SUVAMATIC (validé par l'enseignant, d'après la documentation SUVA) : pas de réglage manuel de hauteur ni d'écart. La couverture repose sur la table contre le guide, rappelée par ressort ; le seul réglage est le bec d'engagement : horizontal pour le plat (la pièce soulève la couverture, qui glisse sur elle), vertical pour le chant (la pièce l'écarte du guide de son épaisseur, elle la plaque contre le guide). Elle revient seule après le passage. Bec mal orienté pour le travail en cours = danger (faute grave si la passe commence).
 - Autres dangers : pièce de moins de 320 mm, pièce posée sur son bombé (instable). Attention : passe > 2 mm, aspiration arrêtée, guide pas à 90° ou face non dressée contre le guide pour le chant.
 - Après la passe, la pièce est ramenée en la soulevant (« Ramener la pièce ») : jamais tirée en arrière sur l'arbre.
-- Repères : boucle sur SR1 ; V sur SR2 dont la pointe touche l'arête commune avec SR1.
+- Repères (validé par l'enseignant) : boucle de parement sur SR1 ; repère d'angle = un petit trait sur SR1, côté angle droit, qui repart sur SR2 : les deux traits forment un petit V à cheval sur l'arête commune.
+- Guide (validé par l'enseignant) : il s'incline vers l'arrière, loin de l'opérateur.
+- Aspiration (d'après le détail fourni par l'enseignant) : bac ouvert sous l'arbre sur toute la largeur, fond incliné, conduit qui se resserre vers la buse Ø 120 mm sur le côté du bâti, côté table de sortie.
 - Contrôle et barème des scénarios : SR1 dressé, SR2 dressé, angle 90 ± 0,2°, puis repères (rectiligne), épaisseur ≥ 29,5 mm (cintrée) ou absence d'arrachement (fil incliné), et « aucune faute grave ».
 
 ## Nommage des chants

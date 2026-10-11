@@ -7,7 +7,7 @@ import reperage from './data/reperage.txt';
 import { st, ctx, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markTop, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
-import { computeAlerts, passBlock, protState } from './rules.js';
+import { computeAlerts, passBlock, protState, coverPose } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
 const app = createApp(config, { organes, qcm, reperage });
@@ -18,17 +18,19 @@ initPiece(app, model);
 const F = app.ex.flash;
 const fmt=(v,n=1)=>(+v).toLocaleString('fr-FR',{maximumFractionDigits:n});
 
-/* ---------- schéma en bout : table, guide, pièce, pont ---------- */
+/* ---------- schéma en bout : table, guide, pièce, et couverture telle qu'elle sera au passage de la pièce ---------- */
 function drawProt(){ const el=$('protSvg'); if(!el) return; const P=p?protState():null;
   const sx=0.32, x0=12, yT=58, gx=x0+(520-st.gw)*sx;                       // 0,32 px/mm ; x0 = bord arrière (guide à fond)
   let g=`<rect x="${x0}" y="${yT}" width="${520*sx}" height="10" fill="var(--muted)" opacity=".35"/>`;
   g+=`<rect x="${gx-5}" y="${yT-40}" width="5" height="40" fill="var(--fg)" opacity=".7" transform="rotate(${-(90-st.ga)} ${gx} ${yT})"/>`;
+  let by=yT-6, bx=gx;
   if(p){ const b=faces(), wz=(b.down[0]==='F'?p.W0:p.T0)*sx, hy=heightMm()*0.6*1.6, px=gx+(p.zOff*1000)*sx;
-    g+=`<rect x="${px}" y="${yT-hy}" width="${wz}" height="${hy}" fill="#d9b98a" stroke="var(--muted)"/>`; }
-  const by=yT-st.ph*0.96-6, bx=gx+st.pg*sx, ok=P&&(P.m==='plat'?(P.overlap&&!P.blocks&&P.dh<=2&&st.pg<=2):(!P.blocks&&st.ph<=2&&P.e>=0&&P.e<=2));
+    g+=`<rect x="${px}" y="${yT-hy}" width="${wz}" height="${hy}" fill="#d9b98a" stroke="var(--muted)"/>`;
+    if(st.bec==='plat') by=yT-hy-6; else bx=px+wz; }
+  const ok=!!P&&P.ok;
   g+=`<rect x="${bx}" y="${by}" width="${x0+520*sx+24-bx}" height="6" fill="${ok?'var(--ok)':'#f0b323'}" stroke="var(--fg)" stroke-width=".6"/>`;
-  g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue en bout : guide, pièce, pont</text>`;
-  g+=`<text x="216" y="78" font-size="8" text-anchor="end" fill="${ok?'var(--ok)':'var(--muted)'}">${!P?'':ok?'pont bien réglé':P.m==='plat'?'pont : au-dessus de la pièce, contre le guide':'pont : sur la table, à 2 mm'}</text>`;
+  g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue en bout : couverture au passage de la pièce</text>`;
+  g+=`<text x="216" y="78" font-size="8" text-anchor="end" fill="${ok?'var(--ok)':'var(--danger)'}">${!P?'':ok?(P.m==='plat'?'bec horizontal : la couverture passe sur la pièce':'bec vertical : la couverture plaque la pièce'):'bec mal orienté : arbre découvert'}</text>`;
   el.innerHTML=g; }
 
 /* ---------- tableau des faces ---------- */
@@ -46,12 +48,12 @@ function renderFaces(){ if(!p){ $('facesTab').innerHTML=''; return; }
 /* ---------- mise à jour complète ---------- */
 function update(){
   updateFeed(passBlock);
-  model.update();
+  model.update(coverPose());
   $('o-travel').textContent=`${Math.round(st.t)} mm`; $('travel').value=st.t;
   $('o-depth').textContent=`${fmt(st.d)} mm`; $('depth').value=st.d;
   $('o-gangle').textContent=`${fmt(st.ga)}°`; $('gangle').value=st.ga;
   if(document.activeElement!==$('gwidth-n')) $('gwidth-n').value=Math.round(st.gw); $('gwidth').value=st.gw;
-  for(const k of ['ph','pg']) if(document.activeElement!==$(k)) $(k).value=Math.round(st[k]);
+  $('becPlat').setAttribute('aria-pressed',String(st.bec==='plat')); $('becChant').setAttribute('aria-pressed',String(st.bec==='chant'));
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('depth').disabled=$('gangle').disabled=$('gwidth').disabled=cut.inProgress;
   drawProt();
@@ -78,8 +80,8 @@ $('depth').addEventListener('input',e=>{ st.d=+e.target.value; apply(); });
 $('gangle').addEventListener('input',e=>{ st.ga=+e.target.value; apply(); });
 $('gwidth').addEventListener('input',e=>{ st.gw=+e.target.value; apply(); });
 $('gwidth-n').addEventListener('change',e=>{ st.gw=num($('gwidth'),Math.round(+e.target.value||0)); apply(); });
-for(const k of ['ph','pg']) $(k).addEventListener('change',e=>{ st[k]=num(e.target,Math.round(+e.target.value||0)); apply(); });
-$('prest').onclick=()=>{ st.ph=0; st.pg=0; apply(); };
+$('becPlat').onclick=()=>{ if(cut.inProgress) return; st.bec='plat'; apply(); };
+$('becChant').onclick=()=>{ if(cut.inProgress) return; st.bec='chant'; apply(); };
 $('motor').onclick=()=>{ st.motor=!st.motor; apply(); };
 $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
 let passT0=0, passFrom=0, passTo=0;
@@ -93,7 +95,7 @@ let lastSeq=0;
 app.start({
   update, alerts:()=>{ const a=computeAlerts(); if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=cut.lastMsg.startsWith('Arrachements')?'warn':'info'; } return a; },
   steps:STEPS,
-  loadMode(m){ stopPass(); cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },
+  loadMode(m){ stopPass(); st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },
   renderExtra:renderFaces,
   panelKey:()=>[cut.inProgress,cut.done,p&&p.face],
   onPanel(){ document.querySelectorAll('#tools button').forEach(b=>b.disabled=cut.inProgress && b.dataset.op!=='reset'); },

@@ -1,9 +1,9 @@
 /* Scénarios guidés de la dégauchisseuse : dresser le plat (SR1), le marquer, dresser le chant (SR2) contre SR1,
-   le marquer (repère d'angle droit), remettre le protecteur contre le guide, contrôler.
+   tracer le repère d'angle (petit V à cheval sur l'arête SR1 / SR2), arrêter la machine, contrôler.
    Trois pièces : rectiligne, cintrée sur le plat (creux sur la table, plusieurs passes), fil incliné (sens d'usinage). */
 import { st } from './state.js';
 import { p, newPiece, faces, mode, isFlat, againstGuide, concaveDown } from './piece.js';
-import { protState, sr1, sr2, measureD } from './rules.js';
+import { engaged, sr1, sr2, measureD } from './rules.js';
 
 const fmt=(v,n=2)=>v.toLocaleString('fr-FR',{maximumFractionDigits:n});
 const isF=f=>f[0]==='F';
@@ -12,25 +12,23 @@ const isF=f=>f[0]==='F';
 const prep=(c)=>({k:'Préparation', t:'Préparer la machine', c,
   checks:[['Aspiration en marche',()=>st.asp],['Guide à 90° (vérifié à l\'équerre)',()=>st.ga===90],['Profondeur de passe de 1 à 2 mm',()=>st.d>=1&&st.d<=2]],
   done:s=>s.checks.every(c=>c[1]())});
-const protPlat=()=>{ const P=protState(); return P.m==='plat'&&P.overlap&&!P.blocks&&P.dh<=2; };
-const protChant=()=>{ const P=protState(); return P.m==='chant'&&!P.blocks&&st.ph<=2&&P.e>=0&&P.e<=2; };
 const sr1Step=(c,extra=[])=>({k:'SR1', t:'Dresser le plat (SR1)', c,
-  checks:[['Pièce à plat sur la table',()=>!!p&&mode()==='plat'],...extra,['Protecteur au-dessus de la pièce, à 2 mm au plus',protPlat],['Pont contre le guide',()=>st.pg<=2],['Moteur en marche',()=>st.motor]],
+  checks:[['Pièce à plat sur la table',()=>!!p&&mode()==='plat'],...extra,['Bec d\'engagement horizontal (dressage du plat)',()=>st.bec==='plat'],['Moteur en marche',()=>st.motor]],
   done:()=>!!sr1()});
 const mark1={k:'Repère', t:'Marquer SR1 au crayon',
   c:'Ramenez la pièce et retournez-la (« Retourner ») pour voir la face dressée. Tracez le repère de parement : une boucle dont la queue rejoint l\'arête (« Repère au crayon »). Il dit, pour la suite du corroyage, quelle face est la référence.',
   checks:[['Face dressée sur le dessus',()=>{ if(!p) return false; const f=faces().up; return isF(f)&&isFlat(f); }]],
   done:()=>{ const s=sr1(); return !!s&&p.face[s].mark==='loop'; }};
 const sr2Step=(c)=>({k:'SR2', t:'Dresser le chant (SR2) d\'équerre', c,
-  checks:[['Pièce sur chant',()=>!!p&&mode()==='chant'],['Face SR1 contre le guide',()=>!!p&&againstGuide()&&faces().back===sr1()],['Guide à 90°',()=>st.ga===90],['Pont abaissé sur la table, à 2 mm de la pièce',protChant],['Moteur en marche',()=>st.motor]],
+  checks:[['Pièce sur chant',()=>!!p&&mode()==='chant'],['Face SR1 contre le guide',()=>!!p&&againstGuide()&&faces().back===sr1()],['Guide à 90°',()=>st.ga===90],['Bec d\'engagement vertical (dressage du chant)',()=>st.bec==='chant'],['Moteur en marche',()=>st.motor]],
   done:()=>!!sr2()});
-const mark2={k:'Repère', t:'Marquer SR2 : repère d\'angle droit',
-  c:'Ramenez la pièce, tournez-la pour voir le chant dressé et tracez son repère : un V dont la pointe touche l\'arête commune avec SR1. Les deux repères se rejoignent à l\'arête : c\'est l\'angle droit de référence pour le rabotage.',
+const mark2={k:'Repère', t:'Marquer l\'angle droit SR1 / SR2',
+  c:'Ramenez la pièce et tournez-la pour voir le chant dressé. Tracez le repère d\'angle (« Repère au crayon ») : un petit trait sur SR1, côté angle droit, qui repart sur SR2. Les deux traits forment un petit V à la rencontre des deux faces dégauchies : il montre quel angle est droit pour la suite du corroyage.',
   checks:[['Chant dressé sur le dessus',()=>{ if(!p) return false; const f=faces().up; return !isF(f)&&isFlat(f); }]],
   done:()=>{ const s=sr2(); return !!s&&!!p.face[s].mark&&p.face[s].markRef===sr1(); }};
 const fin={k:'Fin', t:'Remettre en sécurité',
-  c:'Le travail est fini : rabattez le pont sur la table, contre le guide, pour que l\'arbre soit entièrement recouvert, puis arrêtez le moteur.',
-  checks:[['Pont abaissé sur la table',()=>st.ph<=2],['Pont contre le guide',()=>st.pg<=2],['Moteur arrêté',()=>!st.motor]],
+  c:'Le travail est fini. Vérifiez que la couverture du protecteur est revenue seule sur la table, contre le guide (rappel par ressort) : l\'arbre est entièrement recouvert. Arrêtez le moteur.',
+  checks:[['Couverture revenue sur la table, contre le guide',()=>!engaged()],['Moteur arrêté',()=>!st.motor]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler la pièce', c, checks:[], results, done:()=>false});
 
@@ -56,24 +54,24 @@ export const LOADERS=Object.fromEntries(Object.entries(PIECES).map(([k,spec])=>[
 export const STEPS={
   rect:[
     prep('Planche de hêtre brute de sciage, 800 × 90 × 32 mm, rectiligne. Objectif : dresser une face de référence (SR1) puis un chant d\'équerre (SR2), et les marquer au crayon. Avant tout : EPI, aspiration en marche, guide vérifié à 90°, profondeur de passe de 1 à 2 mm.'),
-    sr1Step('Posez la pièce à plat et plaquez-la contre le guide. Réglez le protecteur à pont : il passe au-dessus de la pièce, à 2 mm au plus, et recouvre l\'arbre jusqu\'au guide. Démarrez le moteur et passez la pièce sans vous arrêter, mains à plat sur la pièce, en appuyant sur la table de sortie. Ramenez la pièce en la soulevant et repassez jusqu\'à ce que toute la face soit dressée.'),
+    sr1Step('Posez la pièce à plat et plaquez-la contre le guide. Orientez le bec d\'engagement du protecteur à l\'horizontale : en arrivant, la pièce soulève la couverture, qui glisse sur elle et redescend seule sur la table après son passage. Démarrez le moteur et passez la pièce sans vous arrêter, mains à plat sur la pièce, en appuyant sur la table de sortie. Ramenez la pièce en la soulevant et repassez jusqu\'à ce que toute la face soit dressée.'),
     mark1,
-    sr2Step('Posez la pièce sur chant, la face SR1 plaquée contre le guide réglé à 90°. Abaissez le pont sur la table et approchez-le à 2 mm de la pièce. Passez la pièce en la tenant des deux mains contre le guide, jusqu\'à ce que le chant soit dressé.'),
+    sr2Step('Posez la pièce sur chant, la face SR1 plaquée contre le guide réglé à 90°. Orientez le bec d\'engagement à la verticale : la pièce écarte la couverture du guide juste de son épaisseur, et la couverture la plaque contre le guide. Passez la pièce en la tenant des deux mains contre le guide, jusqu\'à ce que le chant soit dressé.'),
     mark2, fin,
     ctrl('Comparez la pièce au cahier des charges : SR1 et SR2 plans, d\'équerre, sans arrachement, repérés au crayon.',()=>rows('rect'))],
   courbe:[
     prep('Planche de chêne de 900 × 120 × 35 mm, cintrée sur le plat (flèche de 3 mm). Objectif : SR1 puis SR2 d\'équerre, sans gaspiller d\'épaisseur (29,5 mm au moins à la fin). Avant tout : EPI, aspiration, guide à 90°, profondeur de 1 à 2 mm.'),
-    sr1Step('Regardez la pièce : elle est posée le bombé sur la table et bascule. Retournez-la : le creux sur la table, elle repose sur ses deux bouts et ne bouge plus. Réglez le protecteur au-dessus de la pièce et passez. Les premières passes n\'usinent que les bouts : repassez jusqu\'à ce que toute la face soit dressée, sans passe inutile.',
+    sr1Step('Regardez la pièce : elle est posée le bombé sur la table et bascule. Retournez-la : le creux sur la table, elle repose sur ses deux bouts et ne bouge plus. Bec d\'engagement à l\'horizontale, passez. Les premières passes n\'usinent que les bouts : repassez jusqu\'à ce que toute la face soit dressée, sans passe inutile.',
       [['Creux sur la table (face concave dessous)',()=>!!p&&concaveDown()]]),
     mark1,
-    sr2Step('Posez la pièce sur chant, la face SR1 contre le guide à 90°. Abaissez le pont sur la table, à 2 mm de la pièce, et dressez le chant.'),
+    sr2Step('Posez la pièce sur chant, la face SR1 contre le guide à 90°. Bec d\'engagement à la verticale, dressez le chant.'),
     mark2, fin,
     ctrl('Cahier des charges : SR1 et SR2 plans et d\'équerre, repérés, épaisseur finale de 29,5 mm au moins.',()=>rows('courbe'))],
   fil:[
     prep('Planche de frêne de 800 × 100 × 30 mm dont le fil est incliné. Objectif : SR1 et SR2 sans aucun arrachement. Avant tout : EPI, aspiration, guide à 90°, profondeur de 1 à 2 mm.'),
-    sr1Step('Observez le fil sur le chant visible : les fibres doivent monter, depuis la face posée sur la table, vers le bout qui passe en premier sur l\'arbre (on « couche » le fil). Sinon, pivotez la pièce bout pour bout. Réglez le protecteur au-dessus de la pièce et passez. Si la face est arrachée, retournez la pièce bout pour bout et repassez à 1 mm au moins.'),
+    sr1Step('Observez le fil sur le chant visible : les fibres doivent monter, depuis la face posée sur la table, vers le bout qui passe en premier sur l\'arbre (on « couche » le fil). Sinon, pivotez la pièce bout pour bout. Bec d\'engagement à l\'horizontale, passez. Si la face est arrachée, retournez la pièce bout pour bout et repassez à 1 mm au moins.'),
     mark1,
-    sr2Step('Posez la pièce sur chant, SR1 contre le guide à 90°, pont abaissé à 2 mm, et dressez le chant. Sur cette planche, le fil n\'est incliné que dans l\'épaisseur : le chant se dresse sans arrachement quel que soit le sens.'),
+    sr2Step('Posez la pièce sur chant, SR1 contre le guide à 90°, bec d\'engagement à la verticale, et dressez le chant. Sur cette planche, le fil n\'est incliné que dans l\'épaisseur : le chant se dresse sans arrachement quel que soit le sens.'),
     mark2, fin,
     ctrl('Cahier des charges : SR1 et SR2 plans, d\'équerre, repérés, sans aucun arrachement.',()=>rows('fil'))],
 };

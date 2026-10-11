@@ -1,10 +1,10 @@
 /* Modèle 3D de la dégauchisseuse « KANAK 520 D » (d'après une dégauchisseuse de 520 mm type UTIS D52
-   avec protecteur à pont type SUVAMATIC). Marque fictive : ne pas afficher la marque réelle.
+   avec protecteur SUVAMATIC). Marque fictive : ne pas afficher la marque réelle.
    Arbre porte-outils à 4 fers ; sens de rotation : les fers du haut vont vers l'opérateur (+X), contre l'avance. */
 import * as THREE from 'three';
 import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex, beltGeom, pulley } from '../../engine/kit.js';
 import { TABLE_Y, R_CUT, ARBRE_Y, TABLE_W, TABLE_F, TABLE_B, LIP, TABLE_L } from './constants.js';
-import { st, guideZ, bridgeEndZ } from './state.js';
+import { st, guideZ } from './state.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const YEL = new THREE.MeshStandardMaterial({color:0xf0b323, metalness:0.15, roughness:0.45});
@@ -69,13 +69,27 @@ export function buildModel({ root, tagPart, partMeshes }){
   const belt=new THREE.Mesh(beltGeom([0,ARBRE_Y],0.035,MOT,0.055,0.018,0.006),MI.belt); belt.position.z=BZ; trans.add(belt);
   tagPart(trans,'transmission');
 
-  /* ---------- Aspiration : carter sous l'arbre + buse arrière ---------- */
+  /* ---------- Aspiration : bac sous l'arbre + conduit qui se resserre vers la buse Ø 120 mm, sur le côté du bâti (côté table de sortie) ---------- */
   const asp=new THREE.Group(); root.add(asp);
-  { const hood=new THREE.Mesh(new THREE.CylinderGeometry(0.095,0.095,TABLE_W-0.02,32,1,true,-Math.PI*0.5,Math.PI).rotateX(Math.PI/2)   /* demi-coquille sous l'arbre */,MI.plast); hood.position.set(0,ARBRE_Y,0); hood.material=MI.plast.clone(); hood.material.side=THREE.DoubleSide; asp.add(hood);
-    add(asp, rbox(0.12,0.20,0.20,MI.plast,0.01), 0,ARBRE_Y-0.18,TABLE_B+0.12);
-    const duct=link(new THREE.CylinderGeometry(0.055,0.055,1,24).rotateX(Math.PI/2),MI.hose); asp.add(duct);
-    setBetween(duct,new THREE.Vector3(0,ARBRE_Y-0.25,TABLE_B+0.12),new THREE.Vector3(-0.35,0.50,-0.36));
-    add(asp, cyl(0.065,0.08,M.dark,28,'z'), -0.35,0.50,-0.34); }
+  { const BLUE=new THREE.MeshStandardMaterial({color:0x2c4aa8,metalness:0.3,roughness:0.55,side:THREE.DoubleSide});
+    // 1) bac ouvert sous l'arbre, sur toute la largeur, fond incliné vers la sortie (côté table de sortie, −X)
+    const OUT=[-0.62,0.42], RO=0.06, XF=0.12, XB=-0.12, ZW=TABLE_W/2-0.012, Y0=TABLE_Y-0.058, YB1=Y0-0.10, YB2=Y0-0.25;
+    const pos=[], idx=[]; const quad=(...P)=>{ const n=pos.length/3; for(const q of P) pos.push(...q); idx.push(n,n+1,n+2, n,n+2,n+3); };
+    quad([XF,Y0,-ZW],[XF,Y0,ZW],[XF,YB1,ZW],[XF,YB1,-ZW]);                       // paroi côté entrée
+    quad([XF,YB1,-ZW],[XF,YB1,ZW],[XB,YB2,ZW],[XB,YB2,-ZW]);                     // fond incliné
+    for(const z of [-ZW,ZW]) quad([XF,Y0,z],[XF,YB1,z],[XB,YB2,z],[XB,Y0,z]);    // joues
+    // 2) conduit qui se resserre du bac (rectangle) à la buse ronde Ø 120
+    const NS=20, NK=48, sq=(c,e)=>Math.sign(c)*Math.pow(Math.abs(c),e), yc=(Y0+YB2)/2, hy=(Y0-YB2)/2;
+    const base=pos.length/3;
+    for(let i=0;i<=NS;i++){ const t=i/NS, s=t*t*(3-2*t), x=XB+(OUT[0]-XB)*t;
+      for(let k=0;k<NK;k++){ const f=k/NK*Math.PI*2, c=Math.cos(f), sn=Math.sin(f);
+        const ry=yc+hy*sq(c,0.15), rz=ZW*sq(sn,0.15), cy=OUT[1]+RO*c, cz=RO*sn;
+        pos.push(x, ry+(cy-ry)*s, rz+(cz-rz)*s); } }
+    for(let i=0;i<NS;i++) for(let k=0;k<NK;k++){ const a2=base+i*NK+k, b2=base+i*NK+(k+1)%NK; idx.push(a2,a2+NK,b2, b2,a2+NK,b2+NK); }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals();
+    asp.add(new THREE.Mesh(g,BLUE));
+    add(asp, cyl(RO+0.004,0.10,M.dark,32,'x'), -0.68,OUT[1],0);                    // buse à travers le bâti
+    add(asp, cyl(RO+0.016,0.012,M.steel,32,'x'), -0.73,OUT[1],0); }                 // collerette (raccord du flexible)
   tagPart(asp,'aspiration');
 
   /* ---------- Réglage de profondeur de passe : volant + échelle sur la table d'entrée ---------- */
@@ -113,17 +127,22 @@ export function buildModel({ root, tagPart, partMeshes }){
   const carterPlate=add(carter, rbox(0.15,0.006,1,YEL,0), 0,TABLE_Y+0.004,0);
   tagPart(carter,'carter');
 
-  /* ---------- Protecteur à pont : colonne avant, tête, pont jaune ---------- */
-  const PZ=TABLE_F+0.075, PX=0.0;
+  /* ---------- Protecteur SUVAMATIC : boîtier côté opérateur, couverture rappelée par ressort, bec d'engagement orientable ----------
+     La couverture repose sur la table, contre le guide. Bec horizontal (plat) : la pièce la soulève, elle glisse sur la pièce.
+     Bec vertical (chant) : la pièce l'écarte du guide de son épaisseur, elle plaque la pièce contre le guide. Elle revient seule. */
+  const PZ=TABLE_F+0.07, PX=0.0;
   const prot=new THREE.Group(); root.add(prot);
-  add(prot, rbox(0.08,0.42,0.08,YEL,0.01), PX,TABLE_Y-0.25,PZ);                  // colonne fixe
-  add(prot, rbox(0.11,0.05,0.11,M.dark,0.008), PX,TABLE_Y-0.46,PZ);
-  const col=link(new THREE.CylinderGeometry(0.022,0.022,1,16).rotateX(Math.PI/2),M.steel); prot.add(col);
-  const head=new THREE.Group(); prot.add(head);
-  add(head, rbox(0.12,0.10,0.13,M.dark,0.01), 0,0.03,0);
-  for(const [dx,dz] of [[0.07,0.02],[-0.07,-0.02]]){ add(head, cyl(0.007,0.05,M.dark,10,'x'), dx,0.03,dz); add(head, new THREE.Mesh(new THREE.SphereGeometry(0.014,12,8),M.dark), dx*1.45,0.03,dz); }
-  const bridge=add(prot, rbox(0.09,0.035,1,YEL,0.006), 0,0,0);                   // pont, étiré en Z
-  const nose=add(prot, rbox(0.11,0.03,0.05,M.dark,0.006), 0,0,0);               // bec d'engagement
+  add(prot, rbox(0.06,0.30,0.03,YEL,0.006), PX,TABLE_Y-0.20,TABLE_F+0.025);        // console jaune fixée au chant de la table
+  add(prot, rbox(0.13,0.22,0.10,M.dark,0.012), PX,TABLE_Y-0.07,PZ);                // boîtier (ressorts de rappel)
+  add(prot, cyl(0.007,0.05,M.dark,10,'x'), PX+0.09,TABLE_Y-0.10,PZ); add(prot, new THREE.Mesh(new THREE.SphereGeometry(0.014,12,8),M.dark), PX+0.12,TABLE_Y-0.10,PZ); // blocage pour travaux de série
+  const slide=new THREE.Group(); prot.add(slide);                                   // tête mobile : monte avec la couverture
+  add(slide, rbox(0.14,0.035,0.11,YEL,0.006), 0,0.0175,0);
+  const post=add(prot, rbox(0.05,1,0.05,M.steel,0), PX,0,PZ);                    // tige de guidage de la tête (sort du boîtier)
+  const cover=add(prot, rbox(0.10,0.012,1,YEL,0.003), 0,0,0);                      // couverture, étirée en Z
+  const coverEdge=add(prot, rbox(0.004,0.010,1,M.dark,0), 0,0,0);                  // bord crénelé côté entrée
+  const becG=new THREE.Group(); prot.add(becG);                                     // bec d'engagement, pivote de 90°
+  const flap=add(becG, rbox(0.07,0.004,0.06,YEL,0.002), 0.03,0,0.03); flap.rotation.z=0.45;
+  add(becG, cyl(0.006,0.064,M.dark,10,'z'), 0,0,0.03);
   tagPart(prot,'protecteur');
 
   /* ---------- Boîtier de commande + arrêt d'urgence ---------- */
@@ -143,21 +162,22 @@ export function buildModel({ root, tagPart, partMeshes }){
 
   /* ---------- mise à jour d'après les réglages ---------- */
   const tmpA=new THREE.Vector3(), tmpB=new THREE.Vector3();
-  function update(){
+  function update(pose){
     tIn.position.y = TABLE_Y - st.d/1000;
     pointer.position.set(0.30-0.0445+ (Math.min(5,st.d)/5)*0.0835*0.82 + 0.004, -0.008, TABLE_F+0.019);
     const zg=guideZ();
     guide.position.set(0,TABLE_Y,zg);
-    tilt.rotation.x = THREE.MathUtils.degToRad(90-st.ga);
+    tilt.rotation.x = -THREE.MathUtils.degToRad(90-st.ga);   // le guide s'incline vers l'arrière, loin de l'opérateur
     setBetween(gArm, tmpA.set(0.20,-0.03,-0.06), tmpB.set(0.20,-0.03,TABLE_B-0.15-zg));
     // carter : de la face du guide jusqu'au bord arrière des tables
     const cz0=TABLE_B-0.02, cz1=zg-0.002; carterPlate.scale.z=Math.max(0.001,cz1-cz0); carterPlate.position.z=(cz0+cz1)/2;
-    // protecteur
-    const hy=TABLE_Y+st.ph/1000, zEnd=Math.min(PZ-0.05,bridgeEndZ());
-    head.position.set(PX,hy,PZ);
-    setBetween(col, tmpA.set(PX,TABLE_Y-0.05,PZ), tmpB.set(PX,hy,PZ));
-    const z0=zEnd+0.025, z1=PZ-0.06; bridge.scale.z=Math.max(0.001,z1-z0); bridge.position.set(PX,hy+0.0175,(z0+z1)/2);
-    nose.position.set(PX,hy+0.015,zEnd+0.025);
+    // protecteur : pose = {y : hauteur du dessous de la couverture au-dessus de la table (m), zTip : bout côté guide}
+    const P=pose||{y:0,zTip:zg}, hy=TABLE_Y+P.y, zt=Math.min(PZ-0.09,P.zTip);
+    slide.position.set(PX,hy,PZ);
+    const py0=TABLE_Y+0.03; post.scale.y=Math.max(0.001,hy-py0); post.position.y=(hy+py0)/2;
+    const z1=PZ-0.055; cover.scale.z=Math.max(0.001,z1-zt); cover.position.set(PX,hy+0.006,(zt+z1)/2);
+    coverEdge.scale.z=cover.scale.z; coverEdge.position.set(PX+0.05,hy+0.006,(zt+z1)/2);
+    becG.position.set(PX+0.05,hy+0.012,zt); becG.rotation.x= st.bec==='chant'? -Math.PI/2 : 0;
   }
   /* rotation de l'arbre, ralentie à l'affichage (les fers du haut vont vers l'opérateur) */
   let spin=st.motor?1:0;

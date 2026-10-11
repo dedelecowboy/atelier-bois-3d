@@ -1,7 +1,7 @@
 """Dégauchisseuse : parcours évalué SCORM avec une fausse API Moodle.
 1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed.
 2. Reprise : un scénario interrompu reprend à son introduction, fautes graves conservées.
-3. Faute grave : passe avec le protecteur relevé au-dessus de la pièce → relevée, conservée."""
+3. Faute grave : dressage du plat avec le bec d'engagement vertical → relevée, conservée."""
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import Page, js, check, run
@@ -63,11 +63,11 @@ async def reprise(mid):
         s = await pg.eval(ST)
         check(s['ph'] == 'scen-intro' and s['qi'] == 20 and 'Scénario 1 / 3' in s['card'], 'reprise au scénario 1 (repérage et QCM conservés)')
     print('Reprise d\'un scénario interrompu avec une faute grave')
-    o = json.loads(mid); o.update(ph='scen', si=1, scens=[{'pts': 20, 'crit': [], 'dangers': []}], dangers=['PROTECTEUR TROP HAUT : test'])
+    o = json.loads(mid); o.update(ph='scen', si=1, scens=[{'pts': 20, 'crit': [], 'dangers': []}], dangers=["BEC D'ENGAGEMENT MAL ORIENTÉ : test"])
     async with Page('degauchisseuse', scorm=True, suspend=json.dumps(o)) as pg:
         s = await pg.eval(ST)
         check(s['ph'] == 'scen-intro' and s['si'] == 1 and 'Scénario 2 / 3' in s['card'], 'scénario interrompu repris depuis son introduction')
-        check(s['dangers'] == ['PROTECTEUR TROP HAUT : test'], 'faute grave du scénario interrompu conservée')
+        check(s['dangers'] == ["BEC D'ENGAGEMENT MAL ORIENTÉ : test"], 'faute grave du scénario interrompu conservée')
 
 async def faute_grave(mid):
     print('Faute grave pendant un scénario')
@@ -77,13 +77,13 @@ async def faute_grave(mid):
           if($('asp').getAttribute('aria-pressed')!=='true') $('asp').click();
           if($('motor').getAttribute('aria-pressed')!=='true') $('motor').click();
           $('stepNext').click();
-          setN('ph',90); setN('pg',0);    // pont relevé loin au-dessus de la pièce
+          $('becChant').click();    // bec vertical pour dresser le plat : la couverture ne recouvre pas la pièce
           const before=alerts().filter(a=>a.startsWith('danger'));
           const mx=+$('travel').max; for(let t=0;t<=mx;t+=10) setR('travel',t);
           return {before, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))
-        check(any('PROTECTEUR TROP HAUT' in a for a in r['before']), 'alerte rouge « protecteur trop haut » avant la passe')
-        check(len(r['dangers']) >= 1 and any(d.startswith('PROTECTEUR TROP HAUT') for d in r['dangers']), 'faute grave relevée au début de la passe')
-        check('Fautes graves relevées : ' in r['card'] and 'PROTECTEUR TROP HAUT' in r['card'], 'faute affichée dans la carte du parcours')
+        check(any('BEC D\'ENGAGEMENT MAL ORIENTÉ' in a for a in r['before']), 'alerte rouge « bec d\'engagement mal orienté » avant la passe')
+        check(len(r['dangers']) >= 1 and any(d.startswith('BEC D\'ENGAGEMENT MAL ORIENTÉ') for d in r['dangers']), 'faute grave relevée au début de la passe')
+        check('Fautes graves relevées : ' in r['card'] and 'BEC D\'ENGAGEMENT MAL ORIENTÉ' in r['card'], 'faute affichée dans la carte du parcours')
         await pg.eval('()=>__atelier.app.parcours.scorm.finish()')   # l'élève ferme la fenêtre
         sd = json.loads(await pg.eval("__store['cmi.suspend_data']"))
         check(sd['ph'] == 'scen' and len(sd['dangers']) >= 1, 'fenêtre fermée : faute enregistrée dans suspend_data')

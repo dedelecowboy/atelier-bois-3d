@@ -40,23 +40,23 @@ Q: Quelle profondeur de passe choisir pour dégauchir ?
 - 0 mm, pour ne pas abîmer les fers
 = Une passe trop forte arrache le bois, fatigue la machine et augmente le risque de rejet.
 
-Q: Pour dresser le plat, le protecteur à pont est réglé :
-- Relevé au maximum pour bien voir l'arbre
-+ Au-dessus de la pièce, au plus près, et jusqu'au guide
-- Contre le chant de la pièce, sur la table
-= Il recouvre tout l'arbre : la main passe sur le pont, jamais sur l'arbre.
+Q: Pour dresser le plat avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
+- À la verticale
++ À l'horizontale : la pièce soulève la couverture, qui glisse sur elle
+- On le retire
+= La couverture reste au-dessus de la pièce jusqu'au guide : la main passe sur la couverture, jamais sur l'arbre.
 
-Q: Pour dresser le chant, le protecteur à pont est réglé :
-+ Abaissé sur la table, à 2 mm de la pièce
-- Au-dessus de la pièce, à 50 mm
-- Retiré, la pièce est trop étroite
-= Le pont recouvre la partie de l'arbre située devant la pièce.
+Q: Pour dresser le chant avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
++ À la verticale : la pièce écarte la couverture du guide, qui la plaque contre le guide
+- À l'horizontale
+- On bloque la couverture en position haute
+= La couverture reste sur la table et recouvre l'arbre devant la pièce. Elle aide aussi à plaquer la pièce contre le guide.
 
-Q: Le travail est fini. Que faites-vous du protecteur ?
-- Je le laisse relevé pour le prochain élève
-+ Je le rabats sur la table contre le guide : l'arbre est entièrement recouvert
-- Je le démonte
-= L'arbre ne doit jamais rester découvert, même machine arrêtée : il tourne encore pendant le freinage.
+Q: Après le passage de la pièce, que fait la couverture du protecteur SUVAMATIC ?
+- Elle reste où la pièce l'a poussée : il faut la remettre à la main
++ Elle revient seule sur la table, contre le guide, grâce à son ressort de rappel
+- Elle se relève pour laisser passer la pièce suivante
+= L'arbre est de nouveau entièrement recouvert. On vérifie qu'elle n'est pas restée bloquée en hauteur après des travaux de série.
 
 Q: Pour dresser le chant d'équerre (SR2), quelle face plaquez-vous contre le guide ?
 - Une face brute de sciage
