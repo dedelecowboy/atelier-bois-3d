@@ -1,0 +1,16 @@
+/* Réglages de la machine (mm, degrés) et références partagées. */
+import { TABLE_F } from './constants.js';
+
+export const st = {
+  motor:!matchMedia('(prefers-reduced-motion: reduce)').matches, asp:false, pass:false,
+  t:0,          // avance de la pièce (mm parcourus depuis la position de départ)
+  d:1.5,        // profondeur de passe (mm) = abaissement de la table d'entrée
+  ga:90,        // angle du guide avec la table (°)
+  gw:360,       // largeur de passage : du guide au bord avant des tables (mm)
+  ph:0,         // protecteur à pont : hauteur au-dessus de la table (mm)
+  pg:0,         // protecteur à pont : écart entre le bout du pont et le guide (mm)
+};
+export const guideZ = ()=> TABLE_F - st.gw/1000;          // face de travail du guide
+export const bridgeEndZ = ()=> guideZ() + st.pg/1000;     // bout du pont, côté guide
+export const ctx = { app:null, model:null };
+export const $ = id=>document.getElementById(id);

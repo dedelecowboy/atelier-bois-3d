@@ -16,12 +16,12 @@ Langue de l'interface et des messages : français. Consignes simples et directes
 - `machines/scie-format/` : `config.js` (textes, modes, vues, xray, SCORM), `model.js` (modèle 3D + mise à jour + rotation des lames), `pieces.js` (pièces, découpe, cycle de coupe, manipulation, pièces débitées), `rules.js` (alertes, mesures), `scenarios.js` (étapes guidées, pièces de départ, critères notés), `main.js` (commandes, assemblage), `constants.js`, `state.js` (état `st`), fragments `settings.html`, `dock.html`, `panel.html`, `style.css`.
 - `machines/scie-format/data/` : `organes.txt`, `qcm.txt`, `reperage.txt`, que l'enseignant corrige lui-même (mode d'emploi en tête de chaque fichier). Les codes entre crochets relient les organes au modèle 3D (`tagPart(obj,'code')`) : la fabrication vérifie que chaque code utilisé existe.
 - `tools/build.mjs` (`npm run build`) : contrôle des données (message « fichier, ligne N : … » en français), bundle esbuild (three externe, `.txt` en texte), puis dans `dist/` : `<machine>.html` (fragment autonome, three par importmap depuis cdn.jsdelivr.net, three@0.160.0) et le zip SCORM (three copié dans `lib/`, importmap réécrite, `window.PARCOURS=true`, manifeste généré). `dist/` n'est pas versionné.
-- La page `dist/scie-format.html` est publiée comme artifact claude.ai : https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E (republier à cette URL, ne pas en créer une autre). Logo du lycée en webp base64 dans `.stage::before` (engine.css).
+- Pages publiées comme artifacts claude.ai (republier à ces URL, ne pas en créer d'autres) : `dist/scie-format.html` → https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E ; `dist/degauchisseuse.html` → https://claude.ai/artifact/QJ3m6hcgjuP52HZeVi5vJH. Logo du lycée en webp base64 dans `.stage::before` (engine.css).
 - `tests/` : `harness.py` (banc commun, fausse API SCORM), `run.py` (`npm test`), `tests/<machine>/test_*.py` avec assertions (voir tests/README.md).
 
 Ajouter une machine : `machines/<id>/config.js` + `data/` + `main.js` qui appelle `createApp(config, données)`, construit son modèle avec `app.parts.tagPart` et `app.stage.root`, puis `app.start(crochets)` ; `tests/<id>/` sur le modèle de la scie. Chaque nouvelle disposition `data-ui` va aussi dans la media query de `engine.css`.
 
-Étapes suivantes envisagées : machines dans l'ordre dégauchisseuse, raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée. Les textes des scénarios (consignes, libellés de contrôle) sont encore dans `scenarios.js` (ils sont liés au code des contrôles).
+Étape 2 en cours : dégauchisseuse (`machines/degauchisseuse/`, branche `degauchisseuse`). Étapes suivantes envisagées : raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée. Les textes des scénarios (consignes, libellés de contrôle) sont encore dans `scenarios.js` (ils sont liés au code des contrôles).
 
 ## Scie à format : conventions géométriques
 
@@ -49,6 +49,19 @@ Ajouter une machine : `machines/<id>/config.js` + `data/` + `main.js` qui appell
 - Gaspillage au délignage de rive : trait à 10 mm au plus du point le plus profond de la flache.
 - Flèches de décalage de la pièce calculées selon la caméra (direction réelle à l'écran), libellés « lame » / « chariot ».
 - Marque fictive « KANAK 550 » sur le bâti (modèle réel : Format-4 kappa ; ne pas afficher la vraie marque).
+
+## Dégauchisseuse : conventions et choix (proposés, À VALIDER par l'enseignant)
+
+- Machine fictive « KANAK 520 D » d'après une UTIS D52 (520 mm) avec protecteur à pont type SUVAMATIC et arbre Tersa 4 fers ; ne pas afficher la vraie marque. Ressources : fiche « Dégauchisseuse GUILLIET » (J. Gutierrez), fiche INRS A644, schéma des réglages de table de sortie.
+- Repère : X = sens d'avance (opérateur côté +X, table d'entrée), pièce vers −X ; opérateur côté +Z, guide et carter côté −Z. Arbre d'axe Z en X = 0, cercle de coupe au niveau de la table de sortie (TABLE_Y = 0,86). Table d'entrée abaissée de la profondeur de passe. Fers du haut vers l'opérateur (contre l'avance).
+- Pièce : 4 faces F1/F2 (plats) et C1/C2 (chants) décrites par des profils le long de la pièce ; une passe de profondeur d enlève la matière jusqu'à d au-dessus des points d'appui (une pièce cintrée se dresse en plusieurs passes). Orientation : k quarts de tour vers le guide + bout pour bout. Les écarts de forme sont exagérés ×3 à l'affichage seulement.
+- Fil : bon sens si, depuis la face usinée, les fibres montent vers le bout qui passe en premier ; sinon arrachements, effacés par une passe dans le bon sens d'au moins 1 mm. Scénario « fil incliné » : fil incliné dans l'épaisseur seulement (avec une pente aussi dans la largeur, une seule des deux faces possibles pour SR1 permet un SR2 sans arrachement : trop subtil pour le bac pro).
+- Angle de SR2 : celui du guide si la face contre le guide est dressée et plaquée ; sinon erreur d'angle.
+- Protecteur à pont : à plat, au-dessus de la pièce (0 à 2 mm) et jusqu'au guide ; sur chant, abaissé sur la table et à 2 mm de la pièce ; en fin de travail, rabattu contre le guide. Seuils : 2 à 10 mm = attention, plus de 10 mm = danger (faute grave si la passe commence).
+- Autres dangers : pièce de moins de 320 mm, pièce posée sur son bombé (instable). Attention : passe > 2 mm, aspiration arrêtée, guide pas à 90° ou face non dressée contre le guide pour le chant.
+- Après la passe, la pièce est ramenée en la soulevant (« Ramener la pièce ») : jamais tirée en arrière sur l'arbre.
+- Repères : boucle sur SR1 ; V sur SR2 dont la pointe touche l'arête commune avec SR1.
+- Contrôle et barème des scénarios : SR1 dressé, SR2 dressé, angle 90 ± 0,2°, puis repères (rectiligne), épaisseur ≥ 29,5 mm (cintrée) ou absence d'arrachement (fil incliné), et « aucune faute grave ».
 
 ## Nommage des chants
 

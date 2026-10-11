@@ -9,7 +9,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Machine | État | Dossier |
 |---|---|---|
 | Scie à format « KANAK 550 » | en service | `machines/scie-format/` |
-| Dégauchisseuse | prévue | |
+| Dégauchisseuse « KANAK 520 D » | en essai | `machines/degauchisseuse/` |
 | Raboteuse | prévue | |
 | Scie à ruban | prévue | |
 | Toupie | prévue | |
@@ -20,6 +20,12 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 - **Exercices guidés** : coupe libre, mise au format 800 × 450, délignage d'une planche avec flache (sabot puis guide), mélaminé avec inciseur. Alertes de sécurité (danger / attention / info) et contrôle de la pièce obtenue.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
+## Dégauchisseuse KANAK 520 D
+
+- **Présentation** : nomenclature de 15 organes (arbre à 4 fers, protecteur à pont, guide inclinable, carter derrière le guide…), vue intérieure.
+- **Exercices guidés** : SR1 (plat) puis SR2 (chant d'équerre contre SR1), repères au crayon, protecteur remis contre le guide. Trois pièces : rectiligne, cintrée (creux sur la table, plusieurs passes), fil incliné (sens d'usinage, arrachements).
+- **Parcours évalué (SCORM)** : repérage de 13 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -29,6 +35,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
+| `machines/degauchisseuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -42,8 +49,8 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html` : la page autonome (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip` : le paquetage SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `scie-format.html`, `degauchisseuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
+- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
 
 Pour une seule machine : `npm run build -- scie-format`.
 

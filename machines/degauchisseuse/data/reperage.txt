@@ -1,0 +1,28 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = bâti et tables translucides (organes intérieurs)
+#     rapprochée   = vue de dessus, derrière le guide (carter)
+#     3/4, opérateur, dessus, arbre = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « arbre, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+protecteur
+table_entree
+table_sortie
+guide
+arbre         | arbre, transparence      | arbre porte-outils (porte-fers)
+carter        | rapprochée
+reglage_guide
+profondeur    |                          | volant de réglage de la profondeur de passe
+pupitre
+arret         |                          | arrêt d'urgence
+aspiration    | transparence
+moteur        | transparence
+transmission  | transparence

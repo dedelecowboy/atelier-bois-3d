@@ -1,0 +1,13 @@
+  <div class="srow">
+    <button class="toggle" id="motor" type="button" aria-pressed="true">Moteur</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="pass" type="button" aria-pressed="false">Passe</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+  </div>
+  <div class="ctl"><label for="travel">Avance de la pièce</label><output id="o-travel"></output><input id="travel" type="range" min="0" max="1200" step="5" value="0"></div>
+  <div class="ctl"><label for="depth">Profondeur de passe</label><output id="o-depth"></output><input id="depth" type="range" min="0" max="5" step="0.5" value="1.5"></div>
+  <div class="ctl"><label for="gangle">Angle du guide</label><output id="o-gangle"></output><input id="gangle" type="range" min="45" max="90" step="0.5" value="90"></div>
+  <div class="ctl"><label for="gwidth">Position du guide (largeur de passage, mm)</label><input class="num" id="gwidth-n" type="number" min="60" max="520" step="1" aria-label="Largeur de passage en mm"><input id="gwidth" type="range" min="60" max="520" step="1" value="360"></div>
+  <div class="ctl prot"><span>Protecteur à pont</span><button class="toggle mini" type="button" id="prest" title="Rabat le pont sur la table, contre le guide : l'arbre est entièrement recouvert">Contre le guide</button>
+    <div class="prot-g"><label>Hauteur (mm)<input class="num" id="ph" type="number" min="0" max="150" step="1"></label><label>Écart au guide (mm)<input class="num" id="pg" type="number" min="0" max="520" step="1"></label></div>
+    <svg class="prot-svg" id="protSvg" viewBox="0 0 220 80" role="img" aria-label="Schéma en bout : table, guide, pièce et pont du protecteur"></svg></div>
