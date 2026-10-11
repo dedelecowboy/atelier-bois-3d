@@ -1,0 +1,21 @@
+# Fabrique les modules à chaque modification poussée sur GitHub (ou à la demande, onglet Actions).
+# Résultat : onglet Actions → dernière exécution → « Artifacts » → modules (pages web + paquetages SCORM).
+# Si un fichier de données contient une erreur, l'exécution échoue et le journal indique le fichier et la ligne.
+name: Fabrication
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  fabrication:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: modules
+          path: dist/
