@@ -1,0 +1,54 @@
+# Nomenclature de la dégauchisseuse KANAK 520 D
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Caisson en tôle d'acier : porte les tables, l'arbre, le moteur et l'aspiration.
+
+[table_entree] 02 Table d'entrée (de présentation)
+Table en fonte réglable en hauteur : on l'abaisse de la profondeur de passe. La pièce y est posée et poussée vers l'arbre.
+
+[table_sortie] 03 Table de sortie (de réception)
+Table en fonte fixe, réglée exactement au niveau du cercle de coupe des fers : c'est la référence. On appuie la pièce dessus dès qu'elle y arrive.
+
+[arbre] 04 Arbre porte-outils
+Cylindre porte-outils de Ø 120 mm, 4 fers réversibles, 5 600 tr/min, sur roulements. Il tourne contre l'avance de la pièce. Freiné à l'arrêt.
+
+[guide] 05 Guide de dégauchissage
+Guide en aluminium sur lequel on plaque la face dressée (SR1) pour dresser le chant (SR2). Inclinable de 90° à 45°.
+
+[reglage_guide] 06 Réglage du guide
+Barre et coulisseau arrière : manettes de blocage de la position latérale et de l'angle du guide, avec secteur gradué.
+
+[carter] 07 Carter derrière le guide
+Recouvre la partie de l'arbre située derrière le guide. Il suit le guide quand on le déplace.
+
+[protecteur] 08 Protecteur SUVAMATIC
+Boîtier noir à ressorts et bras jaune (la couverture) qui recouvre tout l'arbre, terminé par un embout noir et le bec d'engagement jaune. La couverture est rappelée par ressort sur la table et contre le guide. Seul réglage : le bec d'engagement, vertical pour dresser le plat (la pièce soulève la couverture) ou horizontal pour dresser le chant (la pièce écarte la couverture, qui la plaque contre le guide). Après le passage, elle revient seule. Elle peut être bloquée en hauteur pour les travaux de série.
+
+[profondeur] 09 Réglage de la profondeur de passe
+Volant qui abaisse la table d'entrée, avec échelle graduée en millimètres sur le chant de la table.
+
+[pupitre] 10 Boîtier de commande
+Sectionneur (mise sous tension, cadenassable), bouton marche (I) et bouton arrêt (O) avec freinage de l'arbre.
+
+[arret] 11 Arrêt d'urgence
+Bouton coup de poing rouge sur fond jaune : coupe le moteur et freine l'arbre en moins de 10 secondes.
+
+[aspiration] 12 Aspiration (buse de captage)
+Carter sous l'arbre relié à la buse Ø 120 mm à l'arrière : capte les copeaux et les poussières à la source.
+
+[moteur] 13 Moteur
+Moteur triphasé 4 kW dans le bâti, avec frein. Il entraîne l'arbre par courroie.
+
+[transmission] 14 Transmission
+Courroies entre la poulie du moteur et la poulie de l'arbre porte-outils.
+
+[piece] 15 Pièce de bois
+Cliquez la pièce pour voir sa position. Le tableau « Faces de la pièce » donne l'état de chaque face : brute, en cours, dressée, arrachée.

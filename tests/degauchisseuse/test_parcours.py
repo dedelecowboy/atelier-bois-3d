@@ -1,0 +1,96 @@
+"""Dégauchisseuse : parcours évalué SCORM avec une fausse API Moodle.
+1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed.
+2. Reprise : un scénario interrompu reprend à son introduction, fautes graves conservées.
+3. Faute grave : dressage du plat avec le bec d'engagement horizontal → relevée, conservée."""
+import json, os, re, sys
+sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from harness import Page, js, check, run
+from jeux import JEUX
+
+ST = "()=>({ph:__atelier.parc.ph, ri:__atelier.parc.ri, qi:__atelier.parc.qi, si:__atelier.parc.si, dangers:__atelier.parc.dangers, ui:document.getElementById('app').dataset.ui, card:document.getElementById('parcCard').innerText})"
+
+async def reperage(pg, wrong=()):
+    tg = await pg.eval('__atelier.REP_TARGETS')
+    for i, t in enumerate(tg):
+        await pg.eval(f"__atelier.repAnswer('{'bati' if i in wrong else t}')")
+        await pg.page.wait_for_function(f'__atelier.parc.ri>{i}', timeout=60000)
+    return tg
+
+async def qcm(pg, wrong=()):
+    ans = await pg.eval('__atelier.QCM.map(q=>q.a)')
+    for i, a in enumerate(ans):
+        if i in wrong: a = (a + 1) % 3
+        await pg.page.click(f'#parcCard [data-q="{a}"]'); await pg.page.click('#qNext')
+    return ans
+
+async def complet():
+    print('Parcours complet')
+    async with Page('degauchisseuse', scorm=True) as pg:
+        s = await pg.eval(ST)
+        check(s['ui'] == 'parcours' and s['ph'] == 'rep', 'démarrage en disposition parcours, phase repérage')
+        check((await pg.eval("__store['cmi.core.lesson_status']")) == 'incomplete', 'statut « incomplete » au départ')
+        tg = await reperage(pg, wrong=(3, 9))
+        check(len(tg) == 13, '13 organes à repérer')
+        s = await pg.eval(ST); check(s['ph'] == 'qcm', 'repérage terminé → QCM')
+        ans = await qcm(pg, wrong=(2, 7, 15))
+        check(len(ans) == 20, '20 questions')
+        mid = await pg.eval("__store['cmi.suspend_data']")
+        for k, mode in enumerate(['rect', 'courbe', 'fil']):
+            await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
+            r = await pg.eval(js(JEUX[mode]))
+            check(all(row[2] == '✓' for row in r['res']), f'scénario {k+1} ({mode}) : pièce conforme')
+            await pg.page.click('#scenEnd'); await pg.page.wait_for_timeout(300)
+        s = await pg.eval(ST)
+        check(s['ph'] == 'fin' and 'Module réussi · 94 / 100' in s['card'], 'note finale 94 / 100, module réussi')
+        store = await pg.eval('__store'); log = await pg.eval('__log')
+        check(store['cmi.core.score.raw'] == '94' and store['cmi.core.score.min'] == '0' and store['cmi.core.score.max'] == '100', 'score.raw / min / max envoyés')
+        check(store['cmi.core.lesson_status'] == 'passed', 'statut « passed » posé par le module')
+        n = int(store['cmi.interactions._count']); ids = [store[f'cmi.interactions.{i}.id'] for i in range(n)]
+        check(n == 48, '48 interactions (13 repérage + 20 QCM + 15 critères de scénarios)')
+        check(all(' ' not in i for i in ids), 'identifiants d\'interactions sans espace')
+        types = {store[f'cmi.interactions.{i}.type'] for i in range(n)}
+        check(types <= {'choice', 'numeric', 'performance'}, f'types d\'interactions valides {sorted(types)}')
+        sd = store['cmi.suspend_data']; o = json.loads(sd)
+        check(o['v'] == 2 and len(sd) <= 4096 and o['done'] and o['passed'], f'suspend_data JSON v:2 de {len(sd)} caractères')
+        await pg.eval('()=>__atelier.app.parcours.scorm.finish()')
+        store = await pg.eval('__store'); log = await pg.eval('__log')
+        check(re.fullmatch(r'\d{4}:\d{2}:\d{2}', store['cmi.core.session_time']) and store['cmi.core.exit'] == 'suspend' and log[-1] == 'finish', 'fin de session : session_time, exit=suspend, LMSFinish')
+    return mid
+
+async def reprise(mid):
+    print('Reprise après le QCM')
+    async with Page('degauchisseuse', scorm=True, suspend=mid) as pg:
+        s = await pg.eval(ST)
+        check(s['ph'] == 'scen-intro' and s['qi'] == 20 and 'Scénario 1 / 3' in s['card'], 'reprise au scénario 1 (repérage et QCM conservés)')
+    print('Reprise d\'un scénario interrompu avec une faute grave')
+    o = json.loads(mid); o.update(ph='scen', si=1, scens=[{'pts': 20, 'crit': [], 'dangers': []}], dangers=["BEC D'ENGAGEMENT MAL ORIENTÉ : test"])
+    async with Page('degauchisseuse', scorm=True, suspend=json.dumps(o)) as pg:
+        s = await pg.eval(ST)
+        check(s['ph'] == 'scen-intro' and s['si'] == 1 and 'Scénario 2 / 3' in s['card'], 'scénario interrompu repris depuis son introduction')
+        check(s['dangers'] == ["BEC D'ENGAGEMENT MAL ORIENTÉ : test"], 'faute grave du scénario interrompu conservée')
+
+async def faute_grave(mid):
+    print('Faute grave pendant un scénario')
+    async with Page('degauchisseuse', scorm=True, suspend=mid) as pg:   # repris après le QCM
+        await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
+        r = await pg.eval(js(r"""
+          if($('asp').getAttribute('aria-pressed')!=='true') $('asp').click();
+          if($('motor').getAttribute('aria-pressed')!=='true') $('motor').click();
+          $('stepNext').click();
+          $('becChant').click();    // bec horizontal pour dresser le plat : la couverture ne recouvre pas la pièce
+          const before=alerts().filter(a=>a.startsWith('danger'));
+          const mx=+$('travel').max; for(let t=0;t<=mx;t+=10) setR('travel',t);
+          return {before, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))
+        check(any('BEC D\'ENGAGEMENT MAL ORIENTÉ' in a for a in r['before']), 'alerte rouge « bec d\'engagement mal orienté » avant la passe')
+        check(len(r['dangers']) >= 1 and any(d.startswith('BEC D\'ENGAGEMENT MAL ORIENTÉ') for d in r['dangers']), 'faute grave relevée au début de la passe')
+        check('Fautes graves relevées : ' in r['card'] and 'BEC D\'ENGAGEMENT MAL ORIENTÉ' in r['card'], 'faute affichée dans la carte du parcours')
+        await pg.eval('()=>__atelier.app.parcours.scorm.finish()')   # l'élève ferme la fenêtre
+        sd = json.loads(await pg.eval("__store['cmi.suspend_data']"))
+        check(sd['ph'] == 'scen' and len(sd['dangers']) >= 1, 'fenêtre fermée : faute enregistrée dans suspend_data')
+
+async def main():
+    mid = await complet()
+    await reprise(mid)
+    await faute_grave(mid)
+
+if __name__=="__main__": run(main)

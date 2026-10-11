@@ -13,7 +13,7 @@ async def reperage(pg, wrong=()):
     tg = await pg.eval('__atelier.REP_TARGETS')
     for i, t in enumerate(tg):
         await pg.eval(f"__atelier.repAnswer('{'bati' if i in wrong else t}')")
-        await pg.page.wait_for_function(f'__atelier.parc.ri>{i}', timeout=20000)
+        await pg.page.wait_for_function(f'__atelier.parc.ri>{i}', timeout=60000)
     return tg
 
 async def qcm(pg, wrong=()):

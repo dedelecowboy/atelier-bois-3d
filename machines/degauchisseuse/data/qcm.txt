@@ -1,0 +1,131 @@
+# QCM sécurité et technique de la dégauchisseuse (parcours évalué)
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: À quoi sert le dégauchissage ?
+- À mettre la pièce à l'épaisseur voulue
++ À dresser une face de référence plane, puis un chant d'équerre
+- À couper la pièce à longueur
+= On dresse SR1 (le plat) puis SR2 (le chant) d'équerre. L'épaisseur et la largeur se font ensuite à la raboteuse.
+
+Q: Dans le corroyage, quelle face dresse-t-on en premier ?
++ Le plat (SR1), la plus grande face
+- Le chant (SR2)
+- Un bout de la pièce
+= Le plat dressé sert ensuite d'appui contre le guide pour dresser le chant d'équerre.
+
+Q: Pour dresser le plat d'une planche cintrée, comment la posez-vous ?
+- Le bombé sur la table, c'est plus rapide
++ Le creux sur la table : elle repose sur ses deux bouts et ne bascule pas
+- Peu importe
+= Posée sur son bombé, la pièce bascule pendant la passe : les mains peuvent glisser vers l'arbre.
+
+Q: Sur une pièce cintrée, les premières passes usinent :
++ Seulement les bouts : on repasse jusqu'à ce que toute la face soit dressée
+- Toute la face d'un coup
+- Seulement le milieu
+= La pièce repose sur ses bouts. À chaque passe, la zone dressée s'agrandit vers le milieu.
+
+Q: Quelle profondeur de passe choisir pour dégauchir ?
+- 5 mm, pour aller vite
++ 1 à 2 mm, moins pour la dernière passe
+- 0 mm, pour ne pas abîmer les fers
+= Une passe trop forte arrache le bois, fatigue la machine et augmente le risque de rejet.
+
+Q: Pour dresser le plat avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
+- À l'horizontale
++ À la verticale : la pièce soulève la couverture, qui glisse sur elle
+- On le retire
+= La couverture reste au-dessus de la pièce jusqu'au guide : la main passe sur la couverture, jamais sur l'arbre.
+
+Q: Pour dresser le chant avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
++ À l'horizontale : la pièce écarte la couverture du guide, qui la plaque contre le guide
+- À la verticale
+- On bloque la couverture en position haute
+= La couverture reste sur la table et recouvre l'arbre devant la pièce. Elle aide aussi à plaquer la pièce contre le guide.
+
+Q: Après le passage de la pièce, que fait la couverture du protecteur SUVAMATIC ?
+- Elle reste où la pièce l'a poussée : il faut la remettre à la main
++ Elle revient seule sur la table, contre le guide, grâce à son ressort de rappel
+- Elle se relève pour laisser passer la pièce suivante
+= L'arbre est de nouveau entièrement recouvert. On vérifie qu'elle n'est pas restée bloquée en hauteur après des travaux de série.
+
+Q: Pour dresser le chant d'équerre (SR2), quelle face plaquez-vous contre le guide ?
+- Une face brute de sciage
++ La face dressée SR1
+- Peu importe, le guide est à 90°
+= Le guide est à 90° de la table : la face plaquée doit être plane pour que le chant soit d'équerre à SR1.
+
+Q: Avant de dresser le chant, que vérifiez-vous sur le guide ?
+- Qu'il est poli
++ Qu'il est bien à 90° par rapport à la table (à l'équerre)
+- Qu'il est à 45°
+= Un guide mal réglé donne un chant qui n'est pas d'équerre à SR1.
+
+Q: Que montre une face pleine d'arrachements après la passe ?
+- La table de sortie est trop basse
++ La pièce est passée contre le fil
+- La passe était trop fine
+= On lit le fil sur le chant et on pivote la pièce bout pour bout pour usiner dans le sens du fil.
+
+Q: Usiner « dans le sens du fil », c'est :
++ Présenter la pièce pour que les fibres soient couchées par les fers, pas soulevées
+- Pousser la pièce plus vite
+- Passer la pièce dans les deux sens
+= Les fibres doivent monter, depuis la face usinée, vers le bout qui passe en premier sur l'arbre.
+
+Q: La pièce présente une encoche en fin de passe. Pourquoi ?
+- La table de sortie est trop haute
++ La table de sortie est trop basse par rapport aux fers
+- La passe est trop fine
+= En fin de passe, la pièce quitte la table d'entrée et plonge sur l'arbre : la table de sortie doit être au niveau du cercle de coupe.
+
+Q: Quelle est la longueur minimale d'une pièce passée à la dégauchisseuse ?
+- 100 mm
++ 320 mm
+- Aucune limite
+= Une pièce trop courte met les mains trop près de l'arbre. Les petites pièces se font autrement.
+
+Q: Pendant la passe, où appuyez-vous la pièce ?
+- Sur la table d'entrée jusqu'à la fin
++ Sur la table de sortie dès qu'elle y arrive
+- Nulle part, on la laisse glisser
+= La table de sortie est la référence : on y appuie pour que l'enlèvement de matière soit régulier.
+
+Q: À quelle vitesse poussez-vous la pièce ?
++ Régulièrement, sans aller vite et sans s'arrêter au-dessus de l'arbre
+- Le plus vite possible
+- Par à-coups
+= Il faut laisser travailler l'arbre. Une avance trop rapide donne une surface ondulée.
+
+Q: La passe est finie, la pièce est sur la table de sortie. Comment la ramenez-vous ?
+- Je la tire en arrière sur les tables
++ Je la soulève et je la ramène sur la table d'entrée
+- Je la repousse en marche arrière sur l'arbre
+= La pièce ne doit jamais repasser en arrière sur l'arbre : elle serait happée et rejetée.
+
+Q: Quels équipements portez-vous à la dégauchisseuse ?
+- Des gants pour ne pas se blesser
++ Protection auditive, vêtements ajustés, chaussures de sécurité, sans bijoux
+- Une écharpe pour le bruit
+= Pas de gants ni de vêtements flottants : ils peuvent être happés par l'arbre.
+
+Q: Pourquoi met-on l'aspiration en marche avant d'usiner ?
+- Pour refroidir les fers
++ Parce que les poussières de bois sont cancérogènes
+- Pour faire avancer la pièce
+= Les poussières de bois, surtout de bois durs (chêne, hêtre), peuvent provoquer des cancers : on les capte à la source.
+
+Q: Pourquoi trace-t-on des repères au crayon sur SR1 et SR2 ?
+- Pour décorer la pièce
++ Pour retrouver les faces de référence pendant la suite du corroyage
+- Pour mesurer l'épaisseur
+= Le repère de parement (boucle) et celui du chant (V vers l'arête) montrent l'angle droit de référence pour le rabotage.
