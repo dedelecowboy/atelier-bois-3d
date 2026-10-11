@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = capot et bâti translucides (organes intérieurs)
+#     rapprochée   = ouverture d'entrée, de près
+#     3/4, entrée, dessus, lames, sortie = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « lames, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+guide
+table_entree
+laser
+pupitre
+arret              | entrée                   | arrêt d'urgence
+reglage_presseurs  | entrée                   | volant de réglage des presseurs
+reglage_guide
+vitesse            | entrée                   | variateur de vitesse d'avance
+linguets           | rapprochée               | barrières anti-recul (linguets)
+tapis              | rapprochée               | tapis d'amenage
+lames              | lames, transparence
+manchon            | lames, transparence      | manchon porte-lames
+presseurs          | lames, transparence      | rouleaux presseurs
+rideau             | sortie                   | rideau de sortie
+moteur             | transparence             | moteur principal

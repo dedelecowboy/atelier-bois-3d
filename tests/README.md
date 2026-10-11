@@ -20,5 +20,7 @@ python3 tests/scie-format/test_exercices.py   # un seul fichier
   - `test_paquetage.py` : le zip SCORM servi comme par Moodle (three.js local, `application/x-javascript`) ;
   - `test_affichage.py` : ordinateur 1400 px et téléphone 412 px, captures dans `tests/out/`.
 
+- `degauchisseuse/`, `deligneuse/` : mêmes fichiers. Déligneuse : avivés → 2 × 85 mm, plateau en flache → avivé de 140 mm sans flache, multilames → 4 × 45 mm en une passe ; parcours 94 / 100, 50 interactions ; faute grave « presseurs trop hauts ».
+
 En headless, les pertes de contexte WebGL et les captures lentes ne sont pas des bugs utilisateur.
 Le parcours complet prend plusieurs minutes (rendu logiciel).

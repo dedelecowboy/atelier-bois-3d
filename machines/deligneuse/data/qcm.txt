@@ -1,0 +1,132 @@
+# QCM sécurité et technique de la déligneuse multilames (parcours évalué)
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# Sources : INRS ED 6019 « Déligneuses à lames multiples », cours « La déligneuse ».
+
+Q: À quoi sert la déligneuse multilames ?
+- À couper les planches à longueur
++ À refendre le bois massif dans le sens du fil, aux largeurs brutes
+- À dresser une face de référence
+= Elle scie dans le sens du fil (délignage). Les pièces restent brutes : elles passent ensuite à la dégauchisseuse et à la raboteuse.
+
+Q: Qu'est-ce qu'un avivé ?
+- Une planche avec ses deux rives en flache
++ Une pièce dont les quatre faces sont sciées
+- Un tronc écorcé
+= Avivé : 4 faces sciées parallèles. Un plateau n'a que ses deux faces sciées ; ses rives gardent la flache.
+
+Q: Dans quel sens tournent les lames de cette machine ?
++ En opposition : les dents du bas vont vers l'opérateur, contre l'avance
+- En avalant : les dents vont dans le sens de l'avance
+- Le sens n'a pas d'importance
+= En opposition, la lame tend à repousser la pièce vers l'opérateur : d'où les barrières anti-recul à l'entrée.
+
+Q: À quoi servent les linguets à l'entrée de la machine ?
+- À guider la pièce contre le guide
++ À empêcher le rejet de la pièce et la projection de déchets vers l'opérateur
+- À nettoyer le tapis
+= Ils se soulèvent au passage de la pièce. Si elle recule, leurs dents se plantent dans le bois et la retiennent.
+
+Q: Une pièce est coincée dans la machine. Quand peut-on relever les linguets ?
+- Tout de suite, pour la dégager pendant que les lames tournent
++ Seulement après l'arrêt complet des lames
+- Jamais
+= Linguets relevés, plus rien ne retient la pièce : arrêtez la machine, attendez l'arrêt des lames, puis suivez la procédure du constructeur.
+
+Q: Comment règle-t-on la hauteur des rouleaux presseurs ?
+- Bien au-dessus de la pièce, pour qu'elle passe facilement
++ Un peu en dessous de l'épaisseur de la pièce (1 à 4 mm), les ressorts la plaquent sur le tapis
+- Exactement à zéro
+= Trop hauts, les presseurs ne tiennent plus la pièce : elle peut être rejetée. Trop bas, elle bute à l'entrée.
+
+Q: Pourquoi une longueur minimale (390 mm) est-elle affichée sur la machine ?
+- Pour économiser le bois
++ Une pièce plus courte n'est pas tenue à la fois par les presseurs avant et arrière : risque de rejet
+- Parce que le laser ne la voit pas
+= Ne jamais engager une pièce plus courte que la longueur minimale indiquée par le constructeur.
+
+Q: Comment change-t-on le manchon porte-lames ?
+- Pendant que les lames ralentissent, pour gagner du temps
++ Machine arrêtée et consignée : la porte d'accès ne s'ouvre qu'après l'arrêt complet de l'arbre
+- Moteur en marche, avec des gants
+= La porte d'accès aux lames est interverrouillée. Des gants pour manipuler les lames, machine consignée.
+
+Q: Que montre le laser ?
+- La hauteur de la pièce
++ L'emplacement exact de chaque trait de scie sur la pièce
+- La vitesse d'avance
+= On place la pièce pour que les traits passent dans le bois sain : on enlève la flache sans gaspiller.
+
+Q: Pour déligner un plateau dont les rives sont en flache, que fait-on du guide ?
++ On l'escamote et on positionne le plateau au laser
+- On plaque la rive en flache contre le guide
+- On règle le guide à la largeur du plateau
+= Une rive en flache n'est pas droite : contre le guide, la pièce n'est pas tenue. Le guide sert aux pièces qui ont un chant scié.
+
+Q: Comment pose-t-on un plateau sur le tapis ?
+- Petit découvert dessous
++ Grande face sur le tapis, petit découvert dessus
+- Sur chant
+= Posé sur sa grande face, il est stable ; et le laser, sur la petite face du dessus, montre directement où commence le bois sain.
+
+Q: Un plateau est plus large à un bout qu'à l'autre. Par quel bout l'engager ?
++ Par le gros bout
+- Par le petit bout
+- Peu importe
+= On introduit la pièce par l'extrémité la plus large pour éviter tout blocage en fin de sciage.
+
+Q: L'aiguille de l'ampèremètre passe dans le rouge pendant le sciage. Que faites-vous ?
+- Vous augmentez la vitesse d'avance
++ Vous réduisez la vitesse d'avance
+- Vous remontez les presseurs
+= Le moteur est surchargé : il chauffe, les lames peinent et brûlent le bois. On ralentit l'avance pour rester dans la zone verte.
+
+Q: De quoi dépend la vitesse d'avance à choisir ?
+- Seulement de la longueur de la pièce
++ De l'épaisseur et de l'essence du bois, et du nombre de lames qui scient
+- De la couleur du bois
+= Plus le bois est épais et dur, et plus il y a de lames, plus il faut ralentir.
+
+Q: La pièce est engagée sur le tapis. Où vous placez-vous ?
+- Dans l'axe de la pièce, pour bien la surveiller
++ Sur le côté, hors de l'axe de la pièce
+- Derrière la machine, côté sortie
+= En cas de rejet, la pièce est projetée dans son axe. Après l'engagement, on ne reste jamais dans l'axe.
+
+Q: La pièce est mal engagée, de travers. Que faites-vous ?
+- Vous la redressez à la main pendant qu'elle avance
++ Vous arrêtez la machine et vous reprenez l'opération
+- Vous poussez plus fort
+= On ne cherche jamais à réaligner une pièce en cours de sciage.
+
+Q: Peut-on engager deux planches empilées pour aller plus vite ?
+- Oui, si elles sont de même largeur
++ Non, jamais
+- Oui, si on ralentit l'avance
+= Les presseurs et le tapis ne tiennent qu'une pièce : celle du dessus serait rejetée.
+
+Q: Avant d'engager une pièce de récupération, que vérifiez-vous ?
+- Sa couleur
++ L'absence de corps étrangers (clous, vis, agrafes)
+- Son humidité au toucher
+= Un clou casse les dents carbure et provoque des projections.
+
+Q: Pourquoi l'aspiration est-elle obligatoire ?
+- Pour refroidir les lames
++ Les poussières de bois sont cancérogènes ; elle évite aussi l'engorgement de la machine
+- Pour faire avancer la pièce
+= Hotte Ø 200 sur les lames et buse Ø 120 sur le tapis, en marche avant de démarrer les lames.
+
+Q: Quel équipement de protection individuelle est indispensable au poste de la déligneuse ?
+- Des gants pendant le sciage
++ Une protection auditive : la machine est très bruyante
+- Une cravate bien serrée
+= Protection auditive, chaussures de sécurité, pas de vêtements flottants. Les gants servent seulement à manipuler les lames, machine arrêtée.
