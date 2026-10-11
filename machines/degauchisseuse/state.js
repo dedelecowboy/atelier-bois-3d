@@ -7,7 +7,7 @@ export const st = {
   d:1.5,        // profondeur de passe (mm) = abaissement de la table d'entrée
   ga:90,        // angle du guide avec la table (°)
   gw:360,       // largeur de passage : du guide au bord avant des tables (mm)
-  bec:'plat',   // protecteur SUVAMATIC : bec d'engagement horizontal ('plat') ou vertical ('chant')
+  bec:'plat',   // protecteur SUVAMATIC : bec d'engagement vertical ('plat') ou horizontal ('chant')
 };
 export const guideZ = ()=> TABLE_F - st.gw/1000;          // face de travail du guide
 export const ctx = { app:null, model:null };

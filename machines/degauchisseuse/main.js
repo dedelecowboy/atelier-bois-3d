@@ -30,7 +30,7 @@ function drawProt(){ const el=$('protSvg'); if(!el) return; const P=p?protState(
   const ok=!!P&&P.ok;
   g+=`<rect x="${bx}" y="${by}" width="${x0+520*sx+24-bx}" height="6" fill="${ok?'var(--ok)':'#f0b323'}" stroke="var(--fg)" stroke-width=".6"/>`;
   g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue en bout : couverture au passage de la pièce</text>`;
-  g+=`<text x="216" y="78" font-size="8" text-anchor="end" fill="${ok?'var(--ok)':'var(--danger)'}">${!P?'':ok?(P.m==='plat'?'bec horizontal : la couverture passe sur la pièce':'bec vertical : la couverture plaque la pièce'):'bec mal orienté : arbre découvert'}</text>`;
+  g+=`<text x="216" y="78" font-size="8" text-anchor="end" fill="${ok?'var(--ok)':'var(--danger)'}">${!P?'':ok?(P.m==='plat'?'bec vertical : la couverture passe sur la pièce':'bec horizontal : la couverture plaque la pièce'):'bec mal orienté : arbre découvert'}</text>`;
   el.innerHTML=g; }
 
 /* ---------- tableau des faces ---------- */

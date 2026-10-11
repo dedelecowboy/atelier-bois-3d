@@ -2,8 +2,8 @@
    Une alerte « danger » active au moment où la passe commence est une faute grave (parcours évalué).
    Protecteur SUVAMATIC (documentation SUVA) : la couverture repose sur la table contre le guide, rappelée par ressort ;
    le seul réglage est l'orientation du bec d'engagement :
-   - dressage du plat (SR1) : bec horizontal, la pièce soulève la couverture qui glisse sur elle ;
-   - dressage du chant (SR2) : bec vertical, la pièce écarte la couverture du guide de son épaisseur ;
+   - dressage du plat (SR1) : bec vertical, la pièce soulève la couverture qui glisse sur elle ;
+   - dressage du chant (SR2) : bec horizontal, la pièce écarte la couverture du guide de son épaisseur ;
    la couverture revient seule sur la table, contre le guide, après le passage. */
 import { MIN_LEN } from './constants.js';
 import { st, guideZ } from './state.js';
@@ -24,9 +24,9 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
   if(p.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE (${p.L} mm) : moins de ${MIN_LEN} mm, les mains passent trop près de l'arbre. N'usinez pas cette pièce.`]);
   if(rocking()) out.push(['danger','PIÈCE INSTABLE : la face bombée repose sur la table, la pièce bascule pendant la passe. Retournez-la : le creux sur la table.']);
   if(P.m==='plat'){
-    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le plat, mettez le bec à l\'horizontale. Vertical, il fait écarter la couverture sur le côté : elle ne recouvre plus la pièce et les mains passent au-dessus de l\'arbre.']);
+    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le plat, mettez le bec à la verticale. Horizontal, il fait écarter la couverture sur le côté : elle ne recouvre plus la pièce et les mains passent au-dessus de l\'arbre.']);
   } else {
-    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le chant, mettez le bec à la verticale. Horizontal, il fait monter la couverture sur la pièce : l\'arbre reste découvert devant la pièce.']);
+    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le chant, mettez le bec à l\'horizontale. Vertical, il fait monter la couverture sur la pièce : l\'arbre reste découvert devant la pièce.']);
     const todo=!isFlat(f.down)||cut.inProgress;          // conseils de qualité seulement s'il reste à usiner ce chant
     if(todo&&!againstGuide()) out.push(['warn','Plaquez la face dressée (SR1) contre le guide (« Contre le guide »).']);
     else if(todo&&!isFlat(f.back)) out.push(['warn',`La face contre le guide (${FACE_NAME[f.back].toLowerCase()}) n'est pas dressée : le chant ne sera pas d'équerre. Dressez d'abord le plat (SR1).`]);

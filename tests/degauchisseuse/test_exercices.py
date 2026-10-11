@@ -17,7 +17,7 @@ async def main():
             check(got[:5] == ATTENDU[mode], f'contrôle final conforme : {got}')
             check(all(row[2] == '✓' for row in r['res']), 'toutes les lignes du contrôle sont cochées')
             dang = [m for m in r['msgs'] if m.startswith('danger')]
-            check('alerte bec horizontal sur chant:true' in r['msgs'], 'pièce sur chant avec le bec horizontal : alerte rouge « bec mal orienté »')
+            check('alerte bec vertical sur chant:true' in r['msgs'], 'pièce sur chant avec le bec vertical : alerte rouge « bec mal orienté »')
             dang = [m for m in dang if 'BEC D' not in m]
             if mode == 'courbe':
                 check('instable au départ:true' in r['msgs'] and 'stable retournée:true' in r['msgs'], 'pièce posée sur son bombé : alerte « pièce instable », levée une fois retournée')

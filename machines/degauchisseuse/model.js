@@ -138,19 +138,13 @@ export function buildModel({ root, tagPart, partMeshes }){
   tagPart(carter,'carter');
 
   /* ---------- Protecteur SUVAMATIC (d'après photos) ----------
-     Colonne jaune fixée au chant avant de la table ; boîtier noir à ressorts qui coulisse sur la colonne (hauteur) ;
+     Boîtier noir à ressorts fixé devant la table (monte avec le bras) ;
      bras jaune de section ovale qui traverse le boîtier (écartement), embout noir et bec d'engagement jaune coudé, à lumière,
-     qui pivote de 90° autour de l'axe du bras d'embout : horizontal pour le plat, vertical pour le chant.
+     qui pivote de 90° autour de l'axe du bras d'embout : vertical pour le plat (la pièce fait monter le bras), horizontal pour le chant (elle le repousse vers l'opérateur).
      Plat : la pièce soulève le bras, qui glisse sur elle. Chant : la pièce repousse le bras vers l'opérateur. Retour par ressort. */
   const PZ=TABLE_F+0.075, PX=0.0, ARM_L=0.60, AH=0.028;            // AH : épaisseur du bras
   const prot=new THREE.Group(); root.add(prot);
   const oval=(rx,ry,len,mat,axis)=>{ const g=new THREE.CylinderGeometry(1,1,len,40); g.scale(rx,1,ry); if(axis==='z') g.rotateX(Math.PI/2); return new THREE.Mesh(g,mat); };
-  // colonne verticale (fixe) sous le boîtier, sa console sur le chant de la table, tige qui sort quand le boîtier monte
-  const colX=PX-0.035, colZ=PZ+0.015, colTop=TABLE_Y-0.03;
-  add(prot, oval(0.026,0.02,0.28,YEL,'y'), colX,colTop-0.14,colZ);
-  add(prot, oval(0.027,0.021,0.02,M.dark,'y'), colX,colTop-0.29,colZ);                  // embout bas
-  add(prot, rbox(0.06,0.06,0.09,M.dark,0.006), colX,TABLE_Y-0.20,TABLE_F+0.04);          // console de fixation
-  const rod=add(prot, cyl(0.012,1,M.steel,16,'y'), colX,0,colZ);
   // boîtier noir (monte avec le bras)
   const head=new THREE.Group(); prot.add(head);
   add(head, rbox(0.13,0.11,0.11,M.dark,0.008), 0,0,0);
@@ -200,10 +194,9 @@ export function buildModel({ root, tagPart, partMeshes }){
     // protecteur : pose = {y : hauteur du dessous du bras au-dessus de la table (m), zTip : bout côté guide}
     const P=pose||{y:0,zTip:zg}, yb=TABLE_Y+P.y+AH/2, zt=Math.min(PZ-0.13,P.zTip);
     head.position.set(PX,yb+0.02,PZ);
-    const hb=yb+0.02-0.055; rod.scale.y=Math.max(0.001,hb-colTop+0.01); rod.position.y=(hb+colTop-0.01)/2;
     arm.position.set(PX,yb,zt+0.02+ARM_L/2); armCap.position.set(PX,yb,zt+0.02+ARM_L+0.012);
     tip.position.set(PX,yb,zt);
-    becG.rotation.x = st.bec==='chant'? -Math.PI/2 : 0;
+    becG.rotation.x = st.bec==='plat'? -Math.PI/2 : 0;   // plat : bec vertical (la pièce fait monter le bras) ; chant : horizontal (elle le repousse)
   }
   /* rotation de l'arbre, ralentie à l'affichage (les fers du haut vont vers l'opérateur) */
   let spin=st.motor?1:0;

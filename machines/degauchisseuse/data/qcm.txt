@@ -41,14 +41,14 @@ Q: Quelle profondeur de passe choisir pour dégauchir ?
 = Une passe trop forte arrache le bois, fatigue la machine et augmente le risque de rejet.
 
 Q: Pour dresser le plat avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
-- À la verticale
-+ À l'horizontale : la pièce soulève la couverture, qui glisse sur elle
+- À l'horizontale
++ À la verticale : la pièce soulève la couverture, qui glisse sur elle
 - On le retire
 = La couverture reste au-dessus de la pièce jusqu'au guide : la main passe sur la couverture, jamais sur l'arbre.
 
 Q: Pour dresser le chant avec le protecteur SUVAMATIC, comment orientez-vous le bec d'engagement ?
-+ À la verticale : la pièce écarte la couverture du guide, qui la plaque contre le guide
-- À l'horizontale
++ À l'horizontale : la pièce écarte la couverture du guide, qui la plaque contre le guide
+- À la verticale
 - On bloque la couverture en position haute
 = La couverture reste sur la table et recouvre l'arbre devant la pièce. Elle aide aussi à plaquer la pièce contre le guide.
 

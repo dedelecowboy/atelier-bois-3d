@@ -12,7 +12,7 @@ export default {
   modes: [
     { id: 'libre', label: 'Libre', title: 'Dégauchissage libre',
       free: { k: 'Dégauchissage libre', t: 'Planche de chêne 1 000 × 140 × 27',
-        c: 'Placez la pièce avec les outils ci-dessous, réglez la machine, orientez le bec du protecteur (horizontal à plat, vertical sur chant), puis lancez la passe. Ramenez la pièce en la soulevant après chaque passe. Le tableau « Faces de la pièce » indique l\'état de chaque face.' } },
+        c: 'Placez la pièce avec les outils ci-dessous, réglez la machine, orientez le bec du protecteur (vertical à plat, horizontal sur chant), puis lancez la passe. Ramenez la pièce en la soulevant après chaque passe. Le tableau « Faces de la pièce » indique l\'état de chaque face.' } },
     { id: 'rect', label: 'Rectiligne', title: 'Pièce rectiligne : SR1 puis SR2' },
     { id: 'courbe', label: 'Cintrée', title: 'Pièce cintrée sur le plat' },
     { id: 'fil', label: 'Fil incliné', title: 'Pièce au fil incliné : sens d\'usinage' },

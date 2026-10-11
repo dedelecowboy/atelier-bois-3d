@@ -30,7 +30,7 @@ Barre et coulisseau arrière : manettes de blocage de la position latérale et d
 Recouvre la partie de l'arbre située derrière le guide. Il suit le guide quand on le déplace.
 
 [protecteur] 08 Protecteur SUVAMATIC
-Colonne fixée à la table, boîtier noir à ressorts et bras jaune (la couverture) qui recouvre tout l'arbre, terminé par un embout noir et le bec d'engagement jaune. La couverture est rappelée par ressort sur la table et contre le guide. Seul réglage : le bec d'engagement, horizontal pour dresser le plat (la pièce soulève la couverture) ou vertical pour dresser le chant (la pièce écarte la couverture, qui la plaque contre le guide). Après le passage, elle revient seule. Elle peut être bloquée en hauteur pour les travaux de série.
+Boîtier noir à ressorts et bras jaune (la couverture) qui recouvre tout l'arbre, terminé par un embout noir et le bec d'engagement jaune. La couverture est rappelée par ressort sur la table et contre le guide. Seul réglage : le bec d'engagement, vertical pour dresser le plat (la pièce soulève la couverture) ou horizontal pour dresser le chant (la pièce écarte la couverture, qui la plaque contre le guide). Après le passage, elle revient seule. Elle peut être bloquée en hauteur pour les travaux de série.
 
 [profondeur] 09 Réglage de la profondeur de passe
 Volant qui abaisse la table d'entrée, avec échelle graduée en millimètres sur le chant de la table.

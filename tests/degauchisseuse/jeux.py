@@ -17,14 +17,14 @@ END = r"""
 """
 SR2 = r"""
  next(); for(let i=0;i<4 && !(ok(0)&&ok(1));i++){ op('rot'); op('guide'); }
- msgs.push('alerte bec horizontal sur chant:'+alerts().some(a=>a.includes("BEC D'ENGAGEMENT")));
- bec('chant'); log.push(state('sr2 placé, bec vertical'));
+ msgs.push('alerte bec vertical sur chant:'+alerts().some(a=>a.includes("BEC D'ENGAGEMENT")));
+ bec('chant'); log.push(state('sr2 placé, bec horizontal'));
  const n2=passUntil(); log.push(state('sr2 après '+n2+' passe(s)'));
  next(); op('flip'); op('mark'); log.push(state('repère sr2')); next();
 """
 RECT = BASE + r"""
  on('asp'); on('motor'); log.push(state('prep')); next();
- op('guide'); bec('plat'); log.push(state('sr1 placé, bec horizontal'));
+ op('guide'); bec('plat'); log.push(state('sr1 placé, bec vertical'));
  const n=passUntil(); log.push(state('sr1 après '+n+' passe(s)'));
  next(); op('flip'); op('mark'); log.push(state('repère sr1'));
 """ + SR2 + END
@@ -33,7 +33,7 @@ COURBE = BASE + r"""
  on('asp'); on('motor'); next();
  const unstable=alerts().some(a=>a.includes('PIÈCE INSTABLE'));
  op('flip'); op('guide'); const stable=!alerts().some(a=>a.includes('PIÈCE INSTABLE'));
- bec('plat'); log.push(state('sr1 placé, bec horizontal'));
+ bec('plat'); log.push(state('sr1 placé, bec vertical'));
  const n=passUntil(); log.push(state('sr1 après '+n+' passe(s)'));
  msgs.push('instable au départ:'+unstable, 'stable retournée:'+stable, 'passes SR1:'+n);
  next(); op('flip'); op('mark'); log.push(state('repère sr1'));

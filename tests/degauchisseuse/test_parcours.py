@@ -1,7 +1,7 @@
 """Dégauchisseuse : parcours évalué SCORM avec une fausse API Moodle.
 1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed.
 2. Reprise : un scénario interrompu reprend à son introduction, fautes graves conservées.
-3. Faute grave : dressage du plat avec le bec d'engagement vertical → relevée, conservée."""
+3. Faute grave : dressage du plat avec le bec d'engagement horizontal → relevée, conservée."""
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import Page, js, check, run
@@ -77,7 +77,7 @@ async def faute_grave(mid):
           if($('asp').getAttribute('aria-pressed')!=='true') $('asp').click();
           if($('motor').getAttribute('aria-pressed')!=='true') $('motor').click();
           $('stepNext').click();
-          $('becChant').click();    // bec vertical pour dresser le plat : la couverture ne recouvre pas la pièce
+          $('becChant').click();    // bec horizontal pour dresser le plat : la couverture ne recouvre pas la pièce
           const before=alerts().filter(a=>a.startsWith('danger'));
           const mx=+$('travel').max; for(let t=0;t<=mx;t+=10) setR('travel',t);
           return {before, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))
