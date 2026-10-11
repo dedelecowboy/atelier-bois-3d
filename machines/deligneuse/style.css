@@ -20,3 +20,5 @@
 .d-act{display:flex;flex-direction:column;gap:4px}
 .debit-empty{font-size:13px;color:var(--muted)}
 @media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* parcours évalué : la liste des pièces débitées reste visible pendant les scénarios (le moteur la cache en parcours) */
+.app[data-ui="parcours"][data-phase="scen"] .debit{display:block}

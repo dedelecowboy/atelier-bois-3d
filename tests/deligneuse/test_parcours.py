@@ -41,6 +41,9 @@ async def complet():
             await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
             r = await pg.eval(js(JEUX[mode]))
             check(all(row[2] == '✓' for row in r['res']), f'scénario {k+1} ({mode}) : pièces conformes')
+            if k == 0:
+                vis = await pg.eval("()=>{ const d=document.querySelector('.debit'); return {shown:getComputedStyle(d).display!=='none' && d.getBoundingClientRect().height>0, n:document.querySelectorAll('#debit li[data-k]').length}; }")
+                check(vis['shown'] and vis['n'] >= 3, f"parcours : pièces mises de côté visibles dans « Pièces débitées » ({vis['n']})")
             await pg.page.click('#scenEnd'); await pg.page.wait_for_timeout(300)
         s = await pg.eval(ST)
         check(s['ph'] == 'fin' and 'Module réussi · 94 / 100' in s['card'], 'note finale 94 / 100, module réussi')
