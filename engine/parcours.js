@@ -13,7 +13,7 @@ export function createParcours(app, { reperage, qcm }, P){
   const PARC_ON = !!window.PARCOURS;
   const REP = reperage, QCM = qcm, SCENS = P.scenarios;
   const parc={ph:'rep', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
-  let repFeedback='', repLock=false, repCfgKey=null, parcKey='';
+  let repFeedback='', repLock=false, repCfgKey=null, repQKey=null, parcKey='';
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
     state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}; } });
   const repName=r=>r.name||parts.PARTS[r.k].n.toLowerCase();
@@ -58,6 +58,9 @@ export function createParcours(app, { reperage, qcm }, P){
   function render(){ if(!PARC_ON) return; const el=$('parcCard'); if(!el) return;
     $('app').dataset.phase=parc.ph;
     const R=curRep(), cfg=parc.ph==='rep'?R.cfg:{}, wantX=!!cfg.x, ck=parc.ph==='rep'?JSON.stringify(cfg):'none';
+    /* la vue intérieure est imposée par la question (ni plus, ni moins) : remise à chaque question et à la sortie du repérage */
+    const qk=parc.ph==='rep'? parc.ri+'|'+ck : ck;
+    if(qk!==repQKey){ repQKey=qk; if(parts.xray!==wantX) parts.setXray(wantX,false); }
     if(ck!==repCfgKey){ const prev=repCfgKey; repCfgKey=ck; parts.setXray(wantX,false);
       if(cfg.view) stage.setView(cfg.view); else if(cfg.x) parts.setXray(true,true); else if(prev!==null) stage.setView(Object.keys(stage.VIEWS)[0]); }
     { const bar=$('repBar'); bar.hidden=parc.ph!=='rep'; if(parc.ph==='rep'){
@@ -91,5 +94,7 @@ export function createParcours(app, { reperage, qcm }, P){
   /* démarrage dans Moodle : reprise éventuelle, scénario interrompu recommencé depuis son intro */
   function start(){ scorm.init(); if(parc.ph==='scen') parc.ph='scen-intro'; P.onStart?.(); app.setUI('parcours'); if(parc.ph==='rep') parts.select(null); render(); }
 
-  return { PARC_ON, parc, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, QCM, REP };
+  /* pendant le repérage, la vue intérieure n'est pas libre (le bouton « Vue intérieure » est caché) */
+  const inRep=()=>PARC_ON && parc.ph==='rep';
+  return { PARC_ON, parc, inRep, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, QCM, REP };
 }
