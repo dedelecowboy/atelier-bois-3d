@@ -9,7 +9,7 @@ import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE } from './constants.
 import { st, head, parked, ctx, bladeX, stopX, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, measure, label, fmt, sawThrough, strokeNeeded, setKeep, setKind, evacuate, bringBack, aside, take, toGuide, endForEnd, nudge, clampPiece } from './piece.js';
-import { computeAlerts, passBlock, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
+import { computeAlerts, passBlock, zonePoly, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
 const app = createApp(config, { organes, qcm, reperage });
@@ -24,15 +24,16 @@ const say=(msg,level='warn')=>{ F.msg=msg; F.level=level; app.ex.invalidate(); a
 /* ---------- vue de dessus : table, planche, défauts, trait, zone dangereuse, main, butée ---------- */
 let planKey='';
 function drawPlan(){ const t=onTable(), hx=handXZ();
-  const key=JSON.stringify([t.map(q=>[q.id,+q.tx.toFixed(4),+q.tz.toFixed(4),q.rev]),cut.keep,st.alpha,st.beta,st.stopOn,st.stopL,st.handSide,st.handD,st.motor,head.mode]); if(key===planKey) return; planKey=key;
+  const key=JSON.stringify([t.map(q=>[q.id,+q.tx.toFixed(4),+q.tz.toFixed(4),q.rev]),cut.keep,st.alpha,st.beta,st.stopOn,st.stopL,st.handD,st.motor,head.mode]); if(key===planKey) return; planKey=key;
   const X0=-1.15, X1=1.05, X=x=>10+(x-X0)*300/(X1-X0), Z=z=>24+(z-FENCE_Z)*1000*0.32, zf=FENCE_Z+0.36;
   let g=`<rect x="${X(-0.80)}" y="${Z(FENCE_Z)}" width="${X(0.80)-X(-0.80)}" height="${Z(zf)-Z(FENCE_Z)}" fill="var(--panel)" stroke="var(--line)"/>`;
   const zs=[FENCE_Z,zf], bl=z=>bladeX(TABLE_Y,z,0);
   for(const q of t){ const P=(arr)=>arr.map(([u,v])=>{ const [x,z]=toScene(q,u,v); return X(x)+','+Z(z); }).join(' '); const f=q._f||(measure(q),q._f);
     g+=`<polygon points="${P(f.bot)}" fill="#8a7458" stroke="var(--muted)" stroke-width=".5"/><polygon points="${P(f.top)}" fill="#d9b98a" stroke="${q.id===cut.keep&&t.length>1?'#d27a1c':'#8a6a40'}" stroke-width="${q.id===cut.keep&&t.length>1?1.6:.5}"/>`;
     for(const d of defectsIn(q)) g+=`<polygon points="${P(d.poly)}" fill="#7a1810" stroke="#7a1810" stroke-width="${d.type==='noeud'?.5:1.4}"/>`; }
-  // zone dangereuse (150 mm de part et d'autre du trait, au niveau de la table)
-  g+=`<polygon points="${[[bl(zs[0])-ZONE/1000,zs[0]],[bl(zs[0])+ZONE/1000,zs[0]],[bl(zs[1])+ZONE/1000,zs[1]],[bl(zs[1])-ZONE/1000,zs[1]]].map(([x,z])=>X(x)+','+Z(z)).join(' ')}" fill="var(--danger)" opacity=".16"/>`;
+  // zone dangereuse (la même que sur la table : elle suit l'angle du bras et l'inclinaison), coupée au bas de la vue
+  { const Q=zonePoly(), k=(zf-Q[0][1])/(Q[3][1]-Q[0][1]), lerp=(a,b)=>[a[0]+(b[0]-a[0])*k,zf];
+    g+=`<polygon points="${[Q[0],Q[1],lerp(Q[1],Q[2]),lerp(Q[0],Q[3])].map(([x,z])=>X(x)+','+Z(z)).join(' ')}" fill="var(--danger)" opacity=".16"/>`; }
   g+=`<rect x="0" y="${Z(FENCE_Z)-6}" width="320" height="6" fill="var(--fg)" opacity=".75"/><text x="316" y="${Z(FENCE_Z)-8}" font-size="8" text-anchor="end" fill="var(--muted)">guide</text>`;
   // trait de scie : au ras de la table (trait plein), au-dessus de la pièce si la lame est inclinée (pointillés)
   const c=st.motor?'#ff2a14':'var(--fg)';
@@ -79,14 +80,13 @@ function update(){
   if(parked() && cut.blocked) cut.blocked='';
   const t=onTable(), hx=handXZ(), p=cur(), onW=handOnWood();
   model.update({ alpha:st.alpha, beta:st.beta, s:head.s, prot:st.prot, stopX:stopX(), stopOn:st.stopOn,
-    hand:{ show:t.length>0, x:hx[0], y:TABLE_Y+(onW&&p? p.prof.T/1000 : 0)+0.001, z:hx[1], bad:!handOk() } });
+    zone:zonePoly(), hand:{ show:t.length>0, x:hx[0], y:TABLE_Y+(onW&&p? p.prof.T/1000 : 0)+0.001, z:hx[1], bad:!handOk() } });
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pull').setAttribute('aria-pressed',String(head.mode==='pull')); $('ret').setAttribute('aria-pressed',String(head.mode==='back'));
   $('lock').setAttribute('aria-pressed',String(st.lock)); $('lock').textContent=st.lock?'Bras et tête bloqués':'Bras et tête débloqués';
   $('stopOn').setAttribute('aria-pressed',String(st.stopOn)); $('stopOn').textContent=st.stopOn?'Butée en service':'Butée relevée';
   document.querySelectorAll('[data-alpha]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.alpha===st.alpha)));
   document.querySelectorAll('[data-beta]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.beta===st.beta)));
-  document.querySelectorAll('[data-hand]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.hand===st.handSide)));
   for(const [k,key] of [['prot','prot'],['stop','stopL'],['hand','handD']]){ $(k).value=st[key]; if(document.activeElement!==$(k+'-n')) $(k+'-n').value=st[key]; }
   const moving=head.mode==='pull'||head.mode==='back';
   for(const id of ['prot','prot-n','stop','stop-n','stopOn','lock']) $(id).disabled=moving;
@@ -138,7 +138,6 @@ $('stop-n').addEventListener('change',e=>setStop(num($('stop'),e.target.value)))
 $('stopOn').onclick=()=>{ const t=onTable();
   if(!st.stopOn && t.some(q=>extent(q).x1>stopX()+1e-4)) return say('La pièce passe sous la butée : faites-la glisser vers la servante avant d\'abaisser la butée.');
   st.stopOn=!st.stopOn; F.msg=''; apply(); };
-document.querySelectorAll('[data-hand]').forEach(b=>b.onclick=()=>{ st.handSide=b.dataset.hand; apply(); });
 $('hand').addEventListener('input',e=>{ st.handD=+e.target.value; apply(); });
 $('hand-n').addEventListener('change',e=>{ st.handD=num($('hand'),e.target.value); apply(); });
 $('pull').onclick=()=>{ if(head.mode!=='park') return say(head.mode==='front'? 'La lame est déjà en avant : ramenez-la en arrière.' : 'Coupe en cours.');

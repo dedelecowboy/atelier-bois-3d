@@ -13,7 +13,7 @@
 Piétement et cadre en acier qui portent la table, la colonne et le bras (machine d'environ 300 kg). On le fixe au sol.
 
 [table] 02 Table
-Plateau en bois, à 900 mm du sol, pour ne pas abîmer la lame : la lame descend 5 mm dans la table. Une bande rouge marque la zone dangereuse, 150 mm de part et d'autre du trait de scie.
+Plateau en bois, à 900 mm du sol, pour ne pas abîmer la lame : la lame descend 5 mm dans la table. Des bandes rouges marquent la zone dangereuse, 150 mm de part et d'autre du trait de scie ; elles suivent l'angle du bras et l'inclinaison de la lame.
 
 [guide] 03 Guide
 Règle en bois à l'arrière de la table : la planche est toujours plaquée contre lui pendant le sciage. La lame le traverse par une entaille ; en position arrière, elle est entièrement derrière lui.
@@ -28,7 +28,7 @@ Bras en fonte, au-dessus de la table, dans lequel coulisse le chariot porte-lame
 Chariot à 8 roulements qui coulisse dans le bras. Il porte le groupe moteur et la lame.
 
 [ressort] 07 Ressort de rappel
-Ramène la tête porte-lame vers la colonne. On accompagne toujours la tête jusqu'en butée arrière sans lâcher la poignée : la lame doit être derrière le guide avant de toucher aux pièces.
+Ramène la tête porte-lame vers la colonne, jusqu'à la butée de fin de course arrière (caoutchouc) qui l'arrête avant la colonne. On accompagne toujours la tête jusqu'à cette butée sans lâcher la poignée : la lame doit être derrière le guide avant de toucher aux pièces.
 
 [moteur] 08 Groupe moteur
 Moteur triphasé de 4 kW (5,5 ch), 3 000 tr/min, avec frein. La lame est montée directement en bout de son arbre.

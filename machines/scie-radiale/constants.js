@@ -10,7 +10,7 @@ export const DROP = 0.005;                 // la lame descend 5 mm dans la table
 export const KERF = 4.0;                   // trait de scie (mm)
 export const FENCE_Z = -0.30;              // face avant du guide
 export const FENCE_T = 0.04, FENCE_H = 0.07;
-export const Z_COL = -0.85;                // axe de la colonne (pivot du bras)
+export const Z_COL = -0.95;                // axe de la colonne (pivot du bras) : la tête en position arrière s'arrête 15 mm avant elle
 export const Z_PARK = -0.60;               // centre de la lame en position arrière : lame entièrement derrière le guide
 export const STROKE = 0.90;                // course de la tête le long du bras
 export const ARM_Y = 1.62;                 // axe du bras

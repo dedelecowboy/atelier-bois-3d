@@ -31,7 +31,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(bati, rbox(0.22,0.12,0.30,WHITE2,0.01), 0,TABLE_Y-0.10,(Z_COL+TABLE_Z0)/2+0.02);
   tagPart(bati,'bati');
 
-  /* ---------- 02 Table en bois : trait de lame, zone dangereuse peinte ---------- */
+  /* ---------- 02 Table en bois : traits de lame ; zone dangereuse peinte (suit l'angle du bras et l'inclinaison) ---------- */
   const table = new THREE.Group(); root.add(table);
   const TW=TABLE_X1-TABLE_X0, TD=TABLE_Z1-TABLE_Z0;
   add(table, rbox(TW,0.034,TD,new THREE.MeshStandardMaterial({color:0xb99b70,roughness:0.85}),0.004), 0,TABLE_Y-0.017,(TABLE_Z0+TABLE_Z1)/2);
@@ -39,16 +39,28 @@ export function buildModel({ root, tagPart, partMeshes }){
     const t=canvasTex(640,Math.round(TD*px),(g,w,h)=>{ let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
       g.fillStyle='#c4a678'; g.fillRect(0,0,w,h);
       for(let i=0;i<5000;i++){ g.fillStyle=`rgba(${rnd()<0.5?90:240},${rnd()<0.5?66:215},40,${0.05+rnd()*0.08})`; g.fillRect(rnd()*w,rnd()*h,1+rnd()*2,1+rnd()*2); }
-      // zone dangereuse : bandes rouges et blanches à 150 mm de part et d'autre du trait, devant le guide
-      g.fillStyle='rgba(196,38,28,0.10)'; g.fillRect(X(-ZONE/1000),Z(FENCE_Z),X(ZONE/1000)-X(-ZONE/1000),h-Z(FENCE_Z));
-      for(const x0 of [-ZONE/1000-0.016, ZONE/1000]){ g.save(); g.beginPath(); g.rect(X(x0),Z(FENCE_Z),0.016*px,h-Z(FENCE_Z)); g.clip();
-        g.fillStyle='#f4f1ea'; g.fillRect(X(x0),0,0.016*px,h); g.fillStyle='#c4261c'; for(let y=-20;y<h+20;y+=14){ g.beginPath(); g.moveTo(X(x0),y); g.lineTo(X(x0)+10,y-10); g.lineTo(X(x0)+10,y-3); g.lineTo(X(x0),y+7); g.fill(); } g.restore(); }
-      g.save(); g.translate(X(-0.075),Z(0.33)); g.fillStyle='rgba(160,24,18,0.75)'; g.font='bold 12px sans-serif'; g.textAlign='center'; g.fillText('ZONE',22,0); g.fillText('DANGEREUSE',22,14); g.restore();
       // traits de lame : 0° (devant et derrière le guide) et ±45°
       g.strokeStyle='#2a1d10'; g.lineWidth=KERF/1000*px+0.6; g.beginPath(); g.moveTo(X(0),Z(Z_PARK-0.06)); g.lineTo(X(0),Z(0.43)); g.stroke();
       g.lineWidth=1.6; g.strokeStyle='rgba(42,29,16,0.6)'; for(const a of [-45,45]){ const ta=Math.tan(a*Math.PI/180); g.beginPath(); g.moveTo(X((FENCE_Z-Z_COL)*ta),Z(FENCE_Z)); g.lineTo(X((0.30-Z_COL)*ta),Z(0.30)); g.stroke(); } });
     const m=new THREE.Mesh(new THREE.PlaneGeometry(TW,TD),new THREE.MeshStandardMaterial({map:t,roughness:0.85})); m.rotation.x=-Math.PI/2; m.position.set(0,TABLE_Y+0.0004,(TABLE_Z0+TABLE_Z1)/2); m.receiveShadow=true; table.add(m); }
   tagPart(table,'table');
+  const zoneClip=[new THREE.Plane(new THREE.Vector3(1,0,0),-TABLE_X0),new THREE.Plane(new THREE.Vector3(-1,0,0),TABLE_X1),new THREE.Plane(new THREE.Vector3(0,0,-1),TABLE_Z1-0.004)];
+  const stripeT=canvasTex(32,256,(g,w,h)=>{ g.fillStyle='#f4f1ea'; g.fillRect(0,0,w,h); g.fillStyle='#c4261c'; for(let y=-40;y<h+40;y+=28){ g.beginPath(); g.moveTo(0,y); g.lineTo(w,y-20); g.lineTo(w,y-6); g.lineTo(0,y+14); g.fill(); } });
+  stripeT.wrapT=THREE.RepeatWrapping;
+  const zoneG=new THREE.Group(); zoneG.position.y=TABLE_Y+0.0008; table.add(zoneG);
+  const quad=(mat)=>{ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(12),3)); g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,1,1,0,1],2)); g.setIndex([0,2,1,0,3,2]);
+    const m=new THREE.Mesh(g,mat); m.receiveShadow=true; zoneG.add(m); return m; };
+  const zFill=quad(new THREE.MeshBasicMaterial({color:0xc4261c,transparent:true,opacity:0.13,depthWrite:false,clippingPlanes:zoneClip,side:THREE.DoubleSide}));
+  const zStripes=[0,1].map(()=>quad(new THREE.MeshBasicMaterial({map:stripeT,toneMapped:false,clippingPlanes:zoneClip,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1})));
+  const zText=new THREE.Mesh(new THREE.PlaneGeometry(0.12,0.05),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,clippingPlanes:zoneClip,map:canvasTex(256,108,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='rgba(160,24,18,0.8)'; g.font='bold 34px sans-serif'; g.textAlign='center'; g.fillText('ZONE',w/2,44); g.fillText('DANGEREUSE',w/2,92); })}));
+  zText.rotation.x=-Math.PI/2; zoneG.add(zText);
+  /* zone : quadrilatère [[x,z]…] (arrière gauche, arrière droit, avant droit, avant gauche), bandes de 16 mm sur ses deux bords */
+  function setZone(P){ const set=(m,Q)=>{ const a=m.geometry.attributes.position; Q.forEach(([x,z],i)=>a.setXYZ(i,x,0,z)); a.needsUpdate=true; m.geometry.computeBoundingSphere(); };
+    set(zFill,P); const w=0.016, len=Math.hypot(P[3][0]-P[0][0],P[3][1]-P[0][1]);
+    set(zStripes[0],[[P[0][0]-w,P[0][1]],P[0],P[3],[P[3][0]-w,P[3][1]]]); set(zStripes[1],[P[1],[P[1][0]+w,P[1][1]],[P[2][0]+w,P[2][1]],P[2]]);
+    for(const m of zStripes){ const u=m.geometry.attributes.uv; u.setXY(2,1,len/0.18); u.setXY(3,0,len/0.18); u.needsUpdate=true; }
+    const t=0.86, cx=(P[0][0]+P[1][0])/2+((P[3][0]+P[2][0])-(P[0][0]+P[1][0]))/2*t, cz=P[0][1]+(P[3][1]-P[0][1])*t;
+    zText.position.set(cx,0.0002,cz); zText.rotation.z=-Math.atan2(P[3][0]-P[0][0],P[3][1]-P[0][1]); }
 
   /* ---------- 03 Guide en bois, entaillé par la lame ---------- */
   const guide = new THREE.Group(); root.add(guide);
@@ -135,6 +147,8 @@ export function buildModel({ root, tagPart, partMeshes }){
     return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),400,0.0028,6,false); })(), new THREE.MeshStandardMaterial({color:0xb9b23a,metalness:0.7,roughness:0.35}));
   ressort.add(helix);
   add(ressort, rbox(0.05,0.04,0.02,M.steel,0.004), 0,ARM_Y+0.035,-0.09);
+  // butée de fin de course arrière (caoutchouc) : la tête s'arrête avant la colonne
+  add(ressort, rbox(0.07,0.035,0.04,M.dark,0.008), 0,ARM_Y-0.09,zc0-0.145);
   tagPart(ressort,'ressort');
 
   /* ---------- 16 Inclinaison : secteur courbe sous le chariot, coulisseau et levier (dans le groupe incliné) ---------- */
@@ -200,8 +214,8 @@ export function buildModel({ root, tagPart, partMeshes }){
   // 21 aspiration : buse Ø 120 sur le carter, buse Ø 60 derrière la lame, flexible
   const asp = new THREE.Group(); tilt.add(asp);
   { const b=cyl(0.06,0.16,M.dark,28); b.rotation.x=-0.55; b.position.set(0,hy+R+0.06,-0.14); asp.add(b);
-    const f=cyl(0.064,0.30,MI.hose,24); f.rotation.x=-0.25; f.position.set(0,hy+R+0.27,-0.26); asp.add(f);
-    const s=cyl(0.03,0.10,M.dark,20,'z'); s.position.set(0.0,hy-0.02,-R-0.07); asp.add(s); }
+    const f=cyl(0.064,0.14,MI.hose,24); f.rotation.x=-0.12; f.position.set(0,hy+R+0.17,-0.19); asp.add(f);
+    const s=cyl(0.03,0.09,M.dark,20,'x'); s.position.set(-0.08,hy-0.06,-0.15); asp.add(s); }
   tagPart(asp,'aspiration');
   // 12 protecteur avant transparent, réglable en hauteur (bord bas à prot mm de la table)
   const prot = new THREE.Group(); tilt.add(prot);
@@ -247,9 +261,10 @@ export function buildModel({ root, tagPart, partMeshes }){
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.075,0.09,40),ringMat); ring.rotation.x=-Math.PI/2; ring.position.y=0.001; hand.add(ring);
 
   /* ---------- mise à jour d'après les réglages ----------
-     S = { alpha, beta (°), s (course 0 à 1), prot (mm), stopX (m), stopOn, hand:{x,y,z,show,bad} } */
+     S = { alpha, beta (°), s (course 0 à 1), prot (mm), stopX (m), stopOn, hand:{x,y,z,show,bad}, zone:[[x,z]×4] } */
   function update(S){
     armG.rotation.y=S.alpha*Math.PI/180;
+    if(S.zone) setZone(S.zone);
     const zc=zc0+S.s*STROKE; carriage.position.z=zc;
     tilt.rotation.z=S.beta*Math.PI/180;
     // ressort : de l'arrière du bras au chariot

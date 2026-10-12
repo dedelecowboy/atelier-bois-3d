@@ -216,10 +216,10 @@ export function sawThrough(handXZ){
       dispose(q); pieces.splice(pieces.indexOf(q),1);
       for(const p of parts){ p.id=++uid; p.gen=cut.cuts+1; p.kind=autoKind(p); pieces.push(p); out.push(p); if(pressed) toGuide(p); } } }   // la main garde la pièce plaquée contre le guide
   cut.cuts++;
-  // pièce gardée : celle que tient la main, sinon celle du côté de la main (à gauche de la lame : la planche)
+  // pièce gardée : celle que tient la main, sinon celle de gauche (la planche)
   const held=handXZ? out.find(p=>{ const [u,v]=toLocal(p,...handXZ); return inPoly(faces(p).top,u,v); }) : null;
   const side=p=>{ const P=faces(p).bot; let x=0,z=0; for(const [u,v] of P){ const [a,b]=toScene(p,u,v); x+=a/P.length; z+=b/P.length; } return N[0]*x+N[1]*TABLE_Y+N[2]*z-D; };
-  const keep=held || out.slice().sort((a,b)=> st.handSide==='d'? side(b)-side(a) : side(a)-side(b))[0];
+  const keep=held || out.slice().sort((a,b)=>side(a)-side(b))[0];
   cut.keep=out.length>1&&keep? keep.id : null;
   for(const p of out) build(p);
   return out; }

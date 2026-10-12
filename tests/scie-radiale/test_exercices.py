@@ -1,5 +1,5 @@
 """Scie radiale : les trois exercices guidés de bout en bout (débit en série, purge des défauts, coupe inclinée),
-puis les gestes refusés (pièce touchée lame en avant, réglages lame en marche)."""
+puis les gestes refusés (pièce touchée lame en avant, réglages lame en marche, pièce non tenue)."""
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import Page, js, check, run
@@ -15,8 +15,7 @@ GESTES = BASE + r"""
  await ret(); r.efface=!alerts().some(a=>a.includes('PIÈCE TOUCHÉE'));
  op('xp10'); r.deux=alerts().some(a=>a.includes('Deux pièces sur la table'));
  op('evac');
- document.querySelector('[data-hand="d"]').click(); r.croises=alerts().some(a=>a.startsWith('danger')&&a.includes('BRAS CROISÉS'));
- document.querySelector('[data-hand="g"]').click(); op('aside'); [...document.querySelectorAll('[data-take]')].pop().click(); setN('hand-n',250);
+ r.uneMain=!document.querySelector('[data-hand]'); op('aside'); [...document.querySelectorAll('[data-take]')].pop().click(); setN('hand-n',250);
  r.vide=alerts().some(a=>a.includes('PIÈCE NON TENUE')); r.court=alerts().some(a=>a.includes('PIÈCE TROP COURTE'));
  return r;"""
 
@@ -55,7 +54,7 @@ async def main():
         check(r['repull'], 'nouvelle coupe refusée tant que la lame n\'est pas revenue')
         check(r['efface'], 'lame revenue : l\'alerte disparaît')
         check(r['deux'], 'deux pièces sur la table : il faut évacuer les chutes d\'abord')
-        check(r['croises'], 'main à droite de la lame : alerte rouge « bras croisés »')
+        check(r['uneMain'], 'main de maintien toujours à gauche de la lame : pas de choix de côté')
         check(r['vide'], 'chute de 30 mm reprise : main hors du bois, alerte rouge « pièce non tenue »')
         check(r['court'], 'chute de 30 mm reprise : alerte rouge « pièce trop courte »')
 

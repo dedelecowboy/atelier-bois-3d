@@ -10,8 +10,7 @@ export const st = {
   prot:60,         // protecteur avant : hauteur de son bord bas au-dessus de la table (mm)
   stopOn:false,    // butée de longueur en service (abaissée)
   stopL:550,       // butée : longueur de la pièce débitée (mm, depuis la face droite du trait de scie)
-  handSide:'g',    // main de maintien : 'g' à gauche de la lame, 'd' à droite (bras croisés)
-  handD:250,       // main de maintien : distance au trait de scie (mm)
+  handD:250,       // main gauche de maintien, toujours à gauche de la lame : distance au trait de scie (mm)
 };
 /* tête porte-lame : s = course (0 position arrière, 1 au bout du bras) ; mode park | pull | front | back */
 export const head = { s:0, mode:'park', target:0 };

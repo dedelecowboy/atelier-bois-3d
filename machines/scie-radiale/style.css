@@ -1,12 +1,10 @@
 /* Styles propres à la scie radiale : angles, butée, main, vue de dessus, pièces débitées. */
-.angc,.stpc,.handc{grid-template-columns:1fr auto;align-items:center}
-.seg-a,.seg-b,.seg-h{grid-column:1/-1;display:grid;gap:4px}
+.angc,.stpc{grid-template-columns:1fr auto;align-items:center}
+.seg-a,.seg-b{grid-column:1/-1;display:grid;gap:4px}
 .seg-a{grid-template-columns:repeat(7,minmax(0,1fr))}
 .seg-b{grid-template-columns:repeat(4,minmax(0,1fr))}
-.seg-h{grid-template-columns:repeat(2,minmax(0,1fr))}
-.seg-a .toggle,.seg-b .toggle,.seg-h .toggle,.angc>.toggle,.stpc .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 2px}
+.seg-a .toggle,.seg-b .toggle,.angc>.toggle,.stpc .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 2px}
 .angc>.toggle,.stpc .toggle{grid-column:1/-1}
-.handc label{font-size:14px}
 .seg-a .toggle:disabled,.seg-b .toggle:disabled,.settings .toggle:disabled{opacity:.45;cursor:not-allowed}
 .nudge{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:6px}
 .nudge button{padding:7px 1px;text-transform:none;letter-spacing:0;font-size:11.5px}
