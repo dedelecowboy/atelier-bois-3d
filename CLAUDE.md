@@ -61,8 +61,9 @@ Les textes des scénarios (consignes, libellés de contrôle) sont encore dans `
 
 Reprise de la scie radiale : la lame inclinée et la règle de tronçonnage orientée sont maintenant simulées en mode libre (aucun scénario noté ne les utilise encore).
 - Biais : `st.t` 0 à 46°, la lame penche vers le guide parallèle (−Z), autour de son trait au ras de la table (modèle existant). Chaque chant garde `meta.bev` (décalage en m de la face posée A à la face du dessus B, positif vers l'intérieur) et `meta.ang` ; la face du dessus se calcule par `topPts` (droites décalées). Pièce dessinée par `prismGeom` (face A, face B, flancs). Retourner la pièce montre le biais.
+- Réglages (demandé par l'enseignant) : curseur de la butée de longueur avec les autres curseurs (sous l'onglet) ; inciseur dans un bloc encadré à part, en fin de réglages.
 - Hauteur de coupe mesurée le long de la lame : il faut au moins épaisseur / cos(inclinaison) (+ 2 mm), conseil ≈ + 10 mm.
-- Onglet : `st.mit` de −45 à +45°, la règle pivote autour de son bout côté lame (REG_X, REG_Z0) ; « Contre la règle » et « En butée » suivent la règle orientée ; la butée se lit directement le long de la règle, depuis le trait de lame.
+- Onglet (décidé par l'enseignant) : `st.mit` de 0 à 45°, côté cadre de tronçonnage seulement ; la règle bute à 0° (d'équerre à la lame) et son bout libre vient vers l'opérateur (+X) ; curseur de 0 à 45° pour revenir facilement à l'équerre. Elle pivote autour de son bout côté lame (REG_X, REG_Z0) ; « Contre la règle » et « En butée » suivent la règle orientée ; la butée se lit directement le long de la règle, depuis le trait de lame.
 - Alertes « attention » : lame inclinée pendant un délignage au guide (pièce sous la lame, côté guide : règle courte et poussoir) ; règle de tronçonnage pas à 0° pendant un délignage au guide.
 
 ## Dégauchisseuse : conventions et choix (proposés, À VALIDER par l'enseignant)
