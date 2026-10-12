@@ -5,19 +5,19 @@
    - délignage d'une pièce étroite (< 120 mm) contre la règle du guide en position courte → danger ;
    - rive en flache contre le guide → danger (déligner d'abord au sabot). */
 import { lineDist, edgeDir, angDiff, area, clipHalf, zAt, outwardNormal } from '../../engine/poly.js';
-import { BLADE_Z, KERF, MAIN_KERF, FENCE_FACE } from './constants.js';
-import { st, guideFace } from './state.js';
-import { pieces, cut, A, sPts, toSlider, bandRange, segLen, scoreState, fenceEdge, guideEdge, sabotContact } from './pieces.js';
+import { BLADE_Z, KERF, MAIN_KERF } from './constants.js';
+import { st, guideFace, fenceDist } from './state.js';
+import { pieces, cut, A, sPts, sAll, toSlider, bandRange, segLen, scoreState, fenceEdge, guideEdge, sabotContact } from './pieces.js';
 
 /* --- contrôles de sécurité et de qualité --- */
 function computeAlerts(){ const out=[], p=A(); if(cut.blocked) out.push(['danger',cut.blocked]); if(!p) return out;
   const T=Math.round(p.T*1000), gf=guideFace();
-  if(st.h<T+2) out.push(['danger',`Lame trop basse : elle ne traverse pas la pièce (épaisseur ${T} mm).`]);
-  else if(st.h>T+25) out.push(['warn',`Lame trop haute : faites dépasser la denture d'environ 10 mm (≈ ${T+10} mm).`]);
-  if(st.t!==0) out.push(['danger','Lame inclinée : remettez l\'inclinaison à 0° (coupes inclinées non simulées pour l\'instant).']);
+  const Tb=T/Math.cos(st.t*Math.PI/180);   // épaisseur traversée le long de la lame (lame inclinée : plus longue)
+  if(st.h<Tb+2) out.push(['danger',`Lame trop basse : elle ne traverse pas la pièce (épaisseur ${T} mm${st.t?`, lame inclinée à ${st.t}° : ${Math.round(Tb)} mm à traverser`:''}).`]);
+  else if(st.h>Tb+25) out.push(['warn',`Lame trop haute : faites dépasser la denture d'environ 10 mm (≈ ${Math.round(Tb+10)} mm).`]);
   if(!st.motor) out.push(['info','Moteur arrêté : démarrez-le avant la passe.']);
-  if(pieces.some(q=>Math.min(...sPts(q).map(v=>v[0]))<FENCE_FACE-0.001)) out.push(['warn','Une pièce chevauche la règle de tronçonnage : cliquez « Contre la règle ».']);
-  if(pieces.some(q=>Math.min(...sPts(q).map(v=>v[1]))<gf-0.001)) out.push(['danger','Le guide parallèle est sur le passage de la pièce : reculez-le.']);
+  if(pieces.some(q=>Math.min(...sAll(q).map(fenceDist))<-0.001)) out.push(['warn','Une pièce chevauche la règle de tronçonnage : cliquez « Contre la règle ».']);
+  if(pieces.some(q=>Math.min(...sAll(q).map(v=>v[1]))<gf-0.001)) out.push(['danger','Le guide parallèle est sur le passage de la pièce : reculez-le.']);
   const ge=guideEdge(p), fe=fenceEdge(p), S=sPts(p);
   { const xs=S.map(v=>v[0]), extX=Math.max(...xs)-Math.min(...xs), touchG=Math.abs(Math.min(...S.map(v=>v[1]))-gf)<0.0008;
     if(touchG && extX<2*st.r/1000){ // guide parallèle utilisé comme butée de longueur (tronçonnage)
@@ -28,6 +28,8 @@ function computeAlerts(){ const out=[], p=A(); if(cut.blocked) out.push(['danger
         else out.push(['warn','Délignage étroit (moins de 120 mm) : utilisez un poussoir.']); }
       else if(p.kind!=='mela' && !st.guideShort) out.push(['warn','Bois massif : passez la règle du guide en position courte (elle doit s\'arrêter au niveau de la lame), sinon risque de pincement et de rejet.']);
       if(!ge.sawn && p.meta.some(m=>m.sawn)) out.push(['warn',`Le chant ${ge.label} contre le guide est brut : la largeur ne sera pas parallèle au chant dressé.`]); } }
+  if(st.t>0 && ge) out.push(['warn',`Lame inclinée de ${st.t}° vers le guide : la pièce entre la lame et le guide passe sous la lame et peut être pincée et rejetée. Règle du guide en position courte et poussoir.`]);
+  if(st.mit && ge) out.push(['warn',`Règle de tronçonnage orientée à ${st.mit}° : pour un délignage contre le guide, remettez-la à 0°.`]);
   if(fe && !ge && !fe.sawn && p.meta.some(m=>m.sawn)) out.push(['warn',`Le chant ${fe.label} contre la règle est brut : la coupe ne sera pas d'équerre au chant dressé.`]);
   if(!ge && !st.guideShort && bandRange(p)){ const minZ=Math.min(...S.map(v=>v[1])); if(minZ<gf+0.06) out.push(['danger','La chute risque de se coincer entre la lame et le guide parallèle : éloignez le guide.']); }
   if(!fe && !ge && !sabotContact(p) && bandRange(p)) out.push(['warn','La pièce n\'est en appui ni contre la règle, ni contre le guide, ni contre le sabot : coupe non maîtrisée.']);

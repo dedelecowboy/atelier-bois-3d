@@ -8,7 +8,7 @@ import reperage from './data/reperage.txt';
 import { MAIN_KERF } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPieces, pieces, cut, rebuildAll, renderDebit, setActive, scoreState, stopPass, updateCut, doOp, resetForMode } from './pieces.js';
+import { initPieces, pieces, cut, rebuildAll, renderDebit, setActive, scoreState, stopPass, updateCut, doOp, resetForMode, sAll } from './pieces.js';
 import { computeAlerts } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -43,7 +43,7 @@ function updateNudge(){ const l=arrowFor(-0.1), c=arrowFor(0.1); if(l+c===arrowK
 stage.controls.addEventListener('change',updateNudge);
 
 /* ---------- mise à jour complète d'après les réglages ---------- */
-const fmt = { slide:v=>`${v>0?'+':''}${Math.round(v)} mm`, height:v=>`${Math.round(v)} mm`, tilt:v=>`${(+v).toFixed(1)}°`, rip:v=>`${Math.round(v)} mm` };
+const fmt = { slide:v=>`${v>0?'+':''}${Math.round(v)} mm`, height:v=>`${Math.round(v)} mm`, tilt:v=>`${(+v).toFixed(1)}°`, mit:v=>`${(+v).toFixed(1).replace('.',',')}°`, rip:v=>`${Math.round(v)} mm` };
 function update(){
   updateCut();
   model.update();
@@ -54,16 +54,17 @@ function update(){
   $('slide').value=st.s;
   $('o-vc').textContent=`Vc ${Math.round(Math.PI*0.4*st.rpm/60)} m/s`;
   document.querySelectorAll('[data-rpm]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.rpm===st.rpm)));
-  for(const k of ['slide','height','tilt']){ const map={slide:'s',height:'h',tilt:'t'}; $('o-'+k).textContent=fmt[k](st[map[k]]); }
+  for(const k of ['slide','height','tilt','mit']){ const map={slide:'s',height:'h',tilt:'t',mit:'mit'}; $('o-'+k).textContent=fmt[k](st[map[k]]); }
   for(const k of ['rip','stop']){ const n=$(k+'-n'); if(document.activeElement!==n) n.value=Math.round(k==='rip'?st.r:st.stop); }
   $('stop').value=st.stop;
-  $('height').disabled=$('tilt').disabled=cut.inProgress;
+  $('height').disabled=$('tilt').disabled=$('mit').disabled=cut.inProgress;
+  $('mit').value=st.mit; $('tilt').value=st.t;
   { const lbl=st.s>=1400?'Passe de coupe':'Retour du chariot'; if($('pass').textContent!==lbl) $('pass').textContent=lbl; }
 }
 const apply=()=>app.apply();
 
 /* ---------- commandes ---------- */
-for(const [k,key] of [['slide','s'],['height','h'],['tilt','t'],['rip','r'],['stop','stop']]){
+for(const [k,key] of [['slide','s'],['height','h'],['tilt','t'],['mit','mit'],['rip','r'],['stop','stop']]){
   $(k).value = st[key];
   $(k).addEventListener('input',e=>{ st[key]=+e.target.value; if(k==='slide'){ st.pass=false; $('pass').setAttribute('aria-pressed','false'); } apply(); });
 }
@@ -83,6 +84,7 @@ $('gshort').onclick=()=>{ st.guideShort=!st.guideShort; $('gshort').setAttribute
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 
 /* ---------- démarrage ---------- */
+window.__scie={ st, pieces:()=>pieces, sAll, cam:(p,t)=>{ stage.setCam(p,t); stage.shadowsDirty?.(); } };   // poignée pour les tests automatiques
 app.start({
   update, alerts:computeAlerts, steps:STEPS,
   loadMode(m){ resetForMode(); LOADERS[m](); if(m==='planche') stage.setView('vop');

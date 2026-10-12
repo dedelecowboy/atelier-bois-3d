@@ -19,7 +19,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 ## Scie à format KANAK 550
 
 - **Présentation** : nomenclature de 22 organes, réglages, vue intérieure, vues prédéfinies, plein écran.
-- **Exercices guidés** : coupe libre, mise au format 800 × 450, délignage d'une planche avec flache (sabot puis guide), mélaminé avec inciseur. Alertes de sécurité (danger / attention / info) et contrôle de la pièce obtenue.
+- **Exercices guidés** : coupe libre (y compris coupes d'onglet avec la règle de tronçonnage orientée et coupes biaises lame inclinée jusqu'à 46°), mise au format 800 × 450, délignage d'une planche avec flache (sabot puis guide), mélaminé avec inciseur. Alertes de sécurité (danger / attention / info) et contrôle de la pièce obtenue.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
 ## Dégauchisseuse KANAK 520 D

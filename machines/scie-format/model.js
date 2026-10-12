@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex, beltGeom, pulley, arcPlate } from '../../engine/kit.js';
 import { TABLE_Y, BLADE_Z, R, SLIDER_Z, SLIDER_L, SLIDER_HOME, SABOT_FACE, SABOT_Z0, SABOT_Z1, FRAME_X0, FRAME_X1, FRAME_Z0, FRAME_Z1, REG_L, REG_X, REG_Z0 } from './constants.js';
-import { st, guideFace, stopFace } from './state.js';
+import { st, guideFace, stopT } from './state.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
 let screenKey='';
@@ -363,7 +363,8 @@ tagPart(support,'support');
 const tmpA=new THREE.Vector3(), tmpB=new THREE.Vector3();
 let footLeg=null;
 function update(){
-  stopA.position.x = stopFace() - REG_Z0 - 0.0175;
+  regle.rotation.y = -Math.PI/2 + THREE.MathUtils.degToRad(st.mit);   // règle orientable (onglets), pivot au bout côté lame
+  stopA.position.x = stopT() - 0.0175;
   guideProf.position.x = st.guideShort ? 0.705 : 0;
   if(st.sabot!==!!sabot.parent){ if(st.sabot) slider.add(sabot); else slider.remove(sabot); }
   incBlade.position.y=-INC_R+st.incH/1000; incBlade.position.z=st.incOff/1000; incBlade.scale.z=st.incW/4.5;
