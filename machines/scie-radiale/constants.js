@@ -10,13 +10,13 @@ export const DROP = 0.005;                 // la lame descend 5 mm dans la table
 export const KERF = 4.0;                   // trait de scie (mm)
 export const FENCE_Z = -0.30;              // face avant du guide
 export const FENCE_T = 0.04, FENCE_H = 0.07;
-export const Z_COL = -0.95;                // axe de la colonne : la tête en position arrière s'arrête bien avant elle
-export const Z_PIV = -0.30;                // pivot du bras, au droit de la face du guide : toutes les coupes d'onglet passent par ce point du guide
+export const Z_COL = -0.90;                // axe de la colonne = pivot du bras, 600 mm derrière la face du guide (la tête en position arrière s'arrête 15 mm avant elle)
+export const Z_PIV = Z_COL;                // pivot du bras (sur la colonne)
 export const ANGLE_MARKS = [-45, -30, -15, 0, 15, 30, 45];   // traits de lame laissés dans la table et le guide
-export const Z_PARK = -0.60;               // centre de la lame en position arrière : lame entièrement derrière le guide
+export const Z_PARK = -0.58;               // centre de la lame en position arrière : lame entièrement derrière le guide
 export const STROKE = 0.90;                // course de la tête le long du bras
 export const ARM_Y = 1.62;                 // axe du bras
-export const TABLE_X0 = -0.80, TABLE_X1 = 0.80, TABLE_Z0 = -0.66, TABLE_Z1 = 0.45;
+export const TABLE_X0 = -1.30, TABLE_X1 = 1.30, TABLE_Z0 = -0.66, TABLE_Z1 = 0.45;
 export const SERV_X0 = -3.10;              // bout de la servante à rouleaux (gauche)
 export const EXT_X1 = 2.55;                // bout de la table de sortie (droite)
 export const STOP_MIN = 150, STOP_MAX = 2000;   // course de la butée de longueur (mm depuis la face droite du trait)

@@ -25,7 +25,7 @@ export default {
     { id: 'vlame', label: 'Lame', title: 'Vue rapprochée de la lame, du carter et du protecteur', pos: [0.78,1.30,0.62], tgt: [0.0,1.06,-0.45],
       xray: true, toast: 'Vue « Lame » : vue intérieure activée, carter et bras translucides. Recliquez « Vue intérieure » pour revenir.' },
     { id: 'vbutee', label: 'Butée', title: 'Côté sortie des pièces : table de sortie et butée de longueur', pos: [1.75,1.65,1.35], tgt: [0.85,0.92,-0.30] },
-    { id: 'vcol', label: 'Colonne', hidden: true, pos: [1.25,2.15,0.55], tgt: [0.0,1.55,-0.55] },   // colonne, console et réglages du bras, de près
+    { id: 'vcol', label: 'Colonne', hidden: true, pos: [1.25,2.05,0.05], tgt: [0.0,1.50,-0.75] },   // colonne et réglages du bras, de près
   ],
 
   xray: { parts: [['carter',0.14],['bras',0.16],['protecteur',0.25]], cam: { pos: [0.95,1.55,0.35], tgt: [0.0,1.25,-0.55] } },

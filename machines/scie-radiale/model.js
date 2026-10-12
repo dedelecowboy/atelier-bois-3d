@@ -21,10 +21,10 @@ export function buildModel({ root, tagPart, partMeshes }){
 
   /* ---------- 01 Châssis ---------- */
   const bati = new THREE.Group(); root.add(bati);
-  for(const x of [-0.70,0.70]) for(const z of [-0.58,0.36]){ add(bati, rbox(0.08,TABLE_Y-0.07,0.07,WHITE,0.01), x,(TABLE_Y-0.07)/2,z); add(bati, rbox(0.12,0.02,0.11,M.dark,0.004), x,0.01,z); }
-  for(const z of [-0.58,0.36]) add(bati, rbox(1.48,0.09,0.05,WHITE2,0.006), 0,TABLE_Y-0.085,z);
-  for(const x of [-0.70,0.70]) add(bati, rbox(0.05,0.09,0.90,WHITE2,0.006), x,TABLE_Y-0.085,-0.11);
-  add(bati, rbox(1.40,0.05,0.05,WHITE2,0.006), 0,0.18,-0.58);
+  for(const x of [-1.20,1.20]) for(const z of [-0.58,0.36]){ add(bati, rbox(0.08,TABLE_Y-0.07,0.07,WHITE,0.01), x,(TABLE_Y-0.07)/2,z); add(bati, rbox(0.12,0.02,0.11,M.dark,0.004), x,0.01,z); }
+  for(const z of [-0.58,0.36]) add(bati, rbox(2.48,0.09,0.05,WHITE2,0.006), 0,TABLE_Y-0.085,z);
+  for(const x of [-1.20,0,1.20]) add(bati, rbox(0.05,0.09,0.90,WHITE2,0.006), x,TABLE_Y-0.085,-0.11);
+  add(bati, rbox(2.40,0.05,0.05,WHITE2,0.006), 0,0.18,-0.58);
   // support de colonne, à l'arrière
   add(bati, rbox(0.30,0.86,0.28,WHITE,0.02), 0,0.43,Z_COL-0.01);
   add(bati, rbox(0.42,0.03,0.40,M.dark,0.006), 0,0.015,Z_COL-0.01);
@@ -35,12 +35,12 @@ export function buildModel({ root, tagPart, partMeshes }){
   const table = new THREE.Group(); root.add(table);
   const TW=TABLE_X1-TABLE_X0, TD=TABLE_Z1-TABLE_Z0;
   add(table, rbox(TW,0.034,TD,new THREE.MeshStandardMaterial({color:0xb99b70,roughness:0.85}),0.004), 0,TABLE_Y-0.017,(TABLE_Z0+TABLE_Z1)/2);
-  { const px=640/TW, X=x=>(x-TABLE_X0)*px, Z=z=>(z-TABLE_Z0)*px;
-    const t=canvasTex(640,Math.round(TD*px),(g,w,h)=>{ let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
+  { const px=1024/TW, X=x=>(x-TABLE_X0)*px, Z=z=>(z-TABLE_Z0)*px;
+    const t=canvasTex(1024,Math.round(TD*px),(g,w,h)=>{ let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
       g.fillStyle='#c4a678'; g.fillRect(0,0,w,h);
       for(let i=0;i<5000;i++){ g.fillStyle=`rgba(${rnd()<0.5?90:240},${rnd()<0.5?66:215},40,${0.05+rnd()*0.08})`; g.fillRect(rnd()*w,rnd()*h,1+rnd()*2,1+rnd()*2); }
-      // traits de lame laissés dans la table : toutes les positions caractéristiques du bras passent par le pivot, au droit du guide
-      for(const a of ANGLE_MARKS){ const r=a*Math.PI/180, sa=Math.sin(r), ca=Math.cos(r), t0=-0.36, t1=(TABLE_Z1-Z_PIV)/ca;
+      // traits de lame laissés dans la table pour les positions caractéristiques du bras (droites issues de l'axe de la colonne)
+      for(const a of ANGLE_MARKS){ const r=a*Math.PI/180, sa=Math.sin(r), ca=Math.cos(r), t0=Z_PARK-Z_PIV-0.05, t1=(TABLE_Z1-Z_PIV)/ca;
         g.strokeStyle='#2a1d10'; g.lineWidth=KERF/1000*px+(a?0.4:0.8);
         g.beginPath(); g.moveTo(X(t0*sa),Z(Z_PIV+t0*ca)); g.lineTo(X(t1*sa),Z(Z_PIV+t1*ca)); g.stroke(); } });
     const m=new THREE.Mesh(new THREE.PlaneGeometry(TW,TD),new THREE.MeshStandardMaterial({map:t,roughness:0.85})); m.rotation.x=-Math.PI/2; m.position.set(0,TABLE_Y+0.0004,(TABLE_Z0+TABLE_Z1)/2); m.receiveShadow=true; table.add(m); }
@@ -69,7 +69,7 @@ export function buildModel({ root, tagPart, partMeshes }){
     for(const x of [-0.55,0.55,-1.6,1.6]) add(guide, rbox(0.06,0.05,0.05,M.steel,0.006), x,TABLE_Y+0.03,FENCE_Z-FENCE_T-0.025); }
   { const KM=new THREE.MeshBasicMaterial({color:0x2a1d10});   // traits de lame dans le guide (dessus et face avant)
     for(const a of ANGLE_MARKS){ const r=a*Math.PI/180, L=FENCE_T/Math.cos(r)+0.002, m=new THREE.Mesh(new THREE.PlaneGeometry(0.0045,L),KM);
-      m.rotation.set(-Math.PI/2,0,-r); m.position.set(-Math.tan(r)*FENCE_T/2,TABLE_Y+FENCE_H+0.0006,FENCE_Z-FENCE_T/2); guide.add(m); } }
+      m.rotation.set(-Math.PI/2,0,-r); m.position.set(Math.tan(r)*(FENCE_Z-FENCE_T/2-Z_PIV),TABLE_Y+FENCE_H+0.0006,FENCE_Z-FENCE_T/2); guide.add(m); } }
   tagPart(guide,'guide');
 
   /* ---------- 19 Servante à rouleaux (gauche) et 20 table de sortie (droite) ---------- */
@@ -97,32 +97,23 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(flip, rbox(0.03,0.016,0.02,M.steel,0.003), 0.015,0,0.005);
   tagPart(butee,'butee');
 
-  /* ---------- 04 Colonne et console ; 15 réglage de l'angle (secteur fixe au pivot) ----------
-     Le bras ne pivote pas sur l'axe de la colonne : il pend sous une console, et son pivot est au droit de la face du guide. */
+  /* ---------- 04 Colonne ; 15 réglage de l'angle (secteur fixe en haut de la colonne) : le bras pivote sur l'axe de la colonne ---------- */
   const colonne = new THREE.Group(); root.add(colonne);
-  const CY=ARM_Y+0.075+0.05, CH=0.12;                                                 // dessous de la console, hauteur
-  add(colonne, cyl(0.105,0.36,WHITE,32), 0,0.86+0.18,Z_COL);
-  add(colonne, cyl(0.085,CY-1.04,M.cast,32), 0,(CY+1.04)/2,Z_COL);
-  add(colonne, cyl(0.11,0.02,M.steel,32), 0,1.05,Z_COL);
-  add(colonne, rbox(0.20,CH,Z_PIV-Z_COL+0.26,WHITE,0.02), 0,CY+CH/2,(Z_COL+Z_PIV)/2+0.02);   // console
-  add(colonne, cyl(0.11,0.05,WHITE2,36), 0,CY-0.025,Z_PIV);                                  // tourelle du pivot
+  add(colonne, cyl(0.105,0.12,WHITE,32), 0,0.86+0.06,Z_COL);
+  add(colonne, cyl(0.085,ARM_Y-0.075-0.98,M.cast,32), 0,(ARM_Y-0.075+0.98)/2,Z_COL);
+  add(colonne, cyl(0.11,0.02,M.steel,32), 0,0.985,Z_COL);
   tagPart(colonne,'colonne');
   const rot = new THREE.Group(); root.add(rot);
   { const t=canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#e9ebe7'; g.beginPath(); g.arc(w/2,h/2,w/2,0,7); g.fill(); g.fillStyle='#1b1f22'; g.font='bold 15px sans-serif'; g.textAlign='center';
       for(let a=-60;a<=60;a+=5){ const r=a*Math.PI/180, L=a%15===0?26:12; g.save(); g.translate(w/2,h/2); g.rotate(r); g.fillRect(-1,-w/2+2,2,L); if(a%15===0) g.fillText(String(Math.abs(a)),0,-w/2+44); g.restore(); } });
-    const d=new THREE.Mesh(new THREE.CircleGeometry(0.17,48),new THREE.MeshBasicMaterial({map:t,toneMapped:false,side:THREE.DoubleSide})); d.rotation.x=-Math.PI/2; d.position.set(0,CY-0.049,Z_PIV); rot.add(d);
-    add(rot, cyl(0.172,0.008,M.steel,48), 0,CY-0.054,Z_PIV); }
+    const d=new THREE.Mesh(new THREE.CircleGeometry(0.15,48),new THREE.MeshBasicMaterial({map:t,toneMapped:false})); d.rotation.x=-Math.PI/2; d.rotation.z=Math.PI; d.position.set(0,ARM_Y-0.0905,Z_COL); rot.add(d);
+    add(rot, cyl(0.152,0.012,M.steel,48), 0,ARM_Y-0.098,Z_COL); }
   tagPart(rot,'rotation');
-  // 14 manivelle de hauteur, sur la console au-dessus de la colonne
-  const man = new THREE.Group(); root.add(man);
-  { const z=Z_COL+0.02, y=CY+CH; add(man, cyl(0.016,0.05,M.steel,14), 0,y+0.025,z); add(man, rbox(0.16,0.018,0.03,M.dark,0.006), 0.06,y+0.06,z);
-    add(man, cyl(0.014,0.07,M.dark,12), 0.13,y+0.10,z); add(man, cyl(0.04,0.03,M.dark,24), 0,y+0.06,z); }
-  tagPart(man,'manivelle');
 
-  /* ---------- 05 Bras (pivote sous la console, au droit du guide) ---------- */
+  /* ---------- 05 Bras (pivote sur la colonne) ---------- */
   const armG = new THREE.Group(); armG.position.set(0,0,Z_PIV); root.add(armG);
   const bras = new THREE.Group(); armG.add(bras);
-  const A0=zc0-0.18, A1=zc0+STROKE+0.15, AL=A1-A0, AZ=(A0+A1)/2;
+  const A0=-0.12, A1=zc0+STROKE+0.15, AL=A1-A0, AZ=(A0+A1)/2;
   add(bras, rbox(0.17,0.15,AL,WHITE,0.02), 0,ARM_Y,AZ);
   add(bras, rbox(0.06,0.012,AL-0.10,M.dark,0.002), 0,ARM_Y-0.076,AZ+0.02);            // fente du chariot, dessous
   add(bras, rbox(0.172,0.03,0.30,BLUE,0.006), 0,ARM_Y+0.05,A1-0.25);                  // bandeau
@@ -131,13 +122,21 @@ export function buildModel({ root, tagPart, partMeshes }){
     const t=canvasTex(1024,256,draw); const mat=new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false});
     for(const s of [1,-1]){ const m=new THREE.Mesh(new THREE.PlaneGeometry(0.40,0.10),mat); m.position.set(s*0.0855,ARM_Y+0.005,A1-0.55); m.rotation.y=s*Math.PI/2; bras.add(m); }
     document.fonts?.ready.then(()=>{ draw(t.userData.canvas.getContext('2d'),1024,256); t.needsUpdate=true; }); }
-  add(bras, rbox(0.006,0.004,0.03,M.red,0), 0,ARM_Y+0.077,0.17);                      // index de l'angle, sous le secteur
+  add(bras, cyl(0.13,0.10,WHITE2,36), 0,ARM_Y-0.03,0);                                // tourelle sur la colonne
+  add(bras, rbox(0.004,0.012,0.012,M.red,0), 0,ARM_Y-0.088,0.135);                    // index de l'angle, sur le secteur
   tagPart(bras,'bras');
   for(const m of partMeshes.bras) m.material=m.material.clone();
   // 15 levier de blocage de l'angle (tourne avec le bras)
   const rotLev = new THREE.Group(); armG.add(rotLev);
-  add(rotLev, cyl(0.012,0.12,M.steel,12,'x'), 0.13,ARM_Y+0.02,0.06);
-  add(rotLev, new THREE.Mesh(new THREE.SphereGeometry(0.022,14,10),M.red), 0.20,ARM_Y+0.02,0.06);
+  add(rotLev, cyl(0.012,0.12,M.steel,12,'x'), 0.13,ARM_Y-0.03,0.11);
+  add(rotLev, new THREE.Mesh(new THREE.SphereGeometry(0.022,14,10),M.red), 0.20,ARM_Y-0.03,0.11);
+  // 14 manivelle de hauteur, sur le bras au-dessus de la colonne
+  const man = new THREE.Group(); armG.add(man);
+  add(man, cyl(0.016,0.07,M.steel,14), 0,ARM_Y+0.11,0);
+  add(man, rbox(0.16,0.018,0.03,M.dark,0.006), 0.06,ARM_Y+0.15,0);
+  add(man, cyl(0.014,0.07,M.dark,12), 0.13,ARM_Y+0.19,0);
+  add(man, cyl(0.04,0.03,M.dark,24), 0,ARM_Y+0.15,0);
+  tagPart(man,'manivelle');
   tagPart(rotLev,'rotation');
 
   /* ---------- 06 Chariot (dans le bras), 07 ressort de rappel ---------- */
@@ -209,22 +208,22 @@ export function buildModel({ root, tagPart, partMeshes }){
   tagPart(fix,'fixation');
   // 11 carter supérieur (demi-cylindre), avec étiquette « ramener la lame »
   const carter = new THREE.Group(); tilt.add(carter);
-  { const g=new THREE.CylinderGeometry(R+0.03,R+0.03,0.08,48,1,false,-0.06,Math.PI+0.12); g.rotateZ(Math.PI/2);
+  { const g=new THREE.CylinderGeometry(R+0.02,R+0.02,0.08,48,1,false,-0.06,Math.PI+0.12); g.rotateZ(Math.PI/2);
     const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x2f353c,metalness:0.3,roughness:0.45,side:THREE.DoubleSide})); m.position.set(0.0,hy,0); carter.add(m);
     const lab=canvasTex(512,128,(gg,w,h)=>{ gg.fillStyle='#f0b323'; gg.fillRect(0,0,w,h); gg.fillStyle='#14181c'; gg.font='bold 34px sans-serif'; gg.fillText('⚠ RAMENER LA LAME',18,52); gg.font='bold 30px sans-serif'; gg.fillText('EN ARRIÈRE APRÈS CHAQUE COUPE',18,100); });
     const l=new THREE.Mesh(new THREE.PlaneGeometry(0.16,0.04),new THREE.MeshBasicMaterial({map:lab,toneMapped:false})); l.rotation.y=-Math.PI/2; l.position.set(-0.0405,hy+0.12,-0.02); carter.add(l);
-    add(carter, rbox(0.082,0.012,0.012,M.red,0.003), 0,hy+R+0.03,0.0); }
+    add(carter, rbox(0.082,0.012,0.012,M.red,0.003), 0,hy+R+0.02,0.0); }
   tagPart(carter,'carter');
   for(const m of partMeshes.carter) m.material=m.material.clone();
   // 21 aspiration : buse Ø 120 sur le carter, buse Ø 60 derrière la lame, flexible
   const asp = new THREE.Group(); tilt.add(asp);
-  { const b=cyl(0.06,0.16,M.dark,28); b.rotation.x=-0.55; b.position.set(0,hy+R+0.06,-0.14); asp.add(b);
-    const f=cyl(0.064,0.14,MI.hose,24); f.rotation.x=-0.12; f.position.set(0,hy+R+0.17,-0.19); asp.add(f);
+  { const b=cyl(0.06,0.16,M.dark,28); b.rotation.x=-0.35; b.position.set(0,hy+R+0.06,-0.12); asp.add(b);
+    const f=cyl(0.064,0.14,MI.hose,24); f.rotation.x=-0.05; f.position.set(0,hy+R+0.17,-0.15); asp.add(f);
     const s=cyl(0.03,0.09,M.dark,20,'x'); s.position.set(-0.08,hy-0.06,-0.15); asp.add(s); }
   tagPart(asp,'aspiration');
   // 12 protecteur avant transparent, réglable en hauteur (bord bas à prot mm de la table)
   const prot = new THREE.Group(); tilt.add(prot);
-  const PZ0=0.03, PZ1=R+0.035;
+  const PZ0=0.03, PZ1=R+0.025;
   const protSides=[], CLEAR=new THREE.MeshPhysicalMaterial({color:0xcfe2ec,metalness:0,roughness:0.08,transmission:0.5,transparent:true,opacity:0.42,side:THREE.DoubleSide});
   for(const x of [-0.042,0.042]){ const m=new THREE.Mesh(new THREE.BoxGeometry(0.004,1,PZ1-PZ0),CLEAR); m.position.set(x,0.5,(PZ0+PZ1)/2); prot.add(m); protSides.push(m); }
   { const m=new THREE.Mesh(new THREE.BoxGeometry(0.088,1,0.004),CLEAR); m.position.set(0,0.5,PZ1); prot.add(m); protSides.push(m); }
