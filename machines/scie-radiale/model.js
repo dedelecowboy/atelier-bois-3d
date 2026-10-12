@@ -7,7 +7,7 @@
    protecteur (hauteur), butée (position, relevée / abaissée), main de maintien. */
 import * as THREE from 'three';
 import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex } from '../../engine/kit.js';
-import { TABLE_Y, R, DROP, FENCE_Z, FENCE_T, FENCE_H, Z_COL, Z_PARK, STROKE, ARM_Y, TABLE_X0, TABLE_X1, TABLE_Z0, TABLE_Z1, SERV_X0, EXT_X1, KERF, ZONE } from './constants.js';
+import { TABLE_Y, R, DROP, FENCE_Z, FENCE_T, FENCE_H, Z_COL, Z_PIV, ANGLE_MARKS, Z_PARK, STROKE, ARM_Y, TABLE_X0, TABLE_X1, TABLE_Z0, TABLE_Z1, SERV_X0, EXT_X1, KERF, ZONE } from './constants.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const WHITE = new THREE.MeshStandardMaterial({color:0xeceeec, metalness:0.15, roughness:0.48});
@@ -17,7 +17,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const BEECH = new THREE.MeshStandardMaterial({color:0xd8b483, roughness:0.75});
   const SKIN = new THREE.MeshStandardMaterial({color:0xe2ad8b, roughness:0.62});
   const HY = TABLE_Y + R - DROP;                 // axe de la lame au-dessus de la table (dans le groupe incliné : HY − TABLE_Y)
-  const zc0 = Z_PARK - Z_COL;                    // centre de la lame le long du bras, position arrière
+  const zc0 = Z_PARK - Z_PIV;                    // centre de la lame le long du bras (depuis le pivot), position arrière
 
   /* ---------- 01 Châssis ---------- */
   const bati = new THREE.Group(); root.add(bati);
@@ -39,9 +39,10 @@ export function buildModel({ root, tagPart, partMeshes }){
     const t=canvasTex(640,Math.round(TD*px),(g,w,h)=>{ let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
       g.fillStyle='#c4a678'; g.fillRect(0,0,w,h);
       for(let i=0;i<5000;i++){ g.fillStyle=`rgba(${rnd()<0.5?90:240},${rnd()<0.5?66:215},40,${0.05+rnd()*0.08})`; g.fillRect(rnd()*w,rnd()*h,1+rnd()*2,1+rnd()*2); }
-      // traits de lame : 0° (devant et derrière le guide) et ±45°
-      g.strokeStyle='#2a1d10'; g.lineWidth=KERF/1000*px+0.6; g.beginPath(); g.moveTo(X(0),Z(Z_PARK-0.06)); g.lineTo(X(0),Z(0.43)); g.stroke();
-      g.lineWidth=1.6; g.strokeStyle='rgba(42,29,16,0.6)'; for(const a of [-45,45]){ const ta=Math.tan(a*Math.PI/180); g.beginPath(); g.moveTo(X((FENCE_Z-Z_COL)*ta),Z(FENCE_Z)); g.lineTo(X((0.30-Z_COL)*ta),Z(0.30)); g.stroke(); } });
+      // traits de lame laissés dans la table : toutes les positions caractéristiques du bras passent par le pivot, au droit du guide
+      for(const a of ANGLE_MARKS){ const r=a*Math.PI/180, sa=Math.sin(r), ca=Math.cos(r), t0=-0.36, t1=(TABLE_Z1-Z_PIV)/ca;
+        g.strokeStyle='#2a1d10'; g.lineWidth=KERF/1000*px+(a?0.4:0.8);
+        g.beginPath(); g.moveTo(X(t0*sa),Z(Z_PIV+t0*ca)); g.lineTo(X(t1*sa),Z(Z_PIV+t1*ca)); g.stroke(); } });
     const m=new THREE.Mesh(new THREE.PlaneGeometry(TW,TD),new THREE.MeshStandardMaterial({map:t,roughness:0.85})); m.rotation.x=-Math.PI/2; m.position.set(0,TABLE_Y+0.0004,(TABLE_Z0+TABLE_Z1)/2); m.receiveShadow=true; table.add(m); }
   tagPart(table,'table');
   const zoneClip=[new THREE.Plane(new THREE.Vector3(1,0,0),-TABLE_X0),new THREE.Plane(new THREE.Vector3(-1,0,0),TABLE_X1),new THREE.Plane(new THREE.Vector3(0,0,-1),TABLE_Z1-0.004)];
@@ -66,6 +67,9 @@ export function buildModel({ root, tagPart, partMeshes }){
   const guide = new THREE.Group(); root.add(guide);
   { const gap=KERF/2000+0.001; for(const [x0,x1] of [[SERV_X0,-gap],[gap,EXT_X1]]) add(guide, rbox(x1-x0,FENCE_H,FENCE_T,BEECH,0.003), (x0+x1)/2,TABLE_Y+FENCE_H/2,FENCE_Z-FENCE_T/2);
     for(const x of [-0.55,0.55,-1.6,1.6]) add(guide, rbox(0.06,0.05,0.05,M.steel,0.006), x,TABLE_Y+0.03,FENCE_Z-FENCE_T-0.025); }
+  { const KM=new THREE.MeshBasicMaterial({color:0x2a1d10});   // traits de lame dans le guide (dessus et face avant)
+    for(const a of ANGLE_MARKS){ const r=a*Math.PI/180, L=FENCE_T/Math.cos(r)+0.002, m=new THREE.Mesh(new THREE.PlaneGeometry(0.0045,L),KM);
+      m.rotation.set(-Math.PI/2,0,-r); m.position.set(-Math.tan(r)*FENCE_T/2,TABLE_Y+FENCE_H+0.0006,FENCE_Z-FENCE_T/2); guide.add(m); } }
   tagPart(guide,'guide');
 
   /* ---------- 19 Servante à rouleaux (gauche) et 20 table de sortie (droite) ---------- */
@@ -93,47 +97,48 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(flip, rbox(0.03,0.016,0.02,M.steel,0.003), 0.015,0,0.005);
   tagPart(butee,'butee');
 
-  /* ---------- 04 Colonne, 15 réglage de l'angle (secteur fixe) ---------- */
+  /* ---------- 04 Colonne et console ; 15 réglage de l'angle (secteur fixe au pivot) ----------
+     Le bras ne pivote pas sur l'axe de la colonne : il pend sous une console, et son pivot est au droit de la face du guide. */
   const colonne = new THREE.Group(); root.add(colonne);
+  const CY=ARM_Y+0.075+0.05, CH=0.12;                                                 // dessous de la console, hauteur
   add(colonne, cyl(0.105,0.36,WHITE,32), 0,0.86+0.18,Z_COL);
-  add(colonne, cyl(0.085,ARM_Y-0.075-1.04,M.cast,32), 0,(ARM_Y-0.075+1.04)/2,Z_COL);
+  add(colonne, cyl(0.085,CY-1.04,M.cast,32), 0,(CY+1.04)/2,Z_COL);
   add(colonne, cyl(0.11,0.02,M.steel,32), 0,1.05,Z_COL);
+  add(colonne, rbox(0.20,CH,Z_PIV-Z_COL+0.26,WHITE,0.02), 0,CY+CH/2,(Z_COL+Z_PIV)/2+0.02);   // console
+  add(colonne, cyl(0.11,0.05,WHITE2,36), 0,CY-0.025,Z_PIV);                                  // tourelle du pivot
   tagPart(colonne,'colonne');
   const rot = new THREE.Group(); root.add(rot);
   { const t=canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#e9ebe7'; g.beginPath(); g.arc(w/2,h/2,w/2,0,7); g.fill(); g.fillStyle='#1b1f22'; g.font='bold 15px sans-serif'; g.textAlign='center';
       for(let a=-60;a<=60;a+=5){ const r=a*Math.PI/180, L=a%15===0?26:12; g.save(); g.translate(w/2,h/2); g.rotate(r); g.fillRect(-1,-w/2+2,2,L); if(a%15===0) g.fillText(String(Math.abs(a)),0,-w/2+44); g.restore(); } });
-    const d=new THREE.Mesh(new THREE.CircleGeometry(0.15,48),new THREE.MeshBasicMaterial({map:t,toneMapped:false})); d.rotation.x=-Math.PI/2; d.rotation.z=Math.PI; d.position.set(0,ARM_Y-0.0905,Z_COL); rot.add(d);
-    add(rot, cyl(0.152,0.012,M.steel,48), 0,ARM_Y-0.098,Z_COL); }
+    const d=new THREE.Mesh(new THREE.CircleGeometry(0.17,48),new THREE.MeshBasicMaterial({map:t,toneMapped:false,side:THREE.DoubleSide})); d.rotation.x=-Math.PI/2; d.position.set(0,CY-0.049,Z_PIV); rot.add(d);
+    add(rot, cyl(0.172,0.008,M.steel,48), 0,CY-0.054,Z_PIV); }
   tagPart(rot,'rotation');
+  // 14 manivelle de hauteur, sur la console au-dessus de la colonne
+  const man = new THREE.Group(); root.add(man);
+  { const z=Z_COL+0.02, y=CY+CH; add(man, cyl(0.016,0.05,M.steel,14), 0,y+0.025,z); add(man, rbox(0.16,0.018,0.03,M.dark,0.006), 0.06,y+0.06,z);
+    add(man, cyl(0.014,0.07,M.dark,12), 0.13,y+0.10,z); add(man, cyl(0.04,0.03,M.dark,24), 0,y+0.06,z); }
+  tagPart(man,'manivelle');
 
-  /* ---------- 05 Bras (pivote sur la colonne) ---------- */
-  const armG = new THREE.Group(); armG.position.set(0,0,Z_COL); root.add(armG);
+  /* ---------- 05 Bras (pivote sous la console, au droit du guide) ---------- */
+  const armG = new THREE.Group(); armG.position.set(0,0,Z_PIV); root.add(armG);
   const bras = new THREE.Group(); armG.add(bras);
-  const AL=1.44, AZ=-0.12+AL/2;
+  const A0=zc0-0.18, A1=zc0+STROKE+0.15, AL=A1-A0, AZ=(A0+A1)/2;
   add(bras, rbox(0.17,0.15,AL,WHITE,0.02), 0,ARM_Y,AZ);
   add(bras, rbox(0.06,0.012,AL-0.10,M.dark,0.002), 0,ARM_Y-0.076,AZ+0.02);            // fente du chariot, dessous
-  add(bras, cyl(0.13,0.10,WHITE2,36), 0,ARM_Y-0.03,0);                                // tourelle sur la colonne
-  add(bras, rbox(0.172,0.03,0.30,BLUE,0.006), 0,ARM_Y+0.05,AL-0.30);                  // bandeau
+  add(bras, rbox(0.172,0.03,0.30,BLUE,0.006), 0,ARM_Y+0.05,A1-0.25);                  // bandeau
   { const draw=(g,w,h)=>{ g.clearRect(0,0,w,h); g.font='italic 700 150px "Barlow Condensed","Arial Narrow",sans-serif'; const w1=g.measureText('KANAK').width; g.fillStyle='#1d3c78'; g.fillText('KANAK',16,h/2+52);
       g.font='italic 500 104px "Barlow Condensed","Arial Narrow",sans-serif'; g.fillStyle='#2b2f33'; g.fillText('900 R',16+w1+30,h/2+48); };
     const t=canvasTex(1024,256,draw); const mat=new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false});
-    for(const s of [1,-1]){ const m=new THREE.Mesh(new THREE.PlaneGeometry(0.40,0.10),mat); m.position.set(s*0.0855,ARM_Y+0.005,0.42); m.rotation.y=s*Math.PI/2; bras.add(m); }
+    for(const s of [1,-1]){ const m=new THREE.Mesh(new THREE.PlaneGeometry(0.40,0.10),mat); m.position.set(s*0.0855,ARM_Y+0.005,A1-0.55); m.rotation.y=s*Math.PI/2; bras.add(m); }
     document.fonts?.ready.then(()=>{ draw(t.userData.canvas.getContext('2d'),1024,256); t.needsUpdate=true; }); }
-  add(bras, rbox(0.004,0.012,0.012,M.red,0), 0,ARM_Y-0.088,0.135);                    // index de l'angle, sur le secteur
+  add(bras, rbox(0.006,0.004,0.03,M.red,0), 0,ARM_Y+0.077,0.17);                      // index de l'angle, sous le secteur
   tagPart(bras,'bras');
   for(const m of partMeshes.bras) m.material=m.material.clone();
   // 15 levier de blocage de l'angle (tourne avec le bras)
   const rotLev = new THREE.Group(); armG.add(rotLev);
-  add(rotLev, cyl(0.012,0.12,M.steel,12,'x'), 0.13,ARM_Y-0.03,0.11);
-  add(rotLev, new THREE.Mesh(new THREE.SphereGeometry(0.022,14,10),M.red), 0.20,ARM_Y-0.03,0.11);
+  add(rotLev, cyl(0.012,0.12,M.steel,12,'x'), 0.13,ARM_Y+0.02,0.06);
+  add(rotLev, new THREE.Mesh(new THREE.SphereGeometry(0.022,14,10),M.red), 0.20,ARM_Y+0.02,0.06);
   tagPart(rotLev,'rotation');
-  // 14 manivelle de hauteur, sur le bras au-dessus de la colonne
-  const man = new THREE.Group(); armG.add(man);
-  add(man, cyl(0.016,0.07,M.steel,14), 0,ARM_Y+0.11,0);
-  add(man, rbox(0.16,0.018,0.03,M.dark,0.006), 0.06,ARM_Y+0.15,0);
-  add(man, cyl(0.014,0.07,M.dark,12), 0.13,ARM_Y+0.19,0);
-  add(man, cyl(0.04,0.03,M.dark,24), 0,ARM_Y+0.15,0);
-  tagPart(man,'manivelle');
 
   /* ---------- 06 Chariot (dans le bras), 07 ressort de rappel ---------- */
   const carriage = new THREE.Group(); armG.add(carriage);
@@ -146,7 +151,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const helix=link((()=>{ const pts=[]; for(let i=0;i<=400;i++){ const t=i/400, a=t*Math.PI*2*22; pts.push(new THREE.Vector3(Math.cos(a)*0.018,Math.sin(a)*0.018,t-0.5)); }
     return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),400,0.0028,6,false); })(), new THREE.MeshStandardMaterial({color:0xb9b23a,metalness:0.7,roughness:0.35}));
   ressort.add(helix);
-  add(ressort, rbox(0.05,0.04,0.02,M.steel,0.004), 0,ARM_Y+0.035,-0.09);
+  add(ressort, rbox(0.05,0.04,0.02,M.steel,0.004), 0,ARM_Y+0.035,A0+0.03);
   // butée de fin de course arrière (caoutchouc) : la tête s'arrête avant la colonne
   add(ressort, rbox(0.07,0.035,0.04,M.dark,0.008), 0,ARM_Y-0.09,zc0-0.145);
   tagPart(ressort,'ressort');
@@ -268,7 +273,7 @@ export function buildModel({ root, tagPart, partMeshes }){
     const zc=zc0+S.s*STROKE; carriage.position.z=zc;
     tilt.rotation.z=S.beta*Math.PI/180;
     // ressort : de l'arrière du bras au chariot
-    setBetween(helix,new THREE.Vector3(0,ARM_Y+0.035,-0.08),new THREE.Vector3(0,ARM_Y+0.035,zc-0.12));
+    { const z0=A0+0.04, z1=zc-0.12; helix.position.set(0,ARM_Y+0.035,(z0+z1)/2); helix.rotation.set(0,0,0); helix.scale.set(1,1,Math.max(0.01,z1-z0)); }   // ressort dans le bras (repère du bras)
     // protecteur : bord bas à prot mm de la table
     const h=Math.min(hy-0.02,Math.max(0,S.prot/1000)), H=Math.max(0.005,hy-h);
     for(const m of protSides){ m.scale.y=H; m.position.y=h+H/2; } protEdge.position.y=h;

@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { canvasTex } from '../../engine/kit.js';
 import { clipHalf, area } from '../../engine/poly.js';
-import { TABLE_Y, KERF, FENCE_Z, Z_COL, Z_PARK, STROKE, SERV_X0, EXT_X1, MIN_USE } from './constants.js';
+import { TABLE_Y, KERF, FENCE_Z, Z_PIV, Z_PARK, STROKE, SERV_X0, EXT_X1, MIN_USE } from './constants.js';
 import { st, bladePlane, stopX } from './state.js';
 
 let app=null, pieceRoot=null, partMeshes=null, uid=0, pid=0;
@@ -204,8 +204,8 @@ export function place(q){ if(q.group){ q.group.position.set(q.tx,TABLE_Y,q.tz); 
 /* ---------- coupe ---------- */
 /* course de la tête nécessaire pour que la lame sorte entièrement des pièces (0 à 1) */
 export function strokeNeeded(){ const a=st.alpha*Math.PI/180, sa=Math.sin(a), ca=Math.cos(a); let t=-1e9;
-  for(const q of onTable()){ const {bot}=faces(q); for(const [u,v] of bot){ const [x,z]=toScene(q,u,v); t=Math.max(t, x*sa+(z-Z_COL)*ca); } }
-  if(t<-1e8) return 0.45; return Math.max(0.25, Math.min(1, (t+0.07-(Z_PARK-Z_COL))/STROKE)); }
+  for(const q of onTable()){ const {bot}=faces(q); for(const [u,v] of bot){ const [x,z]=toScene(q,u,v); t=Math.max(t, x*sa+(z-Z_PIV)*ca); } }
+  if(t<-1e8) return 0.45; return Math.max(0.25, Math.min(1, (t+0.07-(Z_PARK-Z_PIV))/STROKE)); }
 /* la lame passe : chaque pièce traversée est séparée en deux (trait de 4 mm retiré) ; rend les pièces obtenues */
 export function sawThrough(handXZ){
   const { N, D }=bladePlane(), k=KERF/2000, meta={ raw:false, alpha:st.alpha, beta:st.beta }, out=[];

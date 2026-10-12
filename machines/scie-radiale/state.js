@@ -1,5 +1,5 @@
 /* Réglages de la scie radiale (mm, degrés) et plan de la lame. */
-import { TABLE_Y, Z_COL, KERF } from './constants.js';
+import { TABLE_Y, Z_PIV, KERF } from './constants.js';
 
 export const st = {
   motor:false,     // lame en rotation
@@ -18,11 +18,12 @@ export const parked = ()=> head.mode==='park';
 
 const rad = d=>d*Math.PI/180;
 /* plan de la lame dans la scène : N·P = D (N unitaire) ; côté gauche N·P < D.
-   Il contient la ligne de course au niveau de la table, qui passe par l'axe de la colonne. La lame s'incline
+   Il contient la ligne de course au niveau de la table, qui passe par le pivot du bras, au droit de la face du guide
+   (toutes les coupes d'onglet passent par le même point du guide). La lame s'incline
    autour de l'arête droite de son trait, au ras de la table : la butée mesure toujours la face posée sur la table. */
 export function bladePlane(alpha=st.alpha, beta=st.beta){ const a=rad(alpha), b=rad(beta);
   const N=[Math.cos(b)*Math.cos(a), Math.sin(b), -Math.cos(b)*Math.sin(a)];
-  const D=N[1]*TABLE_Y + N[2]*Z_COL + KERF/2000*(Math.cos(b)-1); return { N, D }; }
+  const D=N[1]*TABLE_Y + N[2]*Z_PIV + KERF/2000*(Math.cos(b)-1); return { N, D }; }
 /* abscisse du trait de scie (face gauche si side<0, face droite si side>0, milieu sinon) à la hauteur y et à la profondeur z */
 export function bladeX(y, z, side=0){ const { N, D }=bladePlane(); return (D + side*KERF/2000 - N[1]*y - N[2]*z)/N[0]; }
 /* face droite du trait au guide, lame droite : zéro de la règle de la butée */

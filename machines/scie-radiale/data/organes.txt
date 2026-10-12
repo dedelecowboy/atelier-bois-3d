@@ -19,10 +19,10 @@ Plateau en bois, à 900 mm du sol, pour ne pas abîmer la lame : la lame descend
 Règle en bois à l'arrière de la table : la planche est toujours plaquée contre lui pendant le sciage. La lame le traverse par une entaille ; en position arrière, elle est entièrement derrière lui.
 
 [colonne] 04 Colonne
-Colonne en fonte fixée au châssis, derrière la table. Elle porte le bras et monte ou descend pour régler la hauteur de la lame.
+Colonne en fonte fixée au châssis, derrière la table. Sa console porte le bras ; elle monte ou descend pour régler la hauteur de la lame.
 
 [bras] 05 Bras
-Bras en fonte, au-dessus de la table, dans lequel coulisse le chariot porte-lame. Sa longueur donne la course de la lame, donc la largeur maximale de coupe (900 mm). Il pivote sur la colonne de −45° à +45° pour les coupes d'onglet.
+Bras en fonte, au-dessus de la table, dans lequel coulisse le chariot porte-lame. Sa longueur donne la course de la lame, donc la largeur maximale de coupe (900 mm). Il pivote de −45° à +45° pour les coupes d'onglet, autour d'un axe situé au droit du guide : toutes les coupes passent par le même point du guide.
 
 [chariot] 06 Chariot porte-lame
 Chariot à 8 roulements qui coulisse dans le bras. Il porte le groupe moteur et la lame.
@@ -49,10 +49,10 @@ Capot fixe qui recouvre toute la moitié supérieure de la lame. Il porte les bu
 Poignée du groupe moteur : la main droite tire la lame à travers la pièce en la retenant (la lame tend à s'emballer), puis la ramène en arrière.
 
 [manivelle] 14 Manivelle de hauteur
-Sur le bras, au-dessus de la colonne : monte ou descend le bras, donc la lame par rapport à la table (hauteur de passe).
+Sur la console, au-dessus de la colonne : monte ou descend le bras, donc la lame par rapport à la table (hauteur de passe).
 
 [rotation] 15 Réglage de l'angle du bras
-Secteur gradué, index et levier de blocage en haut de la colonne : rotation du bras de −45° à +45° par rapport au guide (coupes d'onglet). Réglage lame arrêtée, puis bras bloqué.
+Secteur gradué au pivot du bras (sous la console), index et levier de blocage : rotation du bras de −45° à +45° par rapport au guide (coupes d'onglet). Réglage lame arrêtée, puis bras bloqué.
 
 [inclinaison] 16 Réglage de l'inclinaison
 Secteur courbe sous le chariot et levier de blocage : inclinaison de la lame de 0 à 45° par rapport à la table (coupes biaises). Réglage lame arrêtée, puis tête bloquée.
