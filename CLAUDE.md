@@ -10,7 +10,7 @@ Langue de l'interface et des messages : français. Consignes simples et directes
 
 ## Organisation actuelle
 
-Étapes faites (octobre 2026) : 1. moteur commun extrait, la scie à format est le premier module construit dessus (comportement identique à l'ancien fichier unique) ; 2. dégauchisseuse ; 3. déligneuse multilames (PR #5) — toutes fusionnées dans main. Étape 4 en cours : scie radiale (`machines/scie-radiale/`, branche `scie-radiale`, PR #6), puis coupes d'angle portées sur la scie à format (branche `scie-format-angles`, au-dessus de `scie-radiale`). Étapes suivantes envisagées : raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée.
+Étapes faites (octobre 2026) : 1. moteur commun extrait, la scie à format est le premier module construit dessus (comportement identique à l'ancien fichier unique) ; 2. dégauchisseuse ; 3. déligneuse multilames (PR #5) ; 4. scie radiale (PR #6) ; coupes d'angle (biais et onglet) portées sur la scie à format (PR #7) — toutes fusionnées dans main. Étape 5 en cours : raboteuse (`machines/raboteuse/`, branche `raboteuse`). Étapes suivantes envisagées : scie à ruban, toupie ; page « atelier » 3D d'entrée.
 
 Chaîne de débit : scie radiale (tronçonnage des planches brutes, purge des défauts) → déligneuse (délignage) → dégauchisseuse, raboteuse (corroyage) ; la scie à format pour les panneaux et la mise au format.
 
