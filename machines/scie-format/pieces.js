@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { canvasTex, woodTex, v3 } from '../../engine/kit.js';
 import { centroid, area, clipHalf, zAt, outwardNormal, obb } from '../../engine/poly.js';
 import { TABLE_Y, BLADE_Z, R, KERF, MAIN_KERF, SLIDER_HOME, SABOT_FACE, SABOT_Z0, FENCE_FACE, PIECE_Y } from './constants.js';
-import { st, guideFace, stopFace, $ } from './state.js';
+import { st, guideFace, stopFace, fenceN, fenceD, fenceDist, fenceT, stopT, kerfZ, $ } from './state.js';
 
 let app=null, pieceRoot=null, partMeshes=null;
 export function initPieces(a, model){ app=a; pieceRoot=model.pieceRoot; partMeshes=a.parts.partMeshes;
@@ -57,27 +57,42 @@ const MAT_CHIPS=new THREE.MeshStandardMaterial({map:chipTex,transparent:true,rou
 const LINE_LASER=new THREE.LineBasicMaterial({color:0xff2020});
 const LINE_SAWN=new THREE.LineBasicMaterial({color:0x2f9a4e}), LINE_ACTIVE=new THREE.LineBasicMaterial({color:0xd27a1c});
 
-/* --- géométrie 2D (repère chariot : x = sens d'avance, z = travers) --- */
+/* --- géométrie 2D (repère chariot : x = sens d'avance, z = travers) ---
+   p.pts = contour de la face A (posée sur la table si la pièce n'est pas retournée). Un chant scié lame inclinée porte
+   meta.bev : décalage (m) de son arête sur la face B par rapport à la face A, vers l'intérieur (> 0) ou l'extérieur (< 0),
+   et meta.ang : inclinaison de la lame (°). Le contour de la face B s'en déduit (topPts). */
 function toSlider(p,q){ const c=Math.cos(p.theta), s=Math.sin(p.theta), u=q[0], v=p.flip?-q[1]:q[1]; return [p.tx+c*u-s*v, p.tz+s*u+c*v]; }
 function toLocal(p,w){ const c=Math.cos(p.theta), s=Math.sin(p.theta), dx=w[0]-p.tx, dz=w[1]-p.tz; const u=c*dx+s*dz, v=-s*dx+c*dz; return [u, p.flip?-v:v]; }
 const sPts=p=>p.pts.map(q=>toSlider(p,q));
-function bandRange(p){ const S=sPts(p), D=S.map(()=>null);
-  let [P]=clipHalf(S,D,q=>q[1]>=BLADE_Z-KERF,(a,b)=>zAt(a,b,BLADE_Z-KERF),null);
-  if(P.length<3) return null; [P]=clipHalf(P,P.map(()=>null),q=>q[1]<=BLADE_Z+KERF,(a,b)=>zAt(a,b,BLADE_Z+KERF),null);
-  if(P.length<3) return null; const xs=P.map(q=>q[0]); return {minX:Math.min(...xs), maxX:Math.max(...xs)}; }
+/* contour de la face B : chaque chant décalé de son biseau, sommets = intersections des chants voisins */
+function topPts(p){ const P=p.pts, n=P.length; if(!p.meta.some(m=>m.bev)) return P; const C=centroid(P), L=[];
+  for(let i=0;i<n;i++){ const a=P[i], b=P[(i+1)%n], dx=b[0]-a[0], dz=b[1]-a[1], l=Math.hypot(dx,dz)||1; let nx=-dz/l, nz=dx/l;
+    if((C[0]-a[0])*nx+(C[1]-a[1])*nz<0){ nx=-nx; nz=-nz; } const d=p.meta[i].bev||0; L.push({p:[a[0]+nx*d,a[1]+nz*d], v:[dx/l,dz/l]}); }
+  return P.map((q,i)=>{ const A1=L[(i-1+n)%n], B1=L[i], den=A1.v[0]*B1.v[1]-A1.v[1]*B1.v[0];
+    if(Math.abs(den)<1e-9) return B1.p; const t=((B1.p[0]-A1.p[0])*B1.v[1]-(B1.p[1]-A1.p[1])*B1.v[0])/den; return [A1.p[0]+A1.v[0]*t, A1.p[1]+A1.v[1]*t]; }); }
+const sTop=p=>topPts(p).map(q=>toSlider(p,q));
+/* tous les sommets des deux faces (appuis contre la règle, le guide, la butée, le sabot) */
+const sAll=p=>[...sPts(p),...sTop(p)];
+/* hauteur (scène) des faces A et B */
+const faceY=p=>({A:PIECE_Y+(p.flip?p.T:0), B:PIECE_Y+(p.flip?0:p.T)});
+function bandRange(p){ const fy=faceY(p); let lo=1e9, hi=-1e9;
+  for(const [S,y] of [[sPts(p),fy.A],[sTop(p),fy.B]]){ const z0=kerfZ(y,-1), z1=kerfZ(y,1);
+    let [P]=clipHalf(S,S.map(()=>null),q=>q[1]>=z0,(a,b)=>zAt(a,b,z0),null); if(P.length<3) continue;
+    [P]=clipHalf(P,P.map(()=>null),q=>q[1]<=z1,(a,b)=>zAt(a,b,z1),null); if(P.length<3) continue;
+    for(const q of P){ lo=Math.min(lo,q[0]); hi=Math.max(hi,q[0]); } }
+  return hi>lo? {minX:lo, maxX:hi} : null; }
 /* --- construction des maillages --- */
 function disposePiece(p){ if(!p.group) return; pieceRoot.remove(p.group); p.group.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); partMeshes.piece=partMeshes.piece.filter(m=>m!==p.mesh); p.group=null; }
 function buildPiece(p){ disposePiece(p);
-  const sh=new THREE.Shape(p.pts.map(q=>new THREE.Vector2(q[0],-q[1])));
-  const g=new THREE.ExtrudeGeometry(sh,{depth:p.T,bevelEnabled:false}); g.rotateX(-Math.PI/2);
+  const g=prismGeom(p.pts, topPts(p), p.T);
   const m=texFor(p.kind), mesh=new THREE.Mesh(g,[m.cap,m.side]);
   mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece'; mesh.userData.pieceId=p.id;
   const outer=new THREE.Group(), inner=new THREE.Group(); outer.add(inner); inner.add(mesh);
   inner.rotation.x=p.flip?Math.PI:0; inner.position.y=p.flip?p.T:0;
-  const yt=p.flip?-0.0015:p.T+0.0015, yl=p.flip?-0.016:p.T+0.016, n=p.pts.length, C=centroid(p.pts);
+  const yt=p.flip?-0.0015:p.T+0.0015, yl=p.flip?-0.016:p.T+0.016, n=p.pts.length, C=centroid(p.pts), Q=topPts(p), VIS=p.flip?p.pts:Q;   // VIS : face visible du dessus
   const longest={}; for(let i=0;i<n;i++){ const k=p.meta[i].label+'|'+p.meta[i].sawn, L=segLen(p,i); if(!longest[k]||L>longest[k].L) longest[k]={i,L}; }
   p.meta.forEach((md,i)=>{ if(!md.chips) return; for(const face of ['recto','verso']){ if(!md.chips[face]) continue;
-      const a=p.pts[i], b=p.pts[(i+1)%n], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<0.01) continue; let nx=-(b[1]-a[1])/L, nz=(b[0]-a[0])/L; const mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2; if((C[0]-mx)*nx+(C[1]-mz)*nz<0){ nx=-nx; nz=-nz; }
+      const F=face==='recto'?Q:p.pts, a=F[i], b=F[(i+1)%n], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<0.01) continue; let nx=-(b[1]-a[1])/L, nz=(b[0]-a[0])/L; const mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2; if((C[0]-mx)*nx+(C[1]-mz)*nz<0){ nx=-nx; nz=-nz; }
       const w=0.012, gq=new THREE.BufferGeometry(); const y=face==='recto'?p.T+0.0007:-0.0007;
       gq.setAttribute('position',new THREE.Float32BufferAttribute([a[0],y,a[1], b[0],y,b[1], b[0]+nx*w,y,b[1]+nz*w, a[0]+nx*w,y,a[1]+nz*w],3));
       gq.setAttribute('uv',new THREE.Float32BufferAttribute([0,0, L*12,0, L*12,1, 0,1],2)); gq.setIndex([0,1,2,0,2,3]); gq.computeVertexNormals();
@@ -86,13 +101,27 @@ function buildPiece(p){ disposePiece(p);
     const bm=new THREE.Mesh(g2,MAT_BARK); bm.position.y=p.T+0.0006; bm.receiveShadow=true; inner.add(bm); }
   { const S=sPts(p), xs=[]; for(let i=0;i<S.length;i++){ const a=S[i], b=S[(i+1)%S.length]; if((a[1]-BLADE_Z)*(b[1]-BLADE_Z)<0) xs.push(zAt(a,b,BLADE_Z)[0]); }
     if(xs.length>=2){ const l1=toLocal(p,[Math.min(...xs),BLADE_Z]), l2=toLocal(p,[Math.max(...xs),BLADE_Z]); inner.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([v3(l1[0],yt+(p.flip?-0.0008:0.0008),l1[1]),v3(l2[0],yt+(p.flip?-0.0008:0.0008),l2[1])]),LINE_LASER)); } }
-  for(let i=0;i<n;i++){ const a=p.pts[i], b=p.pts[(i+1)%n], md=p.meta[i];
+  for(let i=0;i<n;i++){ const a=VIS[i], b=VIS[(i+1)%n], md=p.meta[i];
     if(md.sawn) inner.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([v3(a[0],yt,a[1]),v3(b[0],yt,b[1])]),LINE_SAWN));
     if(Math.hypot(b[0]-a[0],b[1]-a[1])<0.05 || longest[md.label+'|'+md.sawn].i!==i) continue;
     const mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2, dx=C[0]-mx, dz=C[1]-mz, dl=Math.hypot(dx,dz)||1, off=Math.min(0.04,dl*0.45);
     const sp=new THREE.Sprite(labelMat(md.label,md.sawn)); sp.position.set(mx+dx/dl*off,yl,mz+dz/dl*off); sp.scale.set(0.075,0.075,1); inner.add(sp); }
-  if(p.id===activeId && pieces.length>1){ const yo=p.flip?yt-0.0005:yt+0.0005, loop=p.pts.map(q=>v3(q[0],yo,q[1])); loop.push(loop[0].clone()); inner.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(loop),LINE_ACTIVE)); }
+  if(p.id===activeId && pieces.length>1){ const yo=p.flip?yt-0.0005:yt+0.0005, loop=VIS.map(q=>v3(q[0],yo,q[1])); loop.push(loop[0].clone()); inner.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(loop),LINE_ACTIVE)); }
   pieceRoot.add(outer); p.group=outer; p.mesh=mesh; partMeshes.piece.push(mesh); placeGroup(p); }
+/* prisme (biseaux compris) : face A en y = 0, face B en y = T ; groupes 0 = faces, 1 = chants (comme ExtrudeGeometry) */
+function prismGeom(P, Q, T){ const n=P.length, pos=[], uv=[], caps=[], sides=[];
+  const v=(x,y,z,a,b)=>{ pos.push(x,y,z); uv.push(a,b); return pos.length/3-1; };
+  const tri=(arr,a,b,c,hint)=>{ const A=pos.slice(a*3,a*3+3),B=pos.slice(b*3,b*3+3),Cc=pos.slice(c*3,c*3+3), e1=[B[0]-A[0],B[1]-A[1],B[2]-A[2]], e2=[Cc[0]-A[0],Cc[1]-A[1],Cc[2]-A[2]];
+    const nn=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]]; if(nn[0]*hint[0]+nn[1]*hint[1]+nn[2]*hint[2]>=0) arr.push(a,b,c); else arr.push(a,c,b); };
+  for(const [F,y,up] of [[P,0,-1],[Q,T,1]]){ const ids=F.map(q=>v(q[0],y,q[1],q[0],-q[1]));
+    for(const [a,b,c] of THREE.ShapeUtils.triangulateShape(F.map(q=>new THREE.Vector2(q[0],q[1])),[])) tri(caps,ids[a],ids[b],ids[c],[0,up,0]); }
+  const C=centroid(P);
+  for(let i=0;i<n;i++){ const j=(i+1)%n, a=P[i], b=P[j], c=Q[j], d=Q[i], along=Math.abs(b[0]-a[0])>Math.abs(b[1]-a[1]), u=q=>along?q[0]:-q[1];
+    const mx=(a[0]+b[0])/2-C[0], mz=(a[1]+b[1])/2-C[1], hint=[mx,0,mz];
+    const i0=v(a[0],0,a[1],u(a),1), i1=v(b[0],0,b[1],u(b),1), i2=v(c[0],T,c[1],u(c),1-T), i3=v(d[0],T,d[1],u(d),1-T);
+    tri(sides,i0,i1,i2,hint); tri(sides,i0,i2,i3,hint); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex([...caps,...sides]); g.addGroup(0,caps.length,0); g.addGroup(caps.length,sides.length,1); g.computeVertexNormals(); return g; }
 function placeGroup(p){ p.group.position.set(p.tx,PIECE_Y,p.tz); p.group.rotation.y=-p.theta; }
 const rebuildAll=()=>{ pieces.forEach(buildPiece); app.stage.dirty(); };
 const segLen=(p,i)=>{ const a=p.pts[i], b=p.pts[(i+1)%p.pts.length]; return Math.hypot(b[0]-a[0],b[1]-a[1]); };
@@ -125,9 +154,12 @@ function pieceInfo(p){ const n=p.pts.length; return 'Chants : '+p.meta.map((m,i)
 function scoreState(){ if(!st.inc||!st.motor) return 'off'; if(st.incH<0.8) return 'low';
   const half=MAIN_KERF/2; if(st.incOff-st.incW/2>-half+1e-6 || st.incOff+st.incW/2<half-1e-6) return st.incW<MAIN_KERF? 'narrow':'misaligned'; return 'ok'; }
 function splitPiece(p){ const S=sPts(p), down=p.flip?'recto':'verso', bad=p.kind==='mela'&&scoreState()!=='ok';
-  const meta={sawn:true,label:cut.letter,chips:p.kind==='mela'?{recto:bad&&down==='recto',verso:bad&&down==='verso'}:null};
-  const hp=[[q=>q[1]>=BLADE_Z+KERF-1e-9,(a,b)=>zAt(a,b,BLADE_Z+KERF)],[q=>q[1]<=BLADE_Z-KERF+1e-9,(a,b)=>zAt(a,b,BLADE_Z-KERF)]];
-  const sides=hp.map(([f,g])=>{ const r=clipHalf(S,p.meta,f,g,meta); r.push((p.bands||[]).map(b=>{ const BP=b.pts.map(w=>toSlider(p,w)); const [Cb]=clipHalf(BP,BP.map(()=>null),f,g,null); return Cb.length>=3&&area(Cb)>1e-7? {label:b.label,pts:Cb.map(w=>toLocal(p,w))} : null; }).filter(Boolean)); return r; });
+  // lame inclinée : le trait est à une autre cote sur la face A et sur la face B ; le nouveau chant porte ce biseau
+  const fy=faceY(p), zA1=kerfZ(fy.A,1), zA0=kerfZ(fy.A,-1), dz=kerfZ(fy.B)-kerfZ(fy.A);
+  const meta=k=>({sawn:true,label:cut.letter,chips:p.kind==='mela'?{recto:bad&&down==='recto',verso:bad&&down==='verso'}:null,
+    bev: st.t? (k===0? dz : -dz) : 0, ang: st.t||0});
+  const hp=[[q=>q[1]>=zA1-1e-9,(a,b)=>zAt(a,b,zA1)],[q=>q[1]<=zA0+1e-9,(a,b)=>zAt(a,b,zA0)]];
+  const sides=hp.map(([f,g],k)=>{ const r=clipHalf(S,p.meta,f,g,meta(k)); r.push((p.bands||[]).map(b=>{ const BP=b.pts.map(w=>toSlider(p,w)); const [Cb]=clipHalf(BP,BP.map(()=>null),f,g,null); return Cb.length>=3&&area(Cb)>1e-7? {label:b.label,pts:Cb.map(w=>toLocal(p,w))} : null; }).filter(Boolean)); return r; });
   const onGuide=!!guideEdge(p); // délignage contre le guide : la pièce utile est entre lame et guide
   const wasActive=p.id===activeId; disposePiece(p); pieces=pieces.filter(q=>q!==p); const made=[null,null];
   sides.forEach(([P,M,B],k)=>{ if(P.length<3 || area(P)<1e-5) return;
@@ -146,13 +178,13 @@ function updateCut(){
   const all=pieces.map(p=>({p,r:bandRange(p)})).filter(o=>o.r);
   const live=all.filter(o=>!(cut.max!==null && cut.max>=o.r.maxX));
   if(live.length){
-    const T=Math.max(...live.map(o=>o.p.T)), cy=TABLE_Y+st.h/1000-R, ym=PIECE_Y+T/2;
-    const c=Math.abs(ym-cy)<R? Math.sqrt(R*R-(ym-cy)**2) : (cy+R>PIECE_Y? 0.02 : -1);
+    // la lame (inclinée de t) monte le long de son plan : centre à h − R du pivot, mi-épaisseur à (ym − table)/cos t
+    const T=Math.max(...live.map(o=>o.p.T)), ct=Math.cos(st.t*Math.PI/180), sc=st.h/1000-R, ym=PIECE_Y+T/2, sm=(ym-TABLE_Y)/ct;
+    const c=Math.abs(sm-sc)<R? Math.sqrt(R*R-(sm-sc)**2) : (sc+R>(PIECE_Y-TABLE_Y)/ct? 0.02 : -1);
     if(c>0){ const limit=Math.min(...live.map(o=>Math.max(cut.max??-Infinity,o.r.minX))), reach=c-sx;
       if(reach>limit){
         const why= !st.motor? 'Moteur arrêté : la pièce bute contre la lame.'
-          : st.h/1000 < T+0.002 ? `Lame trop basse : elle ne traverse pas la pièce (épaisseur ${Math.round(T*1000)} mm). Passe bloquée.`
-          : st.t!==0 ? 'Lame inclinée : les coupes inclinées ne sont pas encore simulées. Passe bloquée.' : '';
+          : st.h/1000 < (T+0.004)/ct ? `Lame trop basse : elle ne traverse pas la pièce (épaisseur ${Math.round(T*1000)} mm${st.t?`, lame inclinée à ${st.t}°`:''}). Passe bloquée.` : '';
         if(why){ sx=c-limit; st.s=(sx-SLIDER_HOME)*1000; cut.blocked=why; if(st.pass) stopPass(); }
         else { if(cut.max===null){ cut.letter=nextCutLetter(); app.recordDangers(); } cut.max=Math.max(cut.max??-Infinity,reach); }
       } } }
@@ -160,13 +192,14 @@ function updateCut(){
   if(split){ rebuildAll(); if(pieces.length>1) cut.needEvac=true; }
   lastS=st.s;
   cut.inProgress=pieces.some(p=>{ const r=bandRange(p); return r && cut.max!==null && cut.max>r.minX && cut.max<r.maxX; });
-  cutPlanes[0].set(v3(0,0,1),-(BLADE_Z+KERF)); cutPlanes[1].set(v3(0,0,-1),BLADE_Z-KERF);
-  cutPlanes[2].set(v3(1,0,0),-(sx+(cut.max??-10))); cutPlanes[3].set(v3(0,1,0),-(TABLE_Y+st.h/1000));
+  { const t=st.t*Math.PI/180, nb=v3(0,Math.sin(t),Math.cos(t)), D=nb.y*TABLE_Y+nb.z*BLADE_Z;   // plans du trait, lame inclinée comprise
+    cutPlanes[0].set(nb,-(D+KERF)); cutPlanes[1].set(nb.clone().negate(),D-KERF); }
+  cutPlanes[2].set(v3(1,0,0),-(sx+(cut.max??-10))); cutPlanes[3].set(v3(0,1,0),-(TABLE_Y+st.h/1000*Math.cos(st.t*Math.PI/180)));
 }
 
 /* --- retour du chariot : la pièce ne repasse jamais entre lame et guide --- */
 function relocateForReturn(){ let moved=false;
-  for(const p of pieces){ const S=sPts(p), minZ=Math.min(...S.map(q=>q[1])), maxZ=Math.max(...S.map(q=>q[1]));
+  for(const p of pieces){ const S=sAll(p), minZ=Math.min(...S.map(q=>q[1])), maxZ=Math.max(...S.map(q=>q[1]));
     let dz=0;
     if(maxZ<=BLADE_Z+KERF+1e-4) dz=0.30-minZ;                          // délignage : pièce reposée sur le chariot
     else if(minZ<BLADE_Z+KERF+0.010) dz=BLADE_Z+KERF+0.010-minZ;       // tronçonnage : pièce écartée de 10 mm de la lame
@@ -177,15 +210,17 @@ function relocateForReturn(){ let moved=false;
 function rotatePiece(p,d){ const C0=centroid(sPts(p)); p.theta+=d; const C1=centroid(sPts(p)); p.tx+=C0[0]-C1[0]; p.tz+=C0[1]-C1[1]; }
 function alignEdge(p,target){ const S=sPts(p); let best=-2,bi=0; S.forEach((_,i)=>{ const n=outwardNormal(S,i), d=n[0]*target[0]+n[1]*target[1]; if(d>best){best=d;bi=i;} });
   const n=outwardNormal(S,bi); rotatePiece(p, Math.atan2(target[1],target[0])-Math.atan2(n[1],n[0])); }
-function toFence(p){ if(!guideEdge(p)) alignEdge(p,[-1,0]); const S=sPts(p); p.tx+=FENCE_FACE-Math.min(...S.map(q=>q[0])); } // contre le guide : la règle ne fait que pousser
-// contre la règle : on garde l'appui sur la règle, le guide sert alors de butée
-function toGuide(p){ if(!fenceEdge(p)) alignEdge(p,[0,-1]); const S=sPts(p); p.tz+=guideFace()-Math.min(...S.map(q=>q[1])); }
-function toStop(p){ const S=sPts(p); p.tz+=stopFace()-Math.max(...S.map(q=>q[1])); }
-function contactEdge(p,ax,val){ const S=sPts(p), k=ax==='x'?0:1; for(let i=0;i<S.length;i++){ const a=S[i], b=S[(i+1)%S.length]; if(Math.abs(a[k]-val)<0.0008 && Math.abs(b[k]-val)<0.0008) return p.meta[i]; } return null; }
-const sabotContact=p=>!!p&&st.sabot&&Math.abs(Math.max(...sPts(p).map(q=>q[0]))-SABOT_FACE)<0.0008;
-const fenceEdge=p=>p&&contactEdge(p,'x',FENCE_FACE), guideEdge=p=>p&&contactEdge(p,'z',guideFace());
-function stopEdge(p){ if(!p) return null; const S=sPts(p), sf=stopFace(); if(!S.some(v=>Math.abs(v[1]-sf)<0.0008)) return null;
-  let best=-2,bi=-1; S.forEach((_,i)=>{ const a=S[i], b=S[(i+1)%S.length], n=outwardNormal(S,i); if(Math.max(a[1],b[1])>sf-0.0008 && n[1]>best){best=n[1];bi=i;} }); return bi>=0?p.meta[bi]:null; }
+/* contre la règle (orientable) : on garde l'appui sur la règle, le guide sert alors de butée */
+function toFence(p){ if(!guideEdge(p)){ const n=fenceN(); alignEdge(p,[-n[0],-n[1]]); } const n=fenceN(), m=Math.min(...sAll(p).map(fenceDist)); p.tx-=n[0]*m; p.tz-=n[1]*m; }
+function toGuide(p){ if(!fenceEdge(p)) alignEdge(p,[0,-1]); p.tz+=guideFace()-Math.min(...sAll(p).map(q=>q[1])); }
+/* en butée : la butée glisse sur la règle ; lecture directe de la longueur le long de la règle */
+function toStop(p){ const d=fenceD(), m=stopT()-Math.max(...sAll(p).map(fenceT)); p.tx+=d[0]*m; p.tz+=d[1]*m; }
+/* chant en appui sur une droite (dist(q) = 0), sur la face A ou la face B */
+function lineEdge(p,dist){ for(const S of [sPts(p),sTop(p)]) for(let i=0;i<S.length;i++){ const a=S[i], b=S[(i+1)%S.length]; if(Math.abs(dist(a))<0.0008 && Math.abs(dist(b))<0.0008) return p.meta[i]; } return null; }
+const sabotContact=p=>!!p&&st.sabot&&Math.abs(Math.max(...sAll(p).map(q=>q[0]))-SABOT_FACE)<0.0008;
+const fenceEdge=p=>p&&lineEdge(p,fenceDist), guideEdge=p=>p&&lineEdge(p,q=>q[1]-guideFace());
+function stopEdge(p){ if(!p) return null; const st0=stopT(), d=fenceD(); if(!sAll(p).some(v=>Math.abs(fenceT(v)-st0)<0.0008)) return null;
+  const S=sPts(p); let best=-2,bi=-1; S.forEach((_,i)=>{ const a=S[i], b=S[(i+1)%S.length], n=outwardNormal(S,i), k=n[0]*d[0]+n[1]*d[1]; if(Math.max(fenceT(a),fenceT(b))>st0-0.003 && k>best){best=k;bi=i;} }); return bi>=0?p.meta[bi]:null; }
 function doOp(op){
   app.ex.flash.level='warn';
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
@@ -199,15 +234,15 @@ function doOp(op){
   else if(op==='flip'){ const C0=centroid(sPts(p)); p.flip=!p.flip; const C1=centroid(sPts(p)); p.tx+=C0[0]-C1[0]; p.tz+=C0[1]-C1[1]; }
   else if(op==='fence') toFence(p); else if(op==='guide') toGuide(p); else if(op==='stop') toStop(p);
   else if(op==='evac'){ pieces.filter(q=>q!==p).forEach(disposePiece); pieces=[p]; }
-  else if(op==='sabot'){ if(!st.sabot){ app.ex.flash.msg='Montez d\'abord le sabot de délignage (Réglages).'; } else { const S=sPts(p); p.tx+=SABOT_FACE-Math.max(...S.map(q=>q[0])); } }
+  else if(op==='sabot'){ if(!st.sabot){ app.ex.flash.msg='Montez d\'abord le sabot de délignage (Réglages).'; } else { const S=sAll(p); p.tx+=SABOT_FACE-Math.max(...S.map(q=>q[0])); } }
   else if(op[0]==='z'){ p.tz+=({zm10:-0.010,zm1:-0.001,zp1:0.001,zp10:0.010})[op]; }
-  if(st.sabot){ const S=sPts(p), mx=Math.max(...S.map(q=>q[0])); if(mx>SABOT_FACE && S.some(q=>q[1]>SABOT_Z0-0.01)) p.tx-=mx-SABOT_FACE; } // le sabot arrête la pièce
-  { const mx=Math.min(...sPts(p).map(q=>q[0])); if(mx<FENCE_FACE) p.tx+=FENCE_FACE-mx; } // la pièce ne peut pas traverser la règle
+  if(st.sabot){ const S=sAll(p), mx=Math.max(...S.map(q=>q[0])); if(mx>SABOT_FACE && S.some(q=>q[1]>SABOT_Z0-0.01)) p.tx-=mx-SABOT_FACE; } // le sabot arrête la pièce
+  { const n=fenceN(), m=Math.min(...sAll(p).map(fenceDist)); if(m<0){ p.tx-=n[0]*m; p.tz-=n[1]*m; } } // la pièce ne peut pas traverser la règle
   rebuildAll(); app.ex.invalidate(); app.apply(); }
 
 /* --- accès pour les autres fichiers --- */
 export const setActiveId=id=>{ activeId=id; };
 /* remise à zéro au changement de mode (pièces débitées, chariot en position de départ) */
 export function resetForMode(){ debit=[]; debitKey=''; stopPass(); st.s=1450; lastS=1450; }
-export { pieces, cut, A, sPts, toSlider, toLocal, bandRange, segLen, newPiece, clearPieces, rebuildAll, renderDebit, setActive,
+export { pieces, cut, A, sPts, sTop, sAll, topPts, toSlider, toLocal, bandRange, segLen, newPiece, clearPieces, rebuildAll, renderDebit, setActive,
   scoreState, stopPass, updateCut, toFence, toGuide, toStop, fenceEdge, guideEdge, stopEdge, sabotContact, doOp };

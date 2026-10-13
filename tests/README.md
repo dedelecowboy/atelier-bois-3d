@@ -21,6 +21,7 @@ python3 tests/scie-format/test_exercices.py   # un seul fichier
   - `test_affichage.py` : ordinateur 1400 px et téléphone 412 px, captures dans `tests/out/`.
 
 - `degauchisseuse/`, `deligneuse/` : mêmes fichiers. Déligneuse : avivés → 2 × 85 mm, plateau en flache → avivé de 140 mm sans flache, multilames → 4 × 45 mm en une passe ; parcours 94 / 100, 50 interactions ; faute grave « presseurs trop hauts ».
+- `scie-format/test_angles.py` : mode libre, onglet à 30° (chant scié à 60° du chant voisin) et biais à 45° (chant marqué 45°, décalage = épaisseur) ; captures `scie-format_onglet30.png`, `scie-format_biais45*.png`. `window.__scie` donne l'état, les pièces et la caméra aux tests.
 - `scie-radiale/` : mêmes fichiers. Série → bout affranchi + 4 × 550 mm à la butée ; purge → fente, nœud et gerce dans des chutes courtes ; biais → lame à 45°, 3 × 600 mm à bouts biais parallèles ; gestes refusés (pièce touchée lame en avant, réglages lame en marche, pièce non tenue) ; parcours 94 / 100, 50 interactions ; fautes graves « protecteur trop haut » et « pièce touchée lame en avant ». `window.__radiale` donne l'état (réglages, tête, pièces) aux tests.
 
 En headless, les pertes de contexte WebGL et les captures lentes ne sont pas des bugs utilisateur.

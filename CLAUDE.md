@@ -10,7 +10,7 @@ Langue de l'interface et des messages : français. Consignes simples et directes
 
 ## Organisation actuelle
 
-Étapes faites (octobre 2026) : 1. moteur commun extrait, la scie à format est le premier module construit dessus (comportement identique à l'ancien fichier unique) ; 2. dégauchisseuse ; 3. déligneuse multilames (PR #5) — toutes fusionnées dans main. Étape 4 en cours : scie radiale (`machines/scie-radiale/`, branche `scie-radiale`). Étapes suivantes envisagées : raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée.
+Étapes faites (octobre 2026) : 1. moteur commun extrait, la scie à format est le premier module construit dessus (comportement identique à l'ancien fichier unique) ; 2. dégauchisseuse ; 3. déligneuse multilames (PR #5) — toutes fusionnées dans main. Étape 4 en cours : scie radiale (`machines/scie-radiale/`, branche `scie-radiale`, PR #6), puis coupes d'angle portées sur la scie à format (branche `scie-format-angles`, au-dessus de `scie-radiale`). Étapes suivantes envisagées : raboteuse, scie à ruban, toupie ; page « atelier » 3D d'entrée.
 
 Chaîne de débit : scie radiale (tronçonnage des planches brutes, purge des défauts) → déligneuse (délignage) → dégauchisseuse, raboteuse (corroyage) ; la scie à format pour les panneaux et la mise au format.
 
@@ -56,6 +56,15 @@ Les textes des scénarios (consignes, libellés de contrôle) sont encore dans `
 - Gaspillage au délignage de rive : trait à 10 mm au plus du point le plus profond de la flache.
 - Flèches de décalage de la pièce calculées selon la caméra (direction réelle à l'écran), libellés « lame » / « chariot ».
 - Marque fictive « KANAK 550 » sur le bâti (modèle réel : Format-4 kappa ; ne pas afficher la vraie marque).
+
+## Scie à format : coupes d'angle (proposé, À VALIDER par l'enseignant)
+
+Reprise de la scie radiale : la lame inclinée et la règle de tronçonnage orientée sont maintenant simulées en mode libre (aucun scénario noté ne les utilise encore).
+- Biais : `st.t` 0 à 46°, la lame penche vers le guide parallèle (−Z), autour de son trait au ras de la table (modèle existant). Chaque chant garde `meta.bev` (décalage en m de la face posée A à la face du dessus B, positif vers l'intérieur) et `meta.ang` ; la face du dessus se calcule par `topPts` (droites décalées). Pièce dessinée par `prismGeom` (face A, face B, flancs). Retourner la pièce montre le biais.
+- Réglages (demandé par l'enseignant) : curseur de la butée de longueur avec les autres curseurs (sous l'onglet) ; inciseur dans un bloc encadré à part, en fin de réglages.
+- Hauteur de coupe mesurée le long de la lame : il faut au moins épaisseur / cos(inclinaison) (+ 2 mm), conseil ≈ + 10 mm.
+- Onglet (décidé par l'enseignant) : `st.mit` de 0 à 45°, côté cadre de tronçonnage seulement ; la règle bute à 0° (d'équerre à la lame) et son bout libre vient vers l'opérateur (+X) ; curseur de 0 à 45° pour revenir facilement à l'équerre. Elle pivote autour de son bout côté lame (REG_X, REG_Z0) ; « Contre la règle » et « En butée » suivent la règle orientée ; la butée se lit directement le long de la règle, depuis le trait de lame.
+- Alertes « attention » : lame inclinée pendant un délignage au guide (pièce sous la lame, côté guide : règle courte et poussoir) ; règle de tronçonnage pas à 0° pendant un délignage au guide.
 
 ## Dégauchisseuse : conventions et choix (proposés, À VALIDER par l'enseignant)
 
@@ -140,6 +149,6 @@ Chants bruts numérotés (1, 2, 3, 4 ; U = chant d'usine), chants sciés en lett
 `npm run build` puis `npm test` couvre les points 1 à 4 (compter une dizaine de minutes en headless) ; regarder les captures de `tests/out/`.
 
 1. `node --check` du script module extrait.
-2. Les trois exercices guidés de chaque machine de bout en bout (scie : format → 800 × 450, planche → 160 sans flache, inciseur → 800 × 400 sans éclat ; dégauchisseuse : rectiligne, cintrée, fil incliné ; déligneuse : 2 × 85, avivé de 140 sans flache, 4 × 45 en une passe ; scie radiale : 4 × 550 à la butée, purge fente / nœud / gerce, 3 × 600 à bouts biais).
+2. Les trois exercices guidés de chaque machine de bout en bout, et pour la scie à format une coupe d'onglet à 30° et une coupe biaise à 45° en mode libre (scie : format → 800 × 450, planche → 160 sans flache, inciseur → 800 × 400 sans éclat ; dégauchisseuse : rectiligne, cintrée, fil incliné ; déligneuse : 2 × 85, avivé de 140 sans flache, 4 × 45 en une passe ; scie radiale : 4 × 550 à la butée, purge fente / nœud / gerce, 3 × 600 à bouts biais).
 3. Le parcours complet avec une fausse API SCORM (note, statut, interactions, reprise).
 4. Une capture en largeur ordinateur ET téléphone (412 px).
