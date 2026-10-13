@@ -11,6 +11,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Scie à format « KANAK 550 » | en service | `machines/scie-format/` |
 | Dégauchisseuse « KANAK 520 D » | en essai | `machines/degauchisseuse/` |
 | Déligneuse multilames « KANAK 300 M » | en essai | `machines/deligneuse/` |
+| Scie radiale « KANAK 900 R » | en essai | `machines/scie-radiale/` |
 | Raboteuse | prévue | |
 | Scie à ruban | prévue | |
 | Toupie | prévue | |
@@ -33,6 +34,14 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 - **Exercices guidés** : délignage d'avivés au guide (2 pièces de 85 mm en deux passes), délignage d'un plateau de plot en flache au laser (guide escamoté, petit découvert dessus, gros bout en premier → avivé de 140 mm sans flache), multidélignage (4 tasseaux de 45 mm en une passe, vitesse d'avance réglée à l'ampèremètre). Manchon changé lames arrêtées, presseurs réglés à l'épaisseur, pièces débitées reprises pour une nouvelle passe.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
+## Scie radiale KANAK 900 R
+
+Première machine de la chaîne de débit : elle tronçonne les planches brutes à longueur et purge leurs défauts, avant la déligneuse.
+
+- **Présentation** : nomenclature de 23 organes (bras pivotant sur la colonne, chariot porte-lame et ressort de rappel, lame Ø 400 travaillant en avalant, carter, protecteur avant réglable, inclinaison de la lame, butée de longueur escamotable, servante à rouleaux…), zone dangereuse peinte sur la table, vue intérieure.
+- **Exercices guidés** : débit en série à la butée d'après une fiche de débit (bout brut affranchi, 4 montants de 550 mm), purge des défauts au plus près (fente en bout, nœud, gerce), coupe inclinée à 45° (lames de bardage à bouts biais parallèles). La main gauche tient la planche hors de la zone rouge, la lame est ramenée en arrière après chaque coupe avant de toucher aux pièces, pièce gardée entourée en orange, pièces débitées listées.
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -42,7 +51,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
-| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse et la déligneuse |
+| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse et la scie radiale |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -56,8 +65,8 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
+- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
 
 Pour une seule machine : `npm run build -- scie-format`.
 

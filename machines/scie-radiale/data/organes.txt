@@ -1,0 +1,79 @@
+# Nomenclature de la scie radiale KANAK 900 R
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+# Sources : cours « La scie radiale » (Lycée André Malraux), catalogue constructeur, fiche méthode « Débit des bois ».
+
+[bati] 01 Châssis
+Piétement et cadre en acier qui portent la table, la colonne et le bras (machine d'environ 300 kg). On le fixe au sol.
+
+[table] 02 Table
+Plateau en bois, à 900 mm du sol, pour ne pas abîmer la lame : la lame descend 5 mm dans la table. Des bandes rouges marquent la zone dangereuse, 150 mm de part et d'autre du trait de scie ; elles suivent l'angle du bras et l'inclinaison de la lame.
+
+[guide] 03 Guide
+Règle en bois à l'arrière de la table : la planche est toujours plaquée contre lui pendant le sciage. La lame le traverse par une entaille ; en position arrière, elle est entièrement derrière lui.
+
+[colonne] 04 Colonne
+Colonne en fonte fixée au châssis, derrière la table. Elle porte le bras et monte ou descend pour régler la hauteur de la lame.
+
+[bras] 05 Bras
+Bras en fonte, au-dessus de la table, dans lequel coulisse le chariot porte-lame. Sa longueur donne la course de la lame, donc la largeur maximale de coupe (900 mm). Il pivote sur la colonne de −45° à +45° pour les coupes d'onglet.
+
+[chariot] 06 Chariot porte-lame
+Chariot à 8 roulements qui coulisse dans le bras. Il porte le groupe moteur et la lame.
+
+[ressort] 07 Ressort de rappel
+Ramène la tête porte-lame vers la colonne, jusqu'à la butée de fin de course arrière (caoutchouc) qui l'arrête avant la colonne. On accompagne toujours la tête jusqu'à cette butée sans lâcher la poignée : la lame doit être derrière le guide avant de toucher aux pièces.
+
+[moteur] 08 Groupe moteur
+Moteur triphasé de 4 kW (5,5 ch), 3 000 tr/min, avec frein. La lame est montée directement en bout de son arbre.
+
+[lame] 09 Lame de scie
+Lame circulaire à dents carbure, Ø 400 mm, pour le tronçonnage. Elle travaille en avalant : les dents de devant descendent dans le bois, ce qui plaque la pièce contre la table et le guide, mais la lame a tendance à s'emballer vers l'opérateur.
+
+[fixation] 10 Fixation de la lame
+Flasques et écrou de serrage en bout de l'arbre moteur. On ne change la lame que machine arrêtée et consignée.
+
+[carter] 11 Carter de lame
+Capot fixe qui recouvre toute la moitié supérieure de la lame. Il porte les buses d'aspiration.
+
+[protecteur] 12 Protecteur avant
+Écran transparent qui couvre l'avant de la lame. On le règle au plus près de la pièce, 1 à 10 mm au-dessus, avant de démarrer.
+
+[poignee] 13 Poignée de manœuvre
+Poignée du groupe moteur : la main droite tire la lame à travers la pièce en la retenant (la lame tend à s'emballer), puis la ramène en arrière.
+
+[manivelle] 14 Manivelle de hauteur
+Sur le bras, au-dessus de la colonne : monte ou descend le bras, donc la lame par rapport à la table (hauteur de passe).
+
+[rotation] 15 Réglage de l'angle du bras
+Secteur gradué en haut de la colonne, index et levier de blocage : rotation du bras de −45° à +45° par rapport au guide (coupes d'onglet). Réglage lame arrêtée, puis bras bloqué.
+
+[inclinaison] 16 Réglage de l'inclinaison
+Secteur courbe sous le chariot et levier de blocage : inclinaison de la lame de 0 à 45° par rapport à la table (coupes biaises). Réglage lame arrêtée, puis tête bloquée.
+
+[butee] 17 Butée de longueur
+Butée escamotable qui coulisse sur la règle, à droite de la lame : on y pousse la planche pour débiter des pièces de même longueur. Relevée, elle laisse passer la planche.
+
+[regle_butee] 18 Règle de la butée
+Règle graduée sur le guide, côté sortie, comptée depuis le trait de scie : elle donne directement la longueur des pièces.
+
+[servante] 19 Servante à rouleaux
+Table à rouleaux à gauche de la machine : elle porte la planche à débiter, qui glisse vers la lame sans effort.
+
+[table_sortie] 20 Table de sortie
+Table à rouleaux à droite : elle reçoit les pièces débitées et porte la règle de la butée.
+
+[aspiration] 21 Aspiration
+Buse Ø 120 mm sur le carter et buse Ø 60 mm derrière la lame, raccordées à la centrale avant toute mise en marche (poussières de bois cancérogènes).
+
+[commande] 22 Boîtier de commande
+Marche et arrêt du moteur de la lame, sur le devant de la machine, à portée de main.
+
+[arret] 23 Arrêt d'urgence
+Coup-de-poing rouge sur fond jaune : arrêt immédiat de la lame, avec le frein moteur.

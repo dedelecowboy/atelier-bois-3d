@@ -1,0 +1,133 @@
+# QCM sécurité et technique de la scie radiale (parcours évalué)
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# Sources : cours « La scie radiale » (Lycée André Malraux), fiche méthode « Débit des bois »,
+# fiche « Scie radiale » du CCHST (Centre canadien d'hygiène et de sécurité au travail).
+
+Q: À quoi sert la scie radiale dans le débit des bois ?
+- À refendre les planches dans le sens du fil
++ À tronçonner les planches brutes à longueur et à purger leurs défauts
+- À dresser une face de référence
+= Elle coupe en travers du fil (tronçonnage). Les pièces passent ensuite à la déligneuse, puis au corroyage.
+
+Q: Dans la fiche de débit, quand tronçonne-t-on les plateaux ?
++ Après avoir tracé les longueurs et repéré les défauts, avant le délignage
+- Après le corroyage
+- Après le délignage des largeurs
+= Choix des plateaux, brossage, traçage à la craie, tronçonnage à la radiale, puis délignage de la flache et des largeurs.
+
+Q: Pourquoi les longueurs tronçonnées doivent-elles dépasser 350 mm ?
+- Pour économiser la lame
++ Les pièces plus courtes ne passent pas en raboteuse
+- Parce que la butée ne descend pas en dessous
+= Les rouleaux de la raboteuse doivent tenir la pièce à l'entrée et à la sortie : une pièce trop courte n'est pas entraînée.
+
+Q: Comment travaille la lame de la scie radiale ?
+- En opposition : les dents remontent vers l'opérateur
++ En avalant : les dents de devant descendent dans le bois, dans le sens de l'avance
+- Le sens n'a pas d'importance
+= En avalant, la lame plaque la pièce contre la table et le guide, mais elle tend à s'emballer et à « monter » sur la pièce vers l'opérateur.
+
+Q: Comment tirez-vous la lame à travers la pièce ?
+- D'un coup sec, le plus vite possible
++ Doucement, en retenant la poignée pour freiner la lame
+- En lâchant la poignée une fois la coupe commencée
+= La lame avalante a tendance à s'emballer vers l'opérateur et à se bloquer dans le bois : on la retient pendant toute la coupe.
+
+Q: La coupe est finie. Que faites-vous avant de retirer la pièce coupée ?
+- Vous retirez la pièce tout de suite, la lame est devant
++ Vous ramenez la lame en arrière, derrière le guide, sans lâcher la poignée
+- Vous arrêtez le moteur et vous laissez la lame où elle est
+= La lame doit être repoussée contre la colonne, derrière le guide, avant de toucher aux pièces. Le ressort de rappel ne dispense pas d'accompagner la tête.
+
+Q: Où placez-vous la main qui tient la planche ?
+- Juste à côté du trait, pour bien tenir la pièce
++ Le plus loin possible de la lame, hors de la zone rouge, jamais dans l'axe de la lame
+- Devant la lame, pour la guider
+= La main de maintien reste à plus de 150 mm du trait, du côté opposé à la poignée.
+
+Q: La poignée est à droite de la lame. De quel côté tenez-vous la planche ?
++ À gauche de la lame, avec la main gauche
+- À droite de la lame, avec la main gauche
+- Des deux côtés, bras croisés
+= Bras croisés, l'avant-bras passe dans la trajectoire de la lame qui avance vers l'opérateur.
+
+Q: Pourquoi la planche doit-elle être plaquée contre le guide ?
+- Pour que la lame refroidisse
++ Sinon la lame avalante l'entraîne brutalement contre le guide : rejet, blocage de la lame
+- Pour aller plus vite
+= Le guide est la référence : la pièce y est plaquée pendant toute la coupe.
+
+Q: Comment règle-t-on le protecteur avant ?
+- Tout en haut, pour bien voir la lame
++ Au plus près de la pièce, avant de mettre le moteur en route
+- On le démonte pour les petites pièces
+= Il ne doit laisser passer que l'épaisseur de la pièce : réglé trop haut, l'avant de la lame est accessible.
+
+Q: Quand règle-t-on l'angle du bras ou l'inclinaison de la lame ?
+- Pendant que la lame tourne, pour gagner du temps
++ Lame arrêtée, puis on bloque le bras et la tête avant de démarrer
+- Pendant la coupe
+= Tous les réglages se font avant la mise en route du moteur. Un bras mal bloqué peut tourner pendant la coupe.
+
+Q: Que faites-vous des chutes qui tombent sur la table ?
+- Vous les laissez, vous rangerez à la fin
++ Vous les dégagez au fur et à mesure, lame en position arrière
+- Vous les poussez avec la main pendant la coupe suivante
+= Une table encombrée gêne la pièce et la lame peut projeter une chute. On dégage avec la lame derrière le guide.
+
+Q: Peut-on tronçonner deux planches posées l'une sur l'autre ?
+- Oui, si elles sont de même longueur
++ Non, jamais : on les place côte à côte
+- Oui, si on tire doucement
+= La pièce du dessus risquerait de sauter par-dessus le guide.
+
+Q: Pourquoi la table de la scie radiale est-elle en bois ?
+- Parce que c'est moins cher
++ Pour ne pas abîmer la lame, qui descend 5 mm dans la table
+- Pour que la planche glisse mieux
+= La lame est réglée en permanence 5 mm sous la face de la pièce : elle entaille la table.
+
+Q: À quoi sert la butée de longueur ?
+- À arrêter la lame en fin de course
++ À débiter des pièces de même longueur sans les mesurer une à une
+- À bloquer la planche contre le guide
+= On pousse la planche contre la butée réglée à la longueur voulue : toutes les pièces sont identiques.
+
+Q: Le bout d'une planche brute est fendu et pas d'équerre. Que faites-vous avant de débiter à la butée ?
+- Rien, la butée corrige
++ Vous affranchissez le bout : une première coupe d'équerre qui enlève la fente
+- Vous le retournez
+= Le bout brut contre la butée donnerait une pièce fausse et fendue. On le purge, en perdant le moins de bois possible.
+
+Q: Pour purger un nœud au milieu d'une planche, que faites-vous ?
+- Une seule coupe au milieu du nœud
++ Deux coupes, juste de part et d'autre du nœud : la chute contient tout le nœud
+- On laisse le nœud, la raboteuse l'enlèvera
+= On encadre le défaut au plus près : la chute est la plus courte possible et les deux pièces voisines sont saines.
+
+Q: Comment obtient-on une coupe biaise (en sifflet) en bout de planche ?
+- En faisant pivoter le bras
++ En inclinant la lame par rapport à la table
+- En inclinant la planche à la main
+= Bras pivoté : coupe d'onglet. Lame inclinée : coupe biaise. Les deux ensemble : onglet composé.
+
+Q: Vous quittez le poste. Que faites-vous ?
+- Vous partez dès que vous avez appuyé sur Arrêt
++ Vous attendez l'arrêt complet de la lame, en position arrière, puis vous nettoyez le poste
+- Vous laissez tourner pour le suivant
+= Une lame qui tourne encore est invisible et coupe. Machine hors tension, poste nettoyé.
+
+Q: Quels équipements portez-vous au poste de la scie radiale ?
+- Des gants, pour tenir la planche
++ Protection auditive, lunettes de protection, chaussures de sécurité, pas de vêtements flottants
+- Une blouse ample
+= Les gants, bijoux et vêtements flottants peuvent être happés par la lame. Les gants servent seulement à manipuler les planches brutes, loin de la machine.

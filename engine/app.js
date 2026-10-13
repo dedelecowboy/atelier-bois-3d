@@ -36,7 +36,7 @@ export function createApp(config, raw){
     toast:stage.toast,
     get parcours(){ return parc; },
     alerts:()=>H.alerts(),
-    recordDangers:()=>parc?.recordDangers(),
+    recordDangers:list=>parc?.recordDangers(list),
     /* recalcul complet : simulation, 3D, panneaux */
     apply(){ stage.dirty(); H.update(); H.renderExtra?.(); parc?.refresh(); ex.render(); },
     /* disposition : pres (nomenclature | 3D | réglages), ex (3D | consigne + dock), parcours (SCORM) */

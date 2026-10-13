@@ -1,0 +1,16 @@
+  <div class="srow">
+    <button class="toggle" id="motor" type="button" aria-pressed="false">Lame</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="pull" type="button" aria-pressed="false" title="Tire la lame à travers la pièce, en la retenant (elle travaille en avalant)">Tirer la lame</button>
+    <button class="toggle" id="ret" type="button" aria-pressed="false" title="Ramène la tête porte-lame contre la colonne, derrière le guide, sans lâcher la poignée">Ramener la lame</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+  </div>
+  <div class="ctl angc"><span>Angle du bras (°)</span>
+    <div class="seg-a" role="group" aria-label="Angle du bras"><button class="toggle mini" type="button" data-alpha="-45">−45</button><button class="toggle mini" type="button" data-alpha="-30">−30</button><button class="toggle mini" type="button" data-alpha="-15">−15</button><button class="toggle mini" type="button" data-alpha="0">0</button><button class="toggle mini" type="button" data-alpha="15">15</button><button class="toggle mini" type="button" data-alpha="30">30</button><button class="toggle mini" type="button" data-alpha="45">45</button></div></div>
+  <div class="ctl angc"><span>Inclinaison de la lame (°)</span>
+    <div class="seg-b" role="group" aria-label="Inclinaison de la lame"><button class="toggle mini" type="button" data-beta="0">0</button><button class="toggle mini" type="button" data-beta="15">15</button><button class="toggle mini" type="button" data-beta="30">30</button><button class="toggle mini" type="button" data-beta="45">45</button></div>
+    <button class="toggle mini" type="button" id="lock" aria-pressed="true" title="Leviers de blocage de l'angle du bras et de l'inclinaison">Bras et tête bloqués</button></div>
+  <div class="ctl"><label for="prot">Protecteur avant : hauteur (mm)</label><input class="num" id="prot-n" type="number" min="0" max="140" step="1" aria-label="Hauteur du bord bas du protecteur au-dessus de la table, en mm"><input id="prot" type="range" min="0" max="140" step="1" value="60"></div>
+  <div class="ctl stpc"><label for="stop">Butée de longueur (mm)</label><input class="num" id="stop-n" type="number" min="150" max="2000" step="1" aria-label="Longueur réglée à la butée, en mm"><input id="stop" type="range" min="150" max="2000" step="1" value="550">
+    <button class="toggle mini" type="button" id="stopOn" aria-pressed="false" title="Abaisse la butée (en service) ou la relève pour laisser passer la planche">Butée relevée</button></div>
+  <div class="ctl"><label for="hand">Main gauche, à gauche de la lame : distance au trait (mm)</label><input class="num" id="hand-n" type="number" min="0" max="600" step="5" aria-label="Distance de la main gauche au trait de scie en mm"><input id="hand" type="range" min="0" max="600" step="5" value="250"></div>
