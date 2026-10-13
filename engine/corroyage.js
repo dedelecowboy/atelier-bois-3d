@@ -11,7 +11,12 @@
    Sens du fil (même règle pour les deux machines, l'outil tourne contre l'avance) : usinage dans le bon sens si,
    depuis la face usinée, les fibres entrent dans la pièce vers le bout qui passe en premier sous l'outil.
    À la dégauchisseuse la face usinée est dessous, à la raboteuse elle est dessus : une pièce dégauchie dans le
-   bon sens se rabote en la présentant par l'autre bout. */
+   bon sens se rabote en la présentant par l'autre bout.
+
+   Profils usinés (toupie) : q.cuts, liste d'au plus un profil par face. Un profil {f, d, tear} donne, à chaque station i
+   et à M_PROF points t de 0 à 1 en travers de la face (du côté F1 / C1 vers le côté F2 / C2), la profondeur enlevée
+   d[i][k] (mm, vers l'intérieur de la pièce). Une pièce sans profil (cuts vide) garde exactement le maillage d'avant ;
+   une pièce profilée ne repasse pas à la dégauchisseuse ni à la raboteuse (non géré). */
 import * as THREE from 'three';
 import { canvasTex } from './kit.js';
 
@@ -30,7 +35,7 @@ const minA=a=>Math.min(...a), maxA=a=>Math.max(...a);
 export function makePiece(spec){
   if(spec.w1) return { L:spec.L, W0:spec.W0, T0:spec.T0, wood:spec.wood, sT:spec.sT||0, sW:spec.sW||0,
     w1:spec.w1.slice(), w2:spec.w2.slice(), v1:spec.v1.slice(), v2:spec.v2.slice(), k:spec.k||0, flip:!!spec.flip,
-    face:JSON.parse(JSON.stringify(spec.face)), vmark:spec.vmark?{...spec.vmark}:null };
+    face:JSON.parse(JSON.stringify(spec.face)), vmark:spec.vmark?{...spec.vmark}:null, cuts:JSON.parse(JSON.stringify(spec.cuts||[])) };
   let seed=spec.seed||7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
   const noise=a=>{ const ph=[rnd()*6,rnd()*6,rnd()*6]; return i=>{ const x=i/(N-1); return a*(0.5+0.25*Math.sin(x*9+ph[0])+0.15*Math.sin(x*23+ph[1])+0.1*Math.sin(x*41+ph[2])); }; };
   const r=spec.rough??0.6, b=spec.bow||0, nF1=noise(r), nF2=noise(r), nC1=noise(r), nC2=noise(r);
@@ -40,9 +45,9 @@ export function makePiece(spec){
   return { L:spec.L, W0:spec.W, T0:spec.T, wood:spec.wood||'hetre', sT:spec.sT||0, sW:spec.sW||0,
     w1,w2,v1,v2, k:spec.k||0, flip:!!spec.flip,
     face:{ F1:{passes:0,tear:false,mark:null}, F2:{passes:0,tear:false,mark:null}, C1:{passes:0,tear:false,mark:null,angle:null}, C2:{passes:0,tear:false,mark:null,angle:null} },
-    vmark:null }; }
+    vmark:null, cuts:[] }; }
 /* ce qu'il faut garder pour passer la pièce à une autre machine */
-export function pieceJSON(q){ const {L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark}=q; return JSON.parse(JSON.stringify({L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark})); }
+export function pieceJSON(q){ const {L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark}=q, cuts=q.cuts||[]; return JSON.parse(JSON.stringify({L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark,cuts})); }
 
 /* ---------- géométrie : faces, planéité, dimensions ---------- */
 export const prof=(q,f)=>({F1:q.w1,F2:q.w2,C1:q.v1,C2:q.v2}[f]);
@@ -147,6 +152,7 @@ export const EX=3;   // à l'affichage seulement, les écarts de forme (cintrage
 const exag=a=>{ const n=a.length-1; return a.map((x,i)=>{ const lin=a[0]+(a[n]-a[0])*i/n; return x+(EX-1)*(x-lin); }); };
 /* maillage de la pièce, centré sur son origine locale (u le long de x, w en y, v en z), sans orientation */
 export function pieceMesh(q0){
+  if(q0.cuts&&q0.cuts.length) return profiledMesh(q0);     // pièce profilée (toupie) ; sinon, maillage d'origine
   const q={...q0, w1:exag(q0.w1), w2:exag(q0.w2), v1:exag(q0.v1), v2:exag(q0.v2)};
   const L=q0.L/1000, T=q0.T0/1000, W=q0.W0/1000, pos=[], uv=[], idx=[];
   const P=(i,v,w)=>[i/(N-1)*L-L/2, w/1000-T/2, v/1000-W/2];
@@ -168,5 +174,62 @@ export function pieceMesh(q0){
   [[gF1,0],[gF2,1],[gC1,2],[gC2,3],[gA,4],[gB,4]].forEach(([[s,c],m])=>geo.addGroup(s,c,m));
   geo.computeVertexNormals();
   const mesh=new THREE.Mesh(geo,[faceMat(q0,'F1'),faceMat(q0,'F2'),faceMat(q0,'C1'),faceMat(q0,'C2'),endMat(q0)]);
+  mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece';
+  return mesh; }
+
+/* ---------- profils usinés (toupie) ---------- */
+export const M_PROF = 33;                      // points en travers d'une face profilée
+export const cutOf=(q,f)=>(q.cuts||[]).find(c=>c.f===f)||null;
+/* profondeur enlevée sur la face f, à la station i, au point t (0 à 1 en travers, du côté F1 / C1 vers F2 / C2) */
+export function depthT(q,f,i,t){ const c=cutOf(q,f); if(!c) return 0; const x=Math.max(0,Math.min(1,t))*(M_PROF-1), k=Math.min(M_PROF-2,Math.floor(x)), r=x-k;
+  return c.d[i][k]*(1-r)+c.d[i][k+1]*r; }
+/* contour de la section à la station i (mm, coordonnées locales v, w), tourné dans le sens direct :
+   F1 (de C1 à C2), C2 (de F1 à F2), F2 (de C2 à C1), C1 (de F2 à F1) ; M_PROF points par face.
+   Chaque point : {v, w, f (face), t (position en travers de la face avant usinage), cut (déplacé par un profil)}.
+   B : profils de base des faces (par défaut ceux de la pièce ; à l'affichage, les écarts de forme exagérés) */
+export function section(q,i,B=q){ const v1=B.v1[i],v2=B.v2[i],w1=B.w1[i],w2=B.w2[i], W=v2-v1, T=w2-w1, n=M_PROF, out=[];
+  const D=(f,t)=>depthT(q,f,i,t);
+  const clampC=P=>{ const t=(P.w-w1)/T; let d=D('C1',t); if(P.v-v1<d) P.v=v1+d; d=D('C2',t); if(v2-P.v<d) P.v=v2-d; };
+  const clampF=P=>{ const t=(P.v-v1)/W; let d=D('F1',t); if(P.w-w1<d) P.w=w1+d; d=D('F2',t); if(w2-P.w<d) P.w=w2-d; };
+  const push=(f,t,P,bv,bw)=>{ P.f=f; P.t=t; P.cut=Math.hypot(P.v-bv,P.w-bw)>0.02; out.push(P); };
+  for(let k=0;k<n;k++){ const t=k/(n-1), bv=v1+t*W; const P={v:bv,w:w1+D('F1',t)}; clampC(P); push('F1',t,P,bv,w1); }
+  for(let k=0;k<n;k++){ const t=k/(n-1), bw=w1+t*T; const P={v:v2-D('C2',t),w:bw}; clampF(P); push('C2',t,P,v2,bw); }
+  for(let k=0;k<n;k++){ const t=1-k/(n-1), bv=v1+t*W; const P={v:bv,w:w2-D('F2',t)}; clampC(P); push('F2',t,P,bv,w2); }
+  for(let k=0;k<n;k++){ const t=1-k/(n-1), bw=w1+t*T; const P={v:v1+D('C1',t),w:bw}; clampF(P); push('C1',t,P,v1,bw); }
+  return out; }
+function profMat(q,tear){ const key='prof|'+q.wood+'|'+tear; if(MATS[key]) return MATS[key];
+  const map=woodTex(q.wood,tear?'tear':'planed',0,null);
+  return MATS[key]=new THREE.MeshPhysicalMaterial({map,roughness:tear?0.75:0.36,clearcoat:tear?0:0.3,clearcoatRoughness:0.35,sheen:0.4,sheenRoughness:0.5,sheenColor:new THREE.Color(0xfff2dc)}); }
+/* maillage d'une pièce profilée : sections le long de la pièce, arêtes vives gardées (normales lissées sous 40°) */
+function profiledMesh(q0){
+  const B={ w1:exag(q0.w1), w2:exag(q0.w2), v1:exag(q0.v1), v2:exag(q0.v2) };
+  const L=q0.L/1000, T=q0.T0/1000, W=q0.W0/1000, pos=[], nor=[], uv=[], groups=[[],[],[],[],[],[],[]], FI={F1:0,F2:1,C1:2,C2:3};
+  const X=i=>i/(N-1)*L-L/2, Y=w=>w/1000-T/2, Z=v=>v/1000-W/2;
+  const secs=[]; for(let i=0;i<N;i++) secs.push(section(q0,i,B));
+  const nP=secs[0].length, COS=Math.cos(40*Math.PI/180);
+  const segN=secs.map(S=>S.map((P,j)=>{ const Q=S[(j+1)%nP], dv=Q.v-P.v, dw=Q.w-P.w, l=Math.hypot(dv,dw); return l<1e-4? null : [dw/l,-dv/l]; }));
+  /* normale du segment j à son début (end=0) ou à sa fin (end=1), lissée avec le premier voisin non dégénéré si l'angle est faible */
+  const nAt=(NS,j,end)=>{ const n=NS[j]; if(!n) return null; let m=null; for(let s=1;s<6&&!m;s++) m=NS[(j+(end?s:-s)+nP*6)%nP];
+    if(m&&n[0]*m[0]+n[1]*m[1]>COS){ const a=n[0]+m[0], b=n[1]+m[1], l=Math.hypot(a,b); return [a/l,b/l]; } return n; };
+  const tearOf=f=>!!cutOf(q0,f)?.tear;
+  for(let i=0;i<N-1;i++){ const S0=secs[i], S1=secs[i+1];
+    for(let j=0;j<nP;j++){ const j1=(j+1)%nP; const n0=segN[i][j], n1=segN[i+1][j]; if(!n0&&!n1) continue;
+      const f= S0[j].f===S0[j1].f? S0[j].f : S0[j1].f, cut=S0[j].cut||S0[j1].cut||S1[j].cut||S1[j1].cut;
+      const mat= cut? (tearOf(f)?6:5) : FI[f];
+      const nn=(NS,o,end)=>nAt(NS,j,end)||nAt(o,j,end);
+      const base=pos.length/3;
+      for(const [S,NS,o,ii] of [[S0,segN[i],segN[i+1],i],[S1,segN[i+1],segN[i],i+1]]) for(const [P,end] of [[S[j],0],[S[j1],1]]){
+        const n=nn(NS,o,end); pos.push(X(ii),Y(P.w),Z(P.v)); nor.push(0,n[1],n[0]); uv.push(ii/(N-1),P.t); }
+      const a=base, b=base+1, c=base+2, d=base+3; groups[mat].push(a,c,b, b,c,d); } }
+  const cap=(i,sgn)=>{ const S=secs[i], P2=[]; for(const P of S){ const l=P2[P2.length-1]; if(!l||Math.hypot(P.v-l.v,P.w-l.w)>1e-3) P2.push(P); }
+    if(P2.length>2&&Math.hypot(P2[0].v-P2[P2.length-1].v,P2[0].w-P2[P2.length-1].w)<1e-3) P2.pop();
+    const tris=THREE.ShapeUtils.triangulateShape(P2.map(P=>new THREE.Vector2(P.v,P.w)),[]), base=pos.length/3, vv=B.v2[i]-B.v1[i], ww=B.w2[i]-B.w1[i];
+    for(const P of P2){ pos.push(X(i),Y(P.w),Z(P.v)); nor.push(sgn,0,0); uv.push((P.v-B.v1[i])/vv,(P.w-B.w1[i])/ww); }
+    for(const [a,b,c] of tris){ const A=P2[a],Bq=P2[b],Cq=P2[c], ccw=(Bq.v-A.v)*(Cq.w-A.w)-(Bq.w-A.w)*(Cq.v-A.v)>0;   // sens direct dans (v, w) : normale −x
+      if((sgn<0)===ccw) groups[4].push(base+a,base+b,base+c); else groups[4].push(base+a,base+c,base+b); } };
+  cap(0,-1); cap(N-1,1);
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3)); geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  const idx=[]; groups.forEach((g,m)=>{ if(g.length){ geo.addGroup(idx.length,g.length,m); for(const x of g) idx.push(x); } }); geo.setIndex(idx);
+  const mesh=new THREE.Mesh(geo,[faceMat(q0,'F1'),faceMat(q0,'F2'),faceMat(q0,'C1'),faceMat(q0,'C2'),endMat(q0),profMat(q0,false),profMat(q0,true)]);
   mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece';
   return mesh; }

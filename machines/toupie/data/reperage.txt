@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = bâti, porte, capot du guide et table translucides (organes intérieurs)
+#     intérieur    = vue rapprochée du bâti (à combiner avec transparence)
+#     3/4, opérateur, outil, guide, pupitre = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « outil, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+guide_entree     | guide                    | demi-guide d'entrée
+guide_sortie     | guide                    | demi-guide de sortie
+outil            | outil, transparence      | outil (porte-outil)
+arbre            | outil, transparence      | arbre porte-outil
+presseur_v       | outil                    | presseur vertical
+presseur_h       | outil                    | presseur horizontal (latéral)
+capot_guide      | opérateur                | capot d'aspiration du guide
+bagues           | guide, transparence      | bague de table (réduction de la lumière)
+table            | 3/4
+arret            | pupitre                  | arrêt d'urgence
+inverseur        | pupitre                  | inverseur du sens de rotation
+verrou           | pupitre                  | verrouillage de l'arbre
+sectionneur      | pupitre                  | interrupteur général (sectionneur)
+moteur           | intérieur, transparence  | moteur-frein
+transmission     | intérieur, transparence  | transmission par poulies étagées
