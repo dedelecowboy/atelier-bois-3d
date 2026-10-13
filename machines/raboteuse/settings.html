@@ -1,0 +1,12 @@
+  <div class="srow">
+    <button class="toggle" id="motor" type="button" aria-pressed="false" title="Marche / arrêt de l'arbre porte-lames (boutons I / O)">Moteur</button>
+    <button class="toggle" id="feed" type="button" aria-pressed="false" title="Interrupteur d'avance : marche / arrêt des rouleaux d'entraînement">Avance</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="capot" type="button" aria-pressed="false" title="Ouvrir ou fermer le capot de l'arbre (moteur arrêté, arbre immobile)">Capot</button>
+    <button class="toggle" id="pass" type="button" aria-pressed="false" title="Pousse la pièce jusqu'au rouleau d'entrée, puis la lâche : les rouleaux l'entraînent sous l'arbre">Engager la pièce</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+    <button class="toggle" id="resetPres" type="button" title="Remet la pièce de départ sur la table d'entrée, machine arrêtée">Pièce à l'entrée</button>
+  </div>
+  <div class="ctl"><label for="cote">Cote de rabotage : épaisseur finale (mm)</label><input class="num" id="cote-n" type="number" min="2.8" max="300" step="0.1" aria-label="Cote de rabotage en mm"><input id="cote" type="range" min="2.8" max="120" step="0.1" value="45">
+    <p class="cote-i" id="coteInfo"></p></div>
+  <div class="ctl"><label for="speed">Vitesse d'avance (variateur)</label><output id="o-speed"></output><input id="speed" type="range" min="5" max="25" step="1" value="16"></div>

@@ -36,7 +36,9 @@ export function createParts(stage, PARTS, cfg){
   const X = cfg.xray || {parts:[]};
   let xray=false;
   function setXray(on,moveCam){ xray=on; $('xray')?.setAttribute('aria-pressed',String(xray));
-    for(const [k,op] of X.parts) for(const m of partMeshes[k]||[]){ for(const mat of [m.userData.orig&&m.material!==m.userData.orig?m.userData.orig:null, m.material]) if(mat){ mat.transparent=xray; mat.opacity=xray?op:1; mat.depthWrite=!xray; mat.needsUpdate=true; } m.castShadow=!xray; }
+    for(const [k,op] of X.parts) for(const m of partMeshes[k]||[]){ for(const mat of [m.userData.orig&&m.material!==m.userData.orig?m.userData.orig:null, m.material]) if(mat){
+      if(!mat.userData.base) mat.userData.base={t:mat.transparent,o:mat.opacity,d:mat.depthWrite};   // une étiquette (texture transparente) le reste en sortant de la vue intérieure
+      const b=mat.userData.base; mat.transparent=xray||b.t; mat.opacity=xray?op*b.o:b.o; mat.depthWrite=xray?false:b.d; mat.needsUpdate=true; } m.castShadow=!xray; }
     stage.dirty();
     if(xray&&moveCam&&X.cam) stage.setCam(X.cam.pos,X.cam.tgt); }
   if($('xray')) $('xray').onclick=()=>setXray(!xray,true);

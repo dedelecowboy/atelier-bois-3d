@@ -1,0 +1,132 @@
+# QCM sécurité et technique de la raboteuse (parcours évalué)
+# Sources : fiche OPPBTP « Raboteuse – les points clés pour travailler en sécurité », cours « La raboteuse » du lycée.
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: À quoi sert la raboteuse ?
+- À dresser une face de référence plane
++ À obtenir des faces parallèles aux faces de référence SR1 et SR2 : mise à largeur, puis à épaisseur
+- À couper les pièces à longueur
+= La raboteuse vient après la dégauchisseuse : elle rabote le chant opposé à SR2 (largeur), puis la face opposée à SR1 (épaisseur).
+
+Q: Une pièce cintrée, non dégauchie, passe à la raboteuse. Comment sort-elle ?
+- Droite : la raboteuse la redresse
++ À l'épaisseur, mais toujours cintrée : les rouleaux l'aplatissent pendant la passe, elle reprend sa forme ensuite
+- Plus cintrée qu'avant
+= La raboteuse recopie la face posée sur la table sur la face rabotée. On dégauchit toujours avant de raboter.
+
+Q: Pour la mise à épaisseur, quelle face posez-vous sur la table ?
++ La face de référence SR1 (repère de parement)
+- La face brute, pour la garder intacte
+- Peu importe
+= SR1 est plane : la face rabotée dessus sera plane et parallèle à SR1.
+
+Q: Pourquoi fait-on la mise à largeur avant la mise à épaisseur ?
+- Parce que la largeur est plus importante que l'épaisseur
++ Parce que la pièce, encore épaisse, est plus stable sur chant
+- Parce que la machine l'impose
+= Sur chant, la pièce repose sur son épaisseur : plus elle est épaisse, moins elle risque de basculer sous les rouleaux.
+
+Q: Pour la mise à largeur, comment posez-vous la pièce ?
+- À plat, SR1 sur la table
++ Sur chant, le chant de référence SR2 sur la table
+- Sur chant, le chant brut sur la table
+= Le chant raboté sera parallèle à SR2 et d'équerre à SR1. La pièce doit rester stable sur chant.
+
+Q: Sur la raboteuse, que représente la cote affichée ?
+- La profondeur de passe
++ La distance entre la table et le cercle de coupe : l'épaisseur que la pièce aura après la passe
+- La hauteur de la table au-dessus du sol
+= La profondeur de passe est la différence entre l'épaisseur de la pièce et la cote.
+
+Q: Quelle profondeur de passe maximale respectez-vous ?
+- 10 mm, la machine le permet
++ 5 mm au plus, moins sur les pièces larges et pour la finition
+- Aucune limite si la pièce est en bois tendre
+= Une passe trop forte fait caler le moteur, arrache le bois et augmente le risque de rejet.
+
+Q: Deux pièces de dimensions différentes (épaisseur, ou largeur sur chant) : peut-on les passer de front ?
+- Oui, cela va plus vite
++ Non : le rouleau d'entrée ne tient que la plus épaisse, la plus mince peut être rejetée vers l'opérateur
+- Oui, si la différence est de quelques millimètres
+= On les passe l'une après l'autre. Après une passe à la même cote, elles ont la même dimension et peuvent passer de front.
+
+Q: Pourquoi une pièce doit-elle avoir une longueur minimale ?
+- Pour ne pas abîmer les lames
++ Elle doit être plus longue que l'écart entre les rouleaux d'entrée et de sortie, sinon elle reste coincée ou elle est rejetée
+- Pour économiser le bois
+= Une pièce trop courte n'est plus tenue par aucun rouleau sous l'arbre. À l'atelier : 350 mm au moins.
+
+Q: À quoi servent les linguets anti-recul (griffes) à l'entrée ?
+- À entraîner la pièce
++ À retenir la pièce si l'arbre la rejette vers l'opérateur
+- À nettoyer la pièce avant la passe
+= Ils se soulèvent au passage de la pièce et retombent sur elle : en cas de rejet, ils se plantent dans le bois.
+
+Q: Vous rabotez une série de pièces. Comment réglez-vous la cote ?
+- Sur la pièce la plus mince, pour ne rien rater
++ Sur la pièce la plus forte, et l'on passe toutes les pièces à chaque cote avant de monter la table
+- Une cote différente pour chaque pièce
+= Ainsi toutes les pièces arrivent à la même dimension, et après la première passe elles peuvent passer de front.
+
+Q: Après avoir engagé la pièce, que faites-vous de vos mains ?
++ Je lâche la pièce dès que le rouleau d'entrée l'entraîne et je garde les mains loin de l'entrée
+- Je l'accompagne jusqu'à l'arbre
+- Je la pousse pour aller plus vite
+= On ne pousse jamais une pièce dans la raboteuse : les rouleaux la tirent. Les mains restent loin des bords et des bouts de la pièce.
+
+Q: Où vous placez-vous pendant la passe ?
+- Bien dans l'axe de l'entrée, pour surveiller
++ Sur le côté, hors de la ligne de rejet
+- Derrière la machine, pour recevoir la pièce
+= Une pièce rejetée part vers l'entrée, dans l'axe : on ne se tient pas dans cette ligne.
+
+Q: La pièce reste coincée sous l'arbre. Que faites-vous ?
+- Je la pousse à la main
+- Je la tire par l'entrée, moteur en marche
++ J'arrête la machine en m'écartant de l'entrée, je descends la table une fois l'arbre arrêté, puis je ressors la pièce
+= Jamais les mains vers les rouleaux, même machine arrêtée ou bloquée, tant que la pièce est serrée.
+
+Q: Vous engagez la pièce et elle n'avance pas. Quelle cause est possible ?
++ L'avance n'est pas en marche, ou la cote est plus grande que la pièce : les rouleaux ne la touchent pas
+- Les lames sont trop affûtées
+- L'aspiration est trop forte
+= Vérifiez l'interrupteur d'avance, la vitesse, la cote et que rien ne gêne sur la table (paraffine si la table accroche).
+
+Q: Les lames tournent contre le sens d'avance. Comment présentez-vous la pièce pour éviter les arrachements ?
+- Toujours par le même bout qu'à la dégauchisseuse
++ Les fibres doivent descendre, depuis la face rabotée, vers le bout qui entre en premier : souvent par l'autre bout qu'à la dégauchisseuse
+- Peu importe, la raboteuse n'arrache jamais
+= À la dégauchisseuse on usine la face du dessous, à la raboteuse celle du dessus : le bon sens est inversé.
+
+Q: Une face rabotée présente des arrachements. Que faites-vous ?
+- Je repasse dans le même sens avec une passe plus forte
++ Je présente la pièce bout pour bout et je repasse à 1 mm au moins
+- Je ponce, c'est plus rapide
+= La pièce est passée contre le fil. Dans le bon sens, une passe d'au moins 1 mm efface les arrachements.
+
+Q: Que vérifiez-vous sur la pièce avant de la raboter ?
+- Sa couleur
++ Qu'il n'y a ni clou, ni agrafe, ni corps étranger, et qu'elle a été dégauchie
+- Qu'elle est humide
+= Un corps métallique casse les lames et peut être projeté. Une pièce non dégauchie donne une section non rectangulaire.
+
+Q: Quels équipements portez-vous à la raboteuse ?
+- Des gants épais et une écharpe
++ Protection auditive, lunettes, chaussures de sécurité, vêtements ajustés, sans bijoux ; masque FFP2 si l'aspiration est insuffisante
+- Aucun, la machine est carénée
+= La raboteuse est bruyante et projette des copeaux. Des gants adaptés seulement pour manipuler les pièces, jamais flottants.
+
+Q: Comment nettoyez-vous la machine après le travail ?
+- À la soufflette, c'est plus rapide
+- Au balai
++ Machine hors tension, à l'aspirateur de classe M
+= La soufflette et le balai remettent en suspension les poussières de bois, qui sont cancérogènes.
