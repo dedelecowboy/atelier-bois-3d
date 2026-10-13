@@ -39,7 +39,7 @@ Arbre en acier de Ø 125 mm à 4 lames réversibles auto-serrantes (TERSA), 5 00
 Rouleau en acier strié, monobloc, monté sur ressorts : il pousse la pièce sous l'arbre. Monobloc, il ne tient que la pièce la plus épaisse : jamais de pièces d'épaisseurs différentes de front.
 
 [linguets] 11 Linguets anti-recul (griffes)
-Rangée de griffes indépendantes à l'entrée : elles se soulèvent au passage de la pièce et retombent sur elle. Si la pièce est rejetée vers l'opérateur, elles se plantent dans le bois et la retiennent. À contrôler avant le travail : elles doivent retomber librement.
+Rangée de griffes indépendantes à l'entrée : elles se soulèvent au passage de la pièce et retombent sur elle. Si la pièce est rejetée vers l'opérateur, elles se plantent dans le bois et la retiennent.
 
 [presseur_av] 12 Presseur avant (brise-copeaux)
 Barre qui appuie la pièce juste devant l'arbre : elle évite les éclats et les vibrations et guide les copeaux vers l'aspiration.

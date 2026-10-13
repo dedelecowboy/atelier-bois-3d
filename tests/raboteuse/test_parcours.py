@@ -37,11 +37,11 @@ async def complet():
         ans = await qcm(pg, wrong=(2, 7, 15))
         check(len(ans) == 20, '20 questions')
         mid = await pg.eval("__store['cmi.suspend_data']")
-        for k, mode in enumerate(['lar', 'ep', 'controle']):
+        for k, mode in enumerate(['piece', 'serie', 'controle']):
             await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
             if k == 1:
-                vis = await pg.eval("()=>getComputedStyle(document.querySelector('.debit')).display!=='none' && document.getElementById('debit').textContent.includes('Montant 2')")
-                check(vis, '« Pièces débitées » visible pendant le scénario (montant 2 en attente)')
+                vis = await pg.eval("()=>getComputedStyle(document.querySelector('.debit')).display!=='none' && document.getElementById('debit').textContent.includes('Montant 3')")
+                check(vis, '« Pièces débitées » visible pendant le scénario (montants 2 et 3 en attente)')
             r = await pg.eval(js(JEUX[mode]))
             check(all(row[2] == '✓' for row in r['res']), f'scénario {k+1} ({mode}) : pièces conformes')
             await pg.page.click('#scenEnd'); await pg.page.wait_for_timeout(300)
@@ -79,7 +79,7 @@ async def faute_grave(mid):
     async with Page('raboteuse', scorm=True, suspend=mid) as pg:   # repris après le QCM
         await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
         r = await pg.eval(js(BASE + r"""
-          prep(); next(); for(let i=0;i<4 && !ok(0);i++) op('rot');
+          prep(); next(); chant('Traverse');
           const A=P('Traverse'); cote(M(A).Wmax-7); on('motor'); on('feed');
           const before=alerts().filter(a=>a.startsWith('danger'));
           await passe();

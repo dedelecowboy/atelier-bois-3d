@@ -6,7 +6,6 @@ export const st = {
   feed:false,    // avance (rouleaux d'entraînement) en marche
   asp:false,     // aspiration
   capot:false,   // capot de l'arbre ouvert (interverrouillé : moteur impossible capot ouvert)
-  ling:false,    // linguets anti-recul contrôlés avant le travail
   H:40,          // cote de rabotage (mm) : distance table – cercle de coupe = épaisseur finale
   v:10,          // vitesse d'avance (m/min), variateur 5 à 25
 };

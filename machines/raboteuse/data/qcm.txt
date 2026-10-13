@@ -53,11 +53,11 @@ Q: Quelle profondeur de passe maximale respectez-vous ?
 - Aucune limite si la pièce est en bois tendre
 = Une passe trop forte fait caler le moteur, arrache le bois et augmente le risque de rejet.
 
-Q: Deux pièces d'épaisseurs différentes : peut-on les passer de front ?
+Q: Deux pièces de dimensions différentes (épaisseur, ou largeur sur chant) : peut-on les passer de front ?
 - Oui, cela va plus vite
 + Non : le rouleau d'entrée ne tient que la plus épaisse, la plus mince peut être rejetée vers l'opérateur
 - Oui, si la différence est de quelques millimètres
-= On les passe l'une après l'autre. Après une passe à la même cote, elles ont la même épaisseur et peuvent passer de front.
+= On les passe l'une après l'autre. Après une passe à la même cote, elles ont la même dimension et peuvent passer de front.
 
 Q: Pourquoi une pièce doit-elle avoir une longueur minimale ?
 - Pour ne pas abîmer les lames
@@ -71,11 +71,11 @@ Q: À quoi servent les linguets anti-recul (griffes) à l'entrée ?
 - À nettoyer la pièce avant la passe
 = Ils se soulèvent au passage de la pièce et retombent sur elle : en cas de rejet, ils se plantent dans le bois.
 
-Q: Avant le travail, comment contrôlez-vous les linguets anti-recul ?
-- Machine en marche, en les touchant
-+ Moteur arrêté : ils se soulèvent à la main et retombent librement, pointes en bon état
-- On ne les contrôle pas, ils sont automatiques
-= Un linguet grippé ou émoussé ne retient plus la pièce. On le signale à la personne chargée de la maintenance.
+Q: Vous rabotez une série de pièces. Comment réglez-vous la cote ?
+- Sur la pièce la plus mince, pour ne rien rater
++ Sur la pièce la plus forte, et l'on passe toutes les pièces à chaque cote avant de monter la table
+- Une cote différente pour chaque pièce
+= Ainsi toutes les pièces arrivent à la même dimension, et après la première passe elles peuvent passer de front.
 
 Q: Après avoir engagé la pièce, que faites-vous de vos mains ?
 + Je lâche la pièce dès que le rouleau d'entrée l'entraîne et je garde les mains loin de l'entrée
@@ -117,7 +117,7 @@ Q: Que vérifiez-vous sur la pièce avant de la raboter ?
 - Sa couleur
 + Qu'il n'y a ni clou, ni agrafe, ni corps étranger, et qu'elle a été dégauchie
 - Qu'elle est humide
-= Un corps métallique casse les lames et peut être projeté. Une pièce non dégauchie ne sera pas plane.
+= Un corps métallique casse les lames et peut être projeté. Une pièce non dégauchie donne une section non rectangulaire.
 
 Q: Quels équipements portez-vous à la raboteuse ?
 - Des gants épais et une écharpe

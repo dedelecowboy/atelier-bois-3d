@@ -132,6 +132,7 @@ function applyRes(q, upTo=1){ const R=q.res; if(!R) return; const f=R.face, fs=q
   let cutN=0, minRem=1e9, cutAny=false;
   for(let i=0;i<N;i++){ const s=q.flip? 1-i/(N-1) : i/(N-1); if(s>upTo+1e-9) continue; if(R.rem[i]>0.001){ cutAny=true; minRem=Math.min(minRem,R.rem[i]); } a[i]=b[i]; cutN++; }
   const msgs=[];
+  if(cutAny && !dressed(q,R.down)) msgs.push(`Section de pièce non rectangulaire, car rabotage en appui sur une surface non dégauchie (${q.name.toLowerCase()}).`);
   if(cutAny){ fs.passes++; fs.rab=true; fs.full= upTo>=1 && (R.full || fs.full&&R.rem.every(x=>x<=0.001)); C.clearMark(q,f);
     if(R.gs<0){ fs.tear=true; msgs.push(`Arrachements sur le ${FACE_NAME[f].toLowerCase()} : la pièce est passée contre le fil. Présentez-la bout pour bout et repassez (1 mm au moins).`); }
     else if(fs.tear){ if(minRem>=1-1e-6 && upTo>=1){ fs.tear=false; msgs.push('Passe dans le sens du fil : les arrachements ont disparu.'); } else msgs.push('Passe trop fine pour effacer les arrachements : 1 mm au moins.'); }

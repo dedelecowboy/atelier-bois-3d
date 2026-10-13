@@ -28,7 +28,7 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
       if(q.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE${nm} : ${q.L} mm, moins de ${MIN_LEN} mm. Mal tenue par les rouleaux (entraxe ${ENTRAXE} mm), elle peut rester coincée sous l'arbre ou être rejetée. Ne la passez pas.`]);
       if(C.rocking(q)) out.push(['danger',`PIÈCE INSTABLE${nm} : la face posée sur la table est bombée, la pièce bascule sous les rouleaux et peut être rejetée. Une pièce se dégauchit avant d'être rabotée.`]);
       else if(!C.isF(f.down) && H>CHANT_RATIO*B) out.push(['danger',`PIÈCE INSTABLE SUR CHANT${nm} : ${fmt(H,0)} mm de haut pour ${fmt(B,0)} mm d'appui (plus de ${CHANT_RATIO} fois). Elle bascule sous les rouleaux : mise à largeur à une autre machine.`]);
-      else if(!dressed(q,f.down)) out.push(['warn',`Face posée non dressée${nm} (${FACE_NAME[f.down].toLowerCase()}) : la raboteuse recopie sa forme sur la face rabotée, elle ne redresse pas la pièce. Posez la face dressée (SR1, ou SR2 pour la largeur) sur la table, ou renvoyez la pièce à la dégauchisseuse.`]);
+      else if(!dressed(q,f.down)) out.push(['warn',`Section de pièce non rectangulaire${nm}, car rabotage en appui sur une surface non dégauchie (${FACE_NAME[f.down].toLowerCase()} sur la table). Posez la face dressée (SR2 pour la largeur, SR1 pour l'épaisseur), ou renvoyez la pièce à la dégauchisseuse.`]);
       const s1=sr1(q), s2=sr2(q);
       if((s1&&f.up===s1)||(s2&&f.up===s2)) out.push(['warn',`Face de référence dessus${nm} (${f.up===s1?'SR1':'SR2'}, repérée au crayon) : vous allez raboter la référence. Retournez la pièce : la référence sur la table.`]); }
     if(grip.length){ const d=hmax-st.H, wide=Math.max(...grip.map(baseW));
@@ -37,8 +37,7 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
       if(d<=0.05) out.push(['info',`La cote (${fmt(st.H)} mm) n'est pas plus petite que la pièce (${fmt(hmax)} mm) : les rouleaux l'entraînent sans la raboter.`]); }
     else out.push(['info',`Cote (${fmt(st.H)} mm) plus grande que la pièce : les rouleaux ne la toucheront pas, elle n'avancera pas. Montez la table (cote plus petite).`]);
     if(E.length>1){ const hs=E.map(pressedH), dh=Math.max(...hs)-Math.min(...hs);
-      if(dh>THICK_TOL) out.push(['danger',`PIÈCES D'ÉPAISSEURS DIFFÉRENTES DE FRONT (écart ${fmt(dh)} mm) : le rouleau d'entrée monobloc ne tient que la plus épaisse ; la plus mince est rejetée vers l'opérateur. Passez-les l'une après l'autre.`]); }
-    if(!st.ling) out.push(['warn','Linguets anti-recul non contrôlés : moteur arrêté, vérifiez qu\'ils se soulèvent et retombent librement (« Contrôler les linguets »).']);
+      if(dh>THICK_TOL) out.push(['danger',`PIÈCES DE HAUTEURS DIFFÉRENTES DE FRONT (écart ${fmt(dh)} mm) : le rouleau d'entrée monobloc ne tient que la plus haute ; l'autre est rejetée vers l'opérateur. Passez-les l'une après l'autre à la même cote, puis de front.`]); }
   }
   if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche (classe M) avant d\'usiner ; les poussières de bois sont cancérogènes.']);
   if(st.capot) out.push(['info','Capot ouvert : le moteur ne peut pas démarrer. Fermez-le avant le travail.']);

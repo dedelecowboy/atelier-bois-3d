@@ -13,8 +13,8 @@ export default {
     { id: 'libre', label: 'Libre', title: 'Rabotage libre',
       free: { k: 'Rabotage libre', t: 'Avivé de sapin 1 000 × 120 × 33 dégauchi, et une cale de 230 mm',
         c: 'Posez la face de référence sur la table (outils ci-dessous), réglez la cote et la vitesse d\'avance, démarrez le moteur puis l\'avance, et « Engager la pièce ». Les pièces rabotées sont reposées sur le capot par l\'aide en sortie : « Ramener la pièce » les remet à l\'entrée, « Mettre de côté » les range dans « Pièces débitées » ; « Reprendre » remet une pièce sur la table, à côté des autres. La cale de 230 mm est plus courte que l\'entraxe des rouleaux.' } },
-    { id: 'lar', label: 'Largeur', title: 'Mise à largeur d\'une traverse sur chant (en premier)' },
-    { id: 'ep', label: 'Épaisseur', title: 'Mise à épaisseur de deux montants (après la largeur)' },
+    { id: 'piece', label: 'Une pièce', title: 'Rabotage d\'une pièce : largeur, épaisseur, contrôle' },
+    { id: 'serie', label: 'Série', title: 'Rabotage d\'une série de 3 pièces : largeur, épaisseur, contrôle' },
     { id: 'controle', label: 'Contrôle', title: 'Contrôle du lot (pièce non dégauchie) et fil incliné' },
   ],
 
@@ -35,6 +35,6 @@ export default {
     zip: 'KANAK630E_raboteuse_SCORM12.zip',
     identifier: 'KANAK630E_RABOTEUSE_PARCOURS',
     orgTitle: 'Raboteuse KANAK 630 E – Parcours évalué',
-    itemTitle: 'Raboteuse : repérage, QCM sécurité, largeur, épaisseur, contrôle du lot',
+    itemTitle: 'Raboteuse : repérage, QCM sécurité, une pièce, une série, contrôle du lot',
   },
 };

@@ -1,7 +1,6 @@
-/* Styles propres à la raboteuse : cote, linguets, mesure de la pièce, tableau des faces, pièces débitées. */
+/* Styles propres à la raboteuse : cote, mesure de la pièce, tableau des faces, pièces débitées. */
 .cote-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
-.lingc{grid-template-columns:1fr auto;align-items:center}
-.lingc .toggle,.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
+.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
 .pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
 .pmes b{color:var(--fg);font-weight:600}
 .dfaces,.debit{margin-top:14px}

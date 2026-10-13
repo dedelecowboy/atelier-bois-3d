@@ -54,9 +54,8 @@ function renderExtra(){ renderFaces(); renderDebit(); }
 function update(){
   placeAll();
   model.update(topAt);
-  for(const k of ['motor','feed','asp','capot','ling']) $(k).setAttribute('aria-pressed',String(st[k]));
+  for(const k of ['motor','feed','asp','capot']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
-  $('ling').textContent= st.ling? 'Linguets contrôlés' : 'Contrôler les linguets';
   $('cote').value=Math.min(+$('cote').max,st.H); if(document.activeElement!==$('cote-n')) $('cote-n').value=st.H.toFixed(1);
   $('o-speed').textContent=`${st.v} m/min`; $('speed').value=st.v;
   const E=entryPieces(), grip=E.filter(q=>pressedH(q)>=st.H-GRIP), d= grip.length? Math.max(...grip.map(passDepth)) : null;
@@ -100,8 +99,6 @@ $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
 $('capot').onclick=()=>{ if(!st.capot && exitPieces().length) return say('Des pièces sont posées sur le capot : rangez-les (« Mettre de côté ») ou ramenez-les à l\'entrée avant de l\'ouvrir.');
   if(!st.capot && (st.motor||model.spin>0.03)) return say('Arrêtez le moteur et attendez l\'arrêt complet de l\'arbre : le capot reste verrouillé tant qu\'il tourne.');
   if(cut.inProgress) return; st.capot=!st.capot; F.level='info'; F.msg= st.capot? 'Capot ouvert : arbre, rouleaux, presseurs et linguets visibles. Le moteur ne peut pas démarrer capot ouvert.' : ''; app.ex.invalidate(); apply(); };
-$('ling').onclick=()=>{ if(st.motor||model.spin>0.03) return say('Moteur arrêté seulement : on ne met jamais la main à l\'entrée, arbre en rotation. Arrêtez le moteur et attendez l\'arrêt de l\'arbre.');
-  st.ling=true; F.level='info'; F.msg='Linguets anti-recul contrôlés : ils se soulèvent à la main et retombent librement sous leur poids, pointes en bon état. Ils retiennent une pièce rejetée vers l\'opérateur.'; app.ex.invalidate(); apply(); };
 $('pass').onclick=()=>{ if(cut.inProgress) return;
   const why=startPass(passBlock); if(why){ if(why.trim()) return say(why); app.ex.invalidate(); apply(); return; }
   F.msg=''; app.ex.invalidate(); apply(); };
@@ -121,4 +118,4 @@ app.start({
   tick(dt,now){ const moved=tickPass(now); model.tick(dt); if(moved||cut.msgSeq!==lastSeq) apply(); },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
-window.__rabot={ st, pieces, cut, measure, C, model };
+window.__rabot={ st, pieces, cut, measure, C, model, setSel };
