@@ -1,0 +1,23 @@
+/* Styles propres à la raboteuse : cote, linguets, mesure de la pièce, tableau des faces, pièces débitées. */
+.cote-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.lingc{grid-template-columns:1fr auto;align-items:center}
+.lingc .toggle,.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
+.pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
+.pmes b{color:var(--fg);font-weight:600}
+.dfaces,.debit{margin-top:14px}
+.dfaces h2 span,.debit h2 span{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-size:12px;color:var(--muted);margin-left:6px}
+.res.faces td:nth-child(2){font-family:var(--f-body);text-align:left;color:var(--muted)}
+.res.faces td:last-child{font-weight:500}
+.debit-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.debit-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.debit-list li[data-k="retour"]{opacity:.75}
+.debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.debit-list small{display:block;color:var(--muted);font-size:12px}
+.d-act{display:flex;flex-direction:column;gap:4px}
+.debit-empty{font-size:13px;color:var(--muted)}
+@media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* bouton de remise en place : en présentation seulement (en exercice, « Nouveau lot ») */
+.app:not([data-ui="pres"]) #resetPres{display:none}
+/* parcours évalué : le tableau des faces est caché (comme à la dégauchisseuse) ; la mesure et les pièces débitées restent visibles */
+.app[data-ui="parcours"] .dfaces{display:none}
+.app[data-ui="parcours"][data-phase="scen"] .debit{display:block}

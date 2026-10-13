@@ -1,0 +1,81 @@
+# Nomenclature de la raboteuse KANAK 630 E
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Construction mixte acier et béton, à parois épaisses : elle absorbe les vibrations. Les deux joues portent l'arbre et les rouleaux ; le carter de tête (bandeau) entoure le passage des pièces.
+
+[table] 02 Table de rabotage
+Table en fonte finement rectifiée, plane et parallèle à l'arbre. Elle monte et descend : sa distance au cercle de coupe est la cote, c'est-à-dire l'épaisseur finale de la pièce.
+
+[galets] 03 Rouleaux de table
+Deux galets noyés dans la table, sous les rouleaux d'entraînement, qui dépassent à peine : ils facilitent le glissement des pièces.
+
+[rallonge_entree] 04 Rallonge d'entrée
+Rallonge de 450 mm sur laquelle on pose la pièce avant de l'engager. Elle suit la table.
+
+[rallonge_sortie] 05 Rallonge de sortie
+Rallonge de 1 200 mm qui reçoit les pièces rabotées à leur sortie. Elle suit la table. L'aide en sortie reprend chaque pièce et la repose sur le capot, sans la retourner.
+
+[colonnes] 06 Colonnes de levage
+Quatre colonnes filetées sous la table : elles la portent et la font monter ou descendre, avec deux guidages en prisme.
+
+[levage] 07 Motoréducteur de levage
+Moteur électrique qui entraîne les quatre colonnes par une chaîne : il amène la table à la cote affichée, au dixième de millimètre.
+
+[capot] 08 Capot de l'arbre
+Capot insonorisé qui recouvre l'arbre et les rouleaux. Interverrouillé : le moteur ne démarre pas capot ouvert, et on ne l'ouvre qu'arbre arrêté. Son dessus, libre, sert à reposer les pièces rabotées pour les ramener à l'entrée.
+
+[arbre] 09 Arbre porte-lames
+Arbre en acier de Ø 125 mm à 4 lames réversibles auto-serrantes (TERSA), 5 000 tr/min. Il est au-dessus de la table et tourne contre l'avance de la pièce (travail en opposition).
+
+[rouleau_entree] 10 Rouleau d'entrée
+Rouleau en acier strié, monobloc, monté sur ressorts : il pousse la pièce sous l'arbre. Monobloc, il ne tient que la pièce la plus épaisse : jamais de pièces d'épaisseurs différentes de front.
+
+[linguets] 11 Linguets anti-recul (griffes)
+Rangée de griffes indépendantes à l'entrée : elles se soulèvent au passage de la pièce et retombent sur elle. Si la pièce est rejetée vers l'opérateur, elles se plantent dans le bois et la retiennent. À contrôler avant le travail : elles doivent retomber librement.
+
+[presseur_av] 12 Presseur avant (brise-copeaux)
+Barre qui appuie la pièce juste devant l'arbre : elle évite les éclats et les vibrations et guide les copeaux vers l'aspiration.
+
+[presseur_ar] 13 Presseur arrière
+Barre qui appuie la pièce rabotée juste derrière l'arbre, au niveau du cercle de coupe.
+
+[rouleaux_sortie] 14 Rouleaux de sortie
+Deux rouleaux lisses en caoutchouc, sur ressorts, qui tirent la pièce sans marquer la face rabotée. Le deuxième sort aussi les pièces courtes.
+
+[chaine] 15 Transmission de l'avance
+Moteur d'avance et chaîne à pignons, dans la joue côté pupitre : ils entraînent les rouleaux d'entrée et de sortie à la vitesse réglée au variateur.
+
+[moteur] 16 Moteur de l'arbre
+Moteur triphasé de 5,5 kW dans le bâti, avec frein électrique : l'arbre s'arrête vite après « O » ou l'arrêt d'urgence.
+
+[transmission] 17 Transmission de l'arbre
+Courroies entre la poulie du moteur et la poulie de l'arbre, dans la joue opposée au pupitre.
+
+[aspiration] 18 Buse d'aspiration
+Buse Ø 160 mm sur le côté du carter de tête, vers la sortie, reliée à l'aspiration de l'atelier : capte les copeaux et les poussières à la source. Nettoyage à l'aspirateur de classe M, jamais au balai ni à la soufflette.
+
+[pupitre] 19 Commande électronique de la cote
+Afficheur et clavier : on tape la cote (épaisseur finale) et la table s'y place au dixième de millimètre. 99 cotes en mémoire pour enchaîner les passes ; la table finit toujours sa course en montant (rattrapage du jeu).
+
+[marche] 20 Boutons marche / arrêt de l'arbre
+Bouton vert « I » : démarrage de l'arbre ; bouton rouge « O » : arrêt freiné.
+
+[variateur] 21 Commande de l'avance
+Variateur de la vitesse d'avance (5 à 25 m/min) et interrupteur d'avance (0 / I) : marche et arrêt des rouleaux, indépendamment de l'arbre.
+
+[arret] 22 Arrêt d'urgence
+Bouton coup de poing rouge sur fond jaune : coupe l'arbre et l'avance, frein de l'arbre. En cas de dysfonctionnement, on coupe et on prévient la personne chargée de la maintenance.
+
+[sectionneur] 23 Interrupteur général (sectionneur)
+Mise sous tension et hors tension de la machine ; cadenassable pour les interventions (changement des lames).
+
+[piece] 24 Pièce de bois
+Cliquez une pièce pour la prendre en main (contour orange quand il y en a plusieurs) et voir ses faces : sur la table, dessus, repères au crayon (boucle sur SR1, V sur SR2).

@@ -12,7 +12,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Dégauchisseuse « KANAK 520 D » | en essai | `machines/degauchisseuse/` |
 | Déligneuse multilames « KANAK 300 M » | en essai | `machines/deligneuse/` |
 | Scie radiale « KANAK 900 R » | en essai | `machines/scie-radiale/` |
-| Raboteuse | prévue | |
+| Raboteuse « KANAK 630 E » | en essai | `machines/raboteuse/` |
 | Scie à ruban | prévue | |
 | Toupie | prévue | |
 
@@ -42,6 +42,14 @@ Première machine de la chaîne de débit : elle tronçonne les planches brutes 
 - **Exercices guidés** : débit en série à la butée d'après une fiche de débit (bout brut affranchi, 4 montants de 550 mm), purge des défauts au plus près (fente en bout, nœud, gerce), coupe inclinée à 45° (lames de bardage à bouts biais parallèles). La main gauche tient la planche hors de la zone rouge, la lame est ramenée en arrière après chaque coupe avant de toucher aux pièces, pièce gardée entourée en orange, pièces débitées listées.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
+## Raboteuse KANAK 630 E
+
+Après la dégauchisseuse : elle met la pièce à largeur d'abord (sur chant, SR2 sur la table : la pièce encore épaisse est plus stable), puis à épaisseur (à plat, SR1 sur la table). Passes de 5 mm au plus, pièces de 350 mm au moins, contrôle au pied à coulisse au dixième. Les pièces suivent la même logique qu'à la dégauchisseuse (faces F1/F2/C1/C2, repères au crayon, sens du fil, arrachements) : une pièce dressée peut passer de l'une à l'autre.
+
+- **Présentation** : nomenclature de 24 organes (arbre fixe au-dessus de la table, table sur quatre colonnes, commande électronique de la cote, linguets anti-recul, rouleau d'entrée strié, presseurs, rouleaux de sortie, transmission d'avance par chaîne, capot interverrouillé…), vue intérieure.
+- **Exercices guidés** : mise à largeur sur chant (SR2 sur la table) ; mise à épaisseur de deux montants (cote réglée sur la plus épaisse, passes de 1 à 5 mm, jamais de front tant qu'ils n'ont pas la même épaisseur) ; contrôle d'un lot (une pièce non dégauchie renvoyée à la dégauchisseuse, un frêne au fil incliné à présenter dans le bon sens). Les pièces rabotées sont reposées sur le capot par un aide en sortie ; pièce en main entourée en orange, pièces débitées listées, pièce trop courte qui reste coincée sous l'arbre (mode libre), bouton « Pièce à l'entrée » en présentation.
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -51,7 +59,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
-| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse et la scie radiale |
+| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale et la raboteuse |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -65,8 +73,8 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
+- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
 
 Pour une seule machine : `npm run build -- scie-format`.
 
@@ -82,6 +90,7 @@ engine/                  moteur commun à toutes les machines
   parcours.js, scorm.js  parcours évalué et dialogue SCORM 1.2 avec Moodle
   data.js                lecture des fichiers organes / QCM / repérage
   poly.js                géométrie 2D des pièces (découpe, mesures)
+  corroyage.js           pièce de corroyage commune à la dégauchisseuse et à la raboteuse
   shell.js, engine.css   squelette HTML et feuille de style communs
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/

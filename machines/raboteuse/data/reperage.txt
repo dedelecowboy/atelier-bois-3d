@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = bâti et capot translucides (organes intérieurs)
+#     rapprochée   = ouverture d'entrée, de près
+#     3/4, entrée, dessus, arbre, sortie = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « arbre, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+table              | entrée                  | table de rabotage
+rallonge_sortie    | sortie
+capot
+aspiration         |                         | buse d'aspiration
+pupitre            | entrée                  | commande électronique de la cote
+arret              | entrée                  | arrêt d'urgence
+variateur          | entrée                  | réglage de la vitesse d'avance
+linguets           | rapprochée              | linguets anti-recul (griffes)
+rouleau_entree     | arbre, transparence     | rouleau d'entrée
+arbre              | arbre, transparence     | arbre porte-lames
+presseur_av        | arbre, transparence     | presseur avant (brise-copeaux)
+rouleaux_sortie    | arbre, transparence     | rouleaux de sortie
+colonnes           | transparence            | colonnes de levage de la table
+moteur             | transparence            | moteur de l'arbre
+chaine             | transparence            | transmission de l'avance (chaîne)
