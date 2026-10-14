@@ -11,6 +11,7 @@ import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cut, entryPiece, exitPieces, butePiece, onMachine, selPiece, startPass, tickPass, placeAll, topAt, frontAt,
   measure, profileStats, setSel, bringBack, release, aside, take, setKind, orient, fmt, dims, appui, haut, sr1, sr2, newPiece, predict, FACE_NAME } from './piece.js';
+import { lamBand, LAM_D, closeLamelles, chordAtGuide, lamStatus, placeEntr, stowEntr, ENT_SPEEDS, ENT_DOWN, ENT_ANGLE } from './guide.js';
 import { computeAlerts, passBlock, guideInfo, contacts, INTERV, CHOC, HANDS, prediction } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -36,7 +37,7 @@ function pieceSectionMachine(q){ const im=(C.N-1)>>1, fc=C.faces(q), S=C.section
   const dist=(f,P)=>({F1:P.w-w1, F2:w2-P.w, C1:P.v-v1, C2:v2-P.v}[f]);
   return S.map(P=>[st.zIn+dist(fc.back,P), dist(fc.down,P)]); }
 function renderSvg(){ const t=tool(), q=cut.mover||entryPiece(), R=q&&t? prediction(q) : null;
-  const key=JSON.stringify([st.tool,st.flip,st.h,st.zIn,st.e,st.ring,st.hv,st.dh,st.prot,q&&[q.id,q.k,q.flip,(q.cuts||[]).length,q.log.length]]); if(key===svgKey) return; svgKey=key;
+  const key=JSON.stringify([st.tool,st.flip,st.h,st.zIn,st.e,st.ring,st.hv,st.dh,st.prot,st.lam,st.entr.placed,st.entr.y,q&&[q.id,q.k,q.flip,(q.cuts||[]).length,q.log.length]]); if(key===svgKey) return; svgKey=key;
   const A=q? appui(q):60, Hp=q? haut(q):30, H=t? t.H:0, R0=t? Rmax(t):60;
   const z0=-12, z1=Math.max(st.zIn+A+18, R0+20), y0=Math.min(-8, st.h-6), y1=Math.max(Hp+12, st.h+H+8, st.prot?Math.min(st.hv,Hp+30)+8:0);
   const s=Math.min(284/(z1-z0), 136/(y1-y0)), X=z=>292-(z-z0)*s, Y=y=>142-(y-y0)*s;
@@ -55,6 +56,10 @@ function renderSvg(){ const t=tool(), q=cut.mover||entryPiece(), R=q&&t? predict
       if(c) c.d=c.d.map(()=>row.slice()); else (r.cuts=r.cuts||[]).push({f,d:Array.from({length:C.N},()=>row.slice()),g:[],tear:false});
       g+=`<polygon points="${pts(pieceSectionMachine(r))}" fill="none" stroke="#c76a14" stroke-width="1.4" stroke-dasharray="3 2"/>`; } }
   if(st.e>0.05) g+=`<line x1="${X(st.zIn+st.e)}" y1="${Y(0)}" x2="${X(st.zIn+st.e)}" y2="${Y(Math.min(130,y1))}" stroke="#2f7d4f" stroke-width="1.4" stroke-dasharray="4 2"/>`;
+  // lamelles passées (guide intégral), dans le plan du guide
+  if(st.lam) st.lam.forEach((b,k)=>{ if(!b) return; const [a,c]=lamBand(k); if(a>y1) return; g+=`<rect x="${X(st.zIn)}" y="${Y(Math.min(c,y1))}" width="${X(st.zIn-LAM_D)-X(st.zIn)}" height="${Y(a)-Y(Math.min(c,y1))}" fill="#6b737a"/>`; });
+  // entraîneur : rouleau posé sur la pièce
+  if(st.entr.placed){ const yb=Math.max(st.entr.y, q? Hp : st.entr.y), zc=st.entr.z; g+=`<rect x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))}" width="${X(zc-30)-X(zc+30)}" height="${Y(yb)-Y(Math.min(y1,yb+60))}" rx="4" fill="#c8442a" fill-opacity=".75"/><text x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))+10}">entraîneur</text>`; }
   // presseurs
   if(st.prot){ g+=`<line x1="${X(st.zIn+2)}" y1="${Y(st.hv)}" x2="${X(st.zIn+Math.min(60,A))}" y2="${Y(st.hv)}" stroke="#d6a800" stroke-width="3"/>`;
     g+=`<line x1="${X(st.zIn+st.dh)}" y1="${Y(3)}" x2="${X(st.zIn+st.dh)}" y2="${Y(Math.min(55,y1-4))}" stroke="#d6a800" stroke-width="3"/>`; }
@@ -89,7 +94,7 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
 function renderExtra(){ renderProfile(); renderDebit(); renderSvg(); }
 
 /* ---------- mise à jour complète ---------- */
-function pushPos(){ if(!st.push) return null; const q=cut.mover||entryPiece(); if(!q||!q.group) return null; return { x:q.x+q.L/1000, z:q.z }; }
+function pushPos(){ if(!st.push||st.entr.placed) return null; const q=cut.mover||entryPiece(); if(!q||!q.group) return null; return { x:q.x+q.L/1000, z:q.z }; }
 function update(){
   placeAll();
   model.update(topAt, frontAt, pushPos());
@@ -100,6 +105,11 @@ function update(){
   $('lock').textContent= st.lock? 'Arbre verrouillé' : 'Verrouiller l\'arbre';
   $('hlock').textContent= st.hlock? 'Hauteur bloquée' : 'Hauteur débloquée';
   $('prot').textContent= st.prot? 'En place' : 'Escamoté';
+  { const L=lamStatus(); $('lam').setAttribute('aria-pressed',String(L.set&&!L.contact&&!L.loose)); }
+  $('entrPlace').setAttribute('aria-pressed',String(st.entr.placed)); $('entrPlace').textContent= st.entr.placed? 'Escamoter' : 'Placer sur la pièce';
+  $('entrOn').setAttribute('aria-pressed',String(st.entr.on)); $('entrOn').textContent= st.entr.on? 'En marche' : 'Marche';
+  document.querySelectorAll('[data-ev]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.ev===st.entr.v)));
+  $('o-entr').textContent= st.entr.placed? `posé · ${st.entr.v} m/min` : 'escamoté';
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
   document.querySelector('[data-op=push]').setAttribute('aria-pressed',String(st.push));
   document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===st.tool)));
@@ -114,11 +124,11 @@ function update(){
   { const sp=speedCheck(t,st.rpm); $('o-vc').textContent= t? `${st.rpm.toLocaleString('fr-FR')} tr/min · Vc ${fmt(sp.v,0)} m/s${sp.over?' > n max !':''}` : `${st.rpm.toLocaleString('fr-FR')} tr/min`; }
   $('o-ring').textContent= st.ring<320? `Ø ${st.ring}` : 'sans bague (Ø 320)';
   const setRange=(id,v)=>{ $(id).value=v; if(document.activeElement!==$(id+'-n')) $(id+'-n').value=(+v).toFixed(1); };
-  setRange('haut',st.h); setRange('sail',+saillie().toFixed(1)); setRange('esor',st.e); setRange('open',st.open);
+  setRange('haut',st.h); setRange('sail',+saillie().toFixed(1)); setRange('esor',st.e);
   for(const [id,v] of [['hv-n',st.hv],['dh-n',st.dh]]) if(document.activeElement!==$(id)) $(id).value=v.toFixed(1);
   $('hInfo').textContent= t? `Tranchant de ${fmt(st.h)} à ${fmt(st.h+t.H)} mm au-dessus de la table` : '';
   $('guideInfo').textContent= guideInfo();
-  for(const id of ['haut','haut-n','sail','sail-n','esor','esor-n','open','open-n','hv-n','dh-n']) $(id).disabled=cut.inProgress;
+  for(const id of ['haut','haut-n','sail','sail-n','esor','esor-n','hv-n','dh-n']) $(id).disabled=cut.inProgress;
 }
 
 /* ---------- gardes : réglages seulement arbre arrêté ---------- */
@@ -132,20 +142,20 @@ function toolGuard(what){ if(!guard(what)) return false;
   if(!st.lock){ say(`Verrouillez l'arbre en rotation pour desserrer et serrer l'écrou avant de ${what}.`); return false; } return true; }
 
 /* ---------- commandes de la machine ---------- */
-$('main').onclick=()=>{ if(st.main){ st.main=false; st.motor=false; apply(); return; }
+$('main').onclick=()=>{ if(st.main){ st.main=false; st.motor=false; st.entr.on=false; apply(); return; }
   if(st.cad) return say('Machine consignée : retirez le cadenas (« Consignée ») avant de remettre sous tension.'); st.main=true; F.msg=''; apply(); };
 $('cad').onclick=()=>{ if(st.cad){ st.cad=false; F.msg=''; apply(); return; }
   if(st.main) return say('Pour consigner : interrupteur général sur 0 d\'abord, puis le cadenas.');
   if(spinning()) return say('Attendez l\'arrêt complet de l\'arbre.'); st.cad=true; info('Machine consignée : interrupteur général sur 0, cadenassé. Vous pouvez verrouiller l\'arbre et monter l\'outil.'); };
 $('motor').onclick=()=>{
-  if(st.motor){ if(cut.inProgress) return say('Pièce en cours d\'usinage : finissez la passe avant d\'arrêter (ou arrêt d\'urgence en cas de problème).'); st.motor=false; apply(); return; }
+  if(st.motor){ if(cut.inProgress) return say('Pièce en cours d\'usinage : finissez la passe avant d\'arrêter (ou arrêt d\'urgence en cas de problème).'); st.motor=false; st.entr.on=false; apply(); return; }
   if(st.au) return say('Arrêt d\'urgence enfoncé : réarmez-le avant de démarrer.');
   if(st.cad||!st.main) return say('Machine hors tension ou consignée : retirez le cadenas et mettez l\'interrupteur général sur I.');
   if(st.lock) return say('Arbre verrouillé en rotation : le moteur ne démarre pas. Déverrouillez l\'arbre.');
   if(st.dir===0) return say('Inverseur sur 0 : choisissez le sens de rotation (↺ anti-horaire pour l\'avance de droite à gauche).');
   const c=contacts(); if(c.length){ app.recordDangers([['danger',CHOC]]); return say(`Démarrage interrompu : l'outil touche ${c.join(' et ')}. ${CHOC}.`,'danger'); }
   st.motor=true; F.msg=''; apply(); };
-$('au').onclick=()=>{ if(st.au){ st.au=false; F.msg=''; apply(); return; } st.au=true; st.motor=false; info('Arrêt d\'urgence : moteur coupé et freiné. Réarmez le coup de poing quand tout est en ordre.'); };
+$('au').onclick=()=>{ if(st.au){ st.au=false; F.msg=''; apply(); return; } st.au=true; st.motor=false; st.entr.on=false; info('Arrêt d\'urgence : moteur coupé et freiné. Réarmez le coup de poing quand tout est en ordre.'); };
 $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
 $('lock').onclick=()=>{ if(!guard(st.lock?'déverrouiller l\'arbre':'verrouiller l\'arbre')) return; st.lock=!st.lock; F.msg=''; apply(); };
 $('hlock').onclick=()=>{ st.hlock=!st.hlock; apply(); };
@@ -170,10 +180,23 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 numCtl('haut', v=>{ st.h=Math.round(clamp(v,H_MIN,H_MAX)*10)/10; }, 'régler la hauteur de l\'outil', ()=>{ if(st.hlock){ say('Hauteur bloquée : débloquez-la avant de la régler (puis rebloquez-la).'); return false; } return true; });
 numCtl('sail', v=>{ const t=tool(); if(!t) return; st.zIn=Math.round((Rmax(t)-clamp(v,P_MIN,P_MAX))*10)/10; }, 'régler le guide');
 numCtl('esor', v=>{ st.e=Math.round(clamp(v,0,E_MAX)*10)/10; }, 'régler le demi-guide de sortie');
-numCtl('open', v=>{ st.open=Math.round(clamp(v,OPEN_MIN,OPEN_MAX)); }, 'régler les lamelles');
+/* guide intégral : une seule action, la fermeture automatique des lamelles autour de l'outil */
+$('lam').onclick=()=>{ if(!tool()) return say('Montez d\'abord l\'outil.'); if(!guard('fermer les lamelles du guide')) return; closeLamelles(); const L=lamStatus();
+  info(`Lamelles fermées : demi-guides à ${fmt((st.open-chordAtGuide())/2,0)} mm de l'outil, ${L.n} lamelles sur ${st.lam.length} passées au-dessus et au-dessous de l'outil. À refaire si vous changez l'outil, sa hauteur ou la saillie.`); };
+/* entraîneur : mise en place automatique sur la pièce de l'entrée, marche, vitesse */
+$('entrV').innerHTML=ENT_SPEEDS.map(v=>`<button class="toggle" type="button" data-ev="${v}">${v} m/min</button>`).join('');
+$('entrPlace').onclick=()=>{ if(st.entr.placed){ if(!guard('escamoter l\'entraîneur')) return; stowEntr(); info('Entraîneur escamoté. Remettez le protège-mains à presseurs et réglez-le sur la pièce.'); return; }
+  const q=entryPiece(); if(!q) return say('Posez d\'abord la pièce à l\'entrée, contre le guide : l\'entraîneur se règle sur elle.');
+  if(!guard('placer l\'entraîneur')) return; placeEntr(haut(q),appui(q)); st.push=false;
+  info(`Entraîneur posé sur la pièce : rouleaux ${ENT_DOWN} mm sous le dessus (ressorts), bloc tourné de ${ENT_ANGLE}° vers le guide pour plaquer la pièce. Protège-mains escamoté. Démarrez l'arbre, puis l'entraîneur.`); };
+$('entrOn').onclick=()=>{ if(st.entr.on){ st.entr.on=false; apply(); return; }
+  if(!st.entr.placed) return say('Placez d\'abord l\'entraîneur sur la pièce.');
+  if(!st.motor||model.spin<0.9) return say('Démarrez d\'abord l\'arbre et attendez qu\'il ait pris sa vitesse : l\'entraîneur se met en marche après.');
+  st.entr.on=true; F.msg=''; apply(); };
+document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{ st.entr.v=+b.dataset.ev; apply(); });
 numCtl('hv', v=>{ st.hv=Math.round(clamp(v,0,HV_MAX)*10)/10; }, 'régler le presseur vertical');
 numCtl('dh', v=>{ st.dh=Math.round(clamp(v,0,DH_MAX)*10)/10; }, 'régler le presseur horizontal');
-$('prot').onclick=()=>{ if(!guard(st.prot?'escamoter le protecteur':'mettre le protecteur en place')) return; st.prot=!st.prot; F.msg=''; apply(); };
+$('prot').onclick=()=>{ if(!st.prot&&st.entr.placed) return say('L\'entraîneur occupe la place du protège-mains : escamotez-le d\'abord.'); if(!guard(st.prot?'escamoter le protecteur':'mettre le protecteur en place')) return; st.prot=!st.prot; F.msg=''; apply(); };
 $('pass').onclick=()=>{ if(cut.inProgress) return;
   const why=startPass(q=>passBlock(q,model.spin)); if(why) return say(why);
   F.msg=''; app.ex.invalidate(); apply(); };
@@ -206,7 +229,7 @@ app.start({
   onPick(hit){ const q=hit && pieces.find(x=>x.id===hit.object.userData.pieceId); if(!q) return false; const m=measure(q), fc=C.faces(q);
     if(!cut.inProgress && setSel(q.id)){ profKey=''; F.level='info'; F.msg=`Pièce en main : ${q.name.toLowerCase()} (contour orange).`; app.ex.invalidate(); apply(); }
     $('info').innerHTML=`<b>${q.name} · ${dims(q)} mm</b><span>Sur la table : ${FACE_NAME[fc.down].toLowerCase()}${fc.down===sr1(q)?' (SR1)':''} · contre le guide : ${FACE_NAME[fc.back].toLowerCase()}${fc.back===sr2(q)?' (SR2)':''} · repères : ${[m.s1?'SR1':'',m.s2?'SR2':''].filter(Boolean).join(', ')||'aucun'}</span>`; return true; },
-  tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5); const s0=model.spin; model.tick(dt); if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
+  tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5&&(!st.entr.placed||st.entr.on)); const s0=model.spin; model.tick(dt); if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
 /* poignée pour les tests et pour la future page « atelier » : importPiece(pieceJSON d'une autre machine) pose la pièce à l'entrée */

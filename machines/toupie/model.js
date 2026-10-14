@@ -4,10 +4,11 @@
    Vu de dessus, l'outil tourne dans le sens anti-horaire (rotation.y croissante) : ses dents vont vers +X devant le guide,
    contre l'avance de la pièce (de +X vers −X). Rotation ralentie à l'affichage (sens lisible). */
 import * as THREE from 'three';
-import { M, MI, rbox, add, cyl, canvasTex, beltGeom } from '../../engine/kit.js';
+import { M, MI, rbox, add, cyl, canvasTex, beltGeom, setBetween } from '../../engine/kit.js';
 import { TABLE_Y, TABLE_X, TABLE_Z, RAL_X, HOLE_R, GUIDE_LEN, GUIDE_H, RPMS } from './constants.js';
 import { st, tool, zOut } from './state.js';
 import { profilePts, Dmm, marking } from './tools.js';
+import { LAM_N, LAM_D, lamBand, ENT_X, ENT_ROLL_R, ENT_ROLL_W } from './guide.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const CREAM = new THREE.MeshStandardMaterial({color:0xe9e7e0, metalness:0.12, roughness:0.55});
@@ -115,17 +116,25 @@ export function buildModel({ root, tagPart, partMeshes }){
     outilG.traverse(o=>{ if(o.isMesh){ o.castShadow=o.receiveShadow=true; o.userData.part='outil'; } }); partMeshes.outil=outilG.children.filter(o=>o.isMesh); }
   tagPart(outilG,'outil');
 
-  /* ---------- Guide à lamelles : deux demi-guides, support, capot d'aspiration ---------- */
-  const lamTex=canvasTex(512,128,(g,w,h)=>{ g.fillStyle='#c9ced3'; g.fillRect(0,0,w,h); for(let y=0;y<h;y+=16){ g.fillStyle='#8a9097'; g.fillRect(0,y+13,w,3); } });
-  const LAM=new THREE.MeshStandardMaterial({map:lamTex,metalness:0.55,roughness:0.35});
-  const half=(sx)=>{ const g=new THREE.Group(); root.add(g);
-    add(g, rbox(GUIDE_LEN,GUIDE_H,0.012,LAM,0.002), sx*GUIDE_LEN/2,GUIDE_H/2,-0.006);            // lamelles (face du guide en z = 0 du groupe)
-    add(g, rbox(GUIDE_LEN,GUIDE_H-0.02,0.07,M.aluDk,0.006), sx*GUIDE_LEN/2,GUIDE_H/2,-0.047);      // corps
-    add(g, rbox(GUIDE_LEN*0.6,0.02,0.05,M.dark,0.004), sx*GUIDE_LEN*0.55,GUIDE_H+0.01,-0.05);       // poignée de blocage
-    add(g, cyl(0.016,0.03,M.dark,16), sx*GUIDE_LEN*0.85,GUIDE_H+0.03,-0.05);
+  /* ---------- Guide à lamelles Guide intégral à lamelles (type AIGNER) : deux cassettes, lamelles passées au-dessus et au-dessous de l'outil ---------- */
+  const SLAT=new THREE.MeshStandardMaterial({color:0xc9ced3,metalness:0.6,roughness:0.3});
+  const CASS=new THREE.MeshStandardMaterial({color:0x8e959c,metalness:0.55,roughness:0.4});
+  const PLATE=new THREE.MeshStandardMaterial({color:0x26292c,metalness:0.2,roughness:0.6});
+  const half=(sx)=>{ const g=new THREE.Group(); root.add(g); const L=GUIDE_LEN, H=GUIDE_H;
+    for(let k=0;k<LAM_N;k++){ const [a,b]=lamBand(k); add(g, rbox(L-0.09,(b-a)/1000,LAM_D/1000,SLAT,0.0015), sx*(L-0.09)/2,(a+b)/2000,-LAM_D/2000); }   // lamelles (face avant au plan du guide, z = 0)
+    add(g, rbox(0.09,H,0.05,CASS,0.004), sx*(L-0.045),H/2,-0.025);                                    // bout plein de la cassette (côté extérieur)
+    add(g, rbox(L,H-0.01,0.05,CASS,0.004), sx*L/2,H/2,-LAM_D/1000-0.026);                             // cassette, derrière les lamelles
+    add(g, rbox(L,0.014,0.07,PLATE,0.003), sx*L/2,H+0.007,-0.035);                                    // plaque noire du dessus
+    add(g, cyl(0.013,0.018,M.dark,16), sx*L*0.55,H+0.023,-0.02); add(g, cyl(0.009,0.016,M.dark,12), sx*L*0.68,H+0.022,-0.02);   // boutons à oreilles (lamelles, hauteur)
+    for(let i=0;i<7;i++) add(g, rbox(0.006,0.006,0.012,SLAT,0.001), sx*(L-0.004),0.015+i*0.018,-0.008);       // crans de fixation en bout
     return g; };
   const gIn=half(1), gOut=half(-1);
   tagPart(gIn,'guide_entree'); tagPart(gOut,'guide_sortie');
+  label(gIn,0.08,0.014,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='#d9dcdf'; g.font=`italic 700 ${h*0.85}px "Barlow Condensed",sans-serif`; g.fillText('KANAK',4,h*0.82); },[GUIDE_LEN*0.30,GUIDE_H+0.007,0.0006]);
+  /* lamelles passées d'un demi-guide à l'autre (largeur ajustée à l'écart des demi-guides ; rentrées = repliées dans leur cassette) */
+  const bridges=new THREE.Group(); root.add(bridges); const bridgeM=[];
+  for(let k=0;k<LAM_N;k++){ const [a,b]=lamBand(k); const m=rbox(1,(b-a)/1000,LAM_D/1000,SLAT,0); m.position.y=(a+b)/2000; bridges.add(m); bridgeM.push(m); }
+  tagPart(bridges,'lamelles');
   const sup=new THREE.Group(); root.add(sup);
   add(sup, rbox(0.70,0.06,0.18,CREAM,0.01), 0,TABLE_Y+0.03,-0.30);                                // pont du support, fixé sur la table
   for(const sx of [1,-1]) add(sup, rbox(0.06,0.05,0.24,GREY,0.006), sx*0.26,TABLE_Y+0.03,-0.18);   // glissières
@@ -251,19 +260,39 @@ export function buildModel({ root, tagPart, partMeshes }){
   const belt=new THREE.Mesh(new THREE.BufferGeometry(),MI.belt); tr.add(belt); let beltK=-1;
   tagPart(tr,'transmission');
 
-  /* ---------- Entraîneur (lot 2) : escamoté au-dessus de l'arrière de la table ---------- */
+  /* ---------- Entraîneur à 4 rouleaux (d'après un entraîneur 4 rouleaux sur pied : colonne Ø 75, bras Ø 58 de 1 050 mm) ----------
+     Bloc : moteur vertical sur un carter de transmission (chaîne), 4 rouleaux caoutchouc Ø 120 × 60 sur ressorts, au pas de
+     133, 143 et 145 mm. Repère du bloc : x le long de l'avance (rouleaux en ENT_X), y = 0 au bas des rouleaux, centré en z. */
   const ent=new THREE.Group(); root.add(ent);
-  { const CX=0.50, CZ=-0.36;
-    add(ent, cyl(0.035,0.80,new THREE.MeshStandardMaterial({color:0xeef0f1,roughness:0.5}),20), CX,TABLE_Y+0.40,CZ);
-    add(ent, rbox(0.12,0.10,0.10,CREAM,0.01), CX,TABLE_Y+0.82,CZ);
-    const arm=cyl(0.03,0.45,M.steel,16,'x'); arm.position.set(CX+0.12,TABLE_Y+0.80,CZ); ent.add(arm);
-    const head=new THREE.Group(); head.position.set(CX+0.32,TABLE_Y+0.52,CZ+0.10); ent.add(head);
-    add(head, cyl(0.025,0.20,M.steel,14), 0,0.12,0);
-    add(head, rbox(0.42,0.08,0.10,ORANGE,0.012), 0,-0.02,0);
-    add(head, cyl(0.07,0.20,new THREE.MeshStandardMaterial({color:0x2d3135,metalness:0.5,roughness:0.4}),24), 0.05,0.12,0);
-    for(let i=0;i<4;i++){ const r=cyl(0.045,0.05,YELROL,24); r.position.set(-0.15+i*0.10,-0.10,0); head.add(r); } }
+  const COLX=0.66, COLZ=-0.46, WHITE=new THREE.MeshStandardMaterial({color:0xe9ebec,metalness:0.2,roughness:0.45});
+  const RUB=new THREE.MeshStandardMaterial({color:0xc8442a,roughness:0.75}), HUB=new THREE.MeshStandardMaterial({color:0x9aa1a7,metalness:0.6,roughness:0.35});
+  add(ent, rbox(0.20,0.025,0.16,M.dark,0.004), COLX,TABLE_Y+0.0125,COLZ);                           // embase vissée sur la table (rallonge arrière)
+  const col=cyl(0.0375,1,WHITE,24); ent.add(col);                                                   // colonne Ø 75 (monte et descend)
+  const colTop=new THREE.Group(); ent.add(colTop);
+  add(colTop, rbox(0.10,0.09,0.10,WHITE,0.01), 0,0,0);                                               // coulisseau du bras
+  { const w=new THREE.Mesh(new THREE.TorusGeometry(0.05,0.006,8,28),M.dark); w.rotation.x=Math.PI/2; w.position.y=0.10; colTop.add(w); add(colTop, cyl(0.008,0.06,M.steel,8), 0,0.07,0); add(colTop, cyl(0.006,0.04,M.dark,8), 0.04,0.12,0); }   // volant de hauteur
+  add(colTop, cyl(0.007,0.09,M.dark,8,'x'), 0.07,-0.02,0);                                           // levier de blocage
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.029,0.029,1,20).rotateX(Math.PI/2),M.aluDk); ent.add(arm);   // bras Ø 58
+  const knuckle=new THREE.Group(); ent.add(knuckle);                                                 // rotule : collier sur le bras, coude vers le bloc
+  add(knuckle, rbox(0.09,0.08,0.09,WHITE,0.012), 0,0,0); add(knuckle, cyl(0.006,0.10,M.steel,8,'z'), 0,0.05,0); add(knuckle, cyl(0.006,0.10,M.steel,8,'x'), 0,-0.05,0);
+  const drop=cyl(0.03,1,new THREE.MeshStandardMaterial({color:0x3a3e42,metalness:0.4,roughness:0.5}),18); ent.add(drop);
+  const head=new THREE.Group(); ent.add(head);
+  { const body=new THREE.Group(); body.position.y=0.035; head.add(body);   // carter au-dessus des axes : les rouleaux dépassent dessous
+    // carter (profil en trapèze arrondi, vu de côté), sur toute la longueur des rouleaux
+    const s=new THREE.Shape(); s.moveTo(-0.29,0.045); s.lineTo(0.29,0.045); s.lineTo(0.27,0.11); s.quadraticCurveTo(0.24,0.15,0.17,0.15); s.lineTo(-0.15,0.16); s.quadraticCurveTo(-0.23,0.16,-0.26,0.12); s.closePath();
+    const g=new THREE.ExtrudeGeometry(s,{depth:0.11,bevelEnabled:true,bevelThickness:0.006,bevelSize:0.006,bevelSegments:2}); g.translate(0,0,-0.055); body.add(new THREE.Mesh(g,WHITE));
+    add(body, rbox(0.56,0.012,0.012,M.dark,0.002), 0,0.048,0.062); add(body, rbox(0.56,0.012,0.012,M.dark,0.002), 0,0.048,-0.062);
+    add(body, rbox(0.10,0.04,0.09,M.dark,0.006), 0.0,0.18,0);                                         // réducteur
+    add(body, cyl(0.065,0.16,new THREE.MeshStandardMaterial({color:0x2d3135,metalness:0.5,roughness:0.4}),28), 0.0,0.28,0);   // moteur vertical
+    for(let i=0;i<9;i++) add(body, cyl(0.069,0.006,MI.zinc,28), 0,0.215+i*0.013,0);                    // ailettes
+    add(body, cyl(0.066,0.03,M.dark,28), 0,0.375,0);                                                    // capot du ventilateur
+    add(body, rbox(0.06,0.07,0.05,M.dark,0.006), -0.085,0.28,0);                                        // boîte de commande
+    const sel=cyl(0.017,0.012,M.red,18,'x'); sel.position.set(-0.118,0.29,0); body.add(sel); }      // sélecteur 0 / 1 / 2 (vitesse, sens)
+  const rolls=ENT_X.map(x=>{ const r=new THREE.Group(); r.position.set(x,ENT_ROLL_R/1000,0); head.add(r);
+    r.add(cyl(ENT_ROLL_R/1000,ENT_ROLL_W/1000,RUB,30,'z')); add(r, cyl(0.032,ENT_ROLL_W/1000+0.004,HUB,18,'z'));
+    for(let i=0;i<3;i++){ const sp=rbox(0.012,0.05,ENT_ROLL_W/1000+0.006,HUB,0.002); sp.rotation.z=i*Math.PI/3*2; sp.position.set(Math.cos(i*2.09)*0.02,Math.sin(i*2.09)*0.02,0); r.add(sp); }
+    return r; });
   tagPart(ent,'entraineur');
-
   const pieceRoot=new THREE.Group(); root.add(pieceRoot);
 
   /* ---------- mise à jour d'après les réglages ---------- */
@@ -281,6 +310,16 @@ export function buildModel({ root, tagPart, partMeshes }){
     gIn.position.set(o,TABLE_Y+0.002,zi); gOut.position.set(-o,TABLE_Y+0.002,zo);
     capot.position.set(0,TABLE_Y+0.002,Math.min(zi,zo)-0.002);
     aspTop.position.set(0,TABLE_Y+GUIDE_H+0.10+0.03,Math.min(zi,zo)-0.11);
+    bridges.position.set(0,TABLE_Y+0.002,zi-LAM_D/2000);
+    bridgeM.forEach((m,k)=>{ const on=!!(st.lam&&st.lam[k]); m.scale.x= on? 2*o+0.012 : 1e-4; });     // rentrée : repliée (le Raycaster ignore « visible »)
+    // entraîneur : posé sur la pièce (rouleaux sur ressorts, ENT_DOWN mm sous le dessus, bloc tourné vers le guide) ou escamoté
+    { const E=st.entr; let hx=0.32, hy=TABLE_Y+0.30, hz=-0.24, ry=0;
+      if(E.placed){ hx=0; hy=TABLE_Y+Math.max(E.y/1000, topAt(0)); hz=E.z/1000; ry=-E.angle*Math.PI/180; }
+      head.position.set(hx,hy,hz); head.rotation.y=ry;
+      const K=new THREE.Vector3(hx,hy+0.505,hz); knuckle.position.copy(K);
+      const dl=K.y-0.04-(hy+0.425); drop.scale.y=Math.max(0.02,dl); drop.position.set(hx,hy+0.425+dl/2,hz);
+      const C=new THREE.Vector3(COLX,K.y,COLZ); setBetween(arm,C,K); colTop.position.copy(C);
+      const cl=C.y-0.045-(TABLE_Y+0.025); col.scale.y=cl; col.position.set(COLX,TABLE_Y+0.025+cl/2,COLZ); }
     // protecteur
     const pieceTop=topAt(0), front=frontAt(0);
     const hv=Math.max(st.hv/1000, pieceTop), dh=Math.max(st.dh/1000, front-zi);
@@ -309,7 +348,8 @@ export function buildModel({ root, tagPart, partMeshes }){
   let spin=0;
   let tPrev=null;
   function tick(_dt){ const now=performance.now()/1000, dt=Math.min(0.5, tPrev==null? 0 : now-tPrev); tPrev=now; const on=st.motor&&st.dir!==0; spin += ((on?1:0)-spin)*Math.min(1,dt*(on?2.5:2.6)); if(!on&&spin<0.002) spin=0;
-    const w=spin*dt*1.4*(st.dir||lastDir); spinG.rotation.y+=w; pm.rotation.y+=w*0.4; if(on) lastDir=st.dir; }
+    const w=spin*dt*1.4*(st.dir||lastDir); spinG.rotation.y+=w; pm.rotation.y+=w*0.4; if(on) lastDir=st.dir;
+    if(st.entr.on) for(const r of rolls) r.rotation.z-=dt*st.entr.v*0.25; }
   let lastDir=1;
   return { update, tick, pieceRoot, get spin(){ return spin; }, stopNow(){ spin=0; } };
 }

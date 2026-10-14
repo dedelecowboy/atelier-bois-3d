@@ -15,10 +15,10 @@ export const VARIATEUR = false;              // true : variateur électronique (
 export const H_MIN = -60, H_MAX = 90;        // hauteur du bas du tranchant au-dessus de la table (mm)
 export const P_MIN = -25, P_MAX = 35;        // saillie de l'outil devant le demi-guide d'entrée (mm)
 export const E_MAX = 20;                     // avance du demi-guide de sortie (mm)
-export const OPEN_MIN = 20, OPEN_MAX = 320;  // ouverture des lamelles autour de l'outil (mm)
+export const OPEN_MIN = 20, OPEN_MAX = 320;  // écart des demi-guides au droit de l'outil (mm)
 export const HV_MAX = 150, DH_MAX = 250;     // presseur vertical (hauteur au-dessus de la table), presseur horizontal (distance au guide)
 export const GUIDE_LEN = 0.42;               // longueur d'un demi-guide
-export const GUIDE_H = 0.13;                 // hauteur des demi-guides (lamelles)
+export const GUIDE_H = 0.15;                 // hauteur des cassettes de lamelles (10 lamelles au pas de 15 mm)
 export const LEAD0 = 0.16;                   // bout avant de la pièce posée à l'entrée (devant l'outil)
 export const EXIT_X = -0.16;                 // la pièce sortie s'arrête, bout arrière ici
 export const FEED = 6;                       // avance manuelle (m/min) ; l'animation va 4 fois plus vite
@@ -39,5 +39,5 @@ export const WORK_MODES = [
   { id:'guide', label:'Au guide', lot:1 },
   { id:'arbre', label:'À l\'arbre (bague de copiage)', lot:2 },
   { id:'tenon', label:'Tenonnage au chariot', lot:2 },
-  { id:'entraineur', label:'Au guide avec entraîneur', lot:2 },
+  { id:'entraineur', label:'Au guide avec entraîneur', lot:1 },
 ];

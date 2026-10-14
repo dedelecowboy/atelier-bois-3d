@@ -17,15 +17,16 @@ export const st = {
   ring:200,      // bague de table : Ø intérieur (mm), 320 = sans bague
   zIn:60,        // face du demi-guide d'entrée : distance à l'axe de l'arbre (mm)
   e:0,           // demi-guide de sortie avancé (vers l'opérateur) par rapport à celui d'entrée (mm)
-  open:80,       // ouverture des lamelles autour de l'outil (mm)
+  open:80,       // écart entre les deux demi-guides au droit de l'outil (mm), réglé par « Fermer les lamelles »
+  lam:null,      // lamelles passées d'un demi-guide à l'autre (tableau de booléens, du bas vers le haut) ; null = lumière ouverte
   prot:true,     // protège-mains à presseurs en place (sinon escamoté)
   hv:30,         // presseur vertical : hauteur de son patin au-dessus de la table (mm)
   dh:80,         // presseur horizontal : distance de son patin à la face du guide d'entrée (mm)
   push:false,    // poussoir en main pour la fin de passe
+  entr:{ placed:false, on:false, y:0, z:0, angle:5, v:8, H:0 },   // entraîneur : posé, en marche, bas des rouleaux au repos (mm au-dessus de la table), axe des rouleaux en travers (mm depuis l'axe de l'arbre), angle vers le guide (°), vitesse (m/min), hauteur de la pièce au réglage
   /* préparé pour le lot 2 (non simulé) */
   work:'guide',  // mode de travail : guide | arbre | tenon | entraineur
   feedDir:-1,    // sens d'avance : −1 = de droite à gauche (seul sens simulé)
-  entr:{ on:false, y:0, z:0, angle:0, v:8 },     // entraîneur : marche, hauteur, position, angle, vitesse (m/min)
   chariot:{ on:false, x:0, angle:0 },            // chariot de tenonnage
 };
 export const tool = ()=>toolById(st.tool);

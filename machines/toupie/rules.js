@@ -8,6 +8,7 @@ import { MIN_LEN, MIN_BASE, RATIO, PASS_MAX, JEU_MIN, JEU_OK, JEU_MAX, E_TOL, E_
 import { st, tool, saillie } from './state.js';
 import { Rmax, speedCheck, advisedRpm, Dmm, VC_MIN, VC_MAX } from './tools.js';
 import { cut, entryPiece, butePiece, predict, edgesOk, appui, haut, fmt } from './piece.js';
+import { lamStatus, entrPress, ENT_PRESS, ENT_DOWN } from './guide.js';
 
 /* gestes hors passe (faute grave) */
 export const INTERV = 'RÉGLAGE MOTEUR EN MARCHE : outil, inverseur, hauteur, guide, presseurs ou bague de table ne se règlent qu\'arbre arrêté. Arrêtez le moteur, attendez l\'arrêt complet de l\'arbre (frein), puis réglez';
@@ -20,13 +21,18 @@ export function jeu(){ const t=tool(); if(!t) return Infinity; const R=Rmax(t), 
 /* contact de l'outil avec la bague de table (outil en partie sous la table) */
 export const ringJeu=()=>{ const t=tool(); return t? (st.ring/2-Rmax(t)) : Infinity; };
 export const ringContact=()=>tool() && st.h<0 && ringJeu()<RING_JEU;
-export const contacts=()=>{ const out=[]; if(jeu()<JEU_MIN) out.push('les lamelles du guide'); if(ringContact()) out.push('la bague de table'); return out; };
+export const contacts=()=>{ const out=[]; if(jeu()<JEU_MIN||lamStatus().contact) out.push('les lamelles du guide'); if(ringContact()) out.push('la bague de table'); return out; };
 
 /* raison de refuser l'engagement de la pièce (blocages, pas des fautes) */
 export function passBlock(q, spin){ const t=tool();
   if(!st.motor) return 'Moteur arrêté : démarrez l\'arbre (inverseur sur ↺, bouton I) avant d\'engager la pièce.';
   if(spin<0.9) return 'Attendez que l\'arbre ait pris sa vitesse avant d\'engager la pièce.';
   if(!t) return 'Aucun outil sur l\'arbre.';
+  if(st.entr.placed){ const H=haut(q), c=entrPress(H);
+    if(c<ENT_PRESS[0]) return `L'entraîneur ne presse pas la pièce (rouleaux ${fmt(-c)} mm au-dessus) : il a été placé pour une pièce de ${fmt(st.entr.H,0)} mm. « Placer sur la pièce » (arbre arrêté).`;
+    if(c>ENT_PRESS[1]) return `La pièce ne passe pas sous l'entraîneur (${fmt(c)} mm d'écrasement des ressorts) : il a été placé pour une pièce de ${fmt(st.entr.H,0)} mm. « Placer sur la pièce » (arbre arrêté).`;
+    if(!st.entr.on) return 'Entraîneur arrêté : mettez-le en marche (après l\'arbre) ; c\'est lui qui pousse la pièce.';
+    return ''; }
   if(st.prot){ const H=haut(q), A=appui(q);
     if(st.hv<H-PRESS_DOWN) return `La pièce ne passe pas sous le presseur vertical (${fmt(st.hv,0)} mm pour ${fmt(H,0)} mm de haut) : réglez-le 0,5 à ${PRESS_DOWN} mm sous la hauteur de la pièce.`;
     if(st.dh<A-PRESS_DOWN) return `La pièce ne passe pas entre le guide et le presseur horizontal (${fmt(st.dh,0)} mm pour ${fmt(A,0)} mm) : réglez-le 0,5 à ${PRESS_DOWN} mm sous la largeur de la pièce.`; }
@@ -52,8 +58,11 @@ export function computeAlerts(){ const out=[], t=tool(), q=entryPiece();
       : 'ROTATION INVERSÉE NON ADAPTÉE À L\'OUTIL : avec l\'inverseur sur ↻, les tranchants de l\'outil tournent à l\'envers. Remettez l\'inverseur sur ↺ (arbre arrêté).']);
     if(st.dir===-1) out.push(['danger','TRAVAIL EN AVALANT : rotation horaire, la pièce avancerait dans le sens de rotation de l\'outil. Elle serait arrachée des mains et projetée, les mains entraînées vers l\'outil. Jamais d\'avance manuelle en avalant : inverseur sur ↺ (anti-horaire).']);
     if(st.dir===0) out.push(['info','Inverseur sur 0 : mettez-le sur ↺ (anti-horaire) pour une avance de droite à gauche, arbre arrêté.']);
-    const j=jeu();
-    if(j<JEU_MIN) out.push(['danger',`OUTIL CONTRE LES LAMELLES DU GUIDE : ouverture de ${fmt(st.open,0)} mm, il faut au moins ${fmt(st.open-2*j+2*JEU_MIN,0)} mm. Écartez les lamelles (arbre arrêté).`]);
+    const j=jeu(), L=lamStatus();
+    if(!L.set) out.push(['danger','LUMIÈRE DU GUIDE OUVERTE : les lamelles ne sont pas fermées autour de l\'outil. Le bout de la pièce peut plonger dans l\'ouverture et être happé. « Fermer les lamelles » (arbre arrêté).']);
+    else if(L.contact) out.push(['danger','LAMELLES CONTRE L\'OUTIL : l\'outil, sa hauteur ou la saillie ont changé depuis la fermeture des lamelles. Arbre arrêté, « Fermer les lamelles » à nouveau.']);
+    else if(j<JEU_MIN) out.push(['danger',`OUTIL CONTRE LES LAMELLES DU GUIDE : ouverture de ${fmt(st.open,0)} mm, il faut au moins ${fmt(st.open-2*j+2*JEU_MIN,0)} mm. Écartez les lamelles (arbre arrêté).`]);
+    else if(L.loose && j<=JEU_MAX) out.push(['warn','Lumière du guide plus fermée au maximum : des lamelles pourraient passer au-dessus ou au-dessous de l\'outil. « Fermer les lamelles » à nouveau.']);
     else if(j>JEU_MAX) out.push(['danger',`OUVERTURE DES DEMI-GUIDES TROP GRANDE : ${fmt(j,0)} mm de jeu de chaque côté de l'outil (${JEU_OK} mm au plus). Le bout de la pièce peut plonger dans l'ouverture et être happé : rapprochez les lamelles.`]);
     else if(j>JEU_OK) out.push(['warn',`Ouverture des lamelles à réduire : ${fmt(j,0)} mm de jeu de chaque côté de l'outil (1 à ${JEU_OK} mm).`]);
     if(ringContact()) out.push(['danger',`OUTIL CONTRE LA BAGUE DE TABLE : outil Ø ${Dmm(t)} sous la table dans une bague de Ø ${st.ring}. Montez une bague plus grande (arbre arrêté).`]);
@@ -72,11 +81,14 @@ export function computeAlerts(){ const out=[], t=tool(), q=entryPiece();
         else if(R.snipe>E_SNIPE) out.push(['danger',`DEMI-GUIDE DE SORTIE MAL RÉGLÉ : toute la rive est usinée (${fmt(R.eNeed)} mm), le demi-guide de sortie n'est avancé que de ${fmt(st.e)} mm. Après l'outil la rive n'est pas soutenue : en fin de passe la pièce pivote vers l'outil (entaille, rejet). Avancez-le de ${fmt(R.eNeed)} mm.`]);
         else if(R.snipe>0) out.push(['warn',`Demi-guide de sortie un peu en retrait (${fmt(st.e)} mm pour ${fmt(R.eNeed)} mm) : entaille en fin de passe.`]); }
       else out.push(['info','L\'outil ne touchera pas la pièce avec ces réglages (saillie ou hauteur).']); }
-    if(!st.prot) out.push(['danger','PROTECTEUR ESCAMOTÉ : les presseurs ne tiennent pas la pièce et ne couvrent pas l\'outil. Mettez le protège-mains à presseurs en place et réglez-le sur la pièce.']);
+    if(st.entr.placed){ const c=entrPress(H);
+      if(c<ENT_PRESS[0]||c>ENT_PRESS[1]) out.push(['warn',`Entraîneur réglé pour une pièce de ${fmt(st.entr.H,0)} mm, celle-ci fait ${fmt(H,0)} mm : replacez-le sur la pièce (rouleaux ${ENT_DOWN} mm sous le dessus).`]);
+      else out.push(['info',`Entraîneur sur la pièce : rouleaux ${fmt(c)} mm sous le dessus (ressorts), bloc à ${st.entr.angle}° vers le guide, ${st.entr.v} m/min. Mains hors de la zone des rouleaux et de l'outil.`]); }
+    else if(!st.prot) out.push(['danger','PROTECTEUR ESCAMOTÉ : les presseurs ne tiennent pas la pièce et ne couvrent pas l\'outil. Mettez le protège-mains à presseurs en place et réglez-le sur la pièce.']);
     else {
       if(st.hv>H+1e-6) out.push(['danger',`PRESSEUR VERTICAL TROP HAUT : ${fmt(st.hv,0)} mm pour une pièce de ${fmt(H,0)} mm. Il ne plaque pas la pièce sur la table et laisse passer les doigts : réglez-le 0,5 à ${PRESS_DOWN} mm sous la hauteur de la pièce.`]);
       if(st.dh>A+1e-6) out.push(['danger',`PRESSEUR HORIZONTAL TROP LOIN : ${fmt(st.dh,0)} mm du guide pour une pièce de ${fmt(A,0)} mm. Il ne plaque pas la pièce contre le guide : réglez-le 0,5 à ${PRESS_DOWN} mm sous la largeur de la pièce.`]); }
-    if(!st.push) out.push(['danger','MAINS PRÈS DE L\'OUTIL EN FIN DE PASSE : prenez le poussoir pour pousser la fin de la pièce (mains à droite de l\'outil, jamais au-dessus).']);
+    if(!st.push && !st.entr.placed) out.push(['danger','MAINS PRÈS DE L\'OUTIL EN FIN DE PASSE : prenez le poussoir pour pousser la fin de la pièce (mains à droite de l\'outil, jamais au-dessus).']);
   }
   if(butePiece()) out.push(['warn','Pièce arrêtée contre le demi-guide de sortie : arrêtez le moteur, attendez l\'arrêt de l\'arbre, puis « Dégager la pièce ».']);
   if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant d\'usiner (copeaux projetés, poussières de bois cancérogènes).']);
@@ -85,6 +97,7 @@ export function computeAlerts(){ const out=[], t=tool(), q=entryPiece();
 
 /* informations des réglages (pour l'affichage) */
 export function guideInfo(){ const t=tool(); if(!t) return 'Aucun outil monté.'; const q=entryPiece(), p=saillie(), j=jeu();
-  let s=`Saillie ${fmt(p)} mm · jeu outil / lamelles ${isFinite(j)?fmt(j,0):'—'} mm de chaque côté`;
+  const L=lamStatus();
+  let s=`Saillie ${fmt(p)} mm · ` + (!L.set? 'lamelles ouvertes : lumière du guide ouverte' : L.contact? 'lamelles à refermer : elles touchent l\'outil' : `lamelles fermées : ${L.n} / ${st.lam.length} passées autour de l'outil, demi-guides à ${isFinite(j)?fmt(j,0):'—'} mm de l'outil${L.loose?' (à refermer : lumière plus fermée au maximum)':''}`);
   if(q && edgesOk()){ const R=prediction(q); if(R.any) s+= R.eNeed>E_TOL? ` · toute la rive est usinée : sortie à avancer de ${fmt(R.eNeed)} mm` : ' · rive en partie usinée : demi-guides alignés'; }
   return s; }

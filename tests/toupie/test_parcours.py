@@ -81,18 +81,19 @@ async def faute_grave(mid):
         await pg.page.click('#scenGo'); await pg.page.wait_for_timeout(300)
         r = await pg.eval(js(BASE + r"""
           on('asp'); next(); orientTo('F1','C2'); on2('push');
-          num('open',30); await start();                     // lamelles trop près : l'outil droit Ø 125 les touche
-          const choc=__atelier.parc.dangers.slice(), motorOn=T.st.motor;
-          num('open',180); await start();
-          num('sail',5);                                     // réglage du guide moteur en marche
+          await start();
+          num('sail',5);                                     // réglage du guide moteur en marche (refusé)
           const d1=__atelier.parc.dangers.slice(), sail=T.st.zIn;
           const before=alerts().filter(a=>a.startsWith('danger'));
-          await passe();
-          return {choc, motorOn, d1, sail, before, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))
-        check(any(d.startswith('CHOC DE L\'OUTIL') for d in r['choc']) and not r['motorOn'], 'démarrage outil contre les lamelles : refusé, faute grave « choc » relevée')
+          await passe();                                     // lamelles pas fermées, presseurs pas réglés
+          const d2=__atelier.parc.dangers.slice();
+          await stop(); $('lam').click(); num('sail',20);    // saillie changée après la fermeture : les lamelles touchent l'outil
+          await start();
+          return {d1, sail, before, d2, motorOn:T.st.motor, dangers:__atelier.parc.dangers, card:$('parcCard').textContent};"""))
         check(any(d.startswith('RÉGLAGE MOTEUR EN MARCHE') for d in r['d1']) and abs(r['sail'] - 60) < 1e-6, 'réglage du guide moteur en marche : refusé, faute grave relevée')
-        check(any('PRESSEUR VERTICAL TROP HAUT' in a for a in r['before']) and any('OUVERTURE DES DEMI-GUIDES TROP GRANDE' in a for a in r['before']), 'alertes rouges avant la passe : presseur trop haut, ouverture trop grande')
-        check(any(d.startswith('PRESSEUR VERTICAL TROP HAUT') for d in r['dangers']) and any(d.startswith('OUVERTURE DES DEMI-GUIDES') for d in r['dangers']), 'fautes graves relevées au moment d\'engager la pièce')
+        check(any('PRESSEUR VERTICAL TROP HAUT' in a for a in r['before']) and any('LUMIÈRE DU GUIDE OUVERTE' in a for a in r['before']), 'alertes rouges avant la passe : presseur trop haut, lumière du guide ouverte')
+        check(any(d.startswith('PRESSEUR VERTICAL TROP HAUT') for d in r['d2']) and any(d.startswith('LUMIÈRE DU GUIDE OUVERTE') for d in r['d2']), 'fautes graves relevées au moment d\'engager la pièce')
+        check(any(d.startswith('CHOC DE L\'OUTIL') for d in r['dangers']) and not r['motorOn'], 'saillie changée après la fermeture des lamelles : démarrage refusé, faute grave « choc »')
         n = len(r['dangers'])
         check(f'Fautes graves relevées : {n}' in r['card'], f'{n} fautes affichées dans la carte du parcours')
         await pg.eval('()=>__atelier.app.parcours.scorm.finish()')   # l'élève ferme la fenêtre

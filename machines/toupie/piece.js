@@ -171,7 +171,7 @@ export function startPass(block){
   const out=C.pieceMesh(r); out.userData.pieceId=q.id; clipMats(out,PLANE_OUT); q.mesh.parent.add(out); q.out=out; refreshMeshes();
   cut.mover=q; cut.inProgress=true; cut.tPrev=null; cut.lastMsg='';
   return ''; }
-export const feedSpeed=()=>FEED/60*SPEEDUP;
+export const feedSpeed=()=>(st.entr.placed&&st.entr.on? st.entr.v : FEED)/60*SPEEDUP;   // entraîneur : sa vitesse ; sinon avance à la main
 /* avance de la pièce ; rend true si quelque chose a bougé */
 export function tickPass(now, running){ const dt=Math.min(0.5,now-(cut.tPrev??now)); cut.tPrev=now;
   const q=cut.mover; if(!cut.inProgress||!q) return false;

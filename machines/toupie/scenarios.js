@@ -10,6 +10,7 @@ import { RPMS, RING_WIDE, JEU_MIN, JEU_OK, PRESS_DOWN } from './constants.js';
 import { toolById, speedCheck } from './tools.js';
 import { pieces, newPiece, clearPieces, onMachine, profileStats, measure, appui, haut, fmt, predict } from './piece.js';
 import { jeu, ringContact, ringJeu } from './rules.js';
+import { closeLamelles, lamStatus } from './guide.js';
 import * as C from '../../engine/corroyage.js';
 
 const lot={};
@@ -18,7 +19,7 @@ const yes=(ok,a='oui',b='non')=>ok?a:b;
 const toolIs=id=>st.tool===id&&!st.flip;
 const speedOk=()=>!!st.tool && speedCheck(toolById(st.tool),st.rpm).ok;
 const ringOk=()=>!!st.tool && !ringContact() && ringJeu()<=RING_WIDE;
-const jeuOk=()=>{ const j=jeu(); return j>=JEU_MIN && j<=JEU_OK; };
+const jeuOk=()=>{ const j=jeu(), L=lamStatus(); return L.set && !L.contact && !L.loose && j>=JEU_MIN && j<=JEU_OK; };
 const orientOk=(q,dn,back)=>!!q && q.state==='entry' && C.faces(q).down===dn && C.faces(q).back===back;
 const pressOk=q=>{ if(!q||q.state!=='entry'||!st.prot) return false; const H=haut(q), A=appui(q); return st.hv<=H-0.5+1e-6 && st.hv>=H-PRESS_DOWN && st.dh<=A-0.5+1e-6 && st.dh>=A-PRESS_DOWN; };
 /* profil présent sur toute la longueur de la face f */
@@ -78,7 +79,7 @@ const PIECES={
     ['c',{name:'Baguette 3',L:800,W:42,T:22,lar:40,ep:20,wood:'hetre',seed:7,dress:DR,state:'stock'}],['d',{name:'Baguette courte',L:220,W:42,T:22,lar:40,ep:20,wood:'hetre',seed:8,dress:DR,state:'stock'}]],
 };
 /* réglages de départ de la machine (ce qu'un groupe précédent a laissé) */
-const BASE={ main:true, cad:false, au:false, motor:false, asp:false, dir:1, lock:false, hlock:true, flip:false, prot:true, push:false };
+const BASE={ main:true, cad:false, au:false, motor:false, asp:false, dir:1, lock:false, hlock:true, flip:false, prot:true, push:false, lam:null };
 const MACH={
   libre:    { tool:'quart', rpm:9000, h:0, ring:160, zIn:52.5, e:0, open:74, hv:24, dh:66 },
   quart:    { tool:'droit', rpm:6000, h:10, ring:320, zIn:60, e:0, open:180, hv:60, dh:120 },
@@ -86,7 +87,8 @@ const MACH={
   serie:    { tool:'moulure', rpm:9000, h:0, ring:320, zIn:74, e:0, open:120, hv:40, dh:80 },
 };
 export const LOADERS=Object.fromEntries(Object.entries(PIECES).map(([m,list])=>[m,()=>{ clearPieces(); for(const k in lot) delete lot[k];
-  Object.assign(st,BASE,MACH[m]);
+  Object.assign(st,BASE,MACH[m]); st.entr={ placed:false, on:false, y:0, z:0, angle:5, v:8, H:0 };
+  if(m==='libre') closeLamelles();
   for(const [k,spec] of list) lot[k]=newPiece(spec); }]));
 
 /* ---------- étapes de chaque mode ---------- */
@@ -99,8 +101,8 @@ export const STEPS={
       checks:[['Vitesse adaptée à l\'outil (n max, Vc de 40 à 70 m/s)',speedOk],['Lumière de table réduite (bague adaptée)',ringOk],['Hauteur 0 mm : outil au ras de la table',()=>near(st.h,0,0.2)],['Hauteur bloquée',()=>st.hlock],['Inverseur sur ↺ (anti-horaire)',()=>st.dir===1]],
       done:s=>s.checks.every(c=>c[1]())},
     {k:'Guide', t:'Saillie, demi-guides, lamelles',
-      c:'Saillie de 10 mm : la lèvre droite de la fraise au ras de la face du guide (pied de profondeur). Le quart de rond n\'usine pas toute la rive : demi-guides alignés (0 mm). Rapprochez les lamelles de l\'outil : 1 à 5 mm de jeu de chaque côté.',
-      checks:[['Saillie 10 mm (± 0,2)',()=>near(saillie(),10,0.2)],['Demi-guides alignés (rive en partie usinée)',()=>near(st.e,0,0.1)],['Lamelles : 1 à 5 mm de jeu de chaque côté',jeuOk]],
+      c:'Saillie de 10 mm : la lèvre droite de la fraise au ras de la face du guide (pied de profondeur). Le quart de rond n\'usine pas toute la rive : demi-guides alignés (0 mm). Puis « Fermer les lamelles » : la lumière du guide se ferme au-dessus et au-dessous de l\'outil, sans le toucher.',
+      checks:[['Saillie 10 mm (± 0,2)',()=>near(saillie(),10,0.2)],['Demi-guides alignés (rive en partie usinée)',()=>near(st.e,0,0.1)],['Lamelles fermées autour de l\'outil (au-dessus et au-dessous, sans contact)',jeuOk]],
       done:s=>s.checks.every(c=>c[1]())},
     pieceStep('Outil sous la pièce : SR1 (parement, la boucle) sur la table, le chant opposé à SR2 contre le guide (« Bout pour bout »). Réglez le presseur vertical et le presseur horizontal sur la pièce (0,5 à 6 mm sous sa hauteur et sa largeur). Prenez le poussoir.','F1','C2','SR1 sur la table, chant opposé à SR2 contre le guide'),
     {k:'Usinage', t:'Usiner le quart de rond',
@@ -117,12 +119,12 @@ export const STEPS={
       checks:[['Vitesse adaptée à l\'outil (n max, Vc de 40 à 70 m/s)',speedOk],['Bague de table : l\'outil passe, lumière réduite',ringOk],['Haut du tranchant à 12 mm (bas à −38 mm)',()=>near(st.h,-38,0.2)],['Hauteur bloquée',()=>st.hlock],['Inverseur sur ↺ (anti-horaire)',()=>st.dir===1]],
       done:s=>s.checks.every(c=>c[1]())},
     {k:'Guide', t:'Première passe : saillie de 5 à 10 mm',
-      c:'Première passe : saillie de 5 à 10 mm (10 mm au plus par passe). La feuillure n\'usine pas toute la rive : demi-guides alignés. Lamelles : 1 à 5 mm de jeu de chaque côté de l\'outil.',
-      checks:[['Saillie de 5 à 10 mm',()=>saillie()>=5-1e-6&&saillie()<=10+1e-6],['Demi-guides alignés (rive en partie usinée)',()=>near(st.e,0,0.1)],['Lamelles : 1 à 5 mm de jeu de chaque côté',jeuOk]],
+      c:'Première passe : saillie de 5 à 10 mm (10 mm au plus par passe). La feuillure n\'usine pas toute la rive : demi-guides alignés. Puis « Fermer les lamelles ».',
+      checks:[['Saillie de 5 à 10 mm',()=>saillie()>=5-1e-6&&saillie()<=10+1e-6],['Demi-guides alignés (rive en partie usinée)',()=>near(st.e,0,0.1)],['Lamelles fermées autour de l\'outil (au-dessus et au-dessous, sans contact)',jeuOk]],
       done:s=>s.checks.every(c=>c[1]())},
     pieceStep('Feuillure côté contre-parement, outil sous la pièce : SR1 (la boucle) dessus, le contre-parement sur la table, le chant opposé à SR2 contre le guide (« Retourner »). Presseurs réglés sur la pièce, poussoir en main.','F2','C2','SR1 dessus, chant opposé à SR2 contre le guide'),
     {k:'Passes', t:'Usiner la feuillure en deux passes',
-      c:'Démarrez, passez la pièce (première passe). Arrêtez le moteur, attendez l\'arrêt de l\'arbre, reculez le guide jusqu\'à la saillie de 15 mm (et réglez les lamelles), « Ramener la pièce », redémarrez et repassez.',
+      c:'Démarrez, passez la pièce (première passe). Arrêtez le moteur, attendez l\'arrêt de l\'arbre, reculez le guide jusqu\'à la saillie de 15 mm et refermez les lamelles, « Ramener la pièce », redémarrez et repassez.',
       checks:[['Première passe faite',()=>lot.a.log.filter(l=>l.cut).length>=1],['Feuillure à 15 mm de profondeur sur toute la longueur',()=>{ const s=profileStats(lot.a,'C2','hi'); return !!s&&near(s.edge,15,0.5)&&fullLen(lot.a,'C2'); }]],
       done:s=>s.checks.every(c=>c[1]())},
     fin,
@@ -138,8 +140,8 @@ export const STEPS={
       checks:[['Pièce trop courte mise à part, « Interdite au guide »',()=>lot.d.state==='stock'&&lot.d.kind==='interdite']],
       done:s=>s.checks.every(c=>c[1]())},
     {k:'Guide', t:'Saillie, demi-guide de sortie, lamelles',
-      c:'Saillie de 10 mm. Ici toute la rive est usinée : la face usinée recule, le demi-guide de sortie doit être avancé de la profondeur usinée sur la partie qui touche le guide (lisez-la sur le profil). Lamelles : 1 à 5 mm de jeu de chaque côté.',
-      checks:[['Saillie 10 mm (± 0,2)',()=>near(saillie(),10,0.2)],['Toute la rive usinée : demi-guide de sortie avancé (± 0,2 mm)',()=>{ const n=needE(lot.a,'F1','C2'); return n>0.3&&near(st.e,n,0.2); }],['Lamelles : 1 à 5 mm de jeu de chaque côté',jeuOk]],
+      c:'Saillie de 10 mm. Ici toute la rive est usinée : la face usinée recule, le demi-guide de sortie doit être avancé de la profondeur usinée sur la partie qui touche le guide (lisez-la sur le profil). Puis « Fermer les lamelles » (toujours après le réglage de la saillie).',
+      checks:[['Saillie 10 mm (± 0,2)',()=>near(saillie(),10,0.2)],['Toute la rive usinée : demi-guide de sortie avancé (± 0,2 mm)',()=>{ const n=needE(lot.a,'F1','C2'); return n>0.3&&near(st.e,n,0.2); }],['Lamelles fermées autour de l\'outil (au-dessus et au-dessous, sans contact)',jeuOk]],
       done:s=>s.checks.every(c=>c[1]())},
     pieceStep('SR1 sur la table, le chant opposé à SR2 contre le guide (« Bout pour bout »). Presseurs réglés sur la pièce, poussoir en main.','F1','C2','SR1 sur la table, chant opposé à SR2 contre le guide'),
     {k:'Série', t:'Moulurer les trois baguettes',

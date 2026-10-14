@@ -24,6 +24,7 @@ BASE = r"""
  const deconsigne=()=>{ off('lock'); $('hand').click(); off('cad'); on('main'); };
  const orientTo=(dn,back)=>{ for(let i=0;i<4;i++){ for(let j=0;j<2;j++){ const f=T.C.faces(E()); if(f.down===dn&&f.back===back) return true; op('end'); } op('rot'); } return false; };
  const presseurs=()=>{ const q=E(); num('hv',T.C.heightMm(q)-2); num('dh',T.C.depthMm(q)-2); on2('push'); };
+ const off2=o=>{ const b=document.querySelector(`[data-op=${o}]`); if(b.getAttribute('aria-pressed')==='true') b.click(); };
  const on2=o=>{ const b=document.querySelector(`[data-op=${o}]`); if(b.getAttribute('aria-pressed')!=='true') b.click(); };
 """
 END = r"""
@@ -37,7 +38,7 @@ QUART = BASE + r"""
  msgs.push('montage refusé non consignée:'+(()=>{ tool('rainure'); return T.st.tool==='droit'; })());
  await consigne(); tool('quart'); deconsigne(); log.push(state('outil')); next();
  rpm(9000); ring(160); off('hlock'); num('haut',0); on('hlock'); dir(1); log.push(state('réglages')); next();
- num('sail',10); num('esor',0); num('open',chord(62.5,52.5)+6); log.push(state('guide')); next();
+ num('sail',10); num('esor',0); $('lam').click(); log.push(state('guide')); next();
  msgs.push('poussoir absent signalé:'+alerts().some(a=>a.includes('MAINS PRÈS DE L\'OUTIL')));
  orientTo('F1','C2'); presseurs(); log.push(state('pièce')); next();
  await start();
@@ -49,12 +50,12 @@ FEUILLURE = BASE + r"""
  on('asp'); log.push(state('préparation')); next();
  await consigne(); tool('droit'); deconsigne(); log.push(state('outil')); next();
  rpm(9000); ring(160); off('hlock'); num('haut',-38); on('hlock'); dir(1); log.push(state('réglages')); next();
- num('sail',7.5); num('esor',0); num('open',chord(62.5,55)+6); log.push(state('guide')); next();
+ num('sail',7.5); num('esor',0); $('lam').click(); log.push(state('guide')); next();
  orientTo('F2','C2'); presseurs(); log.push(state('pièce')); next();
  num('sail',15); const trop=alerts().some(a=>a.includes('PASSE TROP FORTE')); num('sail',7.5);
  msgs.push('passe de 15 mm signalée:'+trop);
  await start(); await passe(); op('back'); await stop();
- num('sail',15); num('open',chord(62.5,47.5)+6); await start(); await passe(); log.push(state('passes')); next();
+ num('sail',15); $('lam').click(); await start(); await passe(); log.push(state('passes')); next();
  op('aside'); await stop();
 """ + END
 
@@ -64,7 +65,7 @@ SERIE = BASE + r"""
  rpm(7000); ring(200); log.push(state('machine')); next();
  op('aside'); take('Baguette courte'); msgs.push('pièce courte signalée:'+alerts().some(a=>a.includes('PIÈCE TROP COURTE')));
  op('aside'); kind('Baguette courte'); take('Baguette 1'); log.push(state('lot')); next();
- num('sail',10); num('esor',2); num('open',chord(80,70)+6); log.push(state('guide')); next();
+ num('sail',10); num('esor',2); $('lam').click(); log.push(state('guide')); next();
  orientTo('F1','C2'); presseurs(); log.push(state('pièce')); next();
  await start(); await passe(); op('aside');
  for(const n of ['Baguette 2','Baguette 3']){ take(n); orientTo('F1','C2'); await passe(); op('aside'); }

@@ -55,7 +55,7 @@ async def main():
         r = await pg.eval(js(BASE + r"""
           const out={};
           // rive entière (baguette de 20 mm, outil à moulurer) sans avancer la sortie : entaille en bout
-          await consigne(); tool('moulure'); deconsigne(); rpm(7000); ring(200); num('sail',10); num('esor',0); num('open',chord(80,70)+6);
+          await consigne(); tool('moulure'); deconsigne(); rpm(7000); ring(200); num('sail',10); num('esor',0); $('lam').click();
           const C=T.C, raw=C.makePiece({L:800,W:42,T:22,wood:'hetre',seed:5}); C.dresseSR(raw,{s1:'F1',s2:'C1'}); C.rabote(raw,'C1',40); C.rabote(raw,'F1',20);
           const id=T.importPiece(C.pieceJSON(raw),'Baguette'); const q=T.pieces.find(p=>p.id===id);
           out.marks=!!(q.face.F1.mark==='loop' && q.face.C1.mark==='v');
@@ -64,7 +64,7 @@ async def main():
           const copy=C.makePiece(C.pieceJSON(q)); out.travel=(copy.cuts||[]).length===1 && Math.abs(T.profileStats({...copy},'C2','lo').depth-s.depth)<1e-9;
           op('aside'); await stop();
           // frêne au fil incliné, contre le fil : arrachements
-          await consigne(); tool('quart'); deconsigne(); rpm(9000); ring(160); num('sail',10); num('esor',0); num('open',chord(62.5,52.5)+6);
+          await consigne(); tool('quart'); deconsigne(); rpm(9000); ring(160); num('sail',10); num('esor',0); $('lam').click();
           take('Frêne'); orientTo('F1','C2'); presseurs(); await start(); await passe();
           const f=T.pieces.find(p=>p.name==='Frêne'), sf=T.profileStats(f,'C2','lo'); out.tear=sf.tear;
           await stop();
@@ -73,6 +73,26 @@ async def main():
         check(r['full'] and r['reg'] > 0.5 and 'Entaille en fin de passe' in r['snipeMsg'], f'rive entière sans avancer la sortie : entaille en bout (régularité {r["reg"]:.1f} mm)')
         check(r['travel'], 'le profil voyage avec la pièce (pieceJSON / makePiece)')
         check(r['tear'], 'frêne au fil incliné passé contre le fil : arrachements')
+        r = await pg.eval(js(BASE + r'''
+          const out={};
+          // entraîneur : mise en place automatique sur la pièce, marche après l'arbre, passe sans poussoir
+          await stop(); off2('push'); take('Avivé'); orientTo('F1','C2');
+          $('entrOn').click(); out.nonPose=!T.st.entr.on;
+          $('entrPlace').click(); const EN=T.st.entr, q=T.pieces.find(p=>p.name==='Avivé');
+          out.place=EN.placed && Math.abs(T.C.heightMm(q)-EN.y-4)<1e-6 && EN.angle===5 && !T.st.prot;
+          $('entrOn').click(); out.avantArbre=!T.st.entr.on;
+          await start(); $('entrOn').click(); out.marche=T.st.entr.on;
+          out.dang=alerts().filter(a=>a.startsWith('danger'));
+          const n0=(q.log||[]).length; await passe(); out.passe=q.log.length===n0+1 && q.state==='exit';
+          await stop(); out.arret=!T.st.entr.on;
+          // pièce plus épaisse que celle du réglage : la passe est refusée tant que l'entraîneur n'est pas replacé
+          op('back'); op('rot'); await start(); $('pass').click(); await sleep(200); out.refus=q.state==='entry' && alerts()[0].includes('entraîneur');
+          return out;'''))
+        check(r['nonPose'] and r['place'], 'entraîneur : marche refusée non posé ; posé sur la pièce 4 mm sous le dessus, à 5° vers le guide, protège-mains escamoté')
+        check(r['avantArbre'] and r['marche'], 'entraîneur : marche refusée avant l\'arbre, possible après')
+        check(not r['dang'] and r['passe'], 'passe à l\'entraîneur sans poussoir ni presseurs : aucune alerte rouge, pièce usinée')
+        check(r['arret'], 'arrêt de l\'arbre : l\'entraîneur s\'arrête aussi')
+        check(r['refus'], 'pièce posée autrement (hauteur différente) : passe refusée, replacer l\'entraîneur')
         print(await pg.shot('toupie_securite.png'))
 
 if __name__ == '__main__': run(main)

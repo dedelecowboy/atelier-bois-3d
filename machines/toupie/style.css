@@ -14,6 +14,8 @@
 .pr-g input.num{width:100%;justify-self:stretch}
 #rpms .toggle,#rings .toggle,[data-dir]{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
 #hlock{grid-column:1/-1;justify-self:start}
+.lg,.en{grid-template-columns:1fr auto;align-items:center}
+#entrV .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
 #dockSlot .settings{grid-auto-flow:row dense}
 #dockSlot .settings .srow{grid-column:1/-1}
 #dockSlot .settings .tl{grid-column:span 2;grid-row:span 4}
