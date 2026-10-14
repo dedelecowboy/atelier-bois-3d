@@ -8,7 +8,7 @@ import { M, MI, rbox, add, cyl, canvasTex, beltGeom, setBetween } from '../../en
 import { TABLE_Y, TABLE_X, TABLE_Z, RAL_X, HOLE_R, GUIDE_LEN, GUIDE_H, RPMS } from './constants.js';
 import { st, tool, zOut } from './state.js';
 import { profilePts, Dmm, marking } from './tools.js';
-import { LAM_N, LAM_D, lamBand, ENT_X, ENT_ROLL_R, ENT_ROLL_W } from './guide.js';
+import { LAM_N, LAM_D, lamBand, ENT_X, ENT_ROLL_R, ENT_ROLL_W, ENT_HALF_W, ENT_ROLL_OFF } from './guide.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const CREAM = new THREE.MeshStandardMaterial({color:0xe9e7e0, metalness:0.12, roughness:0.55});
@@ -280,15 +280,16 @@ export function buildModel({ root, tagPart, partMeshes }){
   { const body=new THREE.Group(); body.position.y=0.035; head.add(body);   // carter au-dessus des axes : les rouleaux dépassent dessous
     // carter (profil en trapèze arrondi, vu de côté), sur toute la longueur des rouleaux
     const s=new THREE.Shape(); s.moveTo(-0.29,0.045); s.lineTo(0.29,0.045); s.lineTo(0.27,0.11); s.quadraticCurveTo(0.24,0.15,0.17,0.15); s.lineTo(-0.15,0.16); s.quadraticCurveTo(-0.23,0.16,-0.26,0.12); s.closePath();
-    const g=new THREE.ExtrudeGeometry(s,{depth:0.11,bevelEnabled:true,bevelThickness:0.006,bevelSize:0.006,bevelSegments:2}); g.translate(0,0,-0.055); body.add(new THREE.Mesh(g,WHITE));
-    add(body, rbox(0.56,0.012,0.012,M.dark,0.002), 0,0.048,0.062); add(body, rbox(0.56,0.012,0.012,M.dark,0.002), 0,0.048,-0.062);
-    add(body, rbox(0.10,0.04,0.09,M.dark,0.006), 0.0,0.18,0);                                         // réducteur
-    add(body, cyl(0.065,0.16,new THREE.MeshStandardMaterial({color:0x2d3135,metalness:0.5,roughness:0.4}),28), 0.0,0.28,0);   // moteur vertical
-    for(let i=0;i<9;i++) add(body, cyl(0.069,0.006,MI.zinc,28), 0,0.215+i*0.013,0);                    // ailettes
-    add(body, cyl(0.066,0.03,M.dark,28), 0,0.375,0);                                                    // capot du ventilateur
-    add(body, rbox(0.06,0.07,0.05,M.dark,0.006), -0.085,0.28,0);                                        // boîte de commande
-    const sel=cyl(0.017,0.012,M.red,18,'x'); sel.position.set(-0.118,0.29,0); body.add(sel); }      // sélecteur 0 / 1 / 2 (vitesse, sens)
-  const rolls=ENT_X.map(x=>{ const r=new THREE.Group(); r.position.set(x,ENT_ROLL_R/1000,0); head.add(r);
+    const g=new THREE.ExtrudeGeometry(s,{depth:2*ENT_HALF_W/1000-0.012,bevelEnabled:true,bevelThickness:0.006,bevelSize:0.006,bevelSegments:2}); g.translate(0,0,-(ENT_HALF_W/1000-0.006)); body.add(new THREE.Mesh(g,WHITE));
+    add(body, rbox(0.56,0.012,0.008,M.dark,0.002), 0,0.048,ENT_HALF_W/1000-0.004); add(body, rbox(0.56,0.012,0.008,M.dark,0.002), 0,0.048,-ENT_HALF_W/1000+0.004);
+    const mot=new THREE.Group(); mot.position.z=0.035; body.add(mot);                                  // moteur décalé côté opérateur : il passe au-dessus du capot du guide
+    add(mot, rbox(0.10,0.04,0.07,M.dark,0.006), 0.0,0.18,0);                                         // réducteur
+    add(mot, cyl(0.065,0.16,new THREE.MeshStandardMaterial({color:0x2d3135,metalness:0.5,roughness:0.4}),28), 0.0,0.28,0);   // moteur vertical
+    for(let i=0;i<9;i++) add(mot, cyl(0.069,0.006,MI.zinc,28), 0,0.215+i*0.013,0);                    // ailettes
+    add(mot, cyl(0.066,0.03,M.dark,28), 0,0.375,0);                                                    // capot du ventilateur
+    add(mot, rbox(0.06,0.07,0.05,M.dark,0.006), -0.085,0.28,0);                                        // boîte de commande
+    const sel=cyl(0.017,0.012,M.red,18,'x'); sel.position.set(-0.118,0.29,0); mot.add(sel); }      // sélecteur 0 / 1 / 2 (vitesse, sens)
+  const rolls=ENT_X.map(x=>{ const r=new THREE.Group(); r.position.set(x,ENT_ROLL_R/1000,ENT_ROLL_OFF/1000); head.add(r);                // rouleaux affleurant le côté guide du carter
     r.add(cyl(ENT_ROLL_R/1000,ENT_ROLL_W/1000,RUB,30,'z')); add(r, cyl(0.032,ENT_ROLL_W/1000+0.004,HUB,18,'z'));
     for(let i=0;i<3;i++){ const sp=rbox(0.012,0.05,ENT_ROLL_W/1000+0.006,HUB,0.002); sp.rotation.z=i*Math.PI/3*2; sp.position.set(Math.cos(i*2.09)*0.02,Math.sin(i*2.09)*0.02,0); r.add(sp); }
     return r; });
@@ -316,8 +317,9 @@ export function buildModel({ root, tagPart, partMeshes }){
     { const E=st.entr; let hx=0.32, hy=TABLE_Y+0.30, hz=-0.24, ry=0;
       if(E.placed){ hx=0; hy=TABLE_Y+Math.max(E.y/1000, topAt(0)); hz=E.z/1000; ry=-E.angle*Math.PI/180; }
       head.position.set(hx,hy,hz); head.rotation.y=ry;
-      const K=new THREE.Vector3(hx,hy+0.505,hz); knuckle.position.copy(K);
-      const dl=K.y-0.04-(hy+0.425); drop.scale.y=Math.max(0.02,dl); drop.position.set(hx,hy+0.425+dl/2,hz);
+      const mz=hz+0.035*Math.cos(ry), mx=hx-0.035*Math.sin(ry);                                // axe du moteur (décalé côté opérateur)
+      const K=new THREE.Vector3(mx,hy+0.505,mz); knuckle.position.copy(K);
+      const dl=K.y-0.04-(hy+0.425); drop.scale.y=Math.max(0.02,dl); drop.position.set(mx,hy+0.425+dl/2,mz);
       const C=new THREE.Vector3(COLX,K.y,COLZ); setBetween(arm,C,K); colTop.position.copy(C);
       const cl=C.y-0.045-(TABLE_Y+0.025); col.scale.y=cl; col.position.set(COLX,TABLE_Y+0.025+cl/2,COLZ); }
     // protecteur

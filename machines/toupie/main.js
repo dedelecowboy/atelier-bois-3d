@@ -11,7 +11,7 @@ import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cut, entryPiece, exitPieces, butePiece, onMachine, selPiece, startPass, tickPass, placeAll, topAt, frontAt,
   measure, profileStats, setSel, bringBack, release, aside, take, setKind, orient, fmt, dims, appui, haut, sr1, sr2, newPiece, predict, FACE_NAME } from './piece.js';
-import { lamBand, LAM_D, closeLamelles, chordAtGuide, lamStatus, placeEntr, stowEntr, ENT_SPEEDS, ENT_DOWN, ENT_ANGLE } from './guide.js';
+import { ENT_ROLL_OFF, ENT_CLR, lamBand, LAM_D, closeLamelles, chordAtGuide, lamStatus, placeEntr, stowEntr, ENT_SPEEDS, ENT_DOWN, ENT_ANGLE } from './guide.js';
 import { computeAlerts, passBlock, guideInfo, contacts, INTERV, CHOC, HANDS, prediction } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -59,7 +59,7 @@ function renderSvg(){ const t=tool(), q=cut.mover||entryPiece(), R=q&&t? predict
   // lamelles passées (guide intégral), dans le plan du guide
   if(st.lam) st.lam.forEach((b,k)=>{ if(!b) return; const [a,c]=lamBand(k); if(a>y1) return; g+=`<rect x="${X(st.zIn)}" y="${Y(Math.min(c,y1))}" width="${X(st.zIn-LAM_D)-X(st.zIn)}" height="${Y(a)-Y(Math.min(c,y1))}" fill="#6b737a"/>`; });
   // entraîneur : rouleau posé sur la pièce
-  if(st.entr.placed){ const yb=Math.max(st.entr.y, q? Hp : st.entr.y), zc=st.entr.z; g+=`<rect x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))}" width="${X(zc-30)-X(zc+30)}" height="${Y(yb)-Y(Math.min(y1,yb+60))}" rx="4" fill="#c8442a" fill-opacity=".75"/><text x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))+10}">entraîneur</text>`; }
+  if(st.entr.placed){ const yb=Math.max(st.entr.y, q? Hp : st.entr.y), zc=st.entr.z+ENT_ROLL_OFF; g+=`<rect x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))}" width="${X(zc-30)-X(zc+30)}" height="${Y(yb)-Y(Math.min(y1,yb+60))}" rx="4" fill="#c8442a" fill-opacity=".75"/><text x="${X(zc+30)}" y="${Y(Math.min(y1,yb+60))+10}">entraîneur</text>`; }
   // presseurs
   if(st.prot){ g+=`<line x1="${X(st.zIn+2)}" y1="${Y(st.hv)}" x2="${X(st.zIn+Math.min(60,A))}" y2="${Y(st.hv)}" stroke="#d6a800" stroke-width="3"/>`;
     g+=`<line x1="${X(st.zIn+st.dh)}" y1="${Y(3)}" x2="${X(st.zIn+st.dh)}" y2="${Y(Math.min(55,y1-4))}" stroke="#d6a800" stroke-width="3"/>`; }
@@ -188,7 +188,7 @@ $('entrV').innerHTML=ENT_SPEEDS.map(v=>`<button class="toggle" type="button" dat
 $('entrPlace').onclick=()=>{ if(st.entr.placed){ if(!guard('escamoter l\'entraîneur')) return; stowEntr(); info('Entraîneur escamoté. Remettez le protège-mains à presseurs et réglez-le sur la pièce.'); return; }
   const q=entryPiece(); if(!q) return say('Posez d\'abord la pièce à l\'entrée, contre le guide : l\'entraîneur se règle sur elle.');
   if(!guard('placer l\'entraîneur')) return; placeEntr(haut(q),appui(q)); st.push=false;
-  info(`Entraîneur posé sur la pièce : rouleaux ${ENT_DOWN} mm sous le dessus (ressorts), bloc tourné de ${ENT_ANGLE}° vers le guide pour plaquer la pièce. Protège-mains escamoté. Démarrez l'arbre, puis l'entraîneur.`); };
+  info(`Entraîneur posé sur la pièce : rouleaux ${ENT_DOWN} mm sous le dessus (ressorts), bloc tourné de ${ENT_ANGLE}° vers le guide pour plaquer la pièce, avancé pour rester à ${ENT_CLR} mm du guide sur toute sa longueur. Protège-mains escamoté. Démarrez l'arbre, puis l'entraîneur.`); };
 $('entrOn').onclick=()=>{ if(st.entr.on){ st.entr.on=false; apply(); return; }
   if(!st.entr.placed) return say('Placez d\'abord l\'entraîneur sur la pièce.');
   if(!st.motor||model.spin<0.9) return say('Démarrez d\'abord l\'arbre et attendez qu\'il ait pris sa vitesse : l\'entraîneur se met en marche après.');

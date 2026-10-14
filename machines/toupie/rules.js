@@ -8,7 +8,7 @@ import { MIN_LEN, MIN_BASE, RATIO, PASS_MAX, JEU_MIN, JEU_OK, JEU_MAX, E_TOL, E_
 import { st, tool, saillie } from './state.js';
 import { Rmax, speedCheck, advisedRpm, Dmm, VC_MIN, VC_MAX } from './tools.js';
 import { cut, entryPiece, butePiece, predict, edgesOk, appui, haut, fmt } from './piece.js';
-import { lamStatus, entrPress, ENT_PRESS, ENT_DOWN } from './guide.js';
+import { lamStatus, entrPress, ENT_PRESS, ENT_DOWN, entrZ, rollCover, ENT_CLR } from './guide.js';
 
 /* gestes hors passe (faute grave) */
 export const INTERV = 'RÉGLAGE MOTEUR EN MARCHE : outil, inverseur, hauteur, guide, presseurs ou bague de table ne se règlent qu\'arbre arrêté. Arrêtez le moteur, attendez l\'arrêt complet de l\'arbre (frein), puis réglez';
@@ -21,7 +21,9 @@ export function jeu(){ const t=tool(); if(!t) return Infinity; const R=Rmax(t), 
 /* contact de l'outil avec la bague de table (outil en partie sous la table) */
 export const ringJeu=()=>{ const t=tool(); return t? (st.ring/2-Rmax(t)) : Infinity; };
 export const ringContact=()=>tool() && st.h<0 && ringJeu()<RING_JEU;
-export const contacts=()=>{ const out=[]; if(jeu()<JEU_MIN||lamStatus().contact) out.push('les lamelles du guide'); if(ringContact()) out.push('la bague de table'); return out; };
+export const contacts=()=>{ const out=[]; if(jeu()<JEU_MIN||lamStatus().contact) out.push('les lamelles du guide'); if(ringContact()) out.push('la bague de table'); if(entrGuide()) out.push('l\'entraîneur (contre le guide)'); return out; };
+/* entraîneur posé avant un recul du guide : son bloc touche les cassettes ou le capot */
+export const entrGuide=()=>st.entr.placed && st.entr.z < entrZ(st.entr.angle)-ENT_CLR-1e-6;
 
 /* raison de refuser l'engagement de la pièce (blocages, pas des fautes) */
 export function passBlock(q, spin){ const t=tool();
@@ -83,6 +85,8 @@ export function computeAlerts(){ const out=[], t=tool(), q=entryPiece();
       else out.push(['info','L\'outil ne touchera pas la pièce avec ces réglages (saillie ou hauteur).']); }
     if(st.entr.placed){ const c=entrPress(H);
       if(c<ENT_PRESS[0]||c>ENT_PRESS[1]) out.push(['warn',`Entraîneur réglé pour une pièce de ${fmt(st.entr.H,0)} mm, celle-ci fait ${fmt(H,0)} mm : replacez-le sur la pièce (rouleaux ${ENT_DOWN} mm sous le dessus).`]);
+      else if(entrGuide()) out.push(['danger','ENTRAÎNEUR CONTRE LE GUIDE : le guide a été déplacé après la mise en place de l\'entraîneur. Arbre arrêté, « Placer sur la pièce » à nouveau.']);
+      else if(Math.min(...rollCover(appui(q)))<10) out.push(['warn',`Pièce étroite pour l'entraîneur : un rouleau ne la presse que sur ${fmt(Math.min(...rollCover(appui(q))),0)} mm (le bloc reste à ${ENT_CLR} mm du guide). Usinez une pièce plus large recoupée ensuite, ou travaillez au protège-mains.`]);
       else out.push(['info',`Entraîneur sur la pièce : rouleaux ${fmt(c)} mm sous le dessus (ressorts), bloc à ${st.entr.angle}° vers le guide, ${st.entr.v} m/min. Mains hors de la zone des rouleaux et de l'outil.`]); }
     else if(!st.prot) out.push(['danger','PROTECTEUR ESCAMOTÉ : les presseurs ne tiennent pas la pièce et ne couvrent pas l\'outil. Mettez le protège-mains à presseurs en place et réglez-le sur la pièce.']);
     else {

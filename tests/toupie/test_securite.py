@@ -79,7 +79,12 @@ async def main():
           await stop(); off2('push'); take('Avivé'); orientTo('F1','C2');
           $('entrOn').click(); out.nonPose=!T.st.entr.on;
           $('entrPlace').click(); const EN=T.st.entr, q=T.pieces.find(p=>p.name==='Avivé');
-          out.place=EN.placed && Math.abs(T.C.heightMm(q)-EN.y-4)<1e-6 && EN.angle===5 && !T.st.prot;
+          out.place=EN.placed && Math.abs(T.C.heightMm(q)-EN.y-4)<1e-6 && EN.angle===3 && !T.st.prot;
+          await sleep(300);   // le modèle suit l'état : aucun point du bloc ne passe derrière le plan du guide (cassettes, capot)
+          { const ST=__atelier.app.stage, V=new ST.THREE.Vector3(), ty=0.87, zG=(T.st.zIn+Math.max(0,T.st.e))/1000; let zmin=9;
+            for(const m of __atelier.app.parts.partMeshes.entraineur){ m.updateWorldMatrix(true,false); const p=m.geometry.attributes.position;
+              for(let i=0;i<p.count;i++){ V.fromBufferAttribute(p,i).applyMatrix4(m.matrixWorld); if(V.y<ty+0.27 && V.z>-0.3 && Math.abs(V.x)<0.9) zmin=Math.min(zmin,V.z); } }
+            out.jeu=Math.round((zmin-zG)*1000*10)/10; }
           $('entrOn').click(); out.avantArbre=!T.st.entr.on;
           await start(); $('entrOn').click(); out.marche=T.st.entr.on;
           out.dang=alerts().filter(a=>a.startsWith('danger'));
@@ -88,7 +93,8 @@ async def main():
           // pièce plus épaisse que celle du réglage : la passe est refusée tant que l'entraîneur n'est pas replacé
           op('back'); op('rot'); await start(); $('pass').click(); await sleep(200); out.refus=q.state==='entry' && alerts()[0].includes('entraîneur');
           return out;'''))
-        check(r['nonPose'] and r['place'], 'entraîneur : marche refusée non posé ; posé sur la pièce 4 mm sous le dessus, à 5° vers le guide, protège-mains escamoté')
+        check(r['nonPose'] and r['place'], 'entraîneur : marche refusée non posé ; posé sur la pièce 4 mm sous le dessus, à 3° vers le guide, protège-mains escamoté')
+        check(r['jeu'] >= 4, f'entraîneur posé : aucun contact avec le guide (bloc à {r["jeu"]} mm devant le plan du guide)')
         check(r['avantArbre'] and r['marche'], 'entraîneur : marche refusée avant l\'arbre, possible après')
         check(not r['dang'] and r['passe'], 'passe à l\'entraîneur sans poussoir ni presseurs : aucune alerte rouge, pièce usinée')
         check(r['arret'], 'arrêt de l\'arbre : l\'entraîneur s\'arrête aussi')

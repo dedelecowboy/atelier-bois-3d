@@ -39,13 +39,23 @@ export function lamStatus(){ if(!st.lam) return {set:false, contact:false, loose
   return {set:true, contact, loose, n}; }
 
 /* ---------- entraîneur ---------- */
-export const ENT_DOWN = 4, ENT_ANGLE = 5;                        // mm sous le dessus de la pièce ; degrés vers le guide
+export const ENT_DOWN = 4, ENT_ANGLE = 3;                        // mm sous le dessus de la pièce ; degrés vers le guide (3° : à 5°, le bout d'entrée s'éloignait trop du guide)
 export const ENT_SPEEDS = [4, 8, 12, 16];                        // vitesses d'avance (m/min)
 export const ENT_ROLL_R = 60, ENT_ROLL_W = 60;                   // rouleaux Ø 120 × 60
 export const ENT_X = [0.20, 0.067, -0.076, -0.221];              // axes des rouleaux le long de l'avance (m) : pas 133, 143, 145 mm
 export const ENT_PRESS = [1, 8];                                 // écrasement des ressorts accepté (mm) : sinon, replacer l'entraîneur
 /* pose l'entraîneur sur la pièce q (hauteur et appui en mm) */
-export function placeEntr(H, A){ Object.assign(st.entr,{ placed:true, on:false, y:Math.round((H-ENT_DOWN)*10)/10, z:Math.round((st.zIn+A/2)*10)/10, angle:ENT_ANGLE, H }); st.prot=false; }
+/* encombrement du bloc vu de dessus (repère du bloc, mm) : demi-longueur du carter, demi-largeur côté guide (carter et rouleaux
+   affleurants), décalage des rouleaux vers le guide ; jeu gardé entre le bloc et le plan du guide (cassettes, capot) */
+export const ENT_HALF_L = 296, ENT_HALF_W = 40, ENT_ROLL_OFF = -10, ENT_CLR = 5;
+/* axe du bloc en travers (mm depuis l'axe de l'arbre) : son coin le plus proche du guide (bout de sortie, tourné vers le guide)
+   reste à ENT_CLR mm devant le plan du guide, sur toute la longueur (aucun contact avec les cassettes ni le capot) */
+export function entrZ(angle=ENT_ANGLE){ const a=angle*Math.PI/180, zG=st.zIn+Math.max(0,st.e);
+  return zG + ENT_HALF_L*Math.sin(a) + ENT_HALF_W*Math.cos(a) + ENT_CLR; }
+/* largeur de pièce pressée par chaque rouleau (mm), pour une pièce d'appui A contre le guide d'entrée */
+export function rollCover(A, z=st.entr.z, angle=st.entr.angle){ const a=angle*Math.PI/180;
+  return ENT_X.map(x=>{ const c=z+x*1000*Math.sin(a)+ENT_ROLL_OFF*Math.cos(a), lo=c-ENT_ROLL_W/2, hi=c+ENT_ROLL_W/2; return Math.max(0, Math.min(hi, st.zIn+A)-Math.max(lo, st.zIn)); }); }
+export function placeEntr(H, A){ Object.assign(st.entr,{ placed:true, on:false, y:Math.round((H-ENT_DOWN)*10)/10, z:Math.round(entrZ()*10)/10, angle:ENT_ANGLE, H, A }); st.prot=false; }
 export function stowEntr(){ Object.assign(st.entr,{ placed:false, on:false }); }
 /* écrasement des rouleaux sur une pièce de hauteur H (mm) */
 export const entrPress=H=>H-st.entr.y;
