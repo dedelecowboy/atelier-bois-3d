@@ -14,6 +14,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Scie radiale « KANAK 900 R » | en essai | `machines/scie-radiale/` |
 | Raboteuse « KANAK 630 E » | en essai | `machines/raboteuse/` |
 | Toupie « KANAK 130 T » (lot 1 : travail au guide) | en essai | `machines/toupie/` |
+| Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
 | Scie à ruban | prévue | |
 
 ## Scie à format KANAK 550
@@ -60,6 +61,16 @@ Après le corroyage : une pièce qui sort de la raboteuse arrive à la toupie av
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 - **Lot 2 (prévu)** : travail à l'arbre et pièces cintrées avec bague de copiage, tenonnage au chariot.
 
+## Tenonneuse KANAK 160 TN
+
+Usinage des bouts des pièces corroyées : affranchissement à longueur, tenons, enfourchements. Machine fictive d'après la tenonneuse simple de l'atelier (chariot roulant à presse-pièce pneumatique, guide orientable et butée de longueur d'arasement, scie d'affranchissement, dérouleurs supérieur et inférieur, unité de toupillage, capot interverrouillé, filin de sécurité). Une pièce qui sort de la raboteuse (ou de la toupie, avec son profil) arrive avec ses faces et ses repères ; ses bouts usinés la suivent (`pieceJSON`).
+
+- **Présentation** : nomenclature de 37 organes, avec les repères du cours « La tenonneuse » du lycée (chariot, table, guide, presse, pupitre, capot, scie, dérouleurs, unité de toupillage, filin et boîtier sectionneur, compteurs de réglage, pare-éclat, graduation angulaire, butée à 90°, butée de longueur…), vue intérieure, vues prédéfinies (outils de près, chariot vu de dessus, bout de la pièce, pupitre), bouton « Pièce à l'entrée ».
+- **Réglages** : bibliothèque d'outils par arbre (lame, dérouleurs ↺ et ↻, fraises à enfourcher, avec leur marquage Ø, n max, MAN, sens) montés machine consignée, capot ouvert, carters déposés, arbre bloqué ; longueur du tenon à la scie, décalage des arasements et profondeur de toupillage sous le capot (sélecteur « Ouverture capot », temporisation) ; hauteur de la joue, épaisseur du tenon et hauteur de toupillage sur le dessus, toujours en montant ; butée de longueur, protecteur avant, pare-éclat à renouveler et usiner à vide, presse, verrouillage du chariot, avance, position des mains. Une vue de côté montre les outils, le bout de la pièce et, en tirets, ce que fera la passe.
+- **Exercices guidés** : tenon simple sur une traverse corroyée (9 × 40 à 9 mm de SR1) ; série de traverses tenonnées aux deux bouts, 500 mm entre arasements (pièce d'essai, butée contre l'arasement, SR1 toujours sur la table) ; enfourchements avec une machine préparée par un autre groupe (fraise trop lente pour l'arbre) et une pièce trop courte à écarter. Contrôle au pied à coulisse et au réglet, éclats, référence.
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+- Non simulés : tenons biais (guide orienté), contre-profil.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -69,7 +80,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
-| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…`, `machines/toupie/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale, la raboteuse et la toupie |
+| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…`, `machines/toupie/data/…`, `machines/tenonneuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale, la raboteuse, la toupie et la tenonneuse |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -83,8 +94,8 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip`, `KANAK130T_toupie_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html`, `tenonneuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
+- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip`, `KANAK130T_toupie_SCORM12.zip`, `KANAK160TN_tenonneuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
 
 Pour une seule machine : `npm run build -- scie-format`.
 
@@ -100,7 +111,7 @@ engine/                  moteur commun à toutes les machines
   parcours.js, scorm.js  parcours évalué et dialogue SCORM 1.2 avec Moodle
   data.js                lecture des fichiers organes / QCM / repérage
   poly.js                géométrie 2D des pièces (découpe, mesures)
-  corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils usinés)
+  corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils, tenonneuse : bouts usinés)
   shell.js, engine.css   squelette HTML et feuille de style communs
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/

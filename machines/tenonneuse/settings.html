@@ -1,0 +1,43 @@
+  <div class="srow">
+    <button class="toggle" id="main" type="button" aria-pressed="true" title="Interrupteur général (armoire électrique) : I / 0">Interrupteur général</button>
+    <button class="toggle" id="cad" type="button" aria-pressed="false" title="Consigner : interrupteur général sur 0, puis cadenas (outils, carters)">Consigner</button>
+    <button class="toggle" id="au" type="button" aria-pressed="false" title="Arrêt d'urgence (coup de poing) : enfoncer / déverrouiller">Arrêt d'urgence</button>
+    <button class="toggle" id="filin" type="button" aria-pressed="false" title="Filin de sécurité : le tirer coupe la machine ; pour le réarmer, tirer le bouton bleu du boîtier sectionneur">Filin de sécurité</button>
+    <button class="toggle" id="rearm" type="button" aria-pressed="false" title="Réarmement (bouton bleu du pupitre)">Réarmement</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="stop" type="button" title="Arrêt de tous les outils (moteurs-freins)">Arrêt</button>
+    <button class="toggle run" type="button" data-run="scie" aria-pressed="false" title="Mise en route de la scie">Scie</button>
+    <button class="toggle run" type="button" data-run="inf" aria-pressed="false" title="Mise en route du dérouleur inférieur">Dérouleur inf.</button>
+    <button class="toggle run" type="button" data-run="sup" aria-pressed="false" title="Mise en route du dérouleur supérieur">Dérouleur sup.</button>
+    <button class="toggle run" type="button" data-run="tou" aria-pressed="false" title="Mise en route de l'unité de toupillage">Toupie</button>
+    <button class="toggle" id="sel" type="button" aria-pressed="false" title="Sélecteur « Ouverture capot » 0 / 1 : sur 1, les outils s'arrêtent ; le capot se déverrouille à leur arrêt complet (temporisation)">Ouverture capot : 0</button>
+    <button class="toggle" id="capot" type="button" aria-pressed="false">Capot fermé</button>
+    <button class="toggle" id="carters" type="button" aria-pressed="true" title="Carters de la scie, des dérouleurs et de l'unité de toupillage (déposés seulement machine consignée, capot ouvert)">Carters en place</button>
+    <button class="toggle" id="pass" type="button" aria-pressed="false" title="Pousse le chariot devant la scie, les dérouleurs et l'unité de toupillage">Pousser le chariot</button>
+    <button class="toggle" id="back" type="button" title="Ramène le chariot en position de chargement">Ramener le chariot</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+    <button class="toggle" id="resetPres" type="button" title="Remet la pièce de départ sur le chariot, machine arrêtée">Pièce à l'entrée</button>
+  </div>
+  <div class="ctl tl" role="group" aria-labelledby="l-outil"><span id="l-outil" class="tl-t">Outils <small>machine consignée, capot ouvert, carters déposés, arbre bloqué</small></span><output id="o-outil"></output>
+    <div class="tl-h" id="heads"></div>
+    <div class="tl-g" id="toolLib"></div>
+    <div class="tl-b"><button class="toggle mini" type="button" id="lock" aria-pressed="false" title="Bloque l'arbre en rotation pour desserrer et serrer l'outil">Bloquer l'arbre</button><button class="toggle mini" type="button" id="flipT" title="Retourne l'outil sur son arbre : ses tranchants tournent alors dans l'autre sens">Retourner l'outil</button><button class="toggle mini" type="button" id="unmount">Démonter</button></div>
+    <p class="tl-i" id="toolInfo"></p>
+    <svg class="prof-svg" id="profSvg" viewBox="0 0 300 160" role="img" aria-label="Vue de côté du bout de la pièce : scie, dérouleurs, unité de toupillage et tenon obtenu"></svg></div>
+  <div class="ctl"><label for="lt">Scie : longueur du tenon (mm) <small class="cap">sous le capot</small></label><input class="num" id="lt-n" type="number" min="10" max="150" step="0.1" aria-label="Longueur du tenon en mm"><input id="lt" type="range" min="10" max="150" step="0.5" value="40"></div>
+  <div class="ctl"><label for="hinf">Dérouleur inférieur : hauteur de la joue (mm)</label><input class="num" id="hinf-n" type="number" min="0" max="80" step="0.1" aria-label="Hauteur de la joue en mm"><input id="hinf" type="range" min="0" max="80" step="0.5" value="9"></div>
+  <div class="ctl"><label for="ep">Épaisseur du tenon (mm)</label><input class="num" id="ep-n" type="number" min="3" max="120" step="0.1" aria-label="Épaisseur du tenon en mm"><input id="ep" type="range" min="3" max="120" step="0.5" value="9"></div>
+  <div class="ctl"><label for="dec">Décalage des arasements (mm) <small class="cap">sous le capot</small></label><input class="num" id="dec-n" type="number" min="-30" max="30" step="0.1" aria-label="Décalage des arasements en mm"><input id="dec" type="range" min="-30" max="30" step="0.5" value="0"></div>
+  <div class="ctl"><label for="ht">Toupillage : hauteur de l'outil (mm)</label><input class="num" id="ht-n" type="number" min="0" max="100" step="0.1" aria-label="Hauteur de l'outil de toupillage en mm"><input id="ht" type="range" min="0" max="100" step="0.5" value="9"></div>
+  <div class="ctl"><label for="pt">Toupillage : profondeur depuis le trait de scie (mm) <small class="cap">sous le capot</small></label><input class="num" id="pt-n" type="number" min="-20" max="100" step="0.1" aria-label="Profondeur d'usinage en mm"><input id="pt" type="range" min="-20" max="100" step="0.5" value="-10"></div>
+  <p class="g-i set-i" id="setInfo"></p>
+  <div class="ctl ch" role="group" aria-labelledby="l-ch"><span id="l-ch" style="font-weight:500">Chariot</span><button class="toggle mini" type="button" id="lockC" aria-pressed="true" title="Verrouillage du chariot en position de chargement">Verrouillé</button>
+    <div class="row" style="grid-column:1/-1" id="avs"></div>
+    <div class="row" style="grid-column:1/-1"><button class="toggle" type="button" data-mains="poignee">Mains sur la poignée</button><button class="toggle" type="button" data-mains="piece">Une main sur la pièce</button></div></div>
+  <div class="ctl"><label for="ang">Guide orientable (°, 0 = d'équerre)</label><input class="num" id="ang-n" type="number" min="0" max="45" step="0.5" aria-label="Angle du guide en degrés"><input id="ang" type="range" min="0" max="45" step="0.5" value="0"></div>
+  <div class="ctl bu" role="group" aria-labelledby="l-bu"><span id="l-bu" style="font-weight:500">Butée de longueur d'arasement</span><button class="toggle mini" type="button" id="butOn" aria-pressed="false">Relevée</button>
+    <label class="bu-l">Distance au plan d'arasement (mm)<input class="num" id="but-n" type="number" min="150" max="1500" step="0.5"></label></div>
+  <div class="ctl pr" role="group" aria-labelledby="l-pr"><span id="l-pr" style="font-weight:500">Presse-pièce, protecteur, pare-éclat</span><button class="toggle mini" type="button" id="presse" aria-pressed="false">Presse desserrée</button>
+    <label class="bu-l">Protecteur avant : hauteur au-dessus du chariot (mm)<input class="num" id="prot-n" type="number" min="5" max="160" step="0.5"></label>
+    <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" id="peNew" title="Décale ou remplace le pare-éclat : bois neuf, à usiner par une passe à vide">Renouveler le pare-éclat</button><button class="toggle mini" type="button" id="peOn" aria-pressed="true">Pare-éclat en place</button></div>
+    <p class="g-i" id="peInfo"></p></div>

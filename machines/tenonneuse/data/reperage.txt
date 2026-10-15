@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = bâti, capot, carters et aspiration translucides (organes intérieurs)
+#     intérieur    = vue d'ensemble du bâti (à combiner avec transparence)
+#     3/4, opérateur, outils, chariot, bout, pupitre = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « outils, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+capot            | 3/4                      | capot de protection
+chariot          | opérateur                | chariot
+guide            | chariot                  | guide du chariot
+presse           | chariot                  | presse-pièce pneumatique
+butee            | chariot                  | butée de longueur d'arasement
+pare_eclat       | chariot                  | pare-éclat
+scie             | outils, transparence     | scie d'affranchissement
+der_sup          | outils, transparence     | dérouleur supérieur
+der_inf          | outils, transparence     | dérouleur inférieur
+toupie           | outils, transparence     | unité de toupillage
+regl_inf         | 3/4                      | réglage de la hauteur du dérouleur inférieur
+filin            | opérateur                | filin de sécurité
+arret_urgence    | pupitre                  | arrêt d'urgence
+ouverture_capot  | pupitre                  | sélecteur d'ouverture du capot
+rearmement       | pupitre                  | bouton de réarmement

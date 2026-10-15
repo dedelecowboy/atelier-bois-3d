@@ -1,0 +1,43 @@
+/* Styles propres à la tenonneuse : outils par arbre, vue de côté du bout, chariot, butée, pièces débitées. */
+.tl{grid-template-columns:1fr auto}
+.tl-t{font-weight:500}
+.tl-t small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.tl-h{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tl-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.tl-h .toggle,.tl-g .toggle,.tl-b .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 6px;text-align:left}
+.tl-b{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px}
+.tl-i,.g-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.set-i{margin:2px 0 6px}
+small.cap{font-weight:400;font-size:11px;color:var(--muted)}
+.prof-svg{grid-column:1/-1;width:100%;height:auto;max-height:180px;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.prof-svg text{font-family:var(--f-mono);font-size:9px;fill:var(--muted)}
+.ch,.bu,.pr{grid-template-columns:1fr auto;align-items:center}
+.bu-l{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+#avs .toggle,[data-mains],#peNew,#peOn{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
+.srow .run[aria-pressed="true"]{background:#2f9a4e;border-color:#2f9a4e;color:#fff}
+.tools .ov{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+#dockSlot .settings{grid-auto-flow:row dense}
+#dockSlot .settings .srow{grid-column:1/-1}
+#dockSlot .settings .tl{grid-column:span 2;grid-row:span 4}
+#dockSlot .prof-svg{max-height:160px}
+.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
+.pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
+.pmes b{color:var(--fg);font-weight:600}
+.dprof,.debit{margin-top:14px}
+.dprof h2 span,.debit h2 span{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-size:12px;color:var(--muted);margin-left:6px}
+.res.faces td:nth-child(2){font-family:var(--f-body);text-align:left;color:var(--muted)}
+.debit-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.debit-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.debit-list li[data-k="interdite"]{opacity:.75}
+.debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.debit-list small{display:block;color:var(--muted);font-size:12px}
+.d-act{display:flex;flex-direction:column;gap:4px}
+.debit-empty{font-size:13px;color:var(--muted)}
+@media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* bouton de remise en place : en présentation seulement (en exercice, « Nouveau lot ») */
+.app:not([data-ui="pres"]) #resetPres{display:none}
+/* parcours évalué : le tableau des bouts est caché (on le mesure à l'étape Contrôle) ; les pièces débitées restent visibles */
+.app[data-ui="parcours"] .dprof{display:none}
+.app[data-ui="parcours"][data-phase="scen"] .debit{display:block}
+/* exercice : la 3D garde de la place, les réglages défilent dans le bandeau du bas */
+@media (min-width:901px){.app[data-ui="ex"] .dock,.app[data-ui="parcours"] .dock{max-height:38vh}}
