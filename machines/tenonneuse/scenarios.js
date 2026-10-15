@@ -10,6 +10,7 @@
 import { st, ctx, tool } from './state.js';
 import { C_HOME, N_HEAD, HEADS, CHUTE_MIN, PROT_JEU } from './constants.js';
 import { toolById, edgesOk } from './tools.js';
+import { peRenew, peMachineAll } from './piece.js';
 import { pieces, newPiece, clearPieces, chariotPiece, atHome, endInfo, fromFace, betweenShoulders, overhang, peKey, H, fmt, cut } from './piece.js';
 import { spinning } from './rules.js';
 import * as C from '../../engine/corroyage.js';
@@ -88,6 +89,8 @@ export const LOADERS=Object.fromEntries(Object.entries(PIECES).map(([m,list])=>[
   const M=MACH[m]; Object.assign(st,BASE,M); st.tools={...M.tools}; st.pe={on:true,key:M.pe};
   st.run={scie:false,inf:false,sup:false,tou:false}; st.flips={scie:false,inf:false,sup:false,tou:false}; st.locks={scie:false,inf:false,sup:false,tou:false}; st.bl={hInf:false,ep:false,ht:false};
   if(m==='libre'){ st.armed=true; st.asp=true; }
+  // pare-éclat neuf, ou usiné par le groupe précédent avec ses réglages (encoche visible, à renouveler)
+  if(M.pe===null) peRenew(); else { peMachineAll(); st.pe.key=M.pe; }
   for(const [k,spec] of list) lot[k]=newPiece(spec); }]));
 
 /* ---------- étapes de chaque mode ---------- */

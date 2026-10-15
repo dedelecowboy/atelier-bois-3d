@@ -10,7 +10,7 @@ import { libFor, toolById, marking, speedCheck, edgesOk } from './tools.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cut, chariotPiece, atHome, startPass, tickPass, returnChariot, placeAll, pieceTop, aside, take, setKind, orient,
-  setZ, zContact, overhang, endInfo, peKey, fromFace, lenFace, betweenShoulders, vmap, predict, newPiece, H, D, fmt, dims, sr1, sr2, endName, FACE_NAME } from './piece.js';
+  setZ, zContact, overhang, endInfo, peKey, peRenew, fromFace, lenFace, betweenShoulders, vmap, predict, newPiece, H, D, fmt, dims, sr1, sr2, endName, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, prediction, CHARGE, INTERV, spinning } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -205,8 +205,8 @@ $('prot-n').addEventListener('change',e=>{ if(!setGuard('régler le protecteur a
 $('butOn').onclick=()=>{ if(!setGuard(st.butOn?'relever la butée':'abaisser la butée',false)) return;
   const q=chariotPiece(); if(!st.butOn && q && q.zEnd>zContact(q)+0.01) return say('La butée tomberait sur la pièce : reculez la pièce (moins de dépassement) ou éloignez la butée.');
   st.butOn=!st.butOn; F.msg=''; apply(); };
-$('peNew').onclick=()=>{ if(!setGuard('renouveler le pare-éclat',false)) return; st.pe={on:true,key:null}; info('Pare-éclat renouvelé (bois neuf au ras du trait de scie) : usinez-le par une passe à vide, outils en marche, avant la pièce d\'essai.'); };
-$('peOn').onclick=()=>{ if(!setGuard(st.pe.on?'retirer le pare-éclat':'remettre le pare-éclat',false)) return; st.pe={on:!st.pe.on,key:null}; F.msg=''; apply(); };
+$('peNew').onclick=()=>{ if(!setGuard('renouveler le pare-éclat',false)) return; st.pe={on:true,key:null}; peRenew(); info('Pare-éclat renouvelé (bois neuf au ras du trait de scie) : usinez-le par une passe à vide, outils en marche, avant la pièce d\'essai.'); };
+$('peOn').onclick=()=>{ if(!setGuard(st.pe.on?'retirer le pare-éclat':'remettre le pare-éclat',false)) return; st.pe={on:!st.pe.on,key:null}; peRenew(); F.msg=''; apply(); };
 $('lockC').onclick=()=>{ if(cut.inProgress) return; if(!st.lockC && !atHome()) return say('Le chariot se verrouille seulement en position de chargement : ramenez-le.'); st.lockC=!st.lockC; F.msg=''; apply(); };
 document.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{ if(cut.inProgress) return; st.av=+b.dataset.av; apply(); });
 document.querySelectorAll('[data-mains]').forEach(b=>b.onclick=()=>{ if(cut.inProgress) return; st.mains=b.dataset.mains; apply(); });

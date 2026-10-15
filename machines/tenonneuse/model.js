@@ -18,8 +18,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const ORANGE= new THREE.MeshStandardMaterial({color:0xe8702a, metalness:0.15, roughness:0.45});
   const GREEN = new THREE.MeshStandardMaterial({color:0x2f7a5a, metalness:0.35, roughness:0.5});
   const PLEX  = new THREE.MeshStandardMaterial({color:0xdde8ee, metalness:0.1, roughness:0.1, transparent:true, opacity:0.35, side:THREE.DoubleSide, depthWrite:false});
-  const WOOD  = new THREE.MeshStandardMaterial({color:0xd9b47e, roughness:0.75});
-  const ALU   = new THREE.MeshStandardMaterial({ color:0xffffff, metalness:0.55, roughness:0.4, map: canvasTex(512,512,(g,w,h)=>{ g.fillStyle='#c9ced2'; g.fillRect(0,0,w,h);
+    const ALU   = new THREE.MeshStandardMaterial({ color:0xffffff, metalness:0.55, roughness:0.4, map: canvasTex(512,512,(g,w,h)=>{ g.fillStyle='#c9ced2'; g.fillRect(0,0,w,h);
     for(let i=0;i<2200;i++){ g.fillStyle=`rgba(${120+Math.random()*80|0},${125+Math.random()*80|0},${130+Math.random()*80|0},.25)`; g.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1); } }) });
   const [X0,X1]=BATI_X, [ZK,ZF]=BATI_Z, TOPY=1.33, HINGE_Z=-0.45, CAP_X1=0.16;
   /* ré-enregistre les maillages d'un organe reconstruit (outil changé) */
@@ -78,14 +77,17 @@ export function buildModel({ root, tagPart, partMeshes }){
   /* ---------- Protecteur avant (bavette sous le bord du capot), réglable en hauteur ---------- */
   const prot=new THREE.Group(); root.add(prot);
   const bav=rbox(CAP_X1-X0-0.06,1,0.008,new THREE.MeshStandardMaterial({color:0x2b2f33,roughness:0.85,transparent:true,opacity:0.92}),0); prot.add(bav);
-  add(prot, rbox(0.04,0.10,0.03,M.alu,0.004), X1-0.30,1.00,0.15); add(prot, cyl(0.012,0.03,M.dark,12,'z'), X1-0.30,1.00,0.175);   // bouton de réglage
+  add(prot, rbox(0.04,0.10,0.03,M.alu,0.004), X0+0.10,1.00,0.15); add(prot, cyl(0.012,0.03,M.dark,12,'z'), X0+0.10,1.00,0.175);   // bouton de réglage
   tagPart(prot,'protecteur');
 
   /* ---------- Compteurs de réglage (orange, à tige six pans) ---------- */
   const counters={};
-  function counter(code,parent,pos,rot=[0,0,0]){ const g=new THREE.Group(); g.position.set(...pos); g.rotation.set(...rot); parent.add(g);
-    add(g, rbox(0.055,0.035,0.045,ORANGE,0.006), 0,0,0); add(g, cyl(0.007,0.05,M.steel,6), 0,0.04,-0.006);
-    const tex=canvasTex(256,64,()=>{}); const disp=new THREE.Mesh(new THREE.PlaneGeometry(0.042,0.011),new THREE.MeshBasicMaterial({map:tex,toneMapped:false})); disp.position.set(0,0.002,0.0226); g.add(disp);
+  /* horiz : tige six pans horizontale vers l'opérateur (+Z), afficheur sur le dessus (compteur de la scie, d'après la photo) */
+  function counter(code,parent,pos,rot=[0,0,0],horiz=false){ const g=new THREE.Group(); g.position.set(...pos); g.rotation.set(...rot); parent.add(g);
+    add(g, rbox(0.055,0.035,0.045,ORANGE,0.006), 0,0,0);
+    if(horiz) add(g, cyl(0.007,0.05,M.steel,6,'z'), 0,0,0.045); else add(g, cyl(0.007,0.05,M.steel,6), 0,0.04,-0.006);
+    const tex=canvasTex(256,64,()=>{}); const disp=new THREE.Mesh(new THREE.PlaneGeometry(0.042,0.011),new THREE.MeshBasicMaterial({map:tex,toneMapped:false}));
+    if(horiz){ disp.rotation.x=-Math.PI/2; disp.position.set(0,0.0177,0.004); } else disp.position.set(0,0.002,0.0226); g.add(disp);
     let last=null; const set=v=>{ const s=String(Math.round(Math.abs(v)*10)).padStart(5,'0'); if(s===last) return; last=s; const c=tex.userData.canvas.getContext('2d'); c.fillStyle='#111'; c.fillRect(0,0,256,64); c.fillStyle='#f0f0f0'; c.font='bold 46px monospace'; c.fillText(s.split('').join(' '),14,48); tex.needsUpdate=true; };
     tagPart(g,code); counters[code]={g,set}; return g; }
   const topY=TOPY+0.03;
@@ -110,7 +112,8 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(sawMot, cyl(0.085,0.26,GREEN,28,'z'), 0,0,-0.17); add(sawMot, cyl(0.03,0.05,M.steel,16,'z'), 0,0,-0.025);
   for(let i=0;i<6;i++) add(sawMot, cyl(0.09,0.006,GREEN,28,'z'), 0,0,-0.07-i*0.035);
   add(sawMot, rbox(0.16,0.03,0.30,HAMM,0.004), 0,-0.10,-0.17);                                   // coulisseau
-  counter('regl_scie',sawMot,[0.13,-0.02,-0.06],[0,0,0]);
+  // compteur de la longueur du tenon : devant la lame, contre le bord gauche de son carter, hors de la zone de coupe (au-dessus du passage des pièces)
+  counter('regl_scie',sawMot,[-0.175,0.03,0.054],[0,0,0],true);
 
   /* ---------- Dérouleurs (porte-outils cylindriques d'axe Z) et leurs moteurs ---------- */
   const derTex=canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#d8dde1'; g.beginPath(); g.arc(w/2,h/2,w/2,0,7); g.fill(); g.fillStyle='#8a9097'; g.beginPath(); g.arc(w/2,h/2,w*0.2,0,7); g.fill();
@@ -195,9 +198,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(guide, rbox(0.06,0.075,GL,ALU,0.006), GUIDE_DX+0.03,TABLE_Y+0.0375,TABLE_Z[0]+GL/2);
   { const r=new THREE.Mesh(new THREE.PlaneGeometry(GL,0.02),new THREE.MeshStandardMaterial({map:rulerTex(1600),roughness:0.6})); r.rotation.set(-Math.PI/2,0,-Math.PI/2); r.position.set(GUIDE_DX+0.03,TABLE_Y+0.0756,TABLE_Z[0]+GL/2); guide.add(r); }
   tagPart(guide,'guide');
-  const peG=new THREE.Group(); chG.add(peG); const peBox=rbox(PE_T/1000,0.035,1,WOOD,0.002); peG.add(peBox);
-  const peNotch=rbox(PE_T/1000+0.001,1,1,new THREE.MeshStandardMaterial({color:0x8a6a3e,roughness:0.9}),0); peG.add(peNotch);
-  tagPart(peG,'pare_eclat');
+  const peG=new THREE.Group(); chG.add(peG);   // pare-éclat : pièce de bois usinée comme les pièces (construite par piece.js)
   const butG=new THREE.Group(); chG.add(butG);
   const butBar=new THREE.Group(); butG.add(butBar);
   add(butBar, rbox(0.07,0.035,0.15,new THREE.MeshStandardMaterial({color:0x5a3b2a,metalness:0.4,roughness:0.5}),0.004), GUIDE_DX+0.03,TABLE_Y+0.093,0);
@@ -308,9 +309,6 @@ export function buildModel({ root, tagPart, partMeshes }){
     { const yb=TABLE_Y+st.protH/1000, yt=1.02; bav.scale.y=Math.max(0.01,yt-yb); bav.position.set((X0+CAP_X1)/2,(yt+yb)/2,0.155); }
     // chariot
     chG.position.x=st.cx;
-    peG.visible=true; if(st.pe.on){ const z0=-st.lt/1000-0.004, z1=0.15; peBox.scale.z=z1-z0; peBox.position.set(GUIDE_DX-PE_T/2000,TABLE_Y+0.0175,(z0+z1)/2);
-      const notched=st.pe.key!==null; peNotch.visible=notched; peNotch.scale.set(1,notched?Math.max(0.004,Math.min(0.035,st.ep/1000)):0.001,Math.max(0.002,st.lt/1000)); peNotch.position.set(GUIDE_DX-PE_T/2000,TABLE_Y+Math.min(0.0175,(st.hInf+st.ep/2)/1000),-st.lt/1000/2); }
-    else { peBox.scale.z=0.30; peBox.position.set(GUIDE_DX+0.20,TABLE_Y-0.12,1.2); peNotch.visible=false; }
     butG.position.z=st.but/1000; finger.rotation.z= st.butOn? 0 : -1.25;
     { const top=st.presse? Math.max(0.005,pieceTop) : Math.max(pieceTop+0.05,0.09); pad.position.set(PAD_X,TABLE_Y+top+0.01,PZ); const y0=TABLE_Y+top+0.02, y1=TABLE_Y+0.24; rod.scale.y=Math.max(0.01,y1-y0); rod.position.set(PAD_X,(y0+y1)/2,PZ); }
     verL.rotation.z= st.lockC? 0 : 0.8;
@@ -337,5 +335,5 @@ export function buildModel({ root, tagPart, partMeshes }){
     touSpin.rotation.y+=spin.tou*dt*1.4;
     if(Math.abs(capAng.cur-capTarget)>1e-3){ capAng.cur+=(capTarget-capAng.cur)*Math.min(1,dt*3); if(Math.abs(capAng.cur-capTarget)<2e-3) capAng.cur=capTarget; capot.rotation.x=-capAng.cur; moved=true; }
     return moved; }
-  return { update, tick, pieceRoot, spin, anySpin, stopNow(){ for(const h of HEADS) spin[h]=0; capAng.cur=st.capot?1.15:0; capot.rotation.x=-capAng.cur; } };
+  return { update, tick, pieceRoot, peG, spin, anySpin, stopNow(){ for(const h of HEADS) spin[h]=0; capAng.cur=st.capot?1.15:0; capot.rotation.x=-capAng.cur; } };
 }

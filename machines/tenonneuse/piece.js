@@ -20,7 +20,26 @@ import { edgesOk } from './tools.js';
 const N = C.N, BIGY = 1e7;
 export const FACE_NAME = C.FACE_NAME;
 let app=null, pieceRoot=null, partMeshes=null, uid=0;
-export function initPieces(a, model){ app=a; pieceRoot=model.pieceRoot; partMeshes=a.parts.partMeshes; }
+let peRoot=null;
+export function initPieces(a, model){ app=a; pieceRoot=model.pieceRoot; peRoot=model.peG; partMeshes=a.parts.partMeshes; }
+
+/* ---------- pare-éclat : martyr en hêtre vissé contre le guide, au ras du trait de scie, usiné par les outils exactement
+   comme la pièce (même calcul de passe, mêmes bouts usinés) ; le chariot le porte, son bout usiné est A (vers les outils) ---------- */
+export const pe={ q:null, mesh:null };
+export function peRenew(){ const q=C.makePiece({L:Math.round(150+st.lt), W:PE_T, T:35, wood:'hetre', rough:0, seed:3});
+  for(const f of C.RING) q.face[f].passes=1;
+  q.zEnd=-st.lt; pe.q=q; peBuild(); }
+/* pare-éclat usiné avec les réglages de départ (machine laissée par un autre groupe) */
+export function peMachineAll(){ peRenew(); const R=predict(pe.q,false); if(R.chute>0){ C.trimEnd(pe.q,'A',R.chute); pe.q.zEnd=R.zEnd; }
+  const E=C.endRec(pe.q,'A'); for(const c of R.cuts){ const {h,...k}=c; E.cuts.push(k); } peBuild(); }
+export function peBuild(){ if(pe.mesh){ peRoot.remove(pe.mesh.parent.parent); pe.mesh.geometry.dispose(); pe.mesh=null; } partMeshes.pare_eclat=[];
+  if(!pe.q) return; const mesh=C.pieceMesh(pe.q); mesh.userData.part='pare_eclat';
+  const inner=new THREE.Group(); inner.add(mesh); const g=new THREE.Group(); g.add(inner); g.rotation.set(0,-Math.PI/2,0); peRoot.add(g);
+  g.updateMatrixWorld(true); const b=new THREE.Box3().setFromObject(mesh), p=new THREE.Vector3(); g.getWorldPosition(p);
+  // position dans le repère du chariot : contre le guide, sur la table, bout usiné en zEnd
+  const ox=b.max.x-p.x, oy=b.min.y-p.y, oz=b.min.z-p.z; g.position.set(GUIDE_DX-ox, TABLE_Y-oy, pe.q.zEnd/1000-oz);
+  g.visible=st.pe.on; if(!st.pe.on) g.position.y-=2;          // retiré : rangé (le Raycaster ignore « visible »)
+  pe.mesh=mesh; partMeshes.pare_eclat=[mesh]; app.stage.dirty(); }
 
 /* ---------- état ---------- */
 export const pieces=[];
@@ -159,7 +178,7 @@ export function startPass(block){
   const q=chariotPiece(), why=block(q); if(why) return why;
   app.recordDangers();                       // faute grave : alerte danger active au moment de pousser le chariot
   cut.res=predict(q,true); cut.mover=q; cut.done={}; cut.inProgress=true; cut.phase='push'; cut.tPrev=null; cut.lastMsg='';
-  cut.peBefore=st.pe.key; cut.peKeyNow=peKey();
+  cut.peBefore=st.pe.key; cut.peKeyNow=peKey(); cut.peRes= st.pe.on&&pe.q? predict(pe.q,true) : null; cut.peDone={};
   if(q) q.log.push({ e:endName(q), down:C.faces(q).down, back:C.faces(q).back, av:st.av, presse:st.presse, chute:0, cuts:[], ec:false,
     tools:Object.fromEntries(HEADS.filter(h=>cut.res.touch.includes(h)).map(h=>[h,st.tools[h]])), done:false });
   return ''; }
@@ -171,6 +190,10 @@ export function tickPass(now, ok){ const dt=Math.min(0.5,now-(cut.tPrev??now)); 
   if(!ok()){ halt(); return true; }          // un arbre utile s'arrête (arrêt d'urgence, filin) : on n'avance plus
   st.cx=Math.max(C_END, st.cx-st.av/60*SPEEDUP*dt);
   const q=cut.mover, R=cut.res, x=center(q);
+  if(cut.peRes){ const P=cut.peRes, xp=st.cx+GUIDE_DX-PE_T/2000;     // le pare-éclat passe devant les outils avec la pièce
+    if(!cut.peDone.scie && xp<=X_SAW){ cut.peDone.scie=true; if(P.chute>0){ C.trimEnd(pe.q,'A',P.chute); pe.q.zEnd=P.zEnd; peBuild(); } }
+    if(!cut.peDone.der && xp<=X_DER){ cut.peDone.der=true; peCuts(P,['inf','sup']); }
+    if(!cut.peDone.tou && xp<=X_TOU){ cut.peDone.tou=true; peCuts(P,['tou']); } }
   if(q){
     if(!cut.done.scie && x<=X_SAW){ cut.done.scie=true; if(R.chute>0){ C.trimEnd(q,endName(q),R.chute); q.zEnd=R.zEnd; cut.chutes++; last(q).chute=R.chute; if(R.chute<CHUTE_MIN) st.wedge=true; build(q); } }
     if(!cut.done.der && x<=X_DER){ cut.done.der=true; applyCuts(q,R,['inf','sup']); }
@@ -179,6 +202,7 @@ export function tickPass(now, ok){ const dt=Math.min(0.5,now-(cut.tPrev??now)); 
   if(st.cx<=C_END+1e-6) finish();
   return true; }
 const last=q=>q.log[q.log.length-1];
+function peCuts(P,hs){ const cs=P.cuts.filter(c=>hs.includes(c.h)); if(!cs.length) return; const E=C.endRec(pe.q,'A'); for(const c of cs){ const {h,...k}=c; E.cuts.push(k); } peBuild(); }
 function applyCuts(q,R,hs){ const cs=R.cuts.filter(c=>hs.includes(c.h)); if(!cs.length) return; const E=C.endRec(q,endName(q));
   for(const c of cs){ const {h,...k}=c; E.cuts.push(k); last(q).cuts.push(h); } if(R.ec){ E.ec=true; last(q).ec=true; } build(q); }
 function finish(){ const q=cut.mover, R=cut.res; cut.phase='end'; cut.inProgress=false;

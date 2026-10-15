@@ -6,7 +6,7 @@
    Le guide (avec son pare-éclat) est à l'arrière du chariot (+X) : la coupe en opposition plaque la pièce contre lui,
    et c'est de ce côté que les outils sortent de la pièce (éclats). */
 export const TABLE_Y = 0.86;                    // dessus de la table du chariot
-export const X_SAW = -0.05, X_DER = -0.50, X_TOU = -0.95;   // scie, dérouleurs, unité de toupillage (axe)
+export const X_SAW = -0.12, X_DER = -0.50, X_TOU = -0.95;   // scie, dérouleurs, unité de toupillage (axe)
 export const C_HOME = 0.35, C_END = -1.55;      // chariot : position de chargement, bout de course (x du milieu de la table)
 export const C_HALF = 0.25;                     // demi-largeur de la table du chariot (le long de X)
 export const GUIDE_DX = 0.20;                   // face du guide, depuis le milieu du chariot
