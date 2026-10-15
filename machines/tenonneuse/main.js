@@ -36,23 +36,35 @@ let svgKey='';
 function bandY(q,c){ const m=vmap(q); if(m.ax!==c.ax) return null; const inv=x=>{ const a=m.f(0), b=m.f(1); return (x-a)/(b-a); }; const y0=inv(c.a), y1=inv(c.b); return [Math.min(y0,y1),Math.max(y0,y1)]; }
 function renderSvg(){ const q=chariotPiece(), R=q? prediction(q) : null, ti=tool('inf'), ts=tool('sup'), tt=tool('tou');
   const key=JSON.stringify([st.lt,st.hInf,st.ep,st.dec,st.ht,st.pt,st.tools,st.flips,st.bl,q&&[q.id,q.k,q.flip,q.L,q.zEnd,q.ends]]); if(key===svgKey) return; svgKey=key;
-  const Hp=q? H(q) : 40, z0=-Math.max(st.lt+30, (ts?ts.Lc:120)*0.6), z1=60, y0=-14, y1=Math.max(Hp+16,60);
-  const s=Math.min(284/(z1-z0), 146/(y1-y0)), X=z=>8+(z-z0)*s, Y=y=>152-(y-y0)*s;
-  const rect=(za,zb,ya,yb,attr)=>{ const xa=X(Math.max(z0,Math.min(za,zb))), xb=X(Math.min(z1,Math.max(za,zb))), yA=Y(Math.min(y1,Math.max(ya,yb))), yB=Y(Math.max(y0,Math.min(ya,yb))); return xb>xa&&yB>yA? `<rect x="${xa.toFixed(1)}" y="${yA.toFixed(1)}" width="${(xb-xa).toFixed(1)}" height="${(yB-yA).toFixed(1)}" ${attr}/>` : ''; };
-  let g='';
-  g+=rect(30,z1,-10,0,'fill="#9aa1a7"');                                                            // table du chariot
-  g+=`<line x1="${X(0)}" y1="${Y(y0)}" x2="${X(0)}" y2="${Y(y1)}" stroke="#888" stroke-dasharray="5 3" stroke-width="1"/>`;
-  if(q){ const z=q.zEnd; g+=rect(z,z1+10,0,Hp,'fill="#d9b483" fill-opacity=".85" stroke="#7a5428" stroke-width="1"');
+  /* vue de côté : z (le long de la pièce) horizontal, outils à gauche, chariot à droite ; y = hauteur au-dessus du chariot */
+  const Hp=q? H(q) : 40, z0=-(st.lt+38), z1=Math.max(45,st.lt*0.6), y0=-22, y1=Hp+22;
+  const W=300, Hs=160, s=Math.min((W-50)/(z1-z0), (Hs-34)/(y1-y0)), X=z=>42+(z-z0)*s, Y=y=>Hs-14-(y-y0)*s;
+  const f1=v=>v.toFixed(1);
+  const rect=(za,zb,ya,yb,attr)=>{ const xa=X(Math.max(z0,Math.min(za,zb))), xb=X(Math.min(z1,Math.max(za,zb))), yA=Y(Math.min(y1,Math.max(ya,yb))), yB=Y(Math.max(y0,Math.min(ya,yb))); return xb>xa&&yB>yA? `<rect x="${f1(xa)}" y="${f1(yA)}" width="${f1(xb-xa)}" height="${f1(yB-yA)}" ${attr}/>` : ''; };
+  const line=(za,ya,zb,yb,attr)=>`<line x1="${f1(X(za))}" y1="${f1(Y(ya))}" x2="${f1(X(zb))}" y2="${f1(Y(yb))}" ${attr}/>`;
+  const txt=(x,y,t,attr='')=>`<text x="${f1(x)}" y="${f1(y)}" ${attr}>${t}</text>`;
+  /* cote : trait fin avec flèches et valeur */
+  const coteH=(za,zb,y,t)=>line(za,y,zb,y,'stroke="var(--fg)" stroke-width=".8" marker-start="url(#ar)" marker-end="url(#ar)"')+txt((X(za)+X(zb))/2,Y(y)-3,t,'text-anchor="middle" class="c"');
+  const coteV=(z,ya,yb,t,left)=>line(z,ya,z,yb,'stroke="var(--fg)" stroke-width=".8" marker-start="url(#ar)" marker-end="url(#ar)"')+txt(X(z)+(left?-3:3),(Y(ya)+Y(yb))/2+3,t,`text-anchor="${left?'end':'start'}" class="c"`);
+  let g='<defs><marker id="ar" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L6,3L0,6z" fill="var(--fg)"/></marker><pattern id="hz" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#c76a14" fill-opacity=".18"/><line x1="0" y1="0" x2="0" y2="5" stroke="#c76a14" stroke-width="1.6"/></pattern></defs>';
+  g+=rect(30,z1+5,-8,0,'fill="#9aa1a7"')+txt(X(z1)-2,Y(-8)+10,'chariot','text-anchor="end"');                      // table du chariot
+  g+=line(0,y0,0,y1,'stroke="var(--muted)" stroke-dasharray="4 3" stroke-width="1"')+txt(X(0)+3,Y(y1)+9,'arasement');
+  // pièce (bouts déjà usinés creusés) et, hachuré, ce que la passe va enlever
+  if(q){ const z=q.zEnd; g+=rect(z,z1+10,0,Hp,'fill="#e2c294" stroke="#7a5428" stroke-width="1"');
     const E=q.ends&&q.ends[endName(q)]; if(E) for(const c of E.cuts){ const yy=bandY(q,c); if(yy) g+=rect(z+c.d0,z+c.d1,yy[0],yy[1],'fill="var(--bg)"'); }
-    if(R){ if(R.chute>0) g+=rect(z,z+R.chute,0,Hp,'fill="none" stroke="#c76a14" stroke-width="1.4" stroke-dasharray="3 2"');
-      for(const c of R.cuts){ const yy=bandY(q,c); if(yy) g+=rect(R.zEnd+c.d0,R.zEnd+c.d1,Math.max(-2,yy[0]),Math.min(Hp+2,yy[1]),'fill="#c76a14" fill-opacity=".18" stroke="#c76a14" stroke-width="1.2" stroke-dasharray="3 2"'); } } }
-  g+=`<line x1="${X(-st.lt)}" y1="${Y(-12)}" x2="${X(-st.lt)}" y2="${Y(y1)}" stroke="#c4261c" stroke-width="1.6"/>`;
-  if(ti) g+=rect(-ti.Lc,0,st.hInf-14,st.hInf,'fill="#6b737a" fill-opacity=".8"');
-  if(ts) g+=rect(-st.dec-ts.Lc,-st.dec,st.hInf+st.ep,st.hInf+st.ep+14,'fill="#6b737a" fill-opacity=".8"');
-  if(tt) g+=rect(-st.lt+st.pt-60,-st.lt+st.pt,st.ht,st.ht+tt.Lc,'fill="#3a6fb0" fill-opacity=".75"');
-  g+=`<text x="${X(-st.lt)+3}" y="${Y(y1)+10}" style="fill:#c4261c">scie</text><text x="${X(0)+3}" y="${Y(y1)+10}">arasement</text><text x="${X(32)}" y="${Y(-10)+9}">chariot</text>`;
-  g+=`<text x="4" y="12">tenon ${fmt(st.lt)} · joue ${fmt(st.hInf)} · ép. ${fmt(st.ep)} mm</text>`;
-  if(R&&(R.cuts.length||R.chute)) g+=`<text x="4" y="24" style="fill:#c76a14">après la passe (tirets)</text>`;
+    if(R){ if(R.chute>0) g+=rect(z,z+R.chute,0,Hp,'fill="url(#hz)"');
+      for(const c of R.cuts){ const yy=bandY(q,c); if(yy) g+=rect(R.zEnd+c.d0,R.zEnd+c.d1,Math.max(0,yy[0]),Math.min(Hp,yy[1]),'fill="url(#hz)"'); } } }
+  // outils : arête de coupe en trait fort, corps en clair
+  const TOOL='fill="#6b737a" fill-opacity=".22" stroke="#3a3f45" stroke-width="1"';
+  if(ti){ g+=rect(-ti.Lc,0,st.hInf-9,st.hInf,TOOL)+line(-ti.Lc,st.hInf,0,st.hInf,'stroke="#3a3f45" stroke-width="2.2"')+txt(X(Math.max(z0,-ti.Lc))+3,Y(st.hInf-9)+8,'dérouleur inf.','class="t"'); }
+  if(ts){ const yb=st.hInf+st.ep; g+=rect(-st.dec-ts.Lc,-st.dec,yb,yb+9,TOOL)+line(-st.dec-ts.Lc,yb,-st.dec,yb,'stroke="#3a3f45" stroke-width="2.2"')+txt(X(Math.max(z0,-st.dec-ts.Lc))+3,Y(yb+9)-2,'dérouleur sup.','class="t"'); }
+  if(tt&&st.pt>0) g+=rect(-st.lt+st.pt-40,-st.lt+st.pt,st.ht,st.ht+tt.Lc,'fill="#3a6fb0" fill-opacity=".55" stroke="#2a5590"');
+  g+=line(-st.lt,y0+4,-st.lt,y1,'stroke="#c4261c" stroke-width="1.8"')+txt(X(-st.lt)-3,Y(y1)+9,'scie','text-anchor="end" style="fill:#c4261c"');
+  // cotes du réglage : longueur du tenon (scie → arasement), joue (hauteur du dérouleur inférieur), épaisseur
+  g+=coteH(-st.lt,0,y0+6,`${fmt(st.lt)}`);
+  const zc=-st.lt-12; g+=coteV(zc,0,st.hInf,`${fmt(st.hInf)}`,true)+coteV(zc+6,st.hInf,st.hInf+st.ep,`${fmt(st.ep)}`,false);
+  if(st.dec) g+=txt(X(-st.dec)+3,Y(st.hInf+st.ep+9)+8,`décalage ${fmt(st.dec)}`,'class="c"');
+  g+=txt(4,10,R&&(R.cuts.length||R.chute)? 'hachuré : matière enlevée par la passe' : 'aucun outil ne touchera la pièce','style="fill:#c76a14"');
   $('profSvg').innerHTML=g; }
 
 /* ---------- bouts de la pièce (mesures) ---------- */
@@ -86,6 +98,21 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
   document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(!loadGuard()) return; const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; app.ex.invalidate(); apply(); }); }
 function renderExtra(){ renderProfile(); renderDebit(); renderSvg(); }
+
+/* ---------- schéma de principe sur la vue 3D : il apparaît dès qu'on touche un réglage, disparaît 6 s après la dernière
+   action (sauf s'il est épinglé) ; les réglages peuvent ainsi rester dans le bandeau sans cacher le schéma ---------- */
+{ const box=document.createElement('div'); box.className='schema'; box.id='schema'; box.hidden=true;
+  box.innerHTML='<div class="schema-h"><b>Schéma du réglage</b><span>vue de côté du bout de la pièce</span><button type="button" class="schema-x" id="schemaX" aria-label="Fermer le schéma">×</button></div><svg class="prof-svg" id="profSvg" viewBox="0 0 300 160" role="img" aria-label="Vue de côté du bout de la pièce : scie, dérouleurs, unité de toupillage et tenon obtenu"></svg>';
+  document.querySelector('.stage').appendChild(box);
+  let pinned=false, t=0;
+  const show=()=>{ box.hidden=false; box.classList.remove('fade'); clearTimeout(t); if(!pinned) t=setTimeout(()=>{ box.classList.add('fade'); t=setTimeout(()=>{ if(!pinned) box.hidden=true; },400); },6000); };
+  const pin=on=>{ pinned=on; $('schemaPin').setAttribute('aria-pressed',String(on)); $('schemaPin').textContent= on? 'Schéma du réglage : épinglé' : 'Schéma du réglage : afficher'; if(on) show(); else { clearTimeout(t); box.hidden=true; } };
+  $('schemaPin').onclick=()=>pin(!pinned);
+  $('schemaX').onclick=()=>pin(false);
+  // toute action sur un réglage (curseur, champ, outil, arbre) montre le schéma
+  const S=$('settings'); for(const ev of ['input','change','pointerdown']) S.addEventListener(ev,e=>{ if(e.target.closest('#schemaPin')) return; if(e.target.closest('input,[data-tool],[data-head],#peNew,#peOn,#butOn,#lock,#flipT,#unmount')) show(); },true);
+  document.querySelector('.dock .tools')?.addEventListener('pointerdown',e=>{ if(e.target.closest('button,input')) show(); });
+}
 
 /* ---------- mise à jour complète ---------- */
 function update(){

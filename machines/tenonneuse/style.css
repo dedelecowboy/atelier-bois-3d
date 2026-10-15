@@ -9,8 +9,18 @@
 .tl-i,.g-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
 .set-i{margin:2px 0 6px}
 small.cap{font-weight:400;font-size:11px;color:var(--muted)}
-.prof-svg{grid-column:1/-1;width:100%;height:auto;max-height:180px;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
-.prof-svg text{font-family:var(--f-mono);font-size:9px;fill:var(--muted)}
+.prof-svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+/* schéma de principe posé sur la vue 3D (en haut à droite), au-dessus de la machine, sans bloquer la rotation ailleurs */
+.schema{position:absolute;z-index:3;top:12px;right:12px;width:min(400px,46%);background:var(--panel,var(--bg));border:1px solid var(--line);border-radius:6px;padding:8px;box-shadow:0 6px 20px rgb(0 0 0 / .18);transition:opacity .4s;opacity:.97}
+.schema.fade{opacity:0}
+.schema-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;font-size:13px}
+.schema-h span{color:var(--muted);font-size:12px;flex:1}
+.schema-x{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}
+#schemaPin{grid-column:1/-1;justify-self:start;text-transform:none;letter-spacing:0;font-size:12px}
+@media (max-width:900px){.schema{width:calc(100% - 24px);top:8px;right:12px}}
+.prof-svg text{font-family:var(--f-mono);font-size:8.5px;fill:var(--muted)}
+.prof-svg text.c{fill:var(--fg);font-size:9px;font-weight:600}
+.prof-svg text.t{font-size:8px}
 .ch,.bu,.pr{grid-template-columns:1fr auto;align-items:center}
 .bu-l{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 #avs .toggle,[data-mains],#peNew,#peOn{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
@@ -18,8 +28,7 @@ small.cap{font-weight:400;font-size:11px;color:var(--muted)}
 .tools .ov{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 #dockSlot .settings{grid-auto-flow:row dense}
 #dockSlot .settings .srow{grid-column:1/-1}
-#dockSlot .settings .tl{grid-column:span 2;grid-row:span 4}
-#dockSlot .prof-svg{max-height:160px}
+#dockSlot .settings .tl{grid-column:span 2;grid-row:span 3}
 .debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
 .pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
 .pmes b{color:var(--fg);font-weight:600}
