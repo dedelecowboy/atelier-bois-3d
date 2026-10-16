@@ -10,14 +10,6 @@
 .set-i{margin:2px 0 6px}
 small.cap{font-weight:400;font-size:11px;color:var(--muted)}
 .prof-svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
-/* schéma de principe posé sur la vue 3D (en haut à droite), au-dessus de la machine, sans bloquer la rotation ailleurs */
-.schema{position:absolute;z-index:3;top:12px;right:12px;width:min(400px,46%);background:var(--panel,var(--bg));border:1px solid var(--line);border-radius:6px;padding:8px;box-shadow:0 6px 20px rgb(0 0 0 / .18);transition:opacity .4s;opacity:.97}
-.schema.fade{opacity:0}
-.schema-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;font-size:13px}
-.schema-h span{color:var(--muted);font-size:12px;flex:1}
-.schema-x{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}
-#schemaPin{grid-column:1/-1;justify-self:start;text-transform:none;letter-spacing:0;font-size:12px}
-@media (max-width:900px){.schema{width:calc(100% - 24px);top:8px;right:12px}}
 .prof-svg text{font-family:var(--f-mono);font-size:8.5px;fill:var(--muted)}
 .prof-svg text.c{fill:var(--fg);font-size:9px;font-weight:600}
 .prof-svg text.t{font-size:8px}

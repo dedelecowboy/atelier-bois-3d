@@ -1,5 +1,6 @@
 /* Tenonneuse KANAK 160 TN : assemblage du module (modèle, outils, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -99,20 +100,9 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; app.ex.invalidate(); apply(); }); }
 function renderExtra(){ renderProfile(); renderDebit(); renderSvg(); }
 
-/* ---------- schéma de principe sur la vue 3D : il apparaît dès qu'on touche un réglage, disparaît 6 s après la dernière
-   action (sauf s'il est épinglé) ; les réglages peuvent ainsi rester dans le bandeau sans cacher le schéma ---------- */
-{ const box=document.createElement('div'); box.className='schema'; box.id='schema'; box.hidden=true;
-  box.innerHTML='<div class="schema-h"><b>Schéma du réglage</b><span>vue de côté du bout de la pièce</span><button type="button" class="schema-x" id="schemaX" aria-label="Fermer le schéma">×</button></div><svg class="prof-svg" id="profSvg" viewBox="0 0 300 160" role="img" aria-label="Vue de côté du bout de la pièce : scie, dérouleurs, unité de toupillage et tenon obtenu"></svg>';
-  document.querySelector('.stage').appendChild(box);
-  let pinned=false, t=0;
-  const show=()=>{ box.hidden=false; box.classList.remove('fade'); clearTimeout(t); if(!pinned) t=setTimeout(()=>{ box.classList.add('fade'); t=setTimeout(()=>{ if(!pinned) box.hidden=true; },400); },6000); };
-  const pin=on=>{ pinned=on; $('schemaPin').setAttribute('aria-pressed',String(on)); $('schemaPin').textContent= on? 'Schéma du réglage : épinglé' : 'Schéma du réglage : afficher'; if(on) show(); else { clearTimeout(t); box.hidden=true; } };
-  $('schemaPin').onclick=()=>pin(!pinned);
-  $('schemaX').onclick=()=>pin(false);
-  // toute action sur un réglage (curseur, champ, outil, arbre) montre le schéma
-  const S=$('settings'); for(const ev of ['input','change','pointerdown']) S.addEventListener(ev,e=>{ if(e.target.closest('#schemaPin')) return; if(e.target.closest('input,[data-tool],[data-head],#peNew,#peOn,#butOn,#lock,#flipT,#unmount')) show(); },true);
-  document.querySelector('.dock .tools')?.addEventListener('pointerdown',e=>{ if(e.target.closest('button,input')) show(); });
-}
+/* ---------- schéma de principe sur la vue 3D (engine/schema.js) ---------- */
+initSchema({ sub:'vue de côté du bout de la pièce',
+  html:'<svg class="prof-svg" id="profSvg" viewBox="0 0 300 160" role="img" aria-label="Vue de côté du bout de la pièce : scie, dérouleurs, unité de toupillage et tenon obtenu"></svg>' });
 
 /* ---------- mise à jour complète ---------- */
 function update(){

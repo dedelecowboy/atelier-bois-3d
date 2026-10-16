@@ -17,6 +17,8 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
 | Scie à ruban | prévue | |
 
+Dans chaque machine, le schéma de principe du réglage s'affiche sur la vue 3D dès qu'on touche un réglage, puis disparaît au bout de 6 s ; le bouton « Schéma du réglage : afficher » le garde à l'écran.
+
 ## Scie à format KANAK 550
 
 - **Présentation** : nomenclature de 22 organes, réglages, vue intérieure, vues prédéfinies, plein écran.
@@ -112,6 +114,7 @@ engine/                  moteur commun à toutes les machines
   data.js                lecture des fichiers organes / QCM / repérage
   poly.js                géométrie 2D des pièces (découpe, mesures)
   corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils, tenonneuse : bouts usinés)
+  schema.js              schéma de principe du réglage posé sur la vue 3D (temporisé ou épinglé)
   shell.js, engine.css   squelette HTML et feuille de style communs
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/

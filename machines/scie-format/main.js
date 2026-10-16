@@ -8,7 +8,8 @@ import reperage from './data/reperage.txt';
 import { MAIN_KERF } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPieces, pieces, cut, rebuildAll, renderDebit, setActive, scoreState, stopPass, updateCut, doOp, resetForMode, sAll } from './pieces.js';
+import { initSchema } from '../../engine/schema.js';
+import { initPieces, A, pieces, cut, rebuildAll, renderDebit, setActive, scoreState, stopPass, updateCut, doOp, resetForMode, sAll } from './pieces.js';
 import { computeAlerts } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -17,6 +18,8 @@ const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
+initSchema({ sub:'vue en bout, depuis l\'opérateur',
+  html:'<svg id="endSvg" viewBox="0 0 300 150" role="img" aria-label="Vue en bout : table, pièce, lame (hauteur et inclinaison) et guide parallèle"></svg>', svgs:['incSvg'] });
 
 /* ---------- schéma de l'inciseur (vue en bout du trait) ---------- */
 function drawIncSvg(){ const el=$('incSvg'); if(!el) return;
@@ -30,6 +33,34 @@ function drawIncSvg(){ const el=$('incSvg'); if(!el) return;
   g+=`<line x1="4" y1="${bot+5}" x2="216" y2="${bot+5}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
   g+=`<text x="6" y="8" font-size="8" fill="var(--muted)">trait de lame ${k.toFixed(1).replace('.',',')} mm</text>`;
   g+=`<text x="214" y="${bot+14}" font-size="8" text-anchor="end" fill="${on?col:'var(--muted)'}">${on? (ok?'incision OK : pas d\'éclat':'incision mal réglée : éclats') : 'inciseur arrêté : éclats en dessous'}</text>`;
+  el.innerHTML=g; }
+
+/* ---------- schéma de principe (vue en bout, depuis l'opérateur) : lame, hauteur, inclinaison, pièce, guide parallèle ---------- */
+function drawEndSvg(){ const el=$('endSvg'); if(!el) return;
+  const p=A(), T=p? Math.round(p.T*1000) : 19, s=0.55, yT=118, bx=196;            // 0,55 px/mm en hauteur ; trait de lame en bx
+  const t=st.t*Math.PI/180, ct=Math.cos(t), Tb=T/ct, over=st.h-Tb, low=st.h<Tb+2, high=st.h>Tb+25;
+  const col= low?'var(--danger)':high?'#c98a12':'var(--ok)';
+  // guide parallèle à gauche (échelle en travers réduite), chariot à droite
+  const gx=bx-12-Math.min(1000,st.r)*0.13;
+  let g=`<rect x="6" y="${yT}" width="${bx+8-6}" height="12" fill="var(--muted)" opacity=".35"/><rect x="${bx+14}" y="${yT-4}" width="${294-bx-14}" height="16" fill="var(--muted)" opacity=".55"/>`;
+  g+=`<text x="${(bx+14+294)/2}" y="${yT+24}" text-anchor="middle" font-size="8" fill="var(--muted)">chariot</text><text x="10" y="${yT+24}" font-size="8" fill="var(--muted)">table</text>`;
+  g+=`<rect x="${gx-8}" y="${yT-36}" width="8" height="36" fill="var(--fg)" opacity=".75"/><text x="${gx-4}" y="${yT-40}" text-anchor="middle" font-size="8" fill="var(--muted)">guide</text>`;
+  // pièce posée sur la table, à cheval sur le trait
+  const pl=Math.max(gx,bx-70), ph=T*s;
+  g+=`<rect x="${pl}" y="${yT-ph}" width="${bx+70-pl}" height="${ph}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/>`;
+  // lame : elle pivote au ras de la table, autour de son trait, vers le guide
+  const H=st.h*s, w=7, rot=-st.t;
+  g+=`<g transform="rotate(${rot} ${bx} ${yT})"><rect x="${bx-w/2}" y="${yT-H}" width="${w}" height="${H}" fill="${col}" opacity=".85"/><rect x="${bx-w/2}" y="${yT}" width="${w}" height="12" fill="${col}" opacity=".3"/>`;
+  g+=`<path d="M${bx-w/2},${yT-H} l2,-4 l2,4 l2,-4 l1,4" fill="none" stroke="var(--fg)" stroke-width=".8"/></g>`;
+  // cotes : hauteur de coupe (le long de la lame), dépassement, guide
+  const ex=bx+12;
+  g+=`<g transform="rotate(${rot} ${bx} ${yT})"><line x1="${ex+8}" y1="${yT}" x2="${ex+8}" y2="${yT-H}" stroke="var(--fg)" stroke-width=".7" marker-start="url(#sfA)" marker-end="url(#sfA)"/></g>`;
+  g+=`<defs><marker id="sfA" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="var(--fg)"/></marker></defs>`;
+  g+=`<line x1="${gx}" y1="${yT-50}" x2="${bx-2}" y2="${yT-50}" stroke="var(--fg)" stroke-width=".7" marker-start="url(#sfA)" marker-end="url(#sfA)"/><text x="${(gx+bx)/2}" y="${yT-54}" text-anchor="middle" font-size="9" fill="var(--fg)" font-weight="600">${st.r} mm</text>`;
+  g+=`<text x="294" y="12" text-anchor="end" font-size="9" fill="var(--fg)" font-weight="600">hauteur ${st.h} mm${st.t?` · lame à ${st.t}°`:''}</text>`;
+  g+=`<text x="294" y="24" text-anchor="end" font-size="8.5" fill="${col}">${low?`lame trop basse : ${Math.round(Tb)+2} mm au moins`:`dépasse de ${Math.round(over)} mm${high?' : trop haute (≈ 10)':' (conseil ≈ 10)'}`}</text>`;
+  g+=`<text x="6" y="12" font-size="8.5" fill="var(--muted)">pièce ép. ${T} mm${st.t?` · ${Math.round(Tb)} mm le long de la lame`:''}</text>`;
+  if(st.mit) g+=`<text x="6" y="24" font-size="8.5" fill="var(--muted)">règle de tronçonnage : onglet ${st.mit}°</text>`;
   el.innerHTML=g; }
 
 /* ---------- flèches de décalage : direction réelle à l'écran de la lame (−Z) et du chariot (+Z) ---------- */
@@ -50,7 +81,7 @@ function update(){
   $('bsabot').setAttribute('aria-pressed',String(st.sabot));
   $('binc').setAttribute('aria-pressed',String(st.inc)); $('binc').textContent=st.inc?'En marche':'Arrêté';
   for(const k of ['incH','incW','incOff']) if(document.activeElement!==$(k)) $(k).value=st[k].toFixed(1);
-  drawIncSvg(); $('gshort').setAttribute('aria-pressed',String(st.guideShort));
+  drawIncSvg(); drawEndSvg(); $('gshort').setAttribute('aria-pressed',String(st.guideShort));
   $('slide').value=st.s;
   $('o-vc').textContent=`Vc ${Math.round(Math.PI*0.4*st.rpm/60)} m/s`;
   document.querySelectorAll('[data-rpm]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.rpm===st.rpm)));

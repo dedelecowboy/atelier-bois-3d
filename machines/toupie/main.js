@@ -1,5 +1,6 @@
 /* Toupie KANAK 130 T : assemblage du module (modèle, outils, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -18,6 +19,7 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
+initSchema({ sub:'coupe vue depuis l\'entrée : outil, guide, presseurs, pièce', svgs:['profSvg'] });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
 const F = app.ex.flash;
