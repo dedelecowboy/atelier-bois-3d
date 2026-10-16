@@ -15,3 +15,4 @@
 .res.faces td:last-child{font-weight:500}
 .app[data-ui="parcours"] .dfaces{display:none}
 @media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.schema #protSvg{max-height:110px}

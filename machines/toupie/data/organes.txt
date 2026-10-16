@@ -1,0 +1,90 @@
+# Nomenclature de la toupie KANAK 130 T
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Bâti en tôle épaisse qui porte la table et l'arbre ; il renferme le moteur, la transmission et la cartouche de l'arbre.
+
+[table] 02 Table
+Table en fonte rainurée, parfaitement plane, avec l'ouverture où passe l'outil. On y améliore le glissement des pièces à la paraffine.
+
+[rallonges] 03 Rallonges de table
+Rallonges d'entrée et de sortie, avec un rouleau en bout : elles soutiennent les pièces longues (servante en plus si besoin).
+
+[bagues] 04 Bague de table
+Bague amovible qui réduit la lumière (l'espace) entre l'outil et la table : choisir la plus petite qui laisse passer l'outil, pour que la pièce ne bascule pas dans l'ouverture.
+
+[arbre] 05 Arbre porte-outil
+Arbre vertical Ø 30, fixe (non inclinable). Sa hauteur se règle au pupitre (toujours en montant) puis se bloque. L'outil y est serré entre des bagues entretoises par l'écrou.
+
+[outil] 06 Outil (fraise ou porte-outil)
+Fraise ou porte-outil monté sur l'arbre, flèche du sens de rotation dessus. Il porte son marquage : diamètre, vitesse maximale (n max), « MAN » pour l'avance manuelle.
+
+[guide_entree] 07 Demi-guide d'entrée
+Cassette à lamelles à droite de l'outil (guide intégral), contre laquelle on plaque la pièce avant l'usinage. Sa position règle la saillie de l'outil, c'est-à-dire la profondeur de passe.
+
+[guide_sortie] 08 Demi-guide de sortie
+Demi-guide à gauche de l'outil, qui soutient la pièce usinée. Aligné avec l'entrée quand une partie seulement de la rive est usinée ; avancé de la profondeur de passe quand toute la rive est usinée.
+
+[lamelles] 09 Lamelles du guide intégral
+Lamelles (entretoises) qui sortent d'une cassette et passent dans l'autre : elles ferment la lumière entre les deux demi-guides au-dessus et au-dessous de l'outil. Seules les lamelles de la zone de coupe restent rentrées, sans toucher l'outil. Elles se règlent arbre arrêté, après la saillie.
+
+[support_guide] 10 Support du guide
+Support fixé sur la table, avec les poignées de blocage, le volant et le compteur de réglage des demi-guides.
+
+[capot_guide] 11 Capot d'aspiration du guide
+Capot orange qui couvre la partie de l'outil qui ne travaille pas et canalise les copeaux vers la buse d'aspiration.
+
+[aspiration] 12 Aspiration
+Buse Ø 120 sur le capot du guide et buse sous la table, reliées à l'aspiration de l'atelier : copeaux et poussières captés à la source. Nettoyage à l'aspirateur, jamais à la soufflette.
+
+[protecteur] 13 Support du protecteur
+Colonne et bras du protège-mains à presseurs, fixés sur le support du guide. Le protecteur s'escamote pour le travail à l'entraîneur.
+
+[presseur_v] 14 Presseur vertical
+Patin qui plaque la pièce sur la table, juste au-dessus de l'outil. Réglé 0,5 à 6 mm sous la hauteur de la pièce ; il fait aussi écran pour les doigts.
+
+[presseur_h] 15 Presseur horizontal (latéral)
+Patin qui plaque la pièce contre le guide devant l'outil. Réglé 0,5 à 6 mm sous la largeur de la pièce ; il sert de garde-main.
+
+[poussoir] 16 Poussoir
+Poussoir en bois pour pousser la fin de la pièce sous les presseurs : les mains restent loin de l'outil en fin de passe.
+
+[pupitre] 17 Pupitre électronique
+Afficheurs de la hauteur de l'arbre (au dixième de millimètre) et de la vitesse de rotation, clavier pour taper la hauteur.
+
+[marche] 18 Boutons marche / arrêt
+Boutons « I » (marche) et « O » (arrêt freiné) de l'arbre, et de l'entraîneur.
+
+[inverseur] 19 Inverseur du sens de rotation
+Commutateur ↺ 0 ↻. Sur ↺ (anti-horaire), l'outil tourne contre l'avance de droite à gauche. Ne se manœuvre qu'arbre arrêté.
+
+[arret] 20 Arrêt d'urgence
+Bouton coup de poing rouge sur fond jaune : coupe le moteur, le frein arrête l'arbre. On le réarme en le tournant.
+
+[verrou] 21 Verrouillage de l'arbre
+Tirette qui bloque l'arbre en rotation pour desserrer et serrer l'écrou de l'outil. Le moteur ne démarre pas arbre verrouillé.
+
+[sectionneur] 22 Interrupteur général (sectionneur)
+Mise sous tension et hors tension, cadenassable : machine consignée pour monter ou démonter l'outil.
+
+[moteur] 23 Moteur-frein
+Moteur de 5,5 kW sous la table, avec frein électrique : l'arbre s'arrête en quelques secondes après « O ».
+
+[transmission] 24 Transmission par poulies étagées
+Courroie entre la poulie étagée du moteur et celle de l'arbre : l'étage choisi donne 4 000, 6 000, 7 000 ou 9 000 tr/min.
+
+[porte] 25 Porte de la transmission
+Porte interverrouillée : on ne l'ouvre (changement de vitesse) que moteur arrêté et arbre immobile.
+
+[entraineur] 26 Entraîneur
+Entraîneur à 4 rouleaux caoutchouc sur ressorts, moteur et sélecteur de vitesse, au bout d'un bras sur colonne. Pour les séries au guide, il pousse la pièce à la place des mains : rouleaux environ 4 mm sous le dessus de la pièce, bloc tourné de quelques degrés vers le guide pour plaquer la pièce. Il prend la place du protège-mains ; il démarre après l'arbre.
+
+[piece] 27 Pièce de bois
+Cliquez une pièce pour la prendre en main (contour orange quand il y en a plusieurs) : face sur la table, face contre le guide, repères (boucle sur SR1, V sur SR2).

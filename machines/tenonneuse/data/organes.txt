@@ -1,0 +1,121 @@
+# Nomenclature de la tenonneuse KANAK 160 TN
+# (repères entre parenthèses : ceux du cours « La tenonneuse » du lycée)
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Bâti en tôle qui porte la glissière du chariot, les outils et leurs moteurs ; il renferme la chambre des outils, sous le capot. (Cours : 1)
+
+[chariot] 02 Chariot
+Chariot roulant (rouge) qui emmène la pièce devant les outils, de droite à gauche. On le pousse par sa poignée, régulièrement, sans forcer ; on le ramène toujours en position de chargement avant de toucher la pièce. (Cours : 2)
+
+[table_chariot] 03 Table support de pièce
+Table en aluminium du chariot, sur laquelle on pose la pièce : SR1 (le parement) sur la table, toujours, aux deux bouts. (Cours : 3)
+
+[guide] 04 Guide
+Guide (règle) du chariot contre lequel on plaque la pièce : SR2 contre le guide au premier bout. Il est gradué et porte la butée de longueur d'arasement. Il est orientable pour les tenons biais. (Cours : 4)
+
+[presse] 05 Presse-pièce pneumatique
+Presseur pneumatique qui serre la pièce sur la table du chariot avant la passe. Une pièce non serrée est entraînée et rejetée par les outils. (Cours : 5)
+
+[pupitre] 06 Tableau de commande
+Pupitre de commande : voyant sous tension, arrêt d'urgence, ouverture du capot, arrêt, réarmement, et mise en route de chaque outil. (Cours : 6)
+
+[aspiration] 07 Aspiration
+Buses et flexibles d'aspiration au-dessus des outils : à mettre en marche avant d'usiner (copeaux, poussières de bois cancérogènes). (Cours : 7)
+
+[capot] 08 Capot de protection
+Grand capot vitré qui couvre tous les outils. Il est verrouillé : on ne l'ouvre qu'avec le sélecteur « Ouverture capot », après l'arrêt complet des outils (temporisation). Capot ouvert, la machine ne démarre pas. (Cours : 8)
+
+[scie] 09 Scie d'affranchissement
+Lame Ø 400 qui coupe le bout de la pièce à longueur avant les dérouleurs : sa position règle la longueur du tenon. (Cours : 9)
+
+[der_sup] 10 Dérouleur supérieur
+Porte-outil cylindrique qui usine la joue du dessus du tenon. Sa hauteur, au-dessus du dérouleur inférieur, règle l'épaisseur du tenon. (Cours : 10)
+
+[der_inf] 11 Dérouleur inférieur
+Porte-outil cylindrique qui usine la joue du dessous du tenon. Sa hauteur règle la position du tenon par rapport à SR1 (la hauteur de la joue). (Cours : 11)
+
+[toupie] 12 Unité de toupillage
+Arbre vertical portant une fraise disque : il usine en bout les enfourchements, ou le profil / contre-profil. (Cours : 12)
+
+[filin] 13 Filin de sécurité
+Câble rouge tendu le long de la machine : le tirer coupe toute la machine. Il est relié au boîtier sectionneur. (Cours : 13)
+
+[regl_tou_h] 14 Réglage de hauteur de l'outil de toupie
+Compteur et tige six pans, sur le dessus de la machine : hauteur de la fraise de l'unité de toupillage. Toujours régler en montant. (Cours : 14 et 30)
+
+[regl_inf] 15 Réglage du dérouleur inférieur (hauteur de la joue)
+Compteur « BAS » sur le dessus de la machine : hauteur du dérouleur inférieur, donc de la joue du dessous et de la position du tenon depuis SR1. Toujours régler en montant. (Cours : 15 et 28)
+
+[regl_ep] 16 Réglage de l'épaisseur du tenon
+Compteur sur le dessus de la machine : écart entre le dérouleur supérieur et le dérouleur inférieur, c'est-à-dire l'épaisseur du tenon. Toujours régler en montant. (Cours : 29)
+
+[regl_scie] 17 Réglage de la longueur du tenon
+Compteur de position de la scie, sous le capot : la scie coupe le bout à cette distance de l'arasement. (Cours : 25)
+
+[regl_dec] 18 Réglage de l'arasement ou décalage des arasements
+Compteur du dérouleur supérieur, sous le capot : il avance l'arasement du dessus vers le bout (arasements décalés, par exemple pour une feuillure). (Cours : 27)
+
+[regl_tou_p] 19 Réglage de la profondeur d'usinage (toupillage)
+Compteur de l'unité de toupillage, sous le capot : profondeur de l'enfourchement depuis le trait de scie. (Cours : 31)
+
+[pare_eclat] 20 Pare-éclat
+Martyr en bois vissé contre le guide : la pièce s'appuie contre lui. Usiné de quelques millimètres une fois les réglages faits, il soutient l'arête de la pièce à la sortie des outils et empêche les éclats. (Cours : 32)
+
+[graduation] 21 Graduation angulaire
+Graduation de la table du chariot pour orienter le guide (tenons biais). (Cours : 33)
+
+[butee90] 22 Butée à 90°
+Butée qui remet le guide d'équerre (90°) après un usinage biais. (Cours : 34)
+
+[butee] 23 Butée de longueur d'arasement
+Butée basculante sur le guide, à taquets de couleur. Pour une série tenonnée aux deux bouts, on la place contre le premier arasement (pas contre le bout du tenon) : la cote utile est la distance entre les deux arasements. (Cours : 35)
+
+[arret_urgence] 24 Arrêt d'urgence
+Coup de poing rouge sur fond jaune : il coupe tous les outils. Il faut le déverrouiller puis réarmer pour redémarrer. (Cours : 16)
+
+[ouverture_capot] 25 Ouverture du capot
+Sélecteur 0 / 1 : sur 1, les outils s'arrêtent et le capot se déverrouille à leur arrêt complet (le voyant s'allume). Capot refermé, sélecteur sur 0, puis réarmer. (Cours : 17)
+
+[arret] 26 Arrêt
+Bouton rouge : arrêt de tous les outils (moteurs freinés). (Cours : 18)
+
+[rearmement] 27 Réarmement
+Bouton bleu : réarme la machine après un arrêt d'urgence, le filin, l'ouverture du capot ou une mise sous tension. (Cours : 19)
+
+[marche] 28 Mise en route des outils
+Boutons verts : toupie, dérouleur inférieur, dérouleur supérieur, scie. Chaque outil se met en route séparément. (Cours : 20 à 23)
+
+[boitier] 29 Boîtier sectionneur
+Boîtier relié au filin : partie verte visible = armé, machine utilisable ; bouton bleu enfoncé = déclenché. Pour réarmer : tirer le bouton bleu, puis réarmer au pupitre. (Cours : 24)
+
+[sectionneur] 30 Interrupteur général
+Interrupteur général cadenassable, sur l'armoire électrique : on consigne la machine (0 + cadenas) pour changer un outil ou déposer un carter.
+
+[armoire] 31 Armoire électrique
+Armoire de l'appareillage électrique, au bout gauche de la machine.
+
+[carters] 32 Carters des outils
+Carters gris autour de la scie, des dérouleurs et de l'unité de toupillage. Déposés seulement machine consignée, pour changer un outil ; toujours remis avant de démarrer.
+
+[protecteur] 33 Protecteur avant
+Bavette réglable sous le bord du capot, au-dessus du passage de la pièce : à régler au plus près de la pièce (juste au-dessus).
+
+[verrou_chariot] 34 Verrouillage du chariot
+Levier qui bloque le chariot en position de chargement pendant qu'on pose, retourne ou desserre la pièce.
+
+[rail] 35 Glissière du chariot
+Barres de guidage du chariot, le long de la machine.
+
+[moteurs] 36 Moteurs des outils
+Moteurs-freins de la scie, des dérouleurs et de l'unité de toupillage : un moteur par outil, freiné à l'arrêt.
+
+[piece] 37 Pièce de bois
+Pièce corroyée (SR1 et SR2 repérés) à tenonner en bout.
