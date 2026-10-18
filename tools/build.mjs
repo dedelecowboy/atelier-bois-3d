@@ -82,7 +82,8 @@ async function buildMachine(id){
   const js = out.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
   const css = read(path.join(ROOT, 'engine', 'engine.css')) + readIf(path.join(dir, 'style.css'));
   const shell = renderShell(config, {
-    settings: readIf(path.join(dir, 'settings.html')), dock: readIf(path.join(dir, 'dock.html')), panel: readIf(path.join(dir, 'panel.html')) });
+    settings: readIf(path.join(dir, 'settings.html')), dock: readIf(path.join(dir, 'dock.html')), panel: readIf(path.join(dir, 'panel.html')),
+    pupitre: readIf(path.join(dir, 'pupitre.html')) });
   const importmap = map => `<script type="importmap">\n{"imports":{${map}}}\n</script>`;
   const style = `<style>\n${css}</style>`;
   const script = `<script type="module">\n${js}</script>`;

@@ -18,7 +18,6 @@
 #entrV .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
 #dockSlot .settings{grid-auto-flow:row dense}
 #dockSlot .settings .srow{grid-column:1/-1}
-#dockSlot .settings .tl{grid-column:span 2;grid-row:span 4}
 #dockSlot .prof-svg{max-height:150px}
 .debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
 .pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}

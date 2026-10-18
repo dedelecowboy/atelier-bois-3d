@@ -1,6 +1,7 @@
 /* Toupie KANAK 130 T : assemblage du module (modèle, outils, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -19,7 +20,19 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
-initSchema({ sub:'coupe vue depuis l\'entrée : outil, guide, presseurs, pièce', svgs:['profSvg'] });
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D : organes de chaque famille */
+initFamilies(app, {
+  parts:{ machine:['bati','table','rallonges','sectionneur','aspiration','moteur'], outil:['outil','arbre','verrou','inverseur','transmission','porte'],
+    guidage:['guide_entree','guide_sortie','lamelles','support_guide'], protection:['capot_guide','protecteur','presseur_v','presseur_h','bagues'],
+    piece:['piece','poussoir','entraineur'], pupitre:['pupitre','marche','arret'] },
+  summary:{
+    machine:()=>`${st.cad?'consignée':st.main?'sous tension':'hors tension'} · aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>{ const t=tool(); return t? `${t.short}${st.flip?' (retourné)':''} · ${st.rpm.toLocaleString('fr-FR')} tr/min · ${st.dir===1?'↺':st.dir===-1?'↻':'0'} · h ${fmt(st.h)} mm` : 'aucun outil'; },
+    guidage:()=>{ const L=lamStatus(); return `saillie ${fmt(saillie())} · sortie ${fmt(st.e)} mm · lamelles ${!L.set?'ouvertes':L.contact?'à refermer':'fermées'}`; },
+    protection:()=>`${st.ring<320?'bague Ø '+st.ring:'sans bague'} · ${st.entr.placed?'entraîneur en place':st.prot?`presseurs ${fmt(st.hv,0)} / ${fmt(st.dh,0)} mm`:'protecteur escamoté'}`,
+    avance:()=> st.entr.placed? `entraîneur posé · ${st.entr.v} m/min${st.entr.on?' · en marche':''}` : 'entraîneur escamoté',
+    piece:()=>{ const q=entryPiece()||selPiece(); return `${q? q.name+' · '+(q.state==='exit'?'à la sortie':'à l\'entrée') : 'aucune pièce'} · poussoir ${st.push?'en main':'posé'}`; } } });
+initSchema({ sub:'coupe vue depuis l\'entrée : outil, guide, presseurs, pièce', svgs:['profSvg'], pinIn:'famBar' });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
 const F = app.ex.flash;
@@ -109,10 +122,12 @@ function update(){
   $('prot').textContent= st.prot? 'En place' : 'Escamoté';
   { const L=lamStatus(); $('lam').setAttribute('aria-pressed',String(L.set&&!L.contact&&!L.loose)); }
   $('entrPlace').setAttribute('aria-pressed',String(st.entr.placed)); $('entrPlace').textContent= st.entr.placed? 'Escamoter' : 'Placer sur la pièce';
-  $('entrOn').setAttribute('aria-pressed',String(st.entr.on)); $('entrOn').textContent= st.entr.on? 'En marche' : 'Marche';
+  $('entrOn').setAttribute('aria-pressed',String(st.entr.on));
   document.querySelectorAll('[data-ev]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.ev===st.entr.v)));
   $('o-entr').textContent= st.entr.placed? `posé · ${st.entr.v} m/min` : 'escamoté';
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('entrOn').textContent= st.entr.on? 'O · Entraîneur' : 'I · Entraîneur';
+  $('pupH').textContent=(st.h<0?'−':'')+fmt(Math.abs(st.h)); $('pupN').textContent= st.motor? st.rpm.toLocaleString('fr-FR') : '0';
   document.querySelector('[data-op=push]').setAttribute('aria-pressed',String(st.push));
   document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===st.tool)));
   document.querySelectorAll('[data-dir]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.dir===st.dir)));

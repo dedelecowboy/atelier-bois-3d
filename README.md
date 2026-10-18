@@ -115,6 +115,7 @@ engine/                  moteur commun à toutes les machines
   poly.js                géométrie 2D des pièces (découpe, mesures)
   corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils, tenonneuse : bouts usinés)
   schema.js              schéma de principe du réglage posé sur la vue 3D (temporisé ou épinglé)
+  families.js            réglages en panneaux colorés par famille, alertes dans leur panneau, lien avec la 3D
   shell.js, engine.css   squelette HTML et feuille de style communs
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/

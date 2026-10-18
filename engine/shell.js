@@ -1,11 +1,12 @@
 /* Squelette HTML commun, produit au moment de la fabrication (tools/build.mjs) à partir de la
-   configuration de la machine et de ses fragments HTML (réglages, dock, panneau d'exercice). */
+   configuration de la machine et de ses fragments HTML (réglages, dock, panneau d'exercice, pupitre).
+   pupitre.html (facultatif) : commandes de marche (agir), barre posée en bas de la vue 3D, fixée en bas de l'écran sur téléphone. */
 const esc = s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 export function renderShell(c, frag){
   const modes = c.modes.map(m=>`<button class="toggle" type="button" data-mode="${m.id}" id="m-${m.btnId||m.id}" title="${esc(m.title)}">${m.label}</button>`).join('');
   const views = c.views.filter(v=>!v.hidden).map(v=>`<button id="${v.id}" type="button"${v.title?` title="${esc(v.title)}"`:''}>${v.label}</button>`).join('');
-  return `<div class="app" id="app" data-ui="pres">
+  return `<div class="app${frag.pupitre?' has-pup':''}" id="app" data-ui="pres">
   <header class="top">
     <div class="brand"><h1>${c.title}</h1></div>
     <div class="seg2" role="group" aria-label="Mode d'affichage"><button class="toggle" type="button" data-ui="pres" id="ui-pres">Présentation</button><button class="toggle" type="button" data-ui="ex" id="ui-ex">Exercice</button></div>
@@ -24,6 +25,7 @@ export function renderShell(c, frag){
     <div class="lost" id="lost" hidden><p>L'affichage 3D a été interrompu par la carte graphique.</p><button class="toggle" id="relaunch" type="button">Relancer l'affichage</button></div>
     <div class="tag"><div class="chip" id="info"><b>${c.info.title}</b><span>${c.info.text}</span></div></div>
   </div>
+  ${frag.pupitre?`<div class="pupitre" id="pupitre" role="group" aria-label="Pupitre de commande">${frag.pupitre}</div>`:''}
   <aside class="right" id="right">
     <div id="parcoursPanel" class="parc"><h2>${c.parcoursTitle}</h2><ol class="parc-steps" id="parcSteps"></ol><div class="parc-card" id="parcCard"></div></div>
     <div id="exPanel">

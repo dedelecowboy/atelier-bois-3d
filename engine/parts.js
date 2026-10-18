@@ -22,7 +22,7 @@ export function createParts(stage, PARTS, cfg){
   }
   const infoDefault = $('info').innerHTML;
   /* surbrillance ; quiet = sans afficher le nom (repérage évalué) */
-  function select(k,quiet){
+  function select(k,quiet){ highlight(null);
     if(selected) for(const m of partMeshes[selected]) if(m.userData.orig){ m.material=m.userData.orig; }
     selected=k;
     list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.k===k)));
@@ -32,10 +32,22 @@ export function createParts(stage, PARTS, cfg){
     else $('info').innerHTML=infoDefault;
   }
 
+  /* surbrillance d'une famille d'organes (panneau de réglage survolé, engine/families.js), teinte de la famille ;
+     passagère : effacée par select() et setXray() */
+  let hl=[]; const hlMats=new Map();
+  function highlight(keys,color){
+    for(const m of hl) if(m.userData.hlOrig){ m.material=m.userData.hlOrig; delete m.userData.hlOrig; } hl=[];
+    if(keys&&keys.length){ const col=new THREE.Color(color);
+      const tint=mat=>{ const k=mat.uuid+'|'+color; if(!hlMats.has(k)){ const c=mat.clone(); if(c.color) c.color=c.color.clone().lerp(col,0.6);
+          if(c.emissive){ c.emissive=col.clone(); c.emissiveIntensity=0.35; } if(mat.clippingPlanes) c.clippingPlanes=mat.clippingPlanes; hlMats.set(k,c); } return hlMats.get(k); };
+      for(const k of keys) if(k!==selected) for(const m of partMeshes[k]||[]){ if(m.userData.hlOrig) continue;
+        m.userData.hlOrig=m.material; m.material=Array.isArray(m.material)? m.material.map(tint) : tint(m.material); hl.push(m); } }
+    stage.dirty(); }
+
   /* vue intérieure : organes de cfg.xray.parts rendus translucides */
   const X = cfg.xray || {parts:[]};
   let xray=false;
-  function setXray(on,moveCam){ xray=on; $('xray')?.setAttribute('aria-pressed',String(xray));
+  function setXray(on,moveCam){ highlight(null); xray=on; $('xray')?.setAttribute('aria-pressed',String(xray));
     for(const [k,op] of X.parts) for(const m of partMeshes[k]||[]){ for(const mat of [m.userData.orig&&m.material!==m.userData.orig?m.userData.orig:null, m.material]) if(mat){
       if(!mat.userData.base) mat.userData.base={t:mat.transparent,o:mat.opacity,d:mat.depthWrite};   // une étiquette (texture transparente) le reste en sortant de la vue intérieure
       const b=mat.userData.base; mat.transparent=xray||b.t; mat.opacity=xray?op*b.o:b.o; mat.depthWrite=xray?false:b.d; mat.needsUpdate=true; } m.castShadow=!xray; }
@@ -55,7 +67,7 @@ export function createParts(stage, PARTS, cfg){
     const hit=hits.find(h=>h.object.userData.part);
     select(hit? (hit.object.userData.part===selected?null:hit.object.userData.part) : null); });
 
-  return { PARTS, partMeshes, tagPart, select, setXray, hiddenByXray,
+  return { PARTS, partMeshes, tagPart, select, setXray, hiddenByXray, highlight,
     get xray(){ return xray; }, get selected(){ return selected; },
     onPick(fn){ pickHook=fn; } };
 }
