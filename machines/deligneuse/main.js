@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -16,7 +17,19 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
-initSchema({ sub:'presseurs, guide et traits de scie',
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','moteur','transmission','aspiration'], outil:['lames','manchon'], guidage:['guide','reglage_guide','laser'],
+    protection:['presseurs','reglage_presseurs','linguets','rideau','capot'], avance:['tapis','vitesse','moteur_avance','table_entree','table_sortie'],
+    pupitre:['pupitre','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>({m1:'1 lame',m2:'2 lames · 140',m4:'4 lames · 45'})[st.man]||st.man,
+    guidage:()=> st.guideUp? `guide à ${st.gw} mm${st.laser?' · laser':''}` : `guide escamoté${st.laser?' · laser':''}`,
+    protection:()=>`passage ${st.H} mm`,
+    avance:()=>`${st.v} m/min · tapis ${st.tapis?'en marche':'arrêté'}`,
+    piece:()=>{ const e=entry(); return e? `${e.L} × ${e.T} à l'entrée` : exitPieces().length? 'pièces à la sortie' : 'aucune pièce'; } } });
+initSchema({ pinIn:'famBar', sub:'presseurs, guide et traits de scie',
   html:'<svg id="presSvg" viewBox="0 0 300 108" role="img" aria-label="Vue de côté : tapis, pièce et rouleaux presseurs"></svg>', svgs:['planSvg'] });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
@@ -95,6 +108,7 @@ function update(){
   model.update({ H:st.H, guideZ:guideZ(), guideUp:st.guideUp, under, laser:st.laser, bladeZs:bladeZ(), surf, laserKey:laserKey(), amp:ampNow() });
   for(const k of ['motor','tapis','asp','laser']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
+  $('motor').textContent= st.motor? 'O · Lames' : 'I · Lames'; $('tapis').textContent= st.tapis? 'O · Tapis' : 'I · Tapis'; $('pupV').textContent= st.tapis? String(st.v) : '0';
   $('gup').setAttribute('aria-pressed',String(st.guideUp)); $('gup').textContent=st.guideUp?'Guide en place':'Guide escamoté';
   document.querySelectorAll('[data-man]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.man===st.man)));
   $('o-speed').textContent=`${st.v} m/min`; $('speed').value=st.v;

@@ -19,25 +19,25 @@ export function protState(){ const m=mode(); return { m, H:heightMm(), ok: st.be
 /* raison de bloquer la passe */
 export function passBlock(){ return st.motor? '' : 'Moteur arrêté : la pièce bute contre les fers.'; }
 
-export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger',cut.blocked]); if(!p) return out;
+export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger',cut.blocked,'piece']); if(!p) return out;
   const f=faces(), P=protState();
-  if(p.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE (${p.L} mm) : moins de ${MIN_LEN} mm, les mains passent trop près de l'arbre. N'usinez pas cette pièce.`]);
-  if(rocking()) out.push(['danger','PIÈCE INSTABLE : la face bombée repose sur la table, la pièce bascule pendant la passe. Retournez-la : le creux sur la table.']);
+  if(p.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE (${p.L} mm) : moins de ${MIN_LEN} mm, les mains passent trop près de l'arbre. N'usinez pas cette pièce.`,'piece']);
+  if(rocking()) out.push(['danger','PIÈCE INSTABLE : la face bombée repose sur la table, la pièce bascule pendant la passe. Retournez-la : le creux sur la table.','piece']);
   if(P.m==='plat'){
-    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le plat, mettez le bec à la verticale. Horizontal, il fait écarter la couverture sur le côté : elle ne recouvre plus la pièce et les mains passent au-dessus de l\'arbre.']);
+    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le plat, mettez le bec à la verticale. Horizontal, il fait écarter la couverture sur le côté : elle ne recouvre plus la pièce et les mains passent au-dessus de l\'arbre.','protection']);
   } else {
-    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le chant, mettez le bec à l\'horizontale. Vertical, il fait monter la couverture sur la pièce : l\'arbre reste découvert devant la pièce.']);
+    if(!P.ok) out.push(['danger','BEC D\'ENGAGEMENT MAL ORIENTÉ : pour dresser le chant, mettez le bec à l\'horizontale. Vertical, il fait monter la couverture sur la pièce : l\'arbre reste découvert devant la pièce.','protection']);
     const todo=!isFlat(f.down)||cut.inProgress;          // conseils de qualité seulement s'il reste à usiner ce chant
-    if(todo&&!againstGuide()) out.push(['warn','Plaquez la face dressée (SR1) contre le guide (« Contre le guide »).']);
-    else if(todo&&!isFlat(f.back)) out.push(['warn',`La face contre le guide (${FACE_NAME[f.back].toLowerCase()}) n'est pas dressée : le chant ne sera pas d'équerre. Dressez d'abord le plat (SR1).`]);
-    if(todo&&Math.abs(st.ga-90)>0.01) out.push(['warn',`Guide incliné à ${st.ga.toLocaleString('fr-FR')}° : pour un chant d'équerre, réglez le guide à 90°.`]);
+    if(todo&&!againstGuide()) out.push(['warn','Plaquez la face dressée (SR1) contre le guide (« Contre le guide »).','piece']);
+    else if(todo&&!isFlat(f.back)) out.push(['warn',`La face contre le guide (${FACE_NAME[f.back].toLowerCase()}) n'est pas dressée : le chant ne sera pas d'équerre. Dressez d'abord le plat (SR1).`,'piece']);
+    if(todo&&Math.abs(st.ga-90)>0.01) out.push(['warn',`Guide incliné à ${st.ga.toLocaleString('fr-FR')}° : pour un chant d'équerre, réglez le guide à 90°.`,'guidage']);
   }
-  if(st.d>2) out.push(['warn',`Passe trop forte (${st.d.toLocaleString('fr-FR')} mm) : 1 à 2 mm pour dégauchir, moins pour finir.`]);
-  else if(st.d===0) out.push(['info','Profondeur de passe nulle : la table d\'entrée est au niveau de la table de sortie, rien ne sera enlevé.']);
-  if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant d\'usiner (les poussières de bois sont cancérogènes).']);
+  if(st.d>2) out.push(['warn',`Passe trop forte (${st.d.toLocaleString('fr-FR')} mm) : 1 à 2 mm pour dégauchir, moins pour finir.`,'outil']);
+  else if(st.d===0) out.push(['info','Profondeur de passe nulle : la table d\'entrée est au niveau de la table de sortie, rien ne sera enlevé.','outil']);
+  if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant d\'usiner (les poussières de bois sont cancérogènes).','machine']);
   if(!st.motor) out.push(['info','Moteur arrêté : démarrez-le avant la passe.']);
   if(cut.inProgress) out.push(['info','Passe en cours : poussez la pièce régulièrement, sans vous arrêter, en appuyant sur la table de sortie.']);
-  if(cut.done) out.push(['warn','Passe terminée : ramenez la pièce en la soulevant (« Ramener la pièce »), sans la faire repasser sur l\'arbre.']);
+  if(cut.done) out.push(['warn','Passe terminée : ramenez la pièce en la soulevant (« Ramener la pièce »), sans la faire repasser sur l\'arbre.','piece']);
   return out; }
 
 /* ---------- mesures ---------- */

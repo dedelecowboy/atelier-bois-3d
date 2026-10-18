@@ -1,19 +1,29 @@
+  <section class="fam" data-fam="machine" data-key="machine">
   <div class="srow">
-    <button class="toggle" id="motor" type="button" aria-pressed="true">Moteur</button>
-    <button class="toggle" id="pass" type="button" aria-pressed="false">Passe de coupe</button>
     <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
   </div>
-  <div class="ctl"><label for="slide">Position du chariot</label><output id="o-slide"></output><input id="slide" type="range" min="-1500" max="1500" step="5" value="1450"></div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil" data-title="Lame">
   <div class="ctl"><label for="height">Hauteur de coupe</label><output id="o-height"></output><input id="height" type="range" min="5" max="140" step="1" value="80"></div>
   <div class="ctl"><label for="tilt">Inclinaison de lame</label><output id="o-tilt"></output><input id="tilt" type="range" min="0" max="46" step="0.5" value="0"></div>
-  <div class="ctl"><label for="mit">Règle de tronçonnage : onglet (0 = d'équerre)</label><output id="o-mit"></output><input id="mit" type="range" min="0" max="45" step="0.5" value="0"></div>
-  <div class="ctl"><label for="stop">Butée de longueur (mm)</label><input class="num" id="stop-n" type="number" min="100" max="2500" step="1" aria-label="Butée de longueur en mm"><input id="stop" type="range" min="100" max="2500" step="1" value="955"></div>
   <div class="ctl" role="group" aria-labelledby="l-rpm"><span id="l-rpm" style="font-weight:500">Vitesse de rotation</span><output id="o-vc"></output>
     <div class="row" style="grid-column:1/-1">
       <button class="toggle" type="button" data-rpm="3000" id="rpm3">3 000</button><button class="toggle" type="button" data-rpm="4000" id="rpm4">4 000</button><button class="toggle" type="button" data-rpm="5000" id="rpm5">5 000 tr/min</button>
     </div></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="regle" data-title="Règle de tronçonnage">
+  <div class="ctl"><label for="mit">Règle de tronçonnage : onglet (0 = d'équerre)</label><output id="o-mit"></output><input id="mit" type="range" min="0" max="45" step="0.5" value="0"></div>
+  <div class="ctl"><label for="stop">Butée de longueur (mm)</label><input class="num" id="stop-n" type="number" min="100" max="2500" step="1" aria-label="Butée de longueur en mm"><input id="stop" type="range" min="100" max="2500" step="1" value="955"></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guide" data-title="Guide parallèle">
   <div class="ctl"><label for="rip">Guide parallèle (mm)</label><input class="num" id="rip-n" type="number" min="20" max="1000" step="1" aria-label="Guide parallèle en mm"><input id="rip" type="range" min="20" max="1000" step="1" value="320"></div>
   <div class="srow"><button class="toggle" type="button" id="gshort" aria-pressed="false">Règle du guide en position courte</button><button class="toggle" type="button" id="bsabot" aria-pressed="false">Sabot de délignage monté</button></div>
+  </section>
+  <section class="fam" data-fam="piece" data-key="chariot" data-title="Chariot">
+  <div class="ctl"><label for="slide">Position du chariot</label><output id="o-slide"></output><input id="slide" type="range" min="-1500" max="1500" step="5" value="1450"></div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="inciseur" data-title="Inciseur">
   <div class="ctl incb" role="group" aria-labelledby="l-inc"><span id="l-inc" class="incb-t">Inciseur <small>réglages en mm</small></span><button class="toggle mini" type="button" id="binc" aria-pressed="false">Arrêté</button>
     <div class="inc-g"><label>Hauteur<input class="num" id="incH" type="number" min="0" max="5" step="0.1"></label><label>Largeur<input class="num" id="incW" type="number" min="3" max="5" step="0.1"></label><label>Décalage<input class="num" id="incOff" type="number" min="-1.5" max="1.5" step="0.1"></label></div>
     <svg class="inc-svg" id="incSvg" viewBox="0 0 220 74" role="img" aria-label="Schéma en bout du trait de scie et de l'incision"></svg></div>
+  </section>

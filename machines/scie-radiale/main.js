@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -16,7 +17,18 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
-initSchema({ sub:'vue de dessus de la table et protecteur avant',
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','table','colonne','aspiration','servante','table_sortie'], outil:['lame','fixation','bras','chariot','rotation','inclinaison','manivelle','ressort','moteur','poignee'],
+    guidage:['guide','butee','regle_butee'], protection:['protecteur','carter'], pupitre:['commande','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>`bras ${st.alpha}° · lame ${st.beta}° · ${st.lock?'bloqués':'débloqués'}`,
+    guidage:()=> st.stopOn? `butée en service à ${st.stopL} mm` : `butée relevée (${st.stopL} mm)`,
+    protection:()=>`protecteur à ${st.prot} mm`,
+    main:()=>`${st.handD} mm du trait`,
+    piece:()=>{ const t=onTable(); return t.length? `${t.length} pièce${t.length>1?'s':''} sur la table` : 'table libre'; } } });
+initSchema({ pinIn:'famBar', sub:'vue de dessus de la table et protecteur avant',
   svgs:['planSvg'], html:'<svg id="protSvg" viewBox="0 0 300 104" role="img" aria-label="Vue de côté : guide, pièce, lame et bord bas du protecteur avant"></svg>' });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
@@ -101,6 +113,7 @@ function update(){
   model.update({ alpha:st.alpha, beta:st.beta, s:head.s, prot:st.prot, stopX:stopX(), stopOn:st.stopOn,
     zone:zonePoly(), hand:{ show:t.length>0, x:hx[0], y:TABLE_Y+(onW&&p? p.prof.T/1000 : 0)+0.001, z:hx[1], bad:!handOk() } });
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
+  $('motor').textContent= st.motor? 'O · Lame' : 'I · Lame'; $('pupA').textContent=String(st.alpha); $('pupB').textContent=String(st.beta);
   $('pull').setAttribute('aria-pressed',String(head.mode==='pull')); $('ret').setAttribute('aria-pressed',String(head.mode==='back'));
   $('lock').setAttribute('aria-pressed',String(st.lock)); $('lock').textContent=st.lock?'Bras et tête bloqués':'Bras et tête débloqués';
   $('stopOn').setAttribute('aria-pressed',String(st.stopOn)); $('stopOn').textContent=st.stopOn?'Butée en service':'Butée relevée';

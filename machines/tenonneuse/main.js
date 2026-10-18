@@ -1,6 +1,7 @@
 /* Tenonneuse KANAK 160 TN : assemblage du module (modèle, outils, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -100,8 +101,25 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; app.ex.invalidate(); apply(); }); }
 function renderExtra(){ renderProfile(); renderDebit(); renderSvg(); }
 
+/* ---------- réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D ---------- */
+const mm=v=>fmt(v,v%1?1:0);
+initFamilies(app, {
+  parts:{ machine:['bati','aspiration','capot','carters','filin','boitier','sectionneur','armoire','moteurs'],
+    outil:['scie','der_sup','der_inf','toupie'], cotes:['regl_scie','regl_dec','regl_inf','regl_ep','regl_tou_h','regl_tou_p'],
+    guidage:['guide','graduation','butee90','butee'], protection:['presse','protecteur','pare_eclat'],
+    chariot:['chariot','table_chariot','verrou_chariot','rail'], piece:['piece'],
+    pupitre:['pupitre','arret_urgence','ouverture_capot','arret','rearmement','marche'] },
+  summary:{
+    machine:()=> st.cad? 'consignée' : !st.main? 'hors tension' : st.capot? 'capot ouvert' : st.armed? 'réarmée' : 'non réarmée',
+    outil:()=> HEADS.map(h=>HEAD_SHORT[h]+(tool(h)?'':' : —')).join(' · '),
+    cotes:()=>`tenon ${mm(st.ep)} × ${mm(st.lt)} mm · joue ${mm(st.hInf)} mm`,
+    guidage:()=>`${st.ang>0.05? 'guide à '+fmt(st.ang,0)+'°' : 'guide d\'équerre'} · butée ${st.butOn? 'à '+mm(st.but)+' mm' : 'relevée'}`,
+    protection:()=>`${st.presse?'presse serrée':'presse desserrée'} · protecteur ${mm(st.protH)} mm`,
+    chariot:()=>`${st.lockC?'verrouillé':'déverrouillé'} · ${st.av} m/min`,
+    piece:()=>{ const q=chariotPiece(); return q? dims(q) : 'aucune pièce sur le chariot'; } } });
+
 /* ---------- schéma de principe sur la vue 3D (engine/schema.js) ---------- */
-initSchema({ sub:'vue de côté du bout de la pièce',
+initSchema({ pinIn:'famBar', sub:'vue de côté du bout de la pièce',
   html:'<svg class="prof-svg" id="profSvg" viewBox="0 0 300 160" role="img" aria-label="Vue de côté du bout de la pièce : scie, dérouleurs, unité de toupillage et tenon obtenu"></svg>' });
 
 /* ---------- mise à jour complète ---------- */
@@ -124,7 +142,9 @@ function update(){
   $('peOn').setAttribute('aria-pressed',String(st.pe.on)); $('peOn').textContent= st.pe.on? 'Pare-éclat en place' : 'Pare-éclat retiré';
   $('lock').setAttribute('aria-pressed',String(st.locks[st.head])); $('lock').textContent= st.locks[st.head]? 'Arbre bloqué' : 'Bloquer l\'arbre';
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
-  document.querySelectorAll('[data-run]').forEach(b=>b.setAttribute('aria-pressed',String(st.run[b.dataset.run])));
+  $('pupL').textContent=fmt(st.lt); $('pupE').textContent=fmt(st.ep);
+  const RUNL={scie:'Scie',inf:'Dér. inf.',sup:'Dér. sup.',tou:'Toupie'};
+  document.querySelectorAll('[data-run]').forEach(b=>{ const on=!!st.run[b.dataset.run]; b.setAttribute('aria-pressed',String(on)); b.textContent=(on?'O · ':'I · ')+RUNL[b.dataset.run]; });
   document.querySelectorAll('[data-head]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.head===st.head)));
   document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===st.tools[st.head])));
   document.querySelectorAll('[data-av]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.av===st.av)));

@@ -1,15 +1,22 @@
+  <section class="fam" data-fam="machine" data-key="machine">
   <div class="srow">
-    <button class="toggle" id="motor" type="button" aria-pressed="false">Lames</button>
-    <button class="toggle" id="tapis" type="button" aria-pressed="false" title="Marche / arrêt du tapis d'amenage">Tapis</button>
     <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
-    <button class="toggle" id="laser" type="button" aria-pressed="false">Laser</button>
-    <button class="toggle" id="pass" type="button" aria-pressed="false" title="Pose la pièce sur le tapis : il l'entraîne sous les lames">Engager la pièce</button>
     <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
   </div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil" data-title="Lames">
   <div class="ctl man"><span>Manchon porte-lames</span>
     <div class="man-g" role="group" aria-label="Manchon porte-lames"><button class="toggle mini" type="button" data-man="m1">1 lame</button><button class="toggle mini" type="button" data-man="m2" title="2 lames écartées pour une pièce de 140 mm">2 lames · 140</button><button class="toggle mini" type="button" data-man="m4" title="4 lames écartées pour des pièces de 45 mm">4 lames · 45</button></div></div>
-  <div class="ctl"><label for="speed">Vitesse d'avance</label><output id="o-speed"></output><input id="speed" type="range" min="6" max="48" step="1" value="24"></div>
-  <div class="ctl amp"><span>Ampèremètre</span><output id="o-amp"></output><svg class="amp-svg" id="ampSvg" viewBox="0 0 160 70" role="img" aria-label="Ampèremètre : charge du moteur, zone verte de 40 à 90 %"></svg></div>
-  <div class="ctl"><label for="pres">Presseurs : hauteur de passage (mm)</label><input class="num" id="pres-n" type="number" min="10" max="100" step="1" aria-label="Hauteur de passage sous les presseurs en mm"><input id="pres" type="range" min="10" max="100" step="1" value="60"></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guidage">
   <div class="ctl gctl"><label for="gw">Guide : largeur de la 1<sup>re</sup> pièce (mm)</label><input class="num" id="gw-n" type="number" min="10" max="200" step="1" aria-label="Largeur entre le guide et la première lame en mm"><input id="gw" type="range" min="10" max="200" step="1" value="120">
     <button class="toggle mini" type="button" id="gup" aria-pressed="true" title="Escamoter le guide sous la table (plateaux en flache)">Guide en place</button></div>
+  <div class="srow"><button class="toggle" id="laser" type="button" aria-pressed="false" title="Laser de ligne de coupe : montre où passeront les traits de scie">Laser</button></div>
+  </section>
+  <section class="fam" data-fam="protection" data-key="protection" data-title="Presseurs">
+  <div class="ctl"><label for="pres">Presseurs : hauteur de passage (mm)</label><input class="num" id="pres-n" type="number" min="10" max="100" step="1" aria-label="Hauteur de passage sous les presseurs en mm"><input id="pres" type="range" min="10" max="100" step="1" value="60"></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="avance" data-title="Entraînement">
+  <div class="ctl"><label for="speed">Vitesse d'avance</label><output id="o-speed"></output><input id="speed" type="range" min="6" max="48" step="1" value="24"></div>
+  <div class="ctl amp"><span>Ampèremètre</span><output id="o-amp"></output><svg class="amp-svg" id="ampSvg" viewBox="0 0 160 70" role="img" aria-label="Ampèremètre : charge du moteur, zone verte de 40 à 90 %"></svg></div>
+  </section>

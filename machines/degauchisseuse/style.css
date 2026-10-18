@@ -1,5 +1,5 @@
 /* Styles propres à la dégauchisseuse : protecteur, tableau des faces. */
-#dockSlot .settings .prot{grid-column:span 2}
+
 .prot{grid-template-columns:1fr auto;align-items:center}
 .prot-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .prot-g .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 4px}

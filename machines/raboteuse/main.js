@@ -1,6 +1,7 @@
 /* Raboteuse KANAK 630 E : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -17,7 +18,17 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
-initSchema({ sub:'vue de côté de l\'arbre et de la table',
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','capot','moteur','transmission','aspiration','sectionneur','colonnes','levage','rallonge_entree','rallonge_sortie'],
+    outil:['arbre','table','pupitre'], guidage:['rouleau_entree','rouleaux_sortie','chaine','variateur','galets','linguets','presseur_av','presseur_ar'],
+    pupitre:['marche','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'} · capot ${st.capot?'ouvert':'fermé'}`,
+    outil:()=>`cote ${fmt(st.H)} mm`,
+    avance:()=>`${st.v} m/min · avance ${st.feed?'en marche':'arrêtée'}`,
+    piece:()=>{ const E=entryPieces(); return E.length? `${E.length} pièce${E.length>1?'s':''} à l'entrée` : exitPieces().length? 'pièces sur le capot' : 'aucune pièce'; } } });
+initSchema({ pinIn:'famBar', sub:'vue de côté de l\'arbre et de la table',
   html:'<svg id="coteSvg" viewBox="0 0 300 168" role="img" aria-label="Vue de côté : arbre, rouleaux, table à la cote et pièce à l\'entrée"></svg>' });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
@@ -80,6 +91,8 @@ function update(){
   model.update(topAt);
   for(const k of ['motor','feed','asp','capot']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('feed').textContent= st.feed? 'O · Avance' : 'I · Avance';
+  $('pupH').textContent=fmt(st.H); $('pupV').textContent= st.feed? String(st.v) : '0';
   $('cote').value=Math.min(+$('cote').max,st.H); if(document.activeElement!==$('cote-n')) $('cote-n').value=st.H.toFixed(1);
   $('o-speed').textContent=`${st.v} m/min`; $('speed').value=st.v;
   const E=entryPieces(), grip=E.filter(q=>pressedH(q)>=st.H-GRIP), d= grip.length? Math.max(...grip.map(passDepth)) : null;

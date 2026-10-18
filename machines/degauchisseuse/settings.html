@@ -1,13 +1,21 @@
+  <section class="fam" data-fam="machine" data-key="machine">
   <div class="srow">
-    <button class="toggle" id="motor" type="button" aria-pressed="true">Moteur</button>
     <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
-    <button class="toggle" id="pass" type="button" aria-pressed="false">Passe</button>
     <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
   </div>
-  <div class="ctl"><label for="travel">Avance de la pièce</label><output id="o-travel"></output><input id="travel" type="range" min="0" max="1200" step="5" value="0"></div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil" data-title="Arbre et passe">
   <div class="ctl"><label for="depth">Profondeur de passe</label><output id="o-depth"></output><input id="depth" type="range" min="0" max="5" step="0.5" value="1.5"></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guidage">
   <div class="ctl"><label for="gangle">Angle du guide</label><output id="o-gangle"></output><input id="gangle" type="range" min="45" max="90" step="0.5" value="90"></div>
   <div class="ctl"><label for="gwidth">Position du guide (largeur de passage, mm)</label><input class="num" id="gwidth-n" type="number" min="60" max="520" step="1" aria-label="Largeur de passage en mm"><input id="gwidth" type="range" min="60" max="520" step="1" value="360"></div>
+  </section>
+  <section class="fam" data-fam="protection" data-key="protection">
   <div class="ctl prot"><span>Protecteur SUVAMATIC : bec d'engagement</span>
     <div class="prot-g" role="group" aria-label="Orientation du bec d'engagement"><button class="toggle mini" type="button" id="becPlat" title="Dressage du plat : la pièce soulève la couverture, qui glisse sur elle">Vertical (plat)</button><button class="toggle mini" type="button" id="becChant" title="Dressage du chant : la pièce écarte la couverture du guide, qui la plaque contre le guide">Horizontal (chant)</button></div>
     <svg class="prot-svg" id="protSvg" viewBox="0 0 220 80" role="img" aria-label="Schéma en bout : table, guide, pièce et couverture du protecteur au passage de la pièce"></svg></div>
+  </section>
+  <section class="fam" data-fam="piece" data-key="avance" data-title="Avance de la pièce">
+  <div class="ctl"><label for="travel">Avance de la pièce</label><output id="o-travel"></output><input id="travel" type="range" min="0" max="1200" step="5" value="0"></div>
+  </section>

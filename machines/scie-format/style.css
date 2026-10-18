@@ -1,5 +1,7 @@
 /* Styles propres à la scie à format : décalage de pièce, inciseur, pièces débitées. */
-#dockSlot .settings .incb{grid-column:span 2}
+/* l'inciseur a son propre panneau (famille Outil) : pas de second cadre */
+.fam .incb{border:0;padding:0;background:none}
+.fam .incb-t{display:none}
 .nudge{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
 .nudge button{padding:7px 2px;text-transform:none;letter-spacing:0;font-size:12px}
 .nudge-l{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:4px}

@@ -1,6 +1,7 @@
 /* Dégauchisseuse KANAK 520 D : assemblage du module (modèle, pièce, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -14,7 +15,18 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
-initSchema({ sub:'vue de côté et vue en bout',
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','moteur','transmission','aspiration'], outil:['arbre','table_entree','table_sortie','profondeur'],
+    guidage:['guide','reglage_guide','carter'], protection:['protecteur'], pupitre:['pupitre','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>`passe ${fmt(st.d)} mm`,
+    guidage:()=>`guide à ${fmt(st.ga)}° · passage ${Math.round(st.gw)} mm`,
+    protection:()=>`bec ${st.bec==='plat'?'vertical (plat)':'horizontal (chant)'}`,
+    avance:()=>`${Math.round(st.t)} mm`,
+    piece:()=> p? `${p.L} × ${fmt(width())} × ${fmt(thickness())}` : 'aucune pièce' } });
+initSchema({ pinIn:'famBar', sub:'vue de côté et vue en bout',
   html:'<svg id="sideSvg" viewBox="0 0 300 110" role="img" aria-label="Vue de côté : tables, arbre et profondeur de passe"></svg>', svgs:['protSvg'] });
 ctx.app = app; ctx.model = model;
 initPiece(app, model);
@@ -76,6 +88,7 @@ function update(){
   if(document.activeElement!==$('gwidth-n')) $('gwidth-n').value=Math.round(st.gw); $('gwidth').value=st.gw;
   $('becPlat').setAttribute('aria-pressed',String(st.bec==='plat')); $('becChant').setAttribute('aria-pressed',String(st.bec==='chant'));
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('pupD').textContent=fmt(st.d);
   $('depth').disabled=$('gangle').disabled=$('gwidth').disabled=cut.inProgress;
   drawProt(); drawSide();
 }

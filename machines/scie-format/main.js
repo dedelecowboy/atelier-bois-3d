@@ -9,6 +9,7 @@ import { MAIN_KERF } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import { initPieces, A, pieces, cut, rebuildAll, renderDebit, setActive, scoreState, stopPass, updateCut, doOp, resetForMode, sAll } from './pieces.js';
 import { computeAlerts } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
@@ -18,7 +19,19 @@ const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
-initSchema({ sub:'vue en bout, depuis l\'opérateur',
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','table','rallonge','moteur','transmission','aspiration','armoire'], outil:['lame','couteau','relevage','inclinaison'],
+    inciseur:['inciseur'], regle:['cadre','regle','support'], guide:['guide','sabot'], protection:['protecteur','bras'], chariot:['chariot'], pupitre:['pupitre'] },
+  summary:{
+    machine:()=>'',
+    outil:()=>`hauteur ${Math.round(st.h)} mm · ${(+st.t).toFixed(1).replace('.',',')}° · ${st.rpm.toLocaleString('fr-FR')} tr/min`,
+    regle:()=>`onglet ${(+st.mit).toFixed(1).replace('.',',')}° · butée ${Math.round(st.stop)} mm`,
+    guide:()=>`${Math.round(st.r)} mm${st.guideShort?' · règle courte':''}${st.sabot?' · sabot':''}`,
+    chariot:()=>`${st.s>0?'+':''}${Math.round(st.s)} mm`,
+    inciseur:()=> st.inc? `en marche · hauteur ${st.incH.toFixed(1).replace('.',',')} mm` : 'arrêté',
+    piece:()=> A()? 'pièce sur la machine' : 'aucune pièce' } });
+initSchema({ pinIn:'famBar', sub:'vue en bout, depuis l\'opérateur',
   html:'<svg id="endSvg" viewBox="0 0 300 150" role="img" aria-label="Vue en bout : table, pièce, lame (hauteur et inclinaison) et guide parallèle"></svg>', svgs:['incSvg'] });
 
 /* ---------- schéma de l'inciseur (vue en bout du trait) ---------- */
@@ -79,6 +92,7 @@ function update(){
   updateCut();
   model.update();
   $('bsabot').setAttribute('aria-pressed',String(st.sabot));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('pupH').textContent=String(Math.round(st.h)); $('pupT').textContent=(+st.t).toFixed(1).replace('.',',').replace(',0','');
   $('binc').setAttribute('aria-pressed',String(st.inc)); $('binc').textContent=st.inc?'En marche':'Arrêté';
   for(const k of ['incH','incW','incOff']) if(document.activeElement!==$(k)) $(k).value=st[k].toFixed(1);
   drawIncSvg(); drawEndSvg(); $('gshort').setAttribute('aria-pressed',String(st.guideShort));

@@ -28,6 +28,7 @@ function short(t){ let s=t.split(' : ')[0]; if(s.length>90) s=s.slice(0,88)+'…
 export function initFamilies(app, o={}){
   const $=id=>document.getElementById(id), narrow=matchMedia('(max-width:900px)');
   const famParts=o.parts||{}, summary=o.summary||{};
+  /* parts : clé = famille (tous ses panneaux) ou data-key d'un panneau précis ; 'pupitre' = barre du pupitre */
   const partFam={}; for(const [f,list] of Object.entries(famParts)) for(const k of list) partFam[k]=f;
   const secs=[...document.querySelectorAll('section.fam')], byKey={};
   for(const s of secs){
@@ -37,9 +38,10 @@ export function initFamilies(app, o={}){
     const h=document.createElement('button'); h.type='button'; h.className='fam-h'; h.setAttribute('aria-controls',s.id);
     h.innerHTML=`<span class="fam-i"><svg viewBox="0 0 24 24" aria-hidden="true">${F.ico}</svg></span><span class="fam-t"><b>${esc(s.dataset.title||F.n)}</b><span class="fam-s"></span></span><span class="fam-p" hidden></span><span class="fam-c" aria-hidden="true"></span>`;
     s.append(h, body);
-    s.addEventListener('mouseenter',()=>hl(fam)); s.addEventListener('mouseleave',()=>hl(null));
+    const hk= famParts[key]? key : fam;
+    s.addEventListener('mouseenter',()=>hl(hk,fam)); s.addEventListener('mouseleave',()=>hl(null));
     h.addEventListener('click',e=>{ if(narrow.matches){ open= open===key? null : key; layout(); }
-      hl(fam); if(e.pointerType!=='mouse') hlT=setTimeout(()=>hl(null),2500); });
+      hl(hk,fam); if(e.pointerType!=='mouse') hlT=setTimeout(()=>hl(null),2500); });
   }
   /* bandeau en tête des réglages : alertes par panneau (cliquables) ; le bouton du schéma s'y range */
   const S=$('settings'), bar=document.createElement('div'); S.classList.add('has-fam'); $('dockSlot')?.querySelector(':scope>h2')?.setAttribute('hidden',''); bar.className='srow fam-bar'; bar.id='famBar';
@@ -48,7 +50,7 @@ export function initFamilies(app, o={}){
 
   /* surbrillance des organes d'une famille dans la 3D */
   let hlT=0;
-  function hl(fam){ clearTimeout(hlT); app.parts.highlight(fam? famParts[fam]||[] : null, fam? FAMS[fam]?.hex : 0); }
+  function hl(k,fam=k){ clearTimeout(hlT); app.parts.highlight(k? famParts[k]||[] : null, k? FAMS[fam]?.hex : 0); }
 
   /* repli (téléphone seulement) */
   let open=null, pendingAuto=true, lastMode=null;
@@ -65,7 +67,8 @@ export function initFamilies(app, o={}){
     s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash'); setTimeout(()=>s.classList.remove('flash'),1600); }
   function reveal(part){ const fam=partFam[part];
     if(fam==='pupitre'){ const p=$('pupitre'); if(p){ p.classList.remove('flash'); void p.offsetWidth; p.classList.add('flash'); setTimeout(()=>p.classList.remove('flash'),1600); } return; }
-    if(!fam) return; const s=secs.find(x=>x.dataset.fam===fam && x.offsetParent!==null); if(s) show(s.dataset.key,false); }
+    if(!fam) return; if(byKey[fam]&&byKey[fam].offsetParent!==null) return show(fam,false);
+    const s=secs.find(x=>x.dataset.fam===fam && x.offsetParent!==null); if(s) show(s.dataset.key,false); }
 
   /* alertes et résumés (à chaque rafraîchissement du panneau d'exercice) */
   let akey='';
