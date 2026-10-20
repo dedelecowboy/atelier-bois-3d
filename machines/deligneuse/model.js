@@ -5,7 +5,7 @@
    rideau de sortie, guide (position, escamotage), lignes laser projetées sur la pièce, aiguille de l'ampèremètre. */
 import * as THREE from 'three';
 import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, beltGeom, pulley, sawBlade } from '../../engine/kit.js';
-import { TABLE_Y, CHAIN_W, R_BLADE, SHAFT_Y, B1Z, HOOD_X0, HOOD_X1, CHAIN_X0, CHAIN_X1, ROLLERS } from './constants.js';
+import { TABLE_Y, CHAIN_W, R_BLADE, SHAFT_Y, B1Z, HOOD_X0, HOOD_X1, CHAIN_X0, CHAIN_X1, ROLLERS, R_ROLL } from './constants.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const WHITE = new THREE.MeshStandardMaterial({color:0xe9e8e2, metalness:0.15, roughness:0.5});
@@ -112,7 +112,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const knurl=canvasTex(256,32,(g,w,h)=>{ g.fillStyle='#3a3f44'; g.fillRect(0,0,w,h); g.strokeStyle='#8b9298'; g.lineWidth=2; for(let x=0;x<w;x+=8){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); } });
   knurl.wrapS=knurl.wrapT=THREE.RepeatWrapping;
   const KN=new THREE.MeshStandardMaterial({map:knurl,metalness:0.7,roughness:0.4});
-  const RR=0.045, rollers=[];
+  const RR=R_ROLL, rollers=[];
   const pres=new THREE.Group(); root.add(pres);
   for(const x of ROLLERS){ const g=new THREE.Group(); g.position.x=x; pres.add(g);
     const r=cyl(RR,CHAIN_W+0.03,KN,28,'z'); g.add(r);
@@ -124,8 +124,9 @@ export function buildModel({ root, tagPart, partMeshes }){
   const ling=new THREE.Group(); root.add(ling);
   function fingerGeom(w,len,th,tooth){ const s=new THREE.Shape(); s.moveTo(-w/2,0); s.lineTo(w/2,0); s.lineTo(w/2,-len); s.lineTo(-w/2+tooth*0.3,-len-tooth*0.3); s.lineTo(-w/2-tooth,-len-tooth); s.lineTo(-w/2,-len+tooth); s.closePath();
     const g=new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false}); g.translate(0,0,-th/2); return g; }
-  const LROWS=[{x:0.405,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},{x:0.355,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},
-    {x:0.305,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},{x:0.435,h:0.10,len:0.115,w:0.02,th:0.0016,dz:0.0055,tooth:0.002,mat:M.aluDk}];
+  // barrières anti-recul entre l'ouverture d'entrée et le rouleau presseur avant (linguets courts : leur bout reste devant ce rouleau)
+  const LROWS=[{x:0.400,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},{x:0.370,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},
+    {x:0.340,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},{x:0.428,h:0.095,len:0.105,w:0.016,th:0.0016,dz:0.0055,tooth:0.002,mat:M.aluDk}];
   for(const R of LROWS){ R.zs=[]; for(let z=-OPEN_Z+0.01;z<=OPEN_Z-0.01;z+=R.dz) R.zs.push(z);
     R.mesh=new THREE.InstancedMesh(fingerGeom(R.w,R.len,R.th,R.tooth),R.mat,R.zs.length); ling.add(R.mesh);
     add(ling, cyl(0.008,2*OPEN_Z,M.steel,10,'z'), R.x,TABLE_Y+R.h,0); R.ang=new Float32Array(R.zs.length).fill(-1); }
