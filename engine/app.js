@@ -15,6 +15,7 @@
      renderExtra()       (facultatif) panneaux propres à la machine (pièces débitées…)
      onPick(hit)         (facultatif) clic dans la 3D ; rendre true si la machine l'a traité
      onContextRestored() (facultatif) après une perte de contexte WebGL
+     (app.families : panneaux de réglage par famille, posés par initFamilies, engine/families.js)
      parcours            {scenarios:[{mode,t,intro,view}], criteria(mode,{dangers,ok}), onStart(), ignore:[codes]} */
 import { createStage } from './stage.js';
 import { createParts } from './parts.js';
@@ -43,9 +44,10 @@ export function createApp(config, raw){
     setUI(u){ $('app').dataset.ui=u; ($(u==='pres'?'presSlot':'dockSlot')).appendChild($('settings'));
       document.querySelectorAll('[data-ui]').forEach(b=>{ if(b.tagName==='BUTTON') b.setAttribute('aria-pressed',String(b.dataset.ui===u)); }); ex.invalidate(); app.apply(); },
     start(hooks){ H=hooks;
-      ex.bind({ ...hooks, apply:app.apply });
+      ex.bind({ ...hooks, apply:app.apply, onAlerts:a=>app.families?.update(a) });
       parc=createParcours(app, {reperage, qcm}, hooks.parcours||{scenarios:[]});
-      parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); return !!hooks.onPick?.(hit); });
+      parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); if(hooks.onPick?.(hit)) return true;
+        if(hit) app.families?.reveal(hit.object.userData.part); return false; });   // organe touché : son panneau de réglage s'ouvre
       /* boutons des vues ; une vue peut imposer la vue intérieure (avec un message) */
       /* pendant le repérage du parcours, la vue ne fait que déplacer la caméra : la transparence reste celle de la question */
       for(const v of config.views) if(!v.hidden) $(v.id).onclick=()=>{ stage.setView(v.id); if(v.xray&&!parts.xray&&!parc.inRep()){ parts.setXray(true,false); if(v.toast) stage.toast(v.toast); } };

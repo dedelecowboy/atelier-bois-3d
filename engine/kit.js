@@ -67,3 +67,57 @@ export function woodTex(){ return canvasTex(512,2048,(g,w,h)=>{
     const cx=w*0.55, top=h*0.30+k*55, bw=30+k*16; g.moveTo(cx-bw,h); g.lineTo(cx-bw,top+bw*1.6); g.quadraticCurveTo(cx,top-40,cx+bw,top+bw*1.6); g.lineTo(cx+bw,h); g.stroke(); }
   for(let i=0;i<5000;i++){ g.fillStyle=`rgba(90,55,25,${rnd()*0.25})`; g.fillRect(rnd()*w,rnd()*h,1,2+rnd()*5); }
 }); }
+
+/* Lame de scie circulaire carbure, la même sur toutes les machines (d'après la lame réelle de la scie à format :
+   dents trapézoïdales à plaquettes carbure, fentes de dilatation terminées par un trou, fentes anti-bruit rouges,
+   marquage gravé et flèche de rotation). Disque dans le plan XY, axe Z, centre à l'origine.
+   o = { R (m), Z (dents), plate (corps, m), kerf (plaquettes, m), bore (Ø d'alésage, m), pins (trous d'entraînement),
+         dir : +1 si la lame tourne dans le sens rotation.z croissant, −1 sinon (les dents attaquent dans ce sens),
+         mark : [ligne 1, ligne 2] gravées sur la face }
+   Les géométries, textures et matériaux sont partagés entre les lames identiques (cache). */
+const bladeCache = new Map();
+export function sawBlade(o={}){
+  const R=o.R??0.2, Z=o.Z??72, plate=o.plate??0.0032, kerf=o.kerf??0.0044, bore=o.bore??0.03, dir=o.dir??-1;
+  const mark=o.mark||[`Ø${Math.round(R*2000)} × ${(kerf*1000).toFixed(1).replace('.',',')}/${(plate*1000).toFixed(1).replace('.',',')} × ${Math.round(bore*1000)}  Z${Z}  HW`,'n max 6000 RPM'];
+  const key=JSON.stringify([R,Z,plate,kerf,bore,!!o.pins,mark,dir<0]);
+  let c=bladeCache.get(key);
+  if(!c){
+    const N=Z, st=Math.PI*2/N, P=(r,an)=>[Math.cos(an)*r,Math.sin(an)*r];
+    const k=Math.min(2.2, (2*Math.PI*R/N)/(2*Math.PI*0.2/72)), q=R/0.2;   // profondeur des dents : suit le pas ; fentes : suivent le rayon
+    const s=new THREE.Shape();
+    // dent trapézoïdale : dos incliné, sommet plat, face d'attaque raide, creux arrondi (sens d'attaque = angle croissant ; mise en miroir si dir < 0)
+    for(let i=0;i<N;i++){ const a=i*st;
+      const pts=[P(R-0.0075*k,a),P(R-0.0072*k,a+st*0.08),P(R-0.0050*k,a+st*0.25),P(R-0.0012*k,a+st*0.62),P(R,a+st*0.70),P(R,a+st*0.76),P(R-0.0040*k,a+st*0.79),P(R-0.0068*k,a+st*0.86),P(R-0.0076*k,a+st*0.94)];
+      pts.forEach(([x,y],j)=> (i===0&&j===0)? s.moveTo(x,y): s.lineTo(x,y)); }
+    s.closePath();
+    const hole=new THREE.Path(); hole.absarc(0,0,bore/2,0,Math.PI*2,true); s.holes.push(hole);
+    if(o.pins) for(const sx of [-1,1]){ const pin=new THREE.Path(); pin.absarc(sx*(bore/2+0.012),0,0.0045,0,Math.PI*2,true); s.holes.push(pin); }   // trous d'entraînement
+    for(let j=0;j<6;j++){ const a=j*Math.PI/3+0.26, w=0.0008, r1=R-0.040*q, r2=R-0.013*q;              // fentes de dilatation terminées par un trou
+      const sl=new THREE.Path(), cs=Math.cos(a), sn=Math.sin(a), px=-sn*w, py=cs*w;
+      sl.moveTo(cs*r1+px,sn*r1+py); sl.lineTo(cs*r2+px,sn*r2+py); sl.lineTo(cs*r2-px,sn*r2-py); sl.lineTo(cs*r1-px,sn*r1-py); s.holes.push(sl);
+      const e=new THREE.Path(); e.absarc(cs*(r1-0.0045),sn*(r1-0.0045),0.0032,0,Math.PI*2,true); s.holes.push(e); }
+    const geom=new THREE.ExtrudeGeometry(s,{depth:plate,bevelEnabled:false,curveSegments:10}); geom.translate(0,0,-plate/2);
+    // face : acier brossé, anneau, fentes anti-bruit rouges, marquage et flèche de rotation
+    const T=1024, off=document.createElement('canvas'); off.width=off.height=T; const g=off.getContext('2d'), cc=T/2, kk=T/(2*R);
+    const grd=g.createRadialGradient(cc,cc,20,cc,cc,cc); grd.addColorStop(0,'#eef1f3'); grd.addColorStop(0.6,'#d6dbdf'); grd.addColorStop(1,'#c9ced3'); g.fillStyle=grd; g.fillRect(0,0,T,T);
+    for(let i=0;i<260;i++){ const r=40+Math.random()*(cc-50), a0=Math.random()*6.28; g.strokeStyle=`rgba(${Math.random()<.5?255:120},${Math.random()<.5?255:125},${Math.random()<.5?255:130},.10)`; g.lineWidth=1; g.beginPath(); g.arc(cc,cc,r,a0,a0+0.4+Math.random()*1.4); g.stroke(); }
+    g.strokeStyle='rgba(120,128,136,.45)'; g.lineWidth=2; g.beginPath(); g.arc(cc,cc,0.60*R*kk,0,7); g.stroke();
+    for(let i=0;i<6;i++){ const a=i*Math.PI/3+0.26+Math.PI/6, rr=0.76*R*kk; g.save(); g.translate(cc+Math.cos(a)*rr,cc+Math.sin(a)*rr); g.rotate(a);
+      g.strokeStyle='#c7332b'; g.lineWidth=8; g.lineCap='round'; g.beginPath(); const L=86, A=20; g.moveTo(-A,-L/2);
+      for(let t=0;t<=1.0001;t+=0.02) g.lineTo(Math.sin(t*Math.PI*3)*A,-L/2+t*L); g.stroke();
+      g.fillStyle='#c7332b'; for(const yy of [-L/2,L/2]){ g.beginPath(); g.arc(Math.sin((yy>0?1:0)*Math.PI*3)*A,yy,7,0,7); g.fill(); } g.restore(); }
+    g.fillStyle='rgba(95,103,110,.85)'; g.textAlign='center'; g.font='600 30px "JetBrains Mono",monospace';
+    g.fillText(mark[0],cc,cc+0.36*R*kk); g.font='500 24px "JetBrains Mono",monospace'; if(mark[1]) g.fillText(mark[1],cc,cc+0.36*R*kk+34);
+    g.strokeStyle='rgba(95,103,110,.85)'; g.lineWidth=5; g.beginPath(); g.arc(cc,cc,0.47*R*kk,Math.PI*0.62,Math.PI*0.38,true); g.stroke();
+    const ea=Math.PI*0.38, ex=cc+Math.cos(ea)*0.47*R*kk, ey=cc+Math.sin(ea)*0.47*R*kk; g.fillStyle='rgba(95,103,110,.85)'; g.save(); g.translate(ex,ey); g.rotate(ea-Math.PI/2); g.beginPath(); g.moveTo(-14,0); g.lineTo(14,0); g.lineTo(0,-22); g.closePath(); g.fill(); g.restore();
+    let src=off;
+    if(dir<0){ src=document.createElement('canvas'); src.width=src.height=T; const h=src.getContext('2d'); h.translate(T,0); h.scale(-1,1); h.drawImage(off,0,0); } // pré-miroir (le disque est en miroir)
+    const tex=new THREE.CanvasTexture(src); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=8; tex.repeat.set(1/(2*R),1/(2*R)); tex.offset.set(0.5,0.5);
+    const face=new THREE.MeshStandardMaterial({map:tex,metalness:0.55,roughness:0.32,side:THREE.DoubleSide});
+    const tipG=new THREE.BoxGeometry(0.0055*Math.min(k,1.6),0.0032,kerf), tipM=new THREE.MeshStandardMaterial({color:0x9aa2a9,metalness:0.7,roughness:0.35});
+    c={geom,face,tipG,tipM,N,st,k}; bladeCache.set(key,c); }
+  const grp=new THREE.Group(), disc=new THREE.Group(); if(dir<0) disc.scale.x=-1; grp.add(disc);
+  disc.add(new THREE.Mesh(c.geom,[c.face,M.blade]));
+  const tips=new THREE.InstancedMesh(c.tipG,c.tipM,c.N), ob=new THREE.Object3D();
+  for(let i=0;i<c.N;i++){ const a=i*c.st+c.st*0.70; ob.position.set(Math.cos(a)*(R-0.0016),Math.sin(a)*(R-0.0016),0); ob.rotation.set(0,0,a+Math.PI/2); ob.updateMatrix(); tips.setMatrixAt(i,ob.matrix); }
+  disc.add(tips); return grp; }

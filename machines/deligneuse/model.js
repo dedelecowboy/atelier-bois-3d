@@ -4,8 +4,8 @@
    Organes animés : lames (rotation), tapis (patins), rouleaux presseurs et linguets (soulevés par la pièce),
    rideau de sortie, guide (position, escamotage), lignes laser projetées sur la pièce, aiguille de l'ampèremètre. */
 import * as THREE from 'three';
-import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, beltGeom, pulley } from '../../engine/kit.js';
-import { TABLE_Y, CHAIN_W, R_BLADE, SHAFT_Y, B1Z, HOOD_X0, HOOD_X1, CHAIN_X0, CHAIN_X1, ROLLERS } from './constants.js';
+import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, beltGeom, pulley, sawBlade } from '../../engine/kit.js';
+import { TABLE_Y, CHAIN_W, R_BLADE, SHAFT_Y, B1Z, HOOD_X0, HOOD_X1, CHAIN_X0, CHAIN_X1, ROLLERS, R_ROLL } from './constants.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
   const WHITE = new THREE.MeshStandardMaterial({color:0xe9e8e2, metalness:0.15, roughness:0.5});
@@ -91,25 +91,13 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(bearing, rbox(0.16,0.16,0.07,MI.cast,0.01), 0,SHAFT_Y,0.40);
   add(bearing, cyl(0.03,0.12,MI.zinc,16,'z'), 0,SHAFT_Y,0.44);
   tagPart(bearing,'manchon');
-  const CARB=new THREE.MeshStandardMaterial({color:0x3b3f44,metalness:0.7,roughness:0.35});
-  const BLADE=new THREE.MeshStandardMaterial({color:0xdde2e6,metalness:0.7,roughness:0.28,side:THREE.DoubleSide});
-  function bladeGeom(){ const n=24, r1=R_BLADE, r0=R_BLADE-0.018, step=Math.PI*2/n, s=new THREE.Shape();
-    for(let k=0;k<n;k++){ const a=k*step;   // dos de la dent qui monte vers la pointe, face d'attaque radiale côté +θ (sens de rotation)
-      const p=(rr,aa)=>[rr*Math.cos(aa),rr*Math.sin(aa)];
-      const g0=p(r0,a), tip=p(r1,a+0.78*step), face=p(r0+0.004,a+0.80*step), gul=p(r0-0.006,a+0.92*step);
-      if(k===0) s.moveTo(...g0); else s.lineTo(...g0); s.lineTo(...tip); s.lineTo(...face); s.quadraticCurveTo(...p(r0-0.012,a+0.86*step),...gul); }
-    s.closePath(); const hole=new THREE.Path(); hole.absarc(0,0,0.035,0,Math.PI*2,true); s.holes.push(hole);
-    const g=new THREE.ExtrudeGeometry(s,{depth:0.0024,bevelEnabled:false,curveSegments:4}); g.translate(0,0,-0.0012); return g; }
-  const BG=bladeGeom();
-  const tipGeo=new THREE.BoxGeometry(0.006,0.004,0.0034);
-  const slotGeo=new THREE.BoxGeometry(0.03,0.003,0.0026);
+  // lame carbure commune (engine/kit.js, d'après la lame de la scie à format), alésage Ø 70 sur le manchon ; dents dans le sens rotation.z croissant
+  const BLADE_T=sawBlade({ R:R_BLADE, Z:24, plate:0.0022, kerf:0.0032, bore:0.07, dir:1, mark:[`Ø${Math.round(R_BLADE*2000)} × 3,2/2,2 × 70  Z24  HW`,'n max 6000 RPM'] });
   function setManchon(zs){
     for(const g of [bladeG,manG]) while(g.children.length){ const c=g.children.pop(); }
     const zmin=Math.min(...zs), zmax=Math.max(...zs);
     for(const z of zs){ const b=new THREE.Group(); b.position.z=z; bladeG.add(b);
-      b.add(new THREE.Mesh(BG,BLADE));
-      for(let k=0;k<24;k++){ const a=(k+0.78)*Math.PI*2/24; const t=new THREE.Mesh(tipGeo,CARB); t.position.set(Math.cos(a)*(R_BLADE-0.002),Math.sin(a)*(R_BLADE-0.002),0); t.rotation.z=a; b.add(t); }
-      for(let k=0;k<4;k++){ const a=k*Math.PI/2+0.4; const sl=new THREE.Mesh(slotGeo,M.dark); sl.position.set(Math.cos(a)*0.10,Math.sin(a)*0.10,0); sl.rotation.z=a+Math.PI/2; b.add(sl); } }
+      b.add(BLADE_T.clone()); }
     // manchon Ø 70 de la première lame jusqu'au palier, entretoises entre les lames, écrou de serrage côté guide
     const z0=zmin-0.03, z1=0.37; const man=cyl(0.035,z1-z0,MI.zinc,24,'z'); man.position.z=(z0+z1)/2; manG.add(man);
     const sz=[...zs].sort((a,b)=>a-b);
@@ -124,7 +112,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   const knurl=canvasTex(256,32,(g,w,h)=>{ g.fillStyle='#3a3f44'; g.fillRect(0,0,w,h); g.strokeStyle='#8b9298'; g.lineWidth=2; for(let x=0;x<w;x+=8){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); } });
   knurl.wrapS=knurl.wrapT=THREE.RepeatWrapping;
   const KN=new THREE.MeshStandardMaterial({map:knurl,metalness:0.7,roughness:0.4});
-  const RR=0.045, rollers=[];
+  const RR=R_ROLL, rollers=[];
   const pres=new THREE.Group(); root.add(pres);
   for(const x of ROLLERS){ const g=new THREE.Group(); g.position.x=x; pres.add(g);
     const r=cyl(RR,CHAIN_W+0.03,KN,28,'z'); g.add(r);
@@ -136,8 +124,9 @@ export function buildModel({ root, tagPart, partMeshes }){
   const ling=new THREE.Group(); root.add(ling);
   function fingerGeom(w,len,th,tooth){ const s=new THREE.Shape(); s.moveTo(-w/2,0); s.lineTo(w/2,0); s.lineTo(w/2,-len); s.lineTo(-w/2+tooth*0.3,-len-tooth*0.3); s.lineTo(-w/2-tooth,-len-tooth); s.lineTo(-w/2,-len+tooth); s.closePath();
     const g=new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false}); g.translate(0,0,-th/2); return g; }
-  const LROWS=[{x:0.405,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},{x:0.355,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},
-    {x:0.305,h:0.112,len:0.13,w:0.03,th:0.009,dz:0.0125,tooth:0.010,mat:M.steel},{x:0.435,h:0.10,len:0.115,w:0.02,th:0.0016,dz:0.0055,tooth:0.002,mat:M.aluDk}];
+  // barrières anti-recul entre l'ouverture d'entrée et le rouleau presseur avant (linguets courts : leur bout reste devant ce rouleau)
+  const LROWS=[{x:0.400,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},{x:0.370,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},
+    {x:0.340,h:0.095,len:0.11,w:0.024,th:0.009,dz:0.0125,tooth:0.009,mat:M.steel},{x:0.428,h:0.095,len:0.105,w:0.016,th:0.0016,dz:0.0055,tooth:0.002,mat:M.aluDk}];
   for(const R of LROWS){ R.zs=[]; for(let z=-OPEN_Z+0.01;z<=OPEN_Z-0.01;z+=R.dz) R.zs.push(z);
     R.mesh=new THREE.InstancedMesh(fingerGeom(R.w,R.len,R.th,R.tooth),R.mat,R.zs.length); ling.add(R.mesh);
     add(ling, cyl(0.008,2*OPEN_Z,M.steel,10,'z'), R.x,TABLE_Y+R.h,0); R.ang=new Float32Array(R.zs.length).fill(-1); }

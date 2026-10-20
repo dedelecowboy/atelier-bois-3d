@@ -1,0 +1,134 @@
+# QCM sécurité et technique de la toupie, travail au guide (parcours évalué)
+# Sources : fiche INRS A646 « Toupie (travail au guide) », fiche OPPBTP « Toupie : les points clés pour travailler
+# en sécurité », article OPPBTP « Travailler en sécurité sur une toupie », cours « La toupie » du lycée,
+# procédure de réglage de la toupie de l'atelier.
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: À quoi sert la toupie ?
+- À mettre une pièce à épaisseur
++ À profiler ou calibrer les pièces par enlèvement de matière, avec des fraises et des porte-outils
+- À couper les pièces à longueur
+= La toupie usine des profils : feuillures, rainures, quarts de rond, chanfreins, moulures, tenons… avec un outil adapté à chaque usinage.
+
+Q: Au travail au guide, dans quel sens pousse-t-on la pièce ?
++ De droite à gauche, contre le sens de rotation de l'outil (en opposition)
+- De gauche à droite, dans le sens de rotation de l'outil
+- Dans un sens ou dans l'autre, cela ne change rien
+= L'outil tourne contre l'avance : on sent une résistance. On ne revient jamais en arrière pendant la passe.
+
+Q: Que se passe-t-il si l'on travaille en avalant (la pièce avance dans le sens de rotation de l'outil) avec une avance manuelle ?
+- La pièce est mieux tenue
++ L'outil happe la pièce : elle est arrachée des mains et projetée, les mains peuvent être entraînées vers l'outil
+- L'outil ne coupe plus
+= Le travail en avalant n'est permis qu'avec un entraîneur, jamais à la main.
+
+Q: Que faut-il vérifier avant de mettre en route, pour la vitesse de rotation ?
+- Choisir toujours la plus grande vitesse de la machine
++ Que la vitesse ne dépasse pas la vitesse maximale (n max) gravée sur l'outil, et qu'elle convient à son diamètre
+- Que la vitesse soit la même que pour l'outil précédent
+= Au-delà de n max, l'outil peut éclater ; trop lent, l'état de surface est mauvais et le rejet plus probable.
+
+Q: Un outil de Ø 160 mm tourne à 7 000 tr/min. Quelle est sa vitesse de coupe Vc = π × D × n / 60 000 ?
+- Environ 35 m/s
++ Environ 59 m/s
+- Environ 117 m/s
+= π × 160 × 7 000 / 60 000 ≈ 58,6 m/s : dans la plage de 40 à 70 m/s retenue pour la toupie.
+
+Q: Un outil de Ø 200 mm est marqué « n max 6 500 ». La machine tourne à 4 000, 6 000, 7 000 ou 9 000 tr/min. Quelle vitesse choisir ?
+- 9 000 tr/min
+- 7 000 tr/min
++ 6 000 tr/min
+= On ne dépasse jamais n max : 7 000 et 9 000 sont interdits. À 6 000 tr/min, Vc ≈ 63 m/s.
+
+Q: Que signifie la mention « MAN » gravée sur un outil de toupie ?
++ L'outil est conçu pour l'avance manuelle (à la main, au chariot ou à l'entraîneur)
+- L'outil doit être monté à la main sans clé
+- L'outil ne s'utilise que sur une machine manuelle sans moteur
+= Les outils « MAN » limitent l'épaisseur de copeau et le rejet. « MEC » : outils pour l'avance mécanique (corroyeuses, tenonneuses doubles).
+
+Q: Dans quelles conditions monte-t-on un outil sur l'arbre ?
+- Moteur en marche, pour le centrer
+- Arbre arrêté, interrupteur général sur I
++ Machine consignée (interrupteur général sur 0, cadenassé), arbre verrouillé, flèche du sens de rotation dessus
+= On serre l'écrou arbre verrouillé, puis on déverrouille et on fait tourner l'outil à la main pour vérifier qu'il ne touche rien.
+
+Q: L'outil a été monté à l'envers par rapport au sens de rotation de l'arbre. Que se passe-t-il ?
+- Il coupe aussi bien, mais plus lentement
++ Il ne coupe pas : il frotte, chauffe, abîme la pièce et peut la rejeter
+- Il coupe en avalant, ce qui améliore l'état de surface
+= Toujours vérifier la flèche gravée sur l'outil et la position de l'inverseur avant de démarrer.
+
+Q: Quand toute la rive de la pièce est usinée (la face contre le guide recule), comment règle-t-on le demi-guide de sortie ?
+- Aligné avec le demi-guide d'entrée
++ Avancé de la profondeur de passe, pour soutenir la face usinée
+- Reculé de la profondeur de passe
+= Sinon, en fin de passe, la pièce n'est plus soutenue et pivote vers l'outil : entaille en bout et risque de rejet.
+
+Q: Pour un quart de rond qui n'usine qu'une partie de la rive, comment sont les deux demi-guides ?
++ Alignés dans le même plan
+- Le demi-guide de sortie avancé de 10 mm
+- Le demi-guide d'entrée avancé de 10 mm
+= La partie non usinée de la rive continue d'appuyer sur le demi-guide de sortie : il doit être aligné, sinon la pièce bute contre lui.
+
+Q: Pourquoi réduit-on au maximum la lumière (l'ouverture) entre les demi-guides, avec les lamelles ?
+- Pour que l'outil refroidisse mieux
++ Pour que le bout de la pièce ne plonge pas dans l'ouverture et ne soit pas happé par l'outil
+- Pour augmenter la vitesse de coupe
+= Les lamelles (ou barrettes, ou un faux guide) assurent la continuité du guide au niveau de l'outil, en laissant quelques millimètres de jeu.
+
+Q: Quelle bague de table choisit-on ?
+- La plus grande, pour ne jamais toucher l'outil
++ La plus petite qui laisse passer l'outil
+- Aucune, la table est assez grande
+= On réduit au maximum la lumière entre l'outil et la table : la pièce ne bascule pas dans l'ouverture.
+
+Q: Comment règle-t-on le protège-mains à presseurs ?
+- Les presseurs bien au-dessus de la pièce, pour qu'elle passe facilement
++ Presseur vertical sur la pièce, presseur horizontal contre la pièce, un peu sous ses dimensions, pour la plaquer sur la table et contre le guide
+- On le retire pour mieux voir l'outil
+= Les presseurs tiennent la pièce et font écran devant l'outil : ils servent de garde-main.
+
+Q: Comment pousse-t-on la fin de la pièce, en fin de passe ?
+- À la main, en passant au-dessus de l'outil
++ Avec un poussoir, les mains restant à droite de l'outil
+- On tire la pièce depuis la gauche avec la main gauche
+= Jamais la main gauche au-delà de l'outil sans butée ; le poussoir s'engage sous le presseur horizontal.
+
+Q: Une pièce ne mesure que 220 mm de long. Peut-on l'usiner au guide, à la main ?
+- Oui, en la tenant fermement des deux mains
++ Non : elle ne porte pas sur les deux demi-guides et les mains arrivent à l'outil ; serre-pièces (type Duluc), montage d'usinage, ou usinage d'une pièce plus longue recoupée ensuite
+- Oui, à condition de réduire la vitesse
+= Les petites pièces se manœuvrent avec un serre-pièces qui les tient et fait écran entre les mains et l'outil.
+
+Q: Une feuillure doit faire 15 mm de profondeur. Comment l'usiner ?
+- En une seule passe, poussée lentement
++ En deux passes (par exemple 7,5 puis 15 mm de saillie), le guide reculé arbre arrêté entre les deux
+- En une passe en avalant
+= Une passe trop forte augmente l'effort de coupe, les éclats et le risque de rejet.
+
+Q: Pendant l'usinage, où ne doit-on jamais se tenir, ni laisser passer personne ?
++ Dans la ligne de rejet de la pièce
+- Derrière le guide
+- À côté du pupitre
+= La pièce rejetée part dans le prolongement de l'avance : on balise la zone autour de la toupie.
+
+Q: Le moteur est arrêté, l'arbre tourne encore. Que faites-vous avant un réglage ?
+- Je freine l'outil avec une cale de bois
+- Je règle le guide sans toucher l'outil
++ J'attends l'arrêt complet de l'arbre : aucun réglage, aucune main vers l'outil tant qu'il tourne
+= Tout réglage de l'outil, du guide ou des presseurs se fait arbre arrêté ; moteur en marche, c'est une faute grave.
+
+Q: Comment nettoie-t-on la toupie après le travail ?
+- À la soufflette, c'est plus rapide
+- Au balai
++ À l'aspirateur pour atelier bois (classe M), machine arrêtée
+= Les poussières de bois sont cancérogènes : jamais de soufflette ni de balai ; masque FFP2 si l'aspiration à la source est insuffisante.

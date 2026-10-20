@@ -44,24 +44,24 @@ export function nearestDefect(){ const p=cur(); if(!p) return null; let best=nul
     if(!best||Math.abs(dist)<Math.abs(best.dist)) best={type:d.type, dist}; }
   return best; }
 
-export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger',cut.blocked]);
+export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger',cut.blocked,'piece']);
   const p=cur(), t=onTable();
   if(p && parked() && t.length===1){ const m=measure(p);
-    if(st.handD<ZONE) out.push(['danger',`MAIN DANS LA ZONE DE LA LAME (${st.handD} mm du trait) : la main de maintien reste hors de la zone rouge, à ${ZONE} mm au moins du trait, le plus loin possible de la lame.`]);
-    if(st.handD>=ZONE && !handOnWood()) out.push(['danger','PIÈCE NON TENUE : la main n\'est pas posée sur le bois. La lame avalante entraîne une pièce libre. Rapprochez la main du trait, sans entrer dans la zone rouge.']);
-    if(!againstGuide(p)) out.push(['danger','PIÈCE PAS PLAQUÉE CONTRE LE GUIDE : la lame, qui travaille en avalant, l\'entraînerait brutalement vers le guide (rejet, blocage de la lame). « Contre le guide ».']);
-    if(st.prot>p.prof.T+PROT_GAP[1]) out.push(['danger',`PROTECTEUR TROP HAUT (${st.prot} mm pour une pièce de ${p.prof.T} mm) : l'avant de la lame est accessible. Réglez-le au plus près, ${PROT_GAP[0]} à ${PROT_GAP[1]} mm au-dessus de la pièce.`]);
-    if(!st.lock) out.push(['danger','BRAS ET TÊTE NON BLOQUÉS : l\'angle peut changer pendant la coupe et la lame se coincer. Bloquez-les avant de démarrer.']);
-    if(m.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE (${fmt(m.L,0)} mm) : moins de ${MIN_LEN} mm, on ne peut pas la tenir hors de la zone de la lame. Ne la tronçonnez pas.`]);
-    if(st.stopOn && !againstStop(p)) out.push(['info','Butée en service : la pièce n\'est pas contre la butée (« Mettre la pièce en butée » la pousse contre le guide et la butée).']);
+    if(st.handD<ZONE) out.push(['danger',`MAIN DANS LA ZONE DE LA LAME (${st.handD} mm du trait) : la main de maintien reste hors de la zone rouge, à ${ZONE} mm au moins du trait, le plus loin possible de la lame.`,'main']);
+    if(st.handD>=ZONE && !handOnWood()) out.push(['danger','PIÈCE NON TENUE : la main n\'est pas posée sur le bois. La lame avalante entraîne une pièce libre. Rapprochez la main du trait, sans entrer dans la zone rouge.','main']);
+    if(!againstGuide(p)) out.push(['danger','PIÈCE PAS PLAQUÉE CONTRE LE GUIDE : la lame, qui travaille en avalant, l\'entraînerait brutalement vers le guide (rejet, blocage de la lame). « Contre le guide ».','piece']);
+    if(st.prot>p.prof.T+PROT_GAP[1]) out.push(['danger',`PROTECTEUR TROP HAUT (${st.prot} mm pour une pièce de ${p.prof.T} mm) : l'avant de la lame est accessible. Réglez-le au plus près, ${PROT_GAP[0]} à ${PROT_GAP[1]} mm au-dessus de la pièce.`,'protection']);
+    if(!st.lock) out.push(['danger','BRAS ET TÊTE NON BLOQUÉS : l\'angle peut changer pendant la coupe et la lame se coincer. Bloquez-les avant de démarrer.','outil']);
+    if(m.L<MIN_LEN) out.push(['danger',`PIÈCE TROP COURTE (${fmt(m.L,0)} mm) : moins de ${MIN_LEN} mm, on ne peut pas la tenir hors de la zone de la lame. Ne la tronçonnez pas.`,'piece']);
+    if(st.stopOn && !againstStop(p)) out.push(['info','Butée en service : la pièce n\'est pas contre la butée (« Mettre la pièce en butée » la pousse contre le guide et la butée).','guidage']);
     const nd=nearestDefect(); if(nd){ const N={noeud:'nœud',fente:'fente en bout',gerce:'gerce'}[nd.type];
-      if(nd.dist===0) out.push(['info',`Le trait de scie passe dans le défaut (${N}).`]);
-      else out.push(['info',`Défaut le plus proche : ${N}, à ${fmt(Math.abs(nd.dist),0)} mm ${nd.dist>0?'à gauche':'à droite'} du trait.`]); } }
-  if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant de démarrer la lame (poussières de bois cancérogènes).']);
+      if(nd.dist===0) out.push(['info',`Le trait de scie passe dans le défaut (${N}).`,'piece']);
+      else out.push(['info',`Défaut le plus proche : ${N}, à ${fmt(Math.abs(nd.dist),0)} mm ${nd.dist>0?'à gauche':'à droite'} du trait.`,'piece']); } }
+  if(!st.asp) out.push(['warn','Aspiration arrêtée : mettez-la en marche avant de démarrer la lame (poussières de bois cancérogènes).','machine']);
   if(!st.motor) out.push(['info','Lame arrêtée.']);
   if(head.mode==='front') out.push(['warn','Lame en avant : ramenez-la en position arrière, derrière le guide, sans lâcher la poignée, AVANT de toucher aux pièces.']);
   if(head.mode==='pull'||head.mode==='back') out.push(['info','Lame en mouvement : la main gauche tient la pièce, la droite retient la poignée.']);
-  if(parked() && t.length>1) out.push(['info','Deux pièces sur la table : gardez la pièce utile (contour orange, cliquez l\'autre pour la garder), « Évacuer les chutes », puis « Mettre la pièce en butée » ou « Mettre de côté ».']);
+  if(parked() && t.length>1) out.push(['info','Deux pièces sur la table : gardez la pièce utile (contour orange, cliquez l\'autre pour la garder), « Évacuer les chutes », puis « Mettre la pièce en butée » ou « Mettre de côté ».','piece']);
   return out; }
 
 /* ---------- mesures des pièces produites ---------- */

@@ -1,0 +1,39 @@
+  <section class="fam" data-fam="machine" data-key="machine">
+  <div class="srow">
+    <button class="toggle" id="main" type="button" aria-pressed="true" title="Interrupteur général (sectionneur) : I / 0">Interrupteur général</button>
+    <button class="toggle" id="cad" type="button" aria-pressed="false" title="Consigner : interrupteur général sur 0, puis cadenas (montage de l'outil)">Consigner</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+    <button class="toggle" id="resetPres" type="button" title="Remet la pièce de départ à l'entrée, machine arrêtée">Pièce à l'entrée</button>
+  </div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil">
+  <div class="ctl tl" role="group" aria-labelledby="l-outil"><span id="l-outil" class="tl-t">Outil monté <small>montage : machine consignée, arbre verrouillé</small></span><output id="o-outil"></output>
+    <div class="tl-g" id="toolLib"></div>
+    <div class="tl-b"><button class="toggle mini" type="button" id="lock" aria-pressed="false" title="Verrouillage de l'arbre en rotation, pour desserrer ou serrer l'écrou">Arbre verrouillé</button><button class="toggle mini" type="button" id="flipT" title="Retourne l'outil sur l'arbre (dessus dessous)">Retourner l'outil</button><button class="toggle mini" type="button" id="unmount">Démonter</button><button class="toggle mini" type="button" id="hand" title="Machine consignée : faire tourner l'outil à la main pour vérifier qu'il ne touche rien">Tourner à la main</button></div>
+    <p class="tl-i" id="toolInfo"></p>
+    <svg class="prof-svg" id="profSvg" viewBox="0 0 300 150" role="img" aria-label="Coupe : outil, guide, table et pièce, vus depuis l'entrée"></svg></div>
+  <div class="ctl" role="group" aria-labelledby="l-dir"><span id="l-dir" style="font-weight:500">Inverseur</span><output id="o-dir"></output>
+    <div class="row" style="grid-column:1/-1"><button class="toggle" type="button" data-dir="1">↺ anti-horaire</button><button class="toggle" type="button" data-dir="0">0</button><button class="toggle" type="button" data-dir="-1">↻ horaire</button></div></div>
+  <div class="ctl" role="group" aria-labelledby="l-rpm"><span id="l-rpm" style="font-weight:500">Vitesse (poulies)</span><output id="o-vc"></output>
+    <div class="row" style="grid-column:1/-1" id="rpms"></div></div>
+  <div class="ctl"><label for="haut">Hauteur : bas du tranchant (mm)</label><input class="num" id="haut-n" type="number" min="-60" max="90" step="0.1" aria-label="Hauteur du bas du tranchant en mm"><input id="haut" type="range" min="-60" max="90" step="0.5" value="0">
+    <p class="g-i" id="hInfo"></p><button class="toggle mini" type="button" id="hlock" aria-pressed="true" title="Blocage de la hauteur de l'arbre">Hauteur bloquée</button></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guidage">
+  <div class="ctl"><label for="sail">Saillie de l'outil (demi-guide d'entrée, mm)</label><input class="num" id="sail-n" type="number" min="-25" max="35" step="0.1" aria-label="Saillie de l'outil en mm"><input id="sail" type="range" min="-25" max="35" step="0.5" value="10"></div>
+  <div class="ctl"><label for="esor">Demi-guide de sortie : avancé de (mm)</label><input class="num" id="esor-n" type="number" min="0" max="20" step="0.1" aria-label="Avance du demi-guide de sortie en mm"><input id="esor" type="range" min="0" max="20" step="0.1" value="0"></div>
+  <div class="ctl lg" role="group" aria-labelledby="l-lam"><span id="l-lam" style="font-weight:500">Guide intégral : lamelles</span><button class="toggle mini" type="button" id="lam" aria-pressed="false" title="Arbre arrêté : rapproche les demi-guides de l'outil et passe toutes les lamelles qui ne touchent pas l'outil, au-dessus et au-dessous">Fermer les lamelles</button>
+    <p class="g-i" id="guideInfo"></p></div>
+  </section>
+  <section class="fam" data-fam="protection" data-key="protection">
+  <div class="ctl" role="group" aria-labelledby="l-ring"><span id="l-ring" style="font-weight:500">Bague de table (Ø)</span><output id="o-ring"></output>
+    <div class="row" style="grid-column:1/-1" id="rings"></div></div>
+  <div class="ctl pr" role="group" aria-labelledby="l-pr"><span id="l-pr" style="font-weight:500">Protège-mains à presseurs</span><button class="toggle mini" type="button" id="prot" aria-pressed="true">En place</button>
+    <div class="pr-g"><label>Presseur vertical : hauteur (mm)<input class="num" id="hv-n" type="number" min="0" max="150" step="0.5"></label><label>Presseur horizontal : distance au guide (mm)<input class="num" id="dh-n" type="number" min="0" max="250" step="0.5"></label></div></div>
+  </section>
+  <section class="fam" data-fam="piece" data-key="avance" data-title="Avance de la pièce">
+  <div class="ctl en" role="group" aria-labelledby="l-en"><span id="l-en" style="font-weight:500">Entraîneur (4 rouleaux)</span><output id="o-entr"></output>
+    <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" id="entrPlace" aria-pressed="false" title="Arbre arrêté : pose l'entraîneur sur la pièce de l'entrée (rouleaux 4 mm sous le dessus, bloc à 3° vers le guide) ; le protège-mains est escamoté">Placer sur la pièce</button></div>
+    <div class="row" style="grid-column:1/-1" id="entrV"></div></div>
+  </section>

@@ -1,0 +1,133 @@
+# QCM sécurité et technique de la tenonneuse (parcours évalué)
+# Sources : cours « La tenonneuse » du lycée (organes, procédure de réglage pour réaliser des tenons, travail en sécurité),
+# fiche « Tenonneuse : les points clés pour travailler en sécurité ».
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: À quoi sert la tenonneuse ?
+- À mettre les pièces à épaisseur
++ À réaliser facilement des usinages en bout de pièce, comme des tenons ou des enfourchements, en série
+- À débiter les plateaux en avivés
+= La tenonneuse usine les bouts des pièces : affranchissement à longueur, tenons, enfourchements, profil / contre-profil.
+
+Q: Dans quel ordre la pièce rencontre-t-elle les outils quand on pousse le chariot ?
++ La scie d'affranchissement, puis les dérouleurs, puis l'unité de toupillage
+- Les dérouleurs, puis la scie
+- L'unité de toupillage, puis la scie, puis les dérouleurs
+= La scie coupe d'abord le bout à longueur (longueur du tenon), puis les dérouleurs font les joues, enfin l'unité de toupillage.
+
+Q: Quel réglage donne la longueur du tenon ?
+- La hauteur du dérouleur inférieur
++ La position de la scie d'affranchissement par rapport à l'arasement
+- La pression de la presse
+= La scie coupe le bout à la distance voulue de l'arasement : c'est la longueur du tenon.
+
+Q: Quel réglage place le tenon par rapport au parement (SR1) ?
++ La hauteur du dérouleur inférieur (hauteur de la joue)
+- La hauteur du dérouleur supérieur seul
+- La position de la butée de longueur
+= SR1 étant sur la table du chariot, le dessus du dérouleur inférieur donne la distance entre SR1 et la joue du tenon.
+
+Q: Quel réglage donne l'épaisseur du tenon ?
+- La position de la scie
++ L'écart entre le dérouleur supérieur et le dérouleur inférieur
+- La vitesse d'avance du chariot
+= Le compteur d'épaisseur règle le dérouleur supérieur au-dessus de l'inférieur : l'écart entre les deux est l'épaisseur du tenon.
+
+Q: Comment règle-t-on toujours les dérouleurs ?
+- En descendant, pour bien appuyer sur la vis
++ En montant : on descend sous la cote, puis on remonte jusqu'à la cote
+- Peu importe le sens
+= En réglant en montant, on rattrape le jeu de la vis : l'outil est exactement à la cote affichée.
+
+Q: Comment pose-t-on la pièce sur le chariot ?
++ Parement (SR1) sur la table du chariot, SR2 contre le guide
+- Parement en haut, pour bien le voir
+- Dans n'importe quel sens, la machine est réglée
+= Le tenon se règle depuis les faces de référence : SR1 contre la table, SR2 contre le guide.
+
+Q: On usine le deuxième tenon d'une traverse. Que faut-il respecter ?
+- Retourner la pièce pour mettre le parement en haut
++ Garder la même surface de référence (SR1) sur la table
+- Changer le réglage des dérouleurs
+= Sinon le second tenon est décalé par rapport au premier : la traverse ne s'assemble plus d'affleurement.
+
+Q: Pour une série de traverses tenonnées aux deux bouts, contre quoi place-t-on la butée de longueur ?
+- Contre le bout (l'about) du premier tenon
++ Contre l'arasement du premier tenon
+- Contre le presse-pièce
+= La cote qui compte est la distance entre les deux arasements : la butée vient contre l'arasement.
+
+Q: À quoi sert le pare-éclat ?
+- À protéger les mains de l'opérateur
++ À soutenir l'arête de la pièce à la sortie des outils, pour qu'elle n'éclate pas
+- À régler l'épaisseur du tenon
+= Le pare-éclat (martyr en bois contre le guide) est usiné de quelques millimètres une fois les réglages faits : la pièce s'appuie contre lui à la sortie des outils.
+
+Q: Quand usine-t-on le pare-éclat ?
++ Une fois tous les réglages faits, avant la pièce d'essai
+- Une fois par an, à l'entretien
+- Jamais, il ne doit pas être touché
+= S'il a été usiné pour d'autres réglages, il ne soutient plus la sortie des outils : on le renouvelle et on l'usine à vide.
+
+Q: Comment peut-on ouvrir le capot de protection ?
+- À tout moment, il suffit de le soulever
++ Avec le sélecteur « Ouverture capot », après l'arrêt complet des outils (temporisation)
+- En appuyant sur l'arrêt d'urgence
+= Le capot est verrouillé ; la temporisation correspond au temps d'arrêt des outils. Capot ouvert, la machine ne démarre pas.
+
+Q: Le filin de sécurité a été tiré. Comment remet-on la machine en route ?
+- On redémarre directement les outils
++ On tire le bouton bleu du boîtier sectionneur (partie verte visible), puis on réarme au pupitre
+- On coupe l'interrupteur général et on attend une minute
+= Le filin coupe toute la machine par le boîtier sectionneur : il faut le réarmer, puis réarmer la machine (bouton bleu du pupitre).
+
+Q: Dans quel état doit être la machine pour changer un outil ?
+- Outils en marche, pour vérifier le centrage
+- Arrêtée au pupitre seulement
++ Consignée (interrupteur général sur 0, cadenassé), capot ouvert, carters déposés, arbre bloqué
+= Après le montage : débloquer l'arbre, remonter les carters, refermer le capot, déconsigner.
+
+Q: La scie tourne à 3 000 tr/min. Quelle lame peut-on monter ?
+- Une lame marquée n max 2 500 tr/min, si elle est bien affûtée
++ Une lame marquée n max 3 000 tr/min ou plus
+- N'importe quelle lame de Ø 400
+= On ne dépasse jamais la vitesse maximale (n max) marquée sur l'outil : il pourrait éclater.
+
+Q: Un dérouleur de Ø 180 mm tourne à 6 000 tr/min. Quelle est sa vitesse de coupe Vc = π × D × n / 60 000 ?
+- Environ 18 m/s
++ Environ 57 m/s
+- Environ 113 m/s
+= π × 180 × 6 000 / 60 000 ≈ 56,5 m/s.
+
+Q: Pendant la passe, où sont les mains ?
++ Sur la poignée du chariot, loin des bords usinés : la pièce est tenue par la presse
+- Une main sur la pièce, près du capot, pour la tenir
+- Sous le capot, pour guider le bout
+= La pièce est serrée par la presse ; les mains restent sur le chariot, loin de la zone des outils.
+
+Q: Pourquoi ramène-t-on toujours le chariot en position de chargement avant de desserrer la pièce ?
+- Pour économiser l'air comprimé
++ Chariot avancé, les mains arrivent près des outils et la pièce peut être happée
+- Pour que la scie refroidisse
+= On pose, retourne et desserre la pièce seulement chariot ramené (et verrouillé) en position de chargement.
+
+Q: Quelles sont les principales causes d'accident sur la tenonneuse ?
+- Le bruit et la chaleur
++ Les contacts avec l'outil par le dessous, la projection d'éclats, de copeaux et de poussières, le pincement lors de la mise en place des pièces
+- La chute de la machine
+= Cours « La tenonneuse » : contacts avec l'outil par le dessous, projections, pincement à la mise en place.
+
+Q: Comment nettoie-t-on la machine après le travail ?
+- À la soufflette, c'est plus rapide
++ Machine arrêtée et hors tension, avec un aspirateur (classe M), pas de balai ni de soufflette
+- Outils en marche, pour que les copeaux s'en aillent
+= On attend l'arrêt complet, on coupe le contact, puis on nettoie à l'aspirateur.

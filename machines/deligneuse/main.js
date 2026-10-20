@@ -1,6 +1,8 @@
 /* Déligneuse multilames KANAK 300 M : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -9,12 +11,26 @@ import { GREEN, MANCHONS, KERF } from './constants.js';
 import { st, ctx, bladeZ, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, entry, exitPieces, keepPiece, startPass, tickPass, chainSpeed, under, surf, laserKey, load, measure, mirror, take, setKeep, setKind, evacuate, bringBack, aside, flip, endForEnd, toGuide, nudge, clampZ, fmt, label } from './piece.js';
-import { computeAlerts, passBlock } from './rules.js';
+import { computeAlerts, passBlock, presOk } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','moteur','transmission','aspiration'], outil:['lames','manchon'], guidage:['guide','reglage_guide','laser'],
+    protection:['presseurs','reglage_presseurs','linguets','rideau','capot'], avance:['tapis','vitesse','moteur_avance','table_entree','table_sortie'],
+    pupitre:['pupitre','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>({m1:'1 lame',m2:'2 lames · 140',m4:'4 lames · 45'})[st.man]||st.man,
+    guidage:()=> st.guideUp? `guide à ${st.gw} mm${st.laser?' · laser':''}` : `guide escamoté${st.laser?' · laser':''}`,
+    protection:()=>`passage ${st.H} mm`,
+    avance:()=>`${st.v} m/min · tapis ${st.tapis?'en marche':'arrêté'}`,
+    piece:()=>{ const e=entry(); return e? `${e.L} × ${e.T} à l'entrée` : exitPieces().length? 'pièces à la sortie' : 'aucune pièce'; } } });
+initSchema({ pinIn:'famBar', sub:'presseurs, guide et traits de scie',
+  html:'<svg id="presSvg" viewBox="0 0 300 108" role="img" aria-label="Vue de côté : tapis, pièce et rouleaux presseurs"></svg>', svgs:['planSvg'] });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
 const F = app.ex.flash;
@@ -32,6 +48,21 @@ function drawAmp(){ const pred=load(), now=ampNow(), key=pred+'|'+now; if(key===
   const col=pred>100?'var(--danger)':pred>=GREEN[0]&&pred<=GREEN[1]?'var(--ok)':'var(--muted)';
   g+=`<text x="${cx}" y="${cy-14}" font-size="9" text-anchor="middle" fill="${col}">${cut.inProgress?'en coupe '+now:'prévue '+pred} %</text>`;
   $('ampSvg').innerHTML=g; $('o-amp').textContent= pred? `${pred} %` : '—'; }
+
+/* ---------- vue de côté : tapis, pièce, rouleaux presseurs (réglage 1 à 4 mm sous l'épaisseur) ---------- */
+let presKey='';
+function drawPres(){ const e=cut.inProgress?cut.src:entry(), T=e?e.T:null, key=st.H+'|'+T; if(key===presKey) return; presKey=key;
+  const yT=88, k=0.6, r=11, ok=e&&presOk(e), bute=e&&st.H<T-4, high=e&&st.H>=T;
+  const col=!e?'var(--muted)':ok?'var(--ok)':bute?'#c98a12':'var(--danger)';
+  let g=`<defs><marker id="dlA" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="var(--fg)"/></marker></defs>`;
+  g+=`<rect x="6" y="${yT}" width="288" height="8" rx="4" fill="var(--muted)" opacity=".5"/><text x="8" y="${yT+16}" font-size="8" fill="var(--muted)">tapis → sortie à gauche</text>`;
+  if(e) g+=`<rect x="120" y="${yT-T*k}" width="174" height="${T*k}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/><text x="286" y="${yT-T*k/2+3}" text-anchor="end" font-size="8.5" fill="#5a4020">pièce ${T} mm</text>`;
+  for(const x of [60,190]) g+=`<circle cx="${x}" cy="${yT-st.H*k-r}" r="${r}" fill="none" stroke="${col}" stroke-width="2"/><circle cx="${x}" cy="${yT-st.H*k-r}" r="2" fill="${col}"/>`;
+  g+=`<circle cx="125" cy="${yT-st.H*k-28}" r="22" fill="none" stroke="var(--fg)" stroke-dasharray="3 2" opacity=".5"/>`;
+  g+=`<line x1="30" y1="${yT}" x2="30" y2="${yT-st.H*k}" stroke="var(--fg)" stroke-width=".7" marker-start="url(#dlA)" marker-end="url(#dlA)"/><line x1="24" y1="${yT-st.H*k}" x2="${60}" y2="${yT-st.H*k}" stroke="var(--muted)" stroke-dasharray="2 2"/>`;
+  g+=`<text x="4" y="12" font-size="9.5" font-weight="600" fill="var(--fg)">presseurs à ${st.H} mm</text>`;
+  g+=`<text x="296" y="24" text-anchor="end" font-size="8.5" fill="${col}">${!e?'pas de pièce à l\'entrée':ok?'réglage correct (1 à 4 mm sous la pièce)':high?'trop hauts : pièce non plaquée':'trop bas : la pièce bute'}</text>`;
+  $('presSvg').innerHTML=g; }
 
 /* ---------- vue de dessus : pièce, flache, traits de scie, guide (échelle en travers agrandie) ---------- */
 let planKey='';
@@ -77,12 +108,13 @@ function update(){
   model.update({ H:st.H, guideZ:guideZ(), guideUp:st.guideUp, under, laser:st.laser, bladeZs:bladeZ(), surf, laserKey:laserKey(), amp:ampNow() });
   for(const k of ['motor','tapis','asp','laser']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
+  $('motor').textContent= st.motor? 'O · Lames' : 'I · Lames'; $('tapis').textContent= st.tapis? 'O · Tapis' : 'I · Tapis'; $('pupV').textContent= st.tapis? String(st.v) : '0';
   $('gup').setAttribute('aria-pressed',String(st.guideUp)); $('gup').textContent=st.guideUp?'Guide en place':'Guide escamoté';
   document.querySelectorAll('[data-man]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.man===st.man)));
   $('o-speed').textContent=`${st.v} m/min`; $('speed').value=st.v;
   for(const [k,key] of [['pres','H'],['gw','gw']]){ $(k).value=st[key]; if(document.activeElement!==$(k+'-n')) $(k+'-n').value=st[key]; }
   for(const id of ['speed','pres','gw','pres-n','gw-n','gup']) $(id).disabled=cut.inProgress;
-  drawAmp(); drawPlan();
+  drawAmp(); drawPlan(); drawPres();
 }
 const apply=()=>app.apply();
 const say=(msg,level='warn')=>{ F.msg=msg; F.level=level; app.ex.invalidate(); apply(); };

@@ -6,7 +6,7 @@
    Organes animés : lame (rotation ralentie à l'affichage), tête (course), bras (angle), inclinaison,
    protecteur (hauteur), butée (position, relevée / abaissée), main de maintien. */
 import * as THREE from 'three';
-import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex } from '../../engine/kit.js';
+import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex, sawBlade } from '../../engine/kit.js';
 import { TABLE_Y, R, DROP, FENCE_Z, FENCE_T, FENCE_H, Z_COL, Z_PIV, ANGLE_MARKS, Z_PARK, STROKE, ARM_Y, TABLE_X0, TABLE_X1, TABLE_Z0, TABLE_Z1, SERV_X0, EXT_X1, KERF, ZONE } from './constants.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
@@ -190,15 +190,8 @@ export function buildModel({ root, tagPart, partMeshes }){
   // 09 lame (géométrie dans XY, tournée pour que son plan soit YZ) ; les dents de devant descendent
   const bladeO = new THREE.Group(); bladeO.position.set(0,hy,0); bladeO.rotation.y=Math.PI/2; tilt.add(bladeO);
   const bladeSpin = new THREE.Group(); bladeO.add(bladeSpin);
-  { const CARB=new THREE.MeshStandardMaterial({color:0x3b3f44,metalness:0.7,roughness:0.35}), BL=new THREE.MeshStandardMaterial({color:0xdde2e6,metalness:0.7,roughness:0.28,side:THREE.DoubleSide});
-    const n=36, r1=R, r0=R-0.016, step=Math.PI*2/n, s=new THREE.Shape(), p=(rr,aa)=>[rr*Math.cos(aa),rr*Math.sin(aa)];
-    for(let k=0;k<n;k++){ const a=k*step; const g0=p(r0,a), tip=p(r1,a+0.78*step), face=p(r0+0.004,a+0.80*step), gul=p(r0-0.005,a+0.92*step);
-      if(k===0) s.moveTo(...g0); else s.lineTo(...g0); s.lineTo(...tip); s.lineTo(...face); s.quadraticCurveTo(...p(r0-0.010,a+0.86*step),...gul); }
-    s.closePath(); const hole=new THREE.Path(); hole.absarc(0,0,0.015,0,Math.PI*2,true); s.holes.push(hole);
-    const g=new THREE.ExtrudeGeometry(s,{depth:0.0028,bevelEnabled:false,curveSegments:4}); g.translate(0,0,-0.0014);
-    bladeSpin.add(new THREE.Mesh(g,BL));
-    const tipG=new THREE.BoxGeometry(0.006,0.004,0.004); for(let k=0;k<n;k++){ const a=(k+0.78)*step, t=new THREE.Mesh(tipG,CARB); t.position.set(Math.cos(a)*(R-0.002),Math.sin(a)*(R-0.002),0); t.rotation.z=a; bladeSpin.add(t); }
-    const slot=new THREE.BoxGeometry(0.035,0.003,0.003); for(let k=0;k<4;k++){ const a=k*Math.PI/2+0.3, sl=new THREE.Mesh(slot,M.dark); sl.position.set(Math.cos(a)*0.13,Math.sin(a)*0.13,0); sl.rotation.z=a+Math.PI/2; bladeSpin.add(sl); } }
+  // lame carbure commune (engine/kit.js, d'après la lame de la scie à format) ; elle tourne dans le sens rotation.z croissant
+  bladeSpin.add(sawBlade({ R, Z:72, plate:0.0028, kerf:0.004, bore:0.03, pins:true, dir:1, mark:['Ø400 × 4,0/2,8 × 30  Z72  HW','n max 6000 RPM'] }));
   tagPart(bladeSpin,'lame');
   // 10 fixation : flasques et écrou, côté gauche de la lame
   const fix = new THREE.Group(); tilt.add(fix);

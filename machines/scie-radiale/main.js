@@ -1,6 +1,8 @@
 /* Scie radiale KANAK 900 R : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -9,12 +11,25 @@ import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE, TABLE_X0, TABLE_X1 
 import { st, head, parked, ctx, bladeX, stopX, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, measure, label, fmt, sawThrough, strokeNeeded, setKeep, setKind, evacuate, bringBack, aside, take, toGuide, endForEnd, nudge, clampPiece } from './piece.js';
-import { computeAlerts, passBlock, zonePoly, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
+import { computeAlerts, passBlock, protOk, zonePoly, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','table','colonne','aspiration','servante','table_sortie'], outil:['lame','fixation','bras','chariot','rotation','inclinaison','manivelle','ressort','moteur','poignee'],
+    guidage:['guide','butee','regle_butee'], protection:['protecteur','carter'], pupitre:['commande','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>`bras ${st.alpha}° · lame ${st.beta}° · ${st.lock?'bloqués':'débloqués'}`,
+    guidage:()=> st.stopOn? `butée en service à ${st.stopL} mm` : `butée relevée (${st.stopL} mm)`,
+    protection:()=>`protecteur à ${st.prot} mm`,
+    main:()=>`${st.handD} mm du trait`,
+    piece:()=>{ const t=onTable(); return t.length? `${t.length} pièce${t.length>1?'s':''} sur la table` : 'table libre'; } } });
+initSchema({ pinIn:'famBar', sub:'vue de dessus de la table et protecteur avant',
+  svgs:['planSvg'], html:'<svg id="protSvg" viewBox="0 0 300 104" role="img" aria-label="Vue de côté : guide, pièce, lame et bord bas du protecteur avant"></svg>' });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
 const F = app.ex.flash;
@@ -52,6 +67,22 @@ function drawPlan(){ const t=onTable(), hx=handXZ();
   g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue de dessus · zone rouge ${ZONE} mm · bras ${st.alpha}° · lame ${st.beta}°</text><text x="4" y="157" font-size="9" fill="var(--fg)">${r1}</text><text x="4" y="168" font-size="9" fill="var(--fg)">${r2}</text>`;
   $('planSvg').innerHTML=g; }
 
+/* ---------- vue de côté (depuis la droite) : guide, pièce, lame, bord bas du protecteur avant ---------- */
+let protKey='';
+function drawProtSvg(){ const p=cur(), T=p?p.prof.T:null, key=st.prot+'|'+T; if(key===protKey) return; protKey=key;
+  const yT=92, k=0.45, ok=p&&protOk(p), low=p&&st.prot<T;
+  const col=!p?'var(--muted)':ok?'var(--ok)':low?'#c98a12':'var(--danger)', yp=yT-st.prot*k;
+  let g=`<defs><marker id="srA" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="var(--fg)"/></marker></defs>`;
+  g+=`<rect x="6" y="${yT}" width="288" height="8" fill="var(--muted)" opacity=".45"/><rect x="40" y="${yT-34}" width="8" height="34" fill="var(--fg)" opacity=".75"/><text x="44" y="${yT-38}" text-anchor="middle" font-size="8" fill="var(--muted)">guide</text>`;
+  if(p) g+=`<rect x="48" y="${yT-T*k}" width="150" height="${T*k}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/>`;
+  g+=`<circle cx="150" cy="${yT-22}" r="40" fill="none" stroke="var(--fg)" stroke-dasharray="3 2" opacity=".45"/><text x="150" y="${yT-46}" text-anchor="middle" font-size="8" fill="var(--muted)">lame</text>`;
+  g+=`<path d="M200,${Math.min(yp,yT-56)} L200,${yp} L248,${yp}" fill="none" stroke="${col}" stroke-width="3"/>`;
+  g+=`<line x1="262" y1="${yT}" x2="262" y2="${yp}" stroke="var(--fg)" stroke-width=".7" marker-start="url(#srA)" marker-end="url(#srA)"/><line x1="248" y1="${yp}" x2="270" y2="${yp}" stroke="var(--muted)" stroke-dasharray="2 2"/>`;
+  g+=`<text x="4" y="12" font-size="9.5" font-weight="600" fill="var(--fg)">protecteur avant à ${st.prot} mm${p?` · pièce ${T} mm`:''}</text>`;
+  g+=`<text x="296" y="24" text-anchor="end" font-size="8.5" fill="${col}">${!p?'pas de pièce sur la table':ok?'réglé au plus près (1 à 10 mm au-dessus)':low?'plus bas que la pièce : elle ne passe pas':'trop haut : avant de la lame accessible'}</text>`;
+  g+=`<text x="296" y="${yT-4}" text-anchor="end" font-size="8" fill="var(--muted)">opérateur →</text>`;
+  $('protSvg').innerHTML=g; }
+
 /* ---------- flèches : direction réelle à l'écran de la servante (−X) et de la butée (+X) ---------- */
 const ARROWS=['→','↗','↑','↖','←','↙','↓','↘'];
 function arrowFor(dx){ const cam=stage.camera, a=new THREE.Vector3(0,TABLE_Y,-0.1).project(cam), b=new THREE.Vector3(dx,TABLE_Y,-0.1).project(cam);
@@ -82,6 +113,7 @@ function update(){
   model.update({ alpha:st.alpha, beta:st.beta, s:head.s, prot:st.prot, stopX:stopX(), stopOn:st.stopOn,
     zone:zonePoly(), hand:{ show:t.length>0, x:hx[0], y:TABLE_Y+(onW&&p? p.prof.T/1000 : 0)+0.001, z:hx[1], bad:!handOk() } });
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
+  $('motor').textContent= st.motor? 'O · Lame' : 'I · Lame'; $('pupA').textContent=String(st.alpha); $('pupB').textContent=String(st.beta);
   $('pull').setAttribute('aria-pressed',String(head.mode==='pull')); $('ret').setAttribute('aria-pressed',String(head.mode==='back'));
   $('lock').setAttribute('aria-pressed',String(st.lock)); $('lock').textContent=st.lock?'Bras et tête bloqués':'Bras et tête débloqués';
   $('stopOn').setAttribute('aria-pressed',String(st.stopOn)); $('stopOn').textContent=st.stopOn?'Butée en service':'Butée relevée';
@@ -90,7 +122,7 @@ function update(){
   for(const [k,key] of [['prot','prot'],['stop','stopL'],['hand','handD']]){ $(k).value=st[key]; if(document.activeElement!==$(k+'-n')) $(k+'-n').value=st[key]; }
   const moving=head.mode==='pull'||head.mode==='back';
   for(const id of ['prot','prot-n','stop','stop-n','stopOn','lock']) $(id).disabled=moving;
-  drawPlan();
+  drawPlan(); drawProtSvg();
 }
 
 /* ---------- manipulations de la pièce : jamais lame en avant ---------- */

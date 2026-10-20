@@ -14,7 +14,10 @@ export const CHAIN_X0 = -0.52, CHAIN_X1 = 0.50;
 export const LEAD0 = 0.52;                   // bout avant de la pièce posée sur la table d'entrée
 export const EXIT_X = -0.66;                 // la pièce sortie s'arrête, bout arrière ici
 export const MIN_LEN = 390;                  // longueur minimale des pièces (mm)
-export const ROLLERS = [0.25, 0.15, -0.15, -0.25];   // rouleaux presseurs : 2 avant, 2 après les lames
+/* rouleaux presseurs : 2 avant, 2 après les lames, HORS du cercle des lames (Ø 300) : entraxe arbre – rouleau
+   au moins R_BLADE + rayon du rouleau + 10 mm (bug corrigé : les rouleaux à ±150 mm étaient dans les lames) */
+export const R_ROLL = 0.035;
+export const ROLLERS = [0.275, 0.205, -0.205, -0.29];
 /* manchons porte-lames préréglés : décalage de chaque lame depuis la première (mm) */
 export const MANCHONS = {
   m1: { label: '1 lame', off: [0] },

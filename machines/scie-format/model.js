@@ -2,7 +2,7 @@
    Règles validées par l'enseignant : couteau diviseur DERRIÈRE la lame ; dents du haut vers l'opérateur ;
    pas de bague de protection autour de la lame ; groupe d'inclinaison dans le bâti ; marque fictive KANAK 550. */
 import * as THREE from 'three';
-import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex, beltGeom, pulley, arcPlate } from '../../engine/kit.js';
+import { M, MI, rbox, add, cyl, link, setBetween, canvasTex, rulerTex, beltGeom, pulley, arcPlate, sawBlade } from '../../engine/kit.js';
 import { TABLE_Y, BLADE_Z, R, SLIDER_Z, SLIDER_L, SLIDER_HOME, SABOT_FACE, SABOT_Z0, SABOT_Z1, FRAME_X0, FRAME_X1, FRAME_Z0, FRAME_Z1, REG_L, REG_X, REG_Z0 } from './constants.js';
 import { st, guideFace, stopT } from './state.js';
 
@@ -84,43 +84,9 @@ tagPart(guideFixed,'guide'); tagPart(guide,'guide');
 /* ---------- 04 Lame + 05 couteau (tilt pivot at table line) ---------- */
 const tiltPivot = new THREE.Group(); tiltPivot.position.set(0,TABLE_Y,BLADE_Z); root.add(tiltPivot);
 const lift = new THREE.Group(); tiltPivot.add(lift);
-const BLADE_Z_TEETH=72, PLATE=0.0032, KERF_T=0.0044;
-function bladeGeom(){ const s=new THREE.Shape(), N=BLADE_Z_TEETH, st=Math.PI*2/N, P=(r,an)=>[Math.cos(an)*r,Math.sin(an)*r];
-  // dent trapézoïdale : dos incliné, sommet plat, face d'attaque raide, creux arrondi (sens d'attaque = angle croissant ; le disque est ensuite mis en miroir)
-  for(let i=0;i<N;i++){ const a=i*st;
-    const pts=[P(R-0.0075,a),P(R-0.0072,a+st*0.08),P(R-0.0050,a+st*0.25),P(R-0.0012,a+st*0.62),P(R,a+st*0.70),P(R,a+st*0.76),P(R-0.0040,a+st*0.79),P(R-0.0068,a+st*0.86),P(R-0.0076,a+st*0.94)];
-    pts.forEach(([x,y],k)=> (i===0&&k===0)? s.moveTo(x,y): s.lineTo(x,y)); }
-  s.closePath();
-  const hole=new THREE.Path(); hole.absarc(0,0,0.015,0,Math.PI*2,true); s.holes.push(hole);
-  for(const sx of [-1,1]){ const pin=new THREE.Path(); pin.absarc(sx*0.027,0,0.0045,0,Math.PI*2,true); s.holes.push(pin); }   // trous d'entraînement
-  for(let k=0;k<6;k++){ const a=k*Math.PI/3+0.26, w=0.0008, r1=R-0.040, r2=R-0.013;              // fentes de dilatation terminées par un trou
-    const sl=new THREE.Path(), c=Math.cos(a), sn=Math.sin(a), px=-sn*w, py=c*w;
-    sl.moveTo(c*r1+px,sn*r1+py); sl.lineTo(c*r2+px,sn*r2+py); sl.lineTo(c*r2-px,sn*r2-py); sl.lineTo(c*r1-px,sn*r1-py); s.holes.push(sl);
-    const e=new THREE.Path(); e.absarc(c*(r1-0.0045),sn*(r1-0.0045),0.0032,0,Math.PI*2,true); s.holes.push(e); }
-  const g=new THREE.ExtrudeGeometry(s,{depth:PLATE,bevelEnabled:false,curveSegments:10}); g.translate(0,0,-PLATE/2); return g; }
-// face du disque : acier brossé, anneau, fentes anti-bruit rouges, marquage et flèche de rotation (dessinés vus du côté chariot)
-const bladeFaceTex=(()=>{ const N=1024, off=document.createElement('canvas'); off.width=off.height=N; const g=off.getContext('2d'), c=N/2, k=N/(2*R);
-  const grd=g.createRadialGradient(c,c,20,c,c,c); grd.addColorStop(0,'#eef1f3'); grd.addColorStop(0.6,'#d6dbdf'); grd.addColorStop(1,'#c9ced3'); g.fillStyle=grd; g.fillRect(0,0,N,N);
-  for(let i=0;i<260;i++){ const r=40+Math.random()*(c-50), a0=Math.random()*6.28; g.strokeStyle=`rgba(${Math.random()<.5?255:120},${Math.random()<.5?255:125},${Math.random()<.5?255:130},.10)`; g.lineWidth=1; g.beginPath(); g.arc(c,c,r,a0,a0+0.4+Math.random()*1.4); g.stroke(); }
-  g.strokeStyle='rgba(120,128,136,.45)'; g.lineWidth=2; g.beginPath(); g.arc(c,c,0.60*R*k,0,7); g.stroke();
-  for(let i=0;i<6;i++){ const a=i*Math.PI/3+0.26+Math.PI/6, rr=0.76*R*k; g.save(); g.translate(c+Math.cos(a)*rr,c+Math.sin(a)*rr); g.rotate(a);
-    g.strokeStyle='#c7332b'; g.lineWidth=8; g.lineCap='round'; g.beginPath(); const L=86, A=20; g.moveTo(-A,-L/2);
-    for(let t=0;t<=1.0001;t+=0.02){ g.lineTo(Math.sin(t*Math.PI*3)*A*(t<0.02||t>0.98?1:1),-L/2+t*L); } g.stroke();
-    g.fillStyle='#c7332b'; for(const yy of [-L/2,L/2]){ g.beginPath(); g.arc(Math.sin((yy>0?1:0)*Math.PI*3)*A,yy,7,0,7); g.fill(); } g.restore(); }
-  g.fillStyle='rgba(95,103,110,.85)'; g.textAlign='center'; g.font='600 30px "JetBrains Mono",monospace';
-  g.fillText('Ø400 × 4,4/3,2 × 30  Z72  HW',c,c+0.36*R*k); g.font='500 24px "JetBrains Mono",monospace'; g.fillText('n max 6000 RPM',c,c+0.36*R*k+34);
-  g.strokeStyle='rgba(95,103,110,.85)'; g.lineWidth=5; g.beginPath(); g.arc(c,c,0.47*R*k,Math.PI*0.62,Math.PI*0.38,true); g.stroke();   // flèche : sens horaire vu du côté chariot
-  const ea=Math.PI*0.38, ex=c+Math.cos(ea)*0.47*R*k, ey=c+Math.sin(ea)*0.47*R*k; g.fillStyle='rgba(95,103,110,.85)'; g.save(); g.translate(ex,ey); g.rotate(ea-Math.PI/2); g.beginPath(); g.moveTo(-14,0); g.lineTo(14,0); g.lineTo(0,-22); g.closePath(); g.fill(); g.restore();
-  const cv=document.createElement('canvas'); cv.width=cv.height=N; const h=cv.getContext('2d'); h.translate(N,0); h.scale(-1,1); h.drawImage(off,0,0); // pré-miroir (le disque est en miroir)
-  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; t.repeat.set(1/(2*R),1/(2*R)); t.offset.set(0.5,0.5); return t; })();
-const MAT_BLADE_FACE=new THREE.MeshStandardMaterial({map:bladeFaceTex,metalness:0.55,roughness:0.32,side:THREE.DoubleSide});
 const blade = new THREE.Group(); lift.add(blade);
-{ // disque + plaquettes carbure ; miroir : les dents attaquent dans le sens de rotation (dents du haut vers l'opérateur)
-  const disc=new THREE.Group(); disc.scale.x=-1; blade.add(disc);
-  disc.add(new THREE.Mesh(bladeGeom(), [MAT_BLADE_FACE, M.blade]));
-  const N=BLADE_Z_TEETH, st=Math.PI*2/N, tips=new THREE.InstancedMesh(new THREE.BoxGeometry(0.0055,0.0032,KERF_T), new THREE.MeshStandardMaterial({color:0x9aa2a9,metalness:0.7,roughness:0.35}), N), o=new THREE.Object3D();
-  for(let i=0;i<N;i++){ const a=i*st+st*0.70; o.position.set(Math.cos(a)*(R-0.0016),Math.sin(a)*(R-0.0016),0); o.rotation.set(0,0,a+Math.PI/2); o.updateMatrix(); tips.setMatrixAt(i,o.matrix); }
-  disc.add(tips); }
+// lame carbure (engine/kit.js, la même sur toutes les machines) ; miroir : les dents attaquent dans le sens de rotation (dents du haut vers l'opérateur)
+blade.add(sawBlade({ R, Z:72, plate:0.0032, kerf:0.0044, bore:0.03, pins:true, dir:-1, mark:['Ø400 × 4,4/3,2 × 30  Z72  HW','n max 6000 RPM'] }));
 blade.add(cyl(0.06,0.012,M.steel,32,'z'));
 blade.add(cyl(0.025,0.02,M.dark,6,'z'));
 tagPart(blade,'lame');

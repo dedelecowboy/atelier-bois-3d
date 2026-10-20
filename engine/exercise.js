@@ -6,7 +6,8 @@
    Une étape : { k:'Coupe 1', t:'Titre', c:'Consigne', cut:'A' (facultatif),
                  checks:[[libellé, ()=>bool], …], done:(étape)=>bool,
                  results:()=>({rows:[[libellé, valeur, ok], …]} | {msg:'…'}) (facultatif) }
-   Une alerte : [niveau, texte] avec niveau 'danger' | 'warn' | 'info'. */
+   Une alerte : [niveau, texte, panneau] avec niveau 'danger' | 'warn' | 'info' ; panneau (facultatif) : data-key
+   de la section de réglages (engine/families.js) qui l'affiche aussi. */
 
 const $ = id=>document.getElementById(id);
 
@@ -33,7 +34,7 @@ export function createExercise(modes){
   const row=(l,v,ok)=>`<tr><td>${l}</td><td>${v}</td><td style="color:var(--${ok?'ok':'danger'})">${ok?'✓':'✗'}</td></tr>`;
 
   ex.render = ()=>{
-    const alerts=H.alerts(); if(ex.flash.msg) alerts.unshift([ex.flash.level,ex.flash.msg]);
+    const alerts=H.alerts(); H.onAlerts?.(alerts); if(ex.flash.msg) alerts.unshift([ex.flash.level,ex.flash.msg]);
     let S=null, checks=[], done=false, res=null;
     if(!ex.free){ S=ex.STEPS[ex.step]; checks=S.checks.map(([t,f])=>[t,!!f()]); done=S.done(S); if(S.results) res=S.results(); }
     const key=JSON.stringify([ex.mode,ex.step,checks,done,alerts,res,H.panelKey?.()]);

@@ -1,5 +1,7 @@
 /* Dégauchisseuse KANAK 520 D : assemblage du module (modèle, pièce, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
@@ -13,6 +15,19 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','moteur','transmission','aspiration'], outil:['arbre','table_entree','table_sortie','profondeur'],
+    guidage:['guide','reglage_guide','carter'], protection:['protecteur'], pupitre:['pupitre','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
+    outil:()=>`passe ${fmt(st.d)} mm`,
+    guidage:()=>`guide à ${fmt(st.ga)}° · passage ${Math.round(st.gw)} mm`,
+    protection:()=>`bec ${st.bec==='plat'?'vertical (plat)':'horizontal (chant)'}`,
+    avance:()=>`${Math.round(st.t)} mm`,
+    piece:()=> p? `${p.L} × ${fmt(width())} × ${fmt(thickness())}` : 'aucune pièce' } });
+initSchema({ pinIn:'famBar', sub:'vue de côté et vue en bout',
+  html:'<svg id="sideSvg" viewBox="0 0 300 110" role="img" aria-label="Vue de côté : tables, arbre et profondeur de passe"></svg>', svgs:['protSvg'] });
 ctx.app = app; ctx.model = model;
 initPiece(app, model);
 const F = app.ex.flash;
@@ -30,7 +45,25 @@ function drawProt(){ const el=$('protSvg'); if(!el) return; const P=p?protState(
   const ok=!!P&&P.ok;
   g+=`<rect x="${bx}" y="${by}" width="${x0+520*sx+24-bx}" height="6" fill="${ok?'var(--ok)':'#f0b323'}" stroke="var(--fg)" stroke-width=".6"/>`;
   g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue en bout : couverture au passage de la pièce</text>`;
-  g+=`<text x="216" y="78" font-size="8" text-anchor="end" fill="${ok?'var(--ok)':'var(--danger)'}">${!P?'':ok?(P.m==='plat'?'bec vertical : la couverture passe sur la pièce':'bec horizontal : la couverture plaque la pièce'):'bec mal orienté : arbre découvert'}</text>`;
+  g+=`<text x="216" y="78" font-size="7" text-anchor="end" fill="${ok?'var(--ok)':'var(--danger)'}">${!P?'':ok?(P.m==='plat'?'bec vertical : la couverture passe sur la pièce':'bec horizontal : la couverture plaque la pièce'):'bec mal orienté : arbre découvert'}</text>`;
+  el.innerHTML=g; }
+
+/* ---------- vue de côté : tables, arbre, profondeur de passe (exagérée) ---------- */
+function drawSide(){ const el=$('sideSvg'); if(!el) return;
+  const yS=70, ax=150, R=16, k=5, dy=st.d*k, warn=st.d>2;                       // profondeur exagérée : 5 px/mm
+  let g=`<defs><pattern id="dgH" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="var(--danger)" stroke-width="1.4"/></pattern>
+    <marker id="dgA" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="var(--fg)"/></marker></defs>`;
+  g+=`<rect x="8" y="${yS}" width="${ax-R-4-8}" height="22" fill="var(--muted)" opacity=".45"/><rect x="${ax+R+4}" y="${yS+dy}" width="${292-ax-R-4}" height="22" fill="var(--muted)" opacity=".45"/>`;
+  g+=`<circle cx="${ax}" cy="${yS+R}" r="${R}" fill="none" stroke="var(--fg)" stroke-width="1" stroke-dasharray="3 2"/><circle cx="${ax}" cy="${yS+R}" r="5" fill="var(--fg)" opacity=".6"/>`;
+  g+=`<text x="12" y="${yS+14}" font-size="8" fill="var(--fg)">table de sortie</text><text x="288" y="${yS+dy+14}" text-anchor="end" font-size="8" fill="var(--fg)">table d'entrée</text>`;
+  if(p){ const h=26, top=yS+dy-h;                                                   // pièce posée sur la table d'entrée, avance vers la gauche
+    g+=`<rect x="${ax+4}" y="${top}" width="${250-ax-4}" height="${h}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/>`;
+    if(st.d>0) g+=`<rect x="${ax+4}" y="${yS}" width="${250-ax-4}" height="${dy}" fill="url(#dgH)" opacity=".8"/>`;
+    g+=`<text x="${(ax+250)/2}" y="${top+14}" text-anchor="middle" font-size="8.5" fill="#5a4020">pièce ← avance</text>`; }
+  g+=`<line x1="${ax+24}" y1="${yS}" x2="280" y2="${yS}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
+  if(st.d>0) g+=`<line x1="268" y1="${yS-14}" x2="268" y2="${yS}" stroke="var(--fg)" stroke-width=".7" marker-end="url(#dgA)"/><line x1="268" y1="${yS+dy+14}" x2="268" y2="${yS+dy}" stroke="var(--fg)" stroke-width=".7" marker-end="url(#dgA)"/>`;
+  g+=`<text x="296" y="${yS-30}" text-anchor="end" font-size="9.5" font-weight="600" fill="${warn?'#c98a12':'var(--fg)'}">passe ${fmt(st.d)} mm${warn?' : 2 mm au plus':''}</text>`;
+  g+=`<text x="4" y="12" font-size="8" fill="var(--muted)">vue de côté (profondeur exagérée)</text>`;
   el.innerHTML=g; }
 
 /* ---------- tableau des faces ---------- */
@@ -55,8 +88,9 @@ function update(){
   if(document.activeElement!==$('gwidth-n')) $('gwidth-n').value=Math.round(st.gw); $('gwidth').value=st.gw;
   $('becPlat').setAttribute('aria-pressed',String(st.bec==='plat')); $('becChant').setAttribute('aria-pressed',String(st.bec==='chant'));
   for(const k of ['motor','asp']) $(k).setAttribute('aria-pressed',String(st[k]));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('pupD').textContent=fmt(st.d);
   $('depth').disabled=$('gangle').disabled=$('gwidth').disabled=cut.inProgress;
-  drawProt();
+  drawProt(); drawSide();
 }
 const apply=()=>app.apply();
 

@@ -1,10 +1,12 @@
 /* Raboteuse KANAK 630 E : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
+import { initSchema } from '../../engine/schema.js';
+import { initFamilies } from '../../engine/families.js';
 import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
-import { H_MIN, H_MAX, GRIP } from './constants.js';
+import { H_MIN, H_MAX, GRIP, PASS_MAX } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
@@ -16,6 +18,18 @@ import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 const app = createApp(config, { organes, qcm, reperage });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
+/* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */
+initFamilies(app, {
+  parts:{ machine:['bati','capot','moteur','transmission','aspiration','sectionneur','colonnes','levage','rallonge_entree','rallonge_sortie'],
+    outil:['arbre','table','pupitre'], guidage:['rouleau_entree','rouleaux_sortie','chaine','variateur','galets','linguets','presseur_av','presseur_ar'],
+    pupitre:['marche','arret'] },
+  summary:{
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'} · capot ${st.capot?'ouvert':'fermé'}`,
+    outil:()=>`cote ${fmt(st.H)} mm`,
+    avance:()=>`${st.v} m/min · avance ${st.feed?'en marche':'arrêtée'}`,
+    piece:()=>{ const E=entryPieces(); return E.length? `${E.length} pièce${E.length>1?'s':''} à l'entrée` : exitPieces().length? 'pièces sur le capot' : 'aucune pièce'; } } });
+initSchema({ pinIn:'famBar', sub:'vue de côté de l\'arbre et de la table',
+  html:'<svg id="coteSvg" viewBox="0 0 300 168" role="img" aria-label="Vue de côté : arbre, rouleaux, table à la cote et pièce à l\'entrée"></svg>' });
 ctx.app = app; ctx.model = model;
 initPieces(app, model);
 const F = app.ex.flash;
@@ -50,17 +64,41 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; app.ex.invalidate(); apply(); }); }
 function renderExtra(){ renderFaces(); renderDebit(); }
 
+/* ---------- schéma de principe : vue de côté, arbre fixe, table à la cote, pièce à l'entrée (épaisseurs agrandies) ---------- */
+let coteKey='';
+function drawCote(){ const E=entryPieces(), S=stuckPieces(), q=[...E,...S].sort((a,b)=>pressedH(b)-pressedH(a))[0]||null, h=q?pressedH(q):null;
+  const key=[st.H,h,q&&q.k,cut.inProgress].join('|'); if(key===coteKey) return; coteKey=key;
+  const yC=62, top=Math.max(st.H,h||0)+2, k=Math.min(2.4,78/top), yT=yC+st.H*k, ax=150, R=22, d=h===null?null:h-st.H;
+  const pass=d!==null&&d>0, gr=d!==null&&d>-GRIP, big=pass&&d>PASS_MAX;
+  let g=`<defs><pattern id="rbH" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="var(--danger)" stroke-width="1.4"/></pattern>
+    <marker id="rbA" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="var(--fg)"/></marker></defs>`;
+  g+=`<rect x="20" y="${yT}" width="270" height="10" fill="var(--muted)" opacity=".5"/><text x="24" y="${yT+8}" font-size="7.5" fill="var(--fg)">table (elle monte et descend)</text>`;
+  if(q){ const y0=yT-h*k; g+=`<rect x="168" y="${y0}" width="122" height="${h*k}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/>`;
+    if(pass) g+=`<rect x="168" y="${y0}" width="122" height="${d*k}" fill="url(#rbH)" opacity=".85"/>`;
+    g+=`<text x="286" y="${yT-4}" text-anchor="end" font-size="8.5" fill="#5a4020">pièce ${fmt(h)} mm ← avance</text>`; }
+  g+=`<circle cx="${ax}" cy="${yC-R}" r="${R}" fill="none" stroke="var(--fg)" stroke-dasharray="3 2"/><circle cx="${ax}" cy="${yC-R}" r="6" fill="var(--fg)" opacity=".6"/><text x="${ax}" y="${yC-2*R-4}" text-anchor="middle" font-size="8" fill="var(--muted)">arbre (fixe)</text>`;
+  const rl=(x,lab)=>`<circle cx="${x}" cy="${yC-9}" r="9" fill="none" stroke="var(--fg)" stroke-width="1.2" opacity=".7"/><text x="${x}" y="${yC-22}" text-anchor="middle" font-size="7.5" fill="var(--muted)">${lab}</text>`;
+  g+=rl(214,'rouleau d\'entrée')+rl(96,'')+rl(62,'')+`<text x="79" y="${yC-22}" text-anchor="middle" font-size="7.5" fill="var(--muted)">rouleaux de sortie</text>`;
+  g+=`<line x1="20" y1="${yC}" x2="290" y2="${yC}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${ax}" y="${yC+10}" text-anchor="middle" font-size="7.5" fill="var(--muted)">bas du cercle de coupe</text>`;
+  g+=`<line x1="34" y1="${yC}" x2="34" y2="${yT}" stroke="var(--fg)" stroke-width=".8" marker-start="url(#rbA)" marker-end="url(#rbA)"/><text x="40" y="${(yC+yT)/2+3}" font-size="10" font-weight="600" fill="var(--fg)">cote ${fmt(st.H)}</text>`;
+  const msg= !q? 'aucune pièce à l\'entrée' : !gr? 'pièce plus mince que la cote : elle n\'avance pas' : !pass? 'aucune passe' : big? `passe ${fmt(d)} mm : ${PASS_MAX} mm au plus` : `passe ${fmt(d)} mm`;
+  g+=`<text x="296" y="${yT+22}" text-anchor="end" font-size="9.5" font-weight="600" fill="${big?'var(--danger)':!q||!gr?'var(--muted)':'var(--fg)'}">${msg}</text>`;
+  $('coteSvg').innerHTML=g; }
+
 /* ---------- mise à jour complète ---------- */
 function update(){
   placeAll();
   model.update(topAt);
   for(const k of ['motor','feed','asp','capot']) $(k).setAttribute('aria-pressed',String(st[k]));
   $('pass').setAttribute('aria-pressed',String(cut.inProgress));
+  $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('feed').textContent= st.feed? 'O · Avance' : 'I · Avance';
+  $('pupH').textContent=fmt(st.H); $('pupV').textContent= st.feed? String(st.v) : '0';
   $('cote').value=Math.min(+$('cote').max,st.H); if(document.activeElement!==$('cote-n')) $('cote-n').value=st.H.toFixed(1);
   $('o-speed').textContent=`${st.v} m/min`; $('speed').value=st.v;
   const E=entryPieces(), grip=E.filter(q=>pressedH(q)>=st.H-GRIP), d= grip.length? Math.max(...grip.map(passDepth)) : null;
   $('coteInfo').textContent=`Passe : ${d===null?'— (pièce plus mince que la cote)':d<=0?'aucune':fmt(d)+' mm'} · pas des ondes ${fmt(wavePitch(),2)} mm`;
   for(const id of ['cote','cote-n','speed']) $(id).disabled=cut.inProgress;
+  drawCote();
 }
 
 /* ---------- manipulations de la pièce ---------- */

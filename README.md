@@ -13,8 +13,11 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 | Déligneuse multilames « KANAK 300 M » | en essai | `machines/deligneuse/` |
 | Scie radiale « KANAK 900 R » | en essai | `machines/scie-radiale/` |
 | Raboteuse « KANAK 630 E » | en essai | `machines/raboteuse/` |
+| Toupie « KANAK 130 T » (lot 1 : travail au guide) | en essai | `machines/toupie/` |
+| Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
 | Scie à ruban | prévue | |
-| Toupie | prévue | |
+
+Dans chaque machine, le schéma de principe du réglage s'affiche sur la vue 3D dès qu'on touche un réglage, puis disparaît au bout de 6 s ; le bouton « Schéma du réglage : afficher » le garde à l'écran.
 
 ## Scie à format KANAK 550
 
@@ -50,6 +53,26 @@ Après la dégauchisseuse : elle met la pièce à largeur d'abord (sur chant, SR
 - **Exercices guidés** : rabotage d'une pièce (largeur sur chant, SR2 sur la table, puis épaisseur à plat, SR1 sur la table, puis contrôle) ; rabotage d'une série de 3 pièces (largeur en série, épaisseur en série : cote réglée sur la plus forte, jamais de pièces de dimensions différentes de front) ; contrôle d'un lot (une pièce non dégauchie renvoyée à la dégauchisseuse, un frêne au fil incliné à présenter dans le bon sens). Les pièces rabotées sont reposées sur le capot par un aide en sortie ; pièce en main entourée en orange, pièces débitées listées, pièce trop courte qui reste coincée sous l'arbre (mode libre), bouton « Pièce à l'entrée » en présentation.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
+## Toupie KANAK 130 T (lot 1 : travail au guide)
+
+Après le corroyage : une pièce qui sort de la raboteuse arrive à la toupie avec ses faces et ses repères (SR1, SR2), et repart avec son profil. Machine fictive d'après la toupie de l'atelier (arbre fixe, pupitre électronique, guide à lamelles, capot d'aspiration orange, protège-mains à presseurs, entraîneur).
+
+- **Présentation** : nomenclature de 27 organes (arbre et outil, bague de table, guide intégral : demi-guides d'entrée et de sortie et lamelles qui ferment la lumière au-dessus et au-dessous de l'outil, capot d'aspiration, presseurs vertical et horizontal, poussoir, pupitre, inverseur, verrouillage de l'arbre, sectionneur, moteur-frein, poulies étagées, entraîneur 4 rouleaux…), vue intérieure, vues prédéfinies (outil de près, guide vu de dessus, sortie, pupitre), bouton « Pièce à l'entrée ».
+- **Réglages** : bibliothèque de 5 outils (droit, chanfrein, quart de rond, rainure, moulure) avec leur marquage (Ø, n max, MAN, ↺) et leur coupe dessinée en 2D, montés machine consignée et arbre verrouillé, à l'endroit ou retournés ; 4 vitesses par poulies et vitesse de coupe calculée ; inverseur ↺ 0 ↻ ; hauteur ; bague de table ; saillie, demi-guide de sortie ; « Fermer les lamelles » (mise en place automatique du guide intégral) ; presseurs ; entraîneur posé automatiquement sur la pièce (rouleaux 4 mm sous le dessus, 3° vers le guide, sans toucher le guide), marche après l'arbre. Une coupe montre l'outil, le guide, la table, les presseurs et la pièce, avec le profil qu'elle aura après la passe.
+- **Exercices guidés** : quart de rond R 10 sur une traverse corroyée ; feuillure 12 × 15 en deux passes (outil en partie sous la table) ; série de baguettes moulurées sur toute la rive (demi-guide de sortie avancé) avec une machine préparée par un autre groupe (vitesse trop haute pour l'outil) et une pièce trop courte à écarter. Le profil obtenu est contrôlé (hauteur, profondeur, régularité sur toute la longueur, arrachements).
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+- **Lot 2 (prévu)** : travail à l'arbre et pièces cintrées avec bague de copiage, tenonnage au chariot.
+
+## Tenonneuse KANAK 160 TN
+
+Usinage des bouts des pièces corroyées : affranchissement à longueur, tenons, enfourchements. Machine fictive d'après la tenonneuse simple de l'atelier (chariot roulant à presse-pièce pneumatique, guide orientable et butée de longueur d'arasement, scie d'affranchissement, dérouleurs supérieur et inférieur, unité de toupillage, capot interverrouillé, filin de sécurité). Une pièce qui sort de la raboteuse (ou de la toupie, avec son profil) arrive avec ses faces et ses repères ; ses bouts usinés la suivent (`pieceJSON`).
+
+- **Présentation** : nomenclature de 37 organes, avec les repères du cours « La tenonneuse » du lycée (chariot, table, guide, presse, pupitre, capot, scie, dérouleurs, unité de toupillage, filin et boîtier sectionneur, compteurs de réglage, pare-éclat, graduation angulaire, butée à 90°, butée de longueur…), vue intérieure, vues prédéfinies (outils de près, chariot vu de dessus, bout de la pièce, pupitre), bouton « Pièce à l'entrée ».
+- **Réglages** : bibliothèque d'outils par arbre (lame, dérouleurs ↺ et ↻, fraises à enfourcher, avec leur marquage Ø, n max, MAN, sens) montés machine consignée, capot ouvert, carters déposés, arbre bloqué ; longueur du tenon à la scie, décalage des arasements et profondeur de toupillage sous le capot (sélecteur « Ouverture capot », temporisation) ; hauteur de la joue, épaisseur du tenon et hauteur de toupillage sur le dessus, toujours en montant ; butée de longueur, protecteur avant, pare-éclat à renouveler et usiner à vide, presse, verrouillage du chariot, avance, position des mains. Une vue de côté montre les outils, le bout de la pièce et, en tirets, ce que fera la passe.
+- **Exercices guidés** : tenon simple sur une traverse corroyée (9 × 40 à 9 mm de SR1) ; série de traverses tenonnées aux deux bouts, 500 mm entre arasements (pièce d'essai, butée contre l'arasement, SR1 toujours sur la table) ; enfourchements avec une machine préparée par un autre groupe (fraise trop lente pour l'arbre) et une pièce trop courte à écarter. Contrôle au pied à coulisse et au réglet, éclats, référence.
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+- Non simulés : tenons biais (guide orienté), contre-profil.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -59,7 +82,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
-| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale et la raboteuse |
+| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…`, `machines/toupie/data/…`, `machines/tenonneuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale, la raboteuse, la toupie et la tenonneuse |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -73,8 +96,8 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html`, `tenonneuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
+- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip`, `KANAK130T_toupie_SCORM12.zip`, `KANAK160TN_tenonneuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
 
 Pour une seule machine : `npm run build -- scie-format`.
 
@@ -90,7 +113,9 @@ engine/                  moteur commun à toutes les machines
   parcours.js, scorm.js  parcours évalué et dialogue SCORM 1.2 avec Moodle
   data.js                lecture des fichiers organes / QCM / repérage
   poly.js                géométrie 2D des pièces (découpe, mesures)
-  corroyage.js           pièce de corroyage commune à la dégauchisseuse et à la raboteuse
+  corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils, tenonneuse : bouts usinés)
+  schema.js              schéma de principe du réglage posé sur la vue 3D (temporisé ou épinglé)
+  families.js            réglages en panneaux colorés par famille, alertes dans leur panneau, lien avec la 3D
   shell.js, engine.css   squelette HTML et feuille de style communs
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/
