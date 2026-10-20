@@ -1,6 +1,7 @@
 /* Fabrication des modules machines.
-   Usage : npm run build            → toutes les machines
+   Usage : npm run build            → toutes les machines et la page atelier
            npm run build scie-format → une seule machine
+           npm run build atelier    → la page atelier seule (dist/atelier.html)
    Pour chaque machine, dans dist/ :
    - <id>.html : page autonome (three.js chargé depuis cdn.jsdelivr.net), à publier comme artifact
                  ou à ouvrir dans un navigateur ;
@@ -106,8 +107,26 @@ async function buildMachine(id){
   console.log(`${id} : ${counts.organes} organes, ${counts.qcm} questions, ${counts.reperage} organes à repérer → dist/${id}.html${config.scorm ? ', dist/' + config.scorm.zip : ''}`);
 }
 
+/* Page « atelier » (entrée visuelle) : le hall en 3D avec les modèles de toutes les machines → dist/atelier.html */
+async function buildAtelier(){
+  const dir = path.join(ROOT, 'atelier');
+  const out = await esbuild.build({
+    entryPoints: [path.join(dir, 'main.js')], bundle: true, format: 'esm', write: false,
+    external: ['three', 'three/addons/*'], loader: { '.txt': 'text' }, charset: 'utf8',
+    target: 'es2020', legalComments: 'none', logLevel: 'silent',
+  });
+  const js = out.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+  const engineCss = read(path.join(ROOT, 'engine', 'engine.css'));
+  const logo = engineCss.match(/url\((data:image\/webp;base64,[^)]+)\)/)?.[1] || '';
+  const css = engineCss + `:root{--logo:url(${logo})}\n` + read(path.join(dir, 'atelier.css'));
+  const page = `<title>Atelier bois 3D</title>\n${FONTS}\n<style>\n${css}</style>\n\n${read(path.join(dir, 'shell.html'))}\n<script type="importmap">\n{"imports":{${CDN}}}\n</script>\n<script type="module">\n${js}</script>\n`;
+  fs.mkdirSync(DIST, { recursive: true });
+  fs.writeFileSync(path.join(DIST, 'atelier.html'), page);
+  console.log('atelier → dist/atelier.html');
+}
+
 const only = process.argv[2];
-const ids = only ? [only] : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
+const ids = only ? (only === 'atelier' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
 if (!fs.existsSync(THREE_DIR)) { console.error('three.js manquant : lancez d\'abord « npm install ».'); process.exit(1); }
-try { for (const id of ids) await buildMachine(id); }
+try { for (const id of ids) await buildMachine(id); if (!only || only === 'atelier') await buildAtelier(); }
 catch (e) { console.error('\nERREUR : ' + e.message + '\n'); process.exit(1); }

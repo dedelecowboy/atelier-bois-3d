@@ -4,6 +4,10 @@ Simulateurs 3D de machines à bois pour la formation (bac pro / BTS DRB), utilis
 
 Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 
+## Atelier
+
+Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : le hall avec les sept machines, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la progression d'un élève (machines déverrouillées une à une). Implantation proposée, à remplacer par le plan réel.
+
 ## Machines
 
 | Machine | État | Dossier |
