@@ -5,7 +5,7 @@
    Rotation des outils ralentie à l'affichage (sens lisible) : scie et dérouleur supérieur ↺, dérouleur inférieur ↻ vus de
    l'opérateur, unité de toupillage ↺ vue de dessus : tous coupent contre l'avance du chariot (de +X vers −X). */
 import * as THREE from 'three';
-import { M, MI, rbox, add, cyl, canvasTex, rulerTex } from '../../engine/kit.js';
+import { M, MI, rbox, add, cyl, canvasTex, rulerTex, sawBlade } from '../../engine/kit.js';
 import { TABLE_Y, X_SAW, X_DER, X_TOU, C_HALF, GUIDE_DX, PE_T, TABLE_Z, BATI_X, BATI_Z, SAW_Y, HEADS, N_HEAD } from './constants.js';
 import { st, tool } from './state.js';
 
@@ -100,11 +100,9 @@ export function buildModel({ root, tagPart, partMeshes }){
   const sawSpin=new THREE.Group(); sawG.add(sawSpin);
   let sawKey='';
   function buildSaw(){ while(sawSpin.children.length){ const c=sawSpin.children.pop(); c.geometry?.dispose(); } const t=tool('scie'); if(!t){ regPart(sawG,'scie'); return; }
-    const R=t.D/2000, Zt=t.Z, s=new THREE.Shape(), sens=st.flips.scie?-1:1;
-    for(let i=0;i<Zt;i++){ const a0=i/Zt*Math.PI*2, a1=(i+0.75)/Zt*Math.PI*2, a2=(i+1)/Zt*Math.PI*2; const pt=(r,a)=>[Math.cos(a)*r, Math.sin(a)*r*sens];
-      i? s.lineTo(...pt(R-0.008,a0)) : s.moveTo(...pt(R-0.008,a0)); s.lineTo(...pt(R,a1)); s.lineTo(...pt(R-0.008,a2)); }
-    const h=new THREE.Path(); h.absarc(0,0,0.015,0,Math.PI*2,true); s.holes.push(h);
-    const g=new THREE.ExtrudeGeometry(s,{depth:0.0044,bevelEnabled:false,curveSegments:4}); g.translate(0,0,-0.0022); sawSpin.add(new THREE.Mesh(g,M.blade));
+    // lame carbure commune (engine/kit.js, d'après la lame de la scie à format) ; retournée : en miroir (tranchants à l'envers)
+    const R=t.D/2000, bl=sawBlade({ R, Z:t.Z, plate:0.0032, kerf:t.Lc/1000, bore:0.03, pins:true, dir:1, mark:[`Ø${t.D} × ${String(t.Lc).replace('.',',')}/3,2 × 30  Z${t.Z}  HW`,`n max ${t.nmax} RPM`] });
+    if(st.flips.scie) bl.scale.y=-1; sawSpin.add(bl);
     add(sawSpin, cyl(0.05,0.012,MI.cast,28,'z'), 0,0,0.003); add(sawSpin, cyl(0.016,0.02,M.steel,6,'z'), 0,0,0.012);
     for(let i=0;i<3;i++){ const k=rbox(0.03,0.005,0.006,M.dark,0); k.rotation.z=i*Math.PI/3*2; sawSpin.add(k); } regPart(sawG,'scie'); }
   tagPart(sawG,'scie');
