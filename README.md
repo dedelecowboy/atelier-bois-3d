@@ -6,7 +6,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 
 ## Atelier
 
-Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : le hall avec les sept machines, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la progression d'un élève (machines déverrouillées une à une). Implantation proposée, à remplacer par le plan réel.
+Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : l'atelier menuiserie du lycée d'après son plan (`atelier/plan.js`, relevé avec l'outil de placement), les sept modules à leur place réelle, les autres machines en modèles simplifiés, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la version Moodle (machines déverrouillées une à une).
 
 ## Machines
 

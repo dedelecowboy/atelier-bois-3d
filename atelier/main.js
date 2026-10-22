@@ -1,12 +1,12 @@
 /* Page « atelier » : entrée visuelle de l'atelier virtuel.
-   Le hall en 3D avec les vrais modèles des machines (buildModel de chaque module, en position de repos),
+   La salle du plan réel (plan.js) en 3D avec les vrais modèles des machines (buildModel de chaque module, en position de repos),
    la chaîne de débit peinte au sol, une étiquette par poste, une fiche au clic avec le lien vers le simulateur.
    Aperçu élève : machines déverrouillées une à une (dans Moodle, ce sont les restrictions d'accès qui le font). */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { STATIONS, FAMILLES, FLOW } from './stations.js';
-import { buildHall, buildFlow, HALL } from './hall.js';
+import { STATIONS, FAMILLES, FLOW, AUTRES } from './stations.js';
+import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS } from './hall.js';
 
 const $ = id=>document.getElementById(id);
 const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
@@ -22,13 +22,13 @@ const scene=new THREE.Scene();
 { const pm=new THREE.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; }
 scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f94,0.55));
 const sun=new THREE.DirectionalLight(0xfff6ea,1.5); sun.position.set(-6,14,9); sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{ left:-15, right:15, top:11, bottom:-11, near:2, far:40 });
+sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{ left:-14, right:14, top:14, bottom:-14, near:2, far:45 });
 sun.shadow.bias=-0.0005; sun.shadow.normalBias=0.03; scene.add(sun);
 
 const camera=new THREE.PerspectiveCamera(36,1,0.1,120);
 const controls=new OrbitControls(camera,canvas);
-controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=2.5; controls.maxDistance=42;
-const HOME={ pos:new THREE.Vector3(3.5,17.5,21.5), tgt:new THREE.Vector3(0,0,-0.6) };
+controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=2.5; controls.maxDistance=48;
+const HOME={ pos:new THREE.Vector3(3,22,23), tgt:new THREE.Vector3(0,0,-0.3) };
 camera.position.copy(HOME.pos); controls.target.copy(HOME.tgt);
 
 /* ---------- hall et postes ---------- */
@@ -49,9 +49,9 @@ for(const s of STATIONS){
       g.traverse(o=>{ if(o.isMesh){ b.setFromObject(o); b.getCenter(c); if(c.x<x0||c.x>x1||c.z<z0||c.z>z1) o.visible=false; } }); }
   } else {
     /* poste à venir : volume fantôme */
-    const [w,h,d]=s.foot; const ghost=new THREE.Mesh(new THREE.BoxGeometry(w,h*1.8,d),
+    const [w,h,d]=s.foot; const ghost=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
       new THREE.MeshStandardMaterial({ color:0x9aa3aa, transparent:true, opacity:0.18, roughness:0.6, depthWrite:false }));
-    ghost.position.y=h*0.9; g.add(ghost);
+    ghost.position.y=h/2; g.add(ghost);
     const edges=new THREE.LineSegments(new THREE.EdgesGeometry(ghost.geometry), new THREE.LineDashedMaterial({ color:0x6d7780, dashSize:0.12, gapSize:0.08 }));
     edges.position.copy(ghost.position); edges.computeLineDistances(); g.add(edges);
   }
@@ -61,21 +61,35 @@ for(const s of STATIONS){
     const one=m=>{ if(!cache.has(m)){ const c=m.clone(); if(c.transmission) { c.transmission=0; c.opacity=Math.max(c.opacity,0.35); } c.userData.c0=c.color?.clone(); cache.set(m,c); } return cache.get(m); };
     o.material=Array.isArray(o.material)? o.material.map(one) : one(o.material); pickables.push(o); });
   s.mats=[...cache.values()];
-  g.position.set(s.pos[0],0,s.pos[1]); g.rotation.y=s.yaw; g.updateMatrixWorld(true);
-  const box=new THREE.Box3();
-  g.traverse(o=>{ if(!o.isMesh&&!o.isLineSegments) return; let p=o, vis=true; while(p){ vis=vis&&p.visible; p=p.parent; } if(vis) box.expandByObject(o,true); }); s.box=box; s.center=box.getCenter(new THREE.Vector3()); s.size=box.getSize(new THREE.Vector3());
-  /* zone de travail peinte au sol : rectangle à la couleur de la famille */
-  const col=new THREE.Color(FAMILLES[s.famille].col), m=0.45;
-  const zone=new THREE.Group(); scene.add(zone); s.zone=zone;
-  const fill=new THREE.Mesh(new THREE.PlaneGeometry(s.size.x+2*m,s.size.z+2*m), new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.07, depthWrite:false, toneMapped:false }));
-  fill.rotation.x=-Math.PI/2; fill.position.set(s.center.x,0.004,s.center.z); fill.renderOrder=1; zone.add(fill); s.fill=fill;
+  /* encombrement dans le repère de la machine (organes cachés exclus), puis dans la salle */
+  const visBox=()=>{ const b=new THREE.Box3(); g.updateMatrixWorld(true);
+    g.traverse(o=>{ if(!o.isMesh&&!o.isLineSegments) return; let p=o, vis=true; while(p){ vis=vis&&p.visible; p=p.parent; } if(vis) b.expandByObject(o,true); }); return b; };
+  const lb=visBox(), lc=lb.getCenter(new THREE.Vector3()), ls=lb.getSize(new THREE.Vector3());
+  /* le centre de l'encombrement vient sur la place du plan (les modèles du plan sont centrés), puis la machine
+     est ramenée dans la salle si elle dépasse un mur (modèles des modules plus longs : rallonges, chariots) */
+  g.rotation.y=s.yaw; const off=lc.clone().setY(0).applyAxisAngle(new THREE.Vector3(0,1,0),s.yaw);
+  g.position.set(s.pos[0]-off.x,0,s.pos[1]-off.z);
+  { const b=visBox(), mg=0.15; let dx=0, dz=0;
+    if(b.min.x<HALL.x0+mg) dx=HALL.x0+mg-b.min.x; else if(b.max.x>HALL.x1-mg) dx=HALL.x1-mg-b.max.x;
+    if(b.min.z<HALL.z0+mg) dz=HALL.z0+mg-b.min.z; else if(b.max.z>HALL.z1-mg) dz=HALL.z1-mg-b.max.z;
+    g.position.x+=dx; g.position.z+=dz; }
+  const box=visBox(); s.box=box; s.center=box.getCenter(new THREE.Vector3()); s.size=box.getSize(new THREE.Vector3()); s.local={ c:lc, s:ls };
+  /* zone de travail peinte au sol, dans l'axe de la machine : rectangle à la couleur de la famille */
+  const col=new THREE.Color(FAMILLES[s.famille].col), m=0.35;
+  const zone=new THREE.Group(); g.add(zone); s.zone=zone;
+  const fill=new THREE.Mesh(new THREE.PlaneGeometry(ls.x+2*m,ls.z+2*m), new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.07, depthWrite:false, toneMapped:false }));
+  fill.rotation.x=-Math.PI/2; fill.position.set(lc.x,0.004,lc.z); fill.renderOrder=1; zone.add(fill); s.fill=fill;
   const lineMat=new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.75, toneMapped:false, depthWrite:false });
-  const X0=s.center.x-s.size.x/2-m, X1=s.center.x+s.size.x/2+m, Z0=s.center.z-s.size.z/2-m, Z1=s.center.z+s.size.z/2+m, w=0.06;
+  const X0=lc.x-ls.x/2-m, X1=lc.x+ls.x/2+m, Z0=lc.z-ls.z/2-m, Z1=lc.z+ls.z/2+m, w=0.06;
   for(const [x,z,lx,lz] of [[(X0+X1)/2,Z0,X1-X0,w],[(X0+X1)/2,Z1,X1-X0,w],[X0,(Z0+Z1)/2,w,Z1-Z0],[X1,(Z0+Z1)/2,w,Z1-Z0]]){
     const l=new THREE.Mesh(new THREE.PlaneGeometry(lx,lz),lineMat); l.rotation.x=-Math.PI/2; l.position.set(x,0.005,z); l.renderOrder=1; zone.add(l); }
   s.lineMat=lineMat;
-  if(s.build) hall.drop(s.center.x+(s.id==='scie-radiale'? -0.6 : 0), s.center.z-s.size.z*0.2, s.box.max.y);
+  if(s.build) hall.drop(s.center.x, s.center.z, s.box.max.y);
 }
+/* autres machines du plan (pas encore de module) : modèles simplifiés, nom au survol */
+const decors=[];
+for(const L of AUTRES){ const g=decorMachine(L); scene.add(g); g.traverse(o=>{ if(o.isMesh){ o.userData.decor=L; decors.push(o); } });
+  if(L.l<6) hall.drop(L.x,L.z,L.h); }
 renderer.shadowMap.needsUpdate=true;
 
 /* ---------- étiquettes ---------- */
@@ -109,7 +123,8 @@ function applyLocks(){
   $('progBar').style.width=`${100*done/ORDER.length}%`;
   if(sel) renderCard(sel);
 }
-$('eleve').onclick=()=>{ eleve=!eleve; $('eleve').setAttribute('aria-pressed',String(eleve)); applyLocks(); };
+const setVersion=v=>{ eleve=v; $('eleve').setAttribute('aria-pressed',String(v)); $('vWeb').setAttribute('aria-pressed',String(!v)); applyLocks(); };
+$('eleve').onclick=()=>setVersion(true); $('vWeb').onclick=()=>setVersion(false);
 $('progMinus').onclick=()=>{ done=Math.max(0,done-1); applyLocks(); };
 $('progPlus').onclick=()=>{ done=Math.min(ORDER.length,done+1); applyLocks(); };
 $('chaine').onclick=()=>{ flow.group.visible=!flow.group.visible; $('chaine').setAttribute('aria-pressed',String(flow.group.visible)); };
@@ -139,6 +154,8 @@ function renderCard(s){
 function select(s){
   if(sel && sel!==hov) tint(sel,false); sel=s;
   for(const t of STATIONS){ t.lbl.classList.toggle('sel',t===s); t.item.setAttribute('aria-pressed',String(t===s)); }
+  const op= s? 0.22 : 1; for(const m of DECOR_MATS.concat(hall.drops.map(d=>d.material))){ m.opacity=op; m.depthWrite=op===1; }
+  for(const d of decors) d.castShadow=!s; renderer.shadowMap.needsUpdate=true;
   if(!s){ $('card').hidden=true; const h=home(); fly(h.pos,h.tgt); return; }
   tint(s,true); renderCard(s);
   /* caméra : du côté de l'opérateur de la vue d'ensemble, à une distance qui dépend de la taille de la machine */
@@ -153,19 +170,24 @@ let anim=null;
 /* déplacement de caméra sur l'horloge réelle (0,9 s), pas sur le nombre d'images */
 function fly(pos,tgt){ anim={ p0:camera.position.clone(), t0:controls.target.clone(), p1:pos.clone(), t1:tgt.clone(), start:performance.now()/1000 }; }
 const portrait=()=>canvas.clientWidth/canvas.clientHeight<1.05;
-/* en portrait, l'atelier est vu depuis la porte (est) : sa longueur suit la hauteur de l'écran */
-const home=()=> portrait()? { pos:new THREE.Vector3(17.5,22,3.2), tgt:new THREE.Vector3(0,0,0.2) } : HOME;
+/* en portrait, la salle (carrée) est vue de plus haut */
+const home=()=> portrait()? { pos:new THREE.Vector3(0.5,31,14), tgt:new THREE.Vector3(0,0,0.5) } : HOME;
 $('home').onclick=()=>select(null);
 
 /* clic / toucher dans la 3D (glissé toléré) */
 const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let down=null;
 function hitAt(e){ const r=canvas.getBoundingClientRect(); ptr.set(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
-  ray.setFromCamera(ptr,camera); const h=ray.intersectObjects(pickables,false).find(h=>h.object.visible); return h?.object.userData.station||null; }
+  ray.setFromCamera(ptr,camera); const h=ray.intersectObjects(pickables.concat(decors),false).find(h=>h.object.visible);
+  return h? (h.object.userData.station||{ decor:h.object.userData.decor }) : null; }
+/* bulle au survol d'une machine sans module */
+function tip(e,d){ const t=$('tip'); if(!d){ t.hidden=true; return; } const r=canvas.getBoundingClientRect();
+  t.textContent=`${d.nom} · pas encore de module`; t.style.left=(e.clientX-r.left)+'px'; t.style.top=(e.clientY-r.top)+'px'; t.hidden=false; }
 canvas.addEventListener('pointerdown',e=>{ down={ x:e.clientX, y:e.clientY, t:e.pointerType }; });
 canvas.addEventListener('pointerup',e=>{ if(!down) return; const tol=down.t==='mouse'?5:14; const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y)>tol; down=null; if(moved) return;
-  const s=hitAt(e); select(s); });
-canvas.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||e.buttons) return; hover(hitAt(e)); });
-canvas.addEventListener('pointerleave',()=>hover(null));
+  const s=hitAt(e); if(s?.decor){ tip(e,s.decor); clearTimeout(tipT); tipT=setTimeout(()=>tip(e,null),2200); return; } tip(e,null); select(s); });
+let tipT=0;
+canvas.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||e.buttons) return; const s=hitAt(e); tip(e,s?.decor); hover(s?.decor? null : s); });
+canvas.addEventListener('pointerleave',()=>{ hover(null); tip(null,null); });
 addEventListener('keydown',e=>{ if(e.key==='Escape' && sel) select(null); });
 
 /* plein écran */

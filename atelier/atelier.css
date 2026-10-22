@@ -7,6 +7,7 @@ html,body{height:100%;overflow:hidden}
 .at-brand h1{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;margin:0;letter-spacing:.01em}
 .at-brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
 .at-tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.vseg{display:inline-flex}.vseg .toggle{border-radius:0}.vseg .toggle:first-child{border-radius:4px 0 0 4px}.vseg .toggle:last-child{border-radius:0 4px 4px 0;margin-left:-1px}
 
 .at-side{border-right:1px solid var(--line);background:var(--panel);padding:14px 12px;overflow:auto;display:flex;flex-direction:column;gap:14px}
 .at-side h2{font:600 12px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 4px 0}
@@ -64,6 +65,7 @@ html,body{height:100%;overflow:hidden}
 .card .go{display:block;text-align:center;text-decoration:none;background:var(--accent);color:#fff;font:600 13px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:12px;border-radius:4px}
 .card .go:hover{filter:brightness(1.08)}
 .card .back{align-self:flex-start}
+.tip{position:absolute;z-index:2;transform:translate(12px,-130%);pointer-events:none;background:var(--fg);color:var(--bg);font-size:13px;padding:5px 9px;border-radius:4px;white-space:nowrap}
 .help{position:absolute;z-index:2;left:16px;bottom:12px;margin:0;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:4px 8px;border-radius:4px;pointer-events:none}
 
 @media (max-width:900px){
@@ -73,7 +75,7 @@ html,body{height:100%;overflow:hidden}
   .at-tools .fs-btn{display:none}
   .at-logo{display:none}
   .at-brand h1{font-size:22px}
-  .at-tools .toggle{padding:7px 8px;font-size:11px}
+  .at-tools .toggle{padding:7px 7px;font-size:11px;white-space:nowrap}
   .at-side{grid-row:3;border-right:0;border-top:1px solid var(--line);padding:8px 12px;max-height:34dvh}
   .at-side h2,.legend{display:none}
   .postes{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:2px}

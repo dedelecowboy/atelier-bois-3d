@@ -1,130 +1,112 @@
-/* Le hall de l'atelier : sol, murs, marquages, stockage des bois et des panneaux, établis,
-   réseau d'aspiration, et le tracé de la chaîne de débit au sol.
-   Repère : X vers l'est, Z vers l'avant (sud), sol y = 0. Dimensions en mètres. */
+/* La salle de l'atelier menuiserie d'après le plan réel (plan.js) : sol, murs relevés sur le DWG (ouverte là où
+   le plan n'a pas de mur), portes, aspiration au plafond, autres machines de l'atelier en modèles simplifiés,
+   et la chaîne de débit peinte au sol.
+   Repère : centre de la salle en (0, 0), X vers la droite du plan, Z vers le bas du plan, sol y = 0. Mètres. */
 import * as THREE from 'three';
-import { M, rbox, add, cyl, canvasTex, woodTex } from '../engine/kit.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { add, cyl, canvasTex } from '../engine/kit.js';
+import { LAYOUT, PORTES } from './plan.js';
 
-export const HALL = { x0:-13, x1:13, z0:-7.5, z1:7.5, h:4.2 };
+const RX=LAYOUT.salle.largeur/2, RZ=LAYOUT.salle.profondeur/2, H=3.4;
+export const HALL = { x0:-RX, x1:RX, z0:-RZ, z1:RZ, h:H };
 
-const mat = (color, o={})=>new THREE.MeshStandardMaterial({ color, roughness:0.8, metalness:0.05, ...o });
-function shadow(o, cast=true){ o.traverse(m=>{ if(m.isMesh){ m.castShadow=cast; m.receiveShadow=true; } }); return o; }
+const mat=(c,o={})=>new THREE.MeshStandardMaterial({ color:c, roughness:.55, metalness:.15, ...o });
+const box=(w,h,d,m,r=0.02)=>{ const g=r>0? new RoundedBoxGeometry(w,h,d,2,Math.min(r,w/2-1e-3,h/2-1e-3,d/2-1e-3)) : new THREE.BoxGeometry(w,h,d);
+  const o=new THREE.Mesh(g,m); o.castShadow=o.receiveShadow=true; return o; };
+const put=(p,o,x,y,z)=>{ o.position.set(x,y,z); p.add(o); return o; };
 
-/* bande peinte au sol (rectangle plat) */
-function strip(g, x0,z0,x1,z1, w, m){ const L=Math.hypot(x1-x0,z1-z0); const s=new THREE.Mesh(new THREE.PlaneGeometry(L,w), m);
-  s.rotation.x=-Math.PI/2; s.rotation.z=-Math.atan2(z1-z0,x1-x0); s.position.set((x0+x1)/2,0.003,(z0+z1)/2); s.receiveShadow=true; g.add(s); return s; }
-function rectStrips(g, x0,z0,x1,z1, w, m){ strip(g,x0,z0,x1,z0,w,m); strip(g,x0,z1,x1,z1,w,m); strip(g,x0,z0,x0,z1,w,m); strip(g,x1,z0,x1,z1,w,m); }
+/* ---------- autres machines de l'atelier : modèles simplifiés (ceux de l'outil de placement) ---------- */
+const D={ body:mat(0xc7ccd1,{metalness:.25,roughness:.45}), alu:mat(0xe3e6e9,{metalness:.55,roughness:.3}), dark:mat(0x1d2125,{roughness:.6}),
+  guard:mat(0xe8ebec,{roughness:.45}), green:mat(0x3f7d5c,{roughness:.5}), greenL:mat(0x5d8f73,{roughness:.55}), blue:mat(0x2b3f9e,{roughness:.45,metalness:.2}),
+  teal:mat(0x1f7f86,{roughness:.45}), red:mat(0xa8322c,{roughness:.5}), cream:mat(0xd9d3bd,{roughness:.6}), cast:mat(0xb9c0c6,{metalness:.4,roughness:.35}),
+  yellow:mat(0xe9c22c,{roughness:.6}), wood:mat(0xb98a55,{roughness:.8}), bloc:mat(0x9aa3aa,{roughness:.6}) };
+const B={
+  scie(c=D.blue){ const g=new THREE.Group(); put(g,box(1.2,0.85,0.9,c),0,0.425,0); put(g,box(1.3,0.06,1.1,D.cast),0,0.88,-0.05); put(g,box(3.0,0.06,0.36,D.alu),0,0.9,0.62);
+    put(g,box(1.3,0.03,0.7,D.alu),0.3,0.92,1.15); put(g,box(0.06,0.08,1.9,D.alu),0.9,0.97,1.05); put(g,box(0.12,0.18,0.42,D.guard,0.04),0,1.25,0.1); return g; },
+  scieV(){ return B.scie(D.green); },
+  degau(){ const g=new THREE.Group(); put(g,box(1.2,0.8,0.55,D.green),0,0.4,0); put(g,box(1.35,0.07,0.5,D.cast),-0.72,0.84,0); put(g,box(1.35,0.07,0.5,D.cast),0.72,0.86,0);
+    put(g,box(1.3,0.18,0.05,D.cast),0.2,1.0,-0.27); put(g,box(0.5,0.05,0.2,D.yellow,0.02),0,0.95,0.06); return g; },
+  rabot(c=D.green){ const g=new THREE.Group(); put(g,box(0.85,0.8,0.8,c),0,0.4,0); put(g,box(0.8,0.06,1.0,D.cast),0,0.83,0); put(g,box(0.9,0.42,0.7,c),0,1.15,0); return g; },
+  rabotA(){ return B.rabot(D.alu); }, rabotC(){ return B.rabot(D.cream); },
+  ruban(){ const g=new THREE.Group(); put(g,box(0.75,1.0,0.55,D.greenL),0,0.5,0); put(g,box(0.8,0.04,0.7,D.cast),0.05,1.05,0.05); put(g,box(0.16,1.2,0.35,D.greenL),-0.3,1.6,0);
+    put(g,box(0.7,0.65,0.38,D.greenL,0.1),0,2.45,0); put(g,box(0.12,0.65,0.1,D.yellow,0.02),0.3,2.45,0.2); return g; },
+  toupie(){ const g=new THREE.Group(); put(g,box(1.0,0.85,0.8,D.green),0,0.425,0); put(g,box(1.2,0.05,0.9,D.cast),0,0.87,0); put(g,box(0.55,0.28,0.4,D.cream,0.04),0,1.05,-0.05);
+    put(g,cyl(0.05,0.45,D.alu),0.45,1.35,0.2); put(g,box(0.45,0.18,0.24,D.dark,0.03),0.45,1.6,0.2); return g; },
+  radiale(){ const g=new THREE.Group(); put(g,box(2.6,0.06,0.9,D.wood,0.01),0,0.9,0); for(const dx of [-1.1,1.1]) put(g,box(0.08,0.86,0.7,D.cream,0.01),dx,0.43,0);
+    put(g,cyl(0.08,1.1,D.body),0,1.45,-0.38); put(g,box(0.25,0.18,1.0,D.body,0.03),0,1.9,0); return g; },
+  tenon(){ const g=new THREE.Group(); put(g,box(2.4,0.95,0.9,D.cream,0.03),0,0.48,0); put(g,box(2.3,0.1,0.06,D.red,0.01),0,0.55,0.46); put(g,box(2.2,0.08,0.85,D.alu,0.02),0,1.6,0); put(g,box(0.9,0.6,0.15,D.red,0.02),1.4,0.7,0.6); return g; },
+  teal(){ const g=new THREE.Group(); put(g,box(2.1,0.9,0.8,D.teal,0.03),0,0.45,0); put(g,box(1.9,0.3,0.6,D.alu,0.03),0,1.05,-0.05); return g; },
+  bloc(){ const g=new THREE.Group(); put(g,box(1.6,1.1,1.0,D.bloc,0.04),0,0.55,0); put(g,box(1.7,0.05,1.1,D.cast),0,1.12,0); return g; },
+};
+/* une machine du plan en modèle simplifié, à l'échelle de ses cotes l × h × p, à sa place */
+/* fond estompé quand une machine est choisie : machines sans module et descentes d'aspiration ne cachent plus le poste */
+export const DECOR_MATS = Object.values(D);
+for(const m of DECOR_MATS) m.transparent=true;
+export function decorMachine(L){
+  const body=(B[L.type]||B.bloc)(); const sz=new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3());
+  const inner=new THREE.Group(); inner.add(body); if(L.l>0&&L.h>0&&L.p>0) inner.scale.set(L.l/sz.x,L.h/sz.y,L.p/sz.z);
+  const g=new THREE.Group(); g.add(inner); g.position.set(L.x,0,L.z); g.rotation.y=-L.rot*Math.PI/180; return g; }
 
 export function buildHall(scene){
   const g=new THREE.Group(); scene.add(g);
-  const { x0,x1,z0,z1,h }=HALL, W=x1-x0, D=z1-z0;
+  const W=2*RX, Dp=2*RZ;
 
-  /* ---------- sol : béton quartzé, joints de dalle ---------- */
+  /* sol : béton, dalles de 5 m */
   const conc=canvasTex(1024,1024,(c,w,hh)=>{ c.fillStyle='#a9aca8'; c.fillRect(0,0,w,hh);
     let s=7; const r=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
     for(let i=0;i<5200;i++){ const v=150+Math.floor(r()*50); c.fillStyle=`rgba(${v},${v+2},${v-2},${0.10+r()*0.18})`; const k=1+r()*3; c.fillRect(r()*w,r()*hh,k,k); }
     for(let i=0;i<26;i++){ c.fillStyle=`rgba(90,92,90,${0.015+r()*0.02})`; c.beginPath(); c.arc(r()*w,r()*hh,30+r()*120,0,7); c.fill(); }
-    c.strokeStyle='rgba(70,72,72,0.55)'; c.lineWidth=2; c.strokeRect(1,1,w-2,hh-2); });
-  conc.wrapS=conc.wrapT=THREE.RepeatWrapping; conc.repeat.set(W/5,D/5);
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,D), new THREE.MeshStandardMaterial({ map:conc, roughness:0.92, metalness:0 }));
-  floor.rotation.x=-Math.PI/2; floor.position.set((x0+x1)/2,0,(z0+z1)/2); floor.receiveShadow=true; g.add(floor);
-  // socle débordant : l'atelier posé comme une maquette
-  add(g, new THREE.Mesh(new THREE.BoxGeometry(W+0.6,0.25,D+0.6), mat(0x5a5f63,{roughness:0.9})), (x0+x1)/2,-0.126,(z0+z1)/2);
+    c.strokeStyle='rgba(70,72,72,0.5)'; c.lineWidth=2; c.strokeRect(1,1,w-2,hh-2); });
+  conc.wrapS=conc.wrapT=THREE.RepeatWrapping; conc.repeat.set(W/5,Dp/5);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,Dp), new THREE.MeshStandardMaterial({ map:conc, roughness:0.92, metalness:0 }));
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; g.add(floor);
+  add(g, new THREE.Mesh(new THREE.BoxGeometry(W+0.6,0.25,Dp+0.6), mat(0x5a5f63,{roughness:0.9,metalness:0})), 0,-0.126,0);
 
-  /* ---------- allées de circulation (jaune) ---------- */
-  const YEL=new THREE.MeshStandardMaterial({ color:0xe2b11f, roughness:0.7 });
-  // allée centrale est-ouest, de la porte (est) au poste de montage
-  rectStrips(g, -11.4,-1.95, 12.9,-0.35, 0.08, YEL);
-  // passage piéton hachuré devant la porte
-  for(let i=0;i<7;i++) strip(g, 11.0+i*0.28,-1.9, 11.0+i*0.28+0.14,-0.4, 0.14, YEL);
+  /* murs relevés sur le plan (soubassement gris, mur vert d'eau) */
+  const WALL=mat(0xcfe0d6,{roughness:.95,metalness:0}), BASE=mat(0x7d8790,{roughness:.8,metalness:0});
+  for(const [x1,z1,x2,z2] of LAYOUT.murs){ const L=Math.hypot(x2-x1,z2-z1), ry=-Math.atan2(z2-z1,x2-x1);
+    const w=new THREE.Group(); w.position.set((x1+x2)/2,0,(z1+z2)/2); w.rotation.y=ry; g.add(w);
+    put(w, box(L+0.2,H,0.2,WALL,0), 0,H/2,0); put(w, box(L+0.22,1.0,0.22,BASE,0), 0,0.5,0); }
+  /* portes */
+  const GLASS=new THREE.MeshStandardMaterial({ color:0xbfd6e4, roughness:.1, metalness:.1, transparent:true, opacity:.5 });
+  for(const [x,z,ry,low] of PORTES){ const d=new THREE.Group(); d.position.set(x,0,z); d.rotation.y=ry; g.add(d);
+    put(d, box(1.8,2.3,0.26,mat(0x1f9455,{roughness:.5}),0.01), 0,1.15,0);
+    if(low) put(d, box(1.8,0.9,0.27,mat(low,{roughness:.5}),0.01), 0,0.55,0);
+    for(const sx of [-0.45,0.45]) put(d, box(0.5,0.8,0.28,GLASS,0), sx,1.6,0); }
+  /* consignes EPI et extincteurs contre le mur du haut du plan */
+  const sign=(x,draw)=>{ const t=canvasTex(256,320,(c,w)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,320); c.fillStyle='#1f5fae'; c.beginPath(); c.arc(w/2,130,104,0,7); c.fill(); c.fillStyle='#fff'; draw(c,w); });
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.52), new THREE.MeshBasicMaterial({ map:t, toneMapped:false })); m.position.set(x,2.0,-RZ+0.115); g.add(m); };
+  sign(-3.9,(c,w)=>{ c.fillRect(w/2-80,112,62,40); c.fillRect(w/2+18,112,62,40); c.fillRect(w/2-20,118,40,12); });
+  sign(-3.4,(c,w)=>{ c.lineWidth=16; c.strokeStyle='#fff'; c.beginPath(); c.arc(w/2,140,62,Math.PI,0); c.stroke(); c.fillRect(w/2-80,128,36,54); c.fillRect(w/2+44,128,36,54); });
+  sign(-2.9,(c,w)=>{ c.beginPath(); c.moveTo(w/2-70,170); c.lineTo(w/2-70,96); c.lineTo(w/2-10,96); c.lineTo(w/2-10,140); c.lineTo(w/2+80,150); c.lineTo(w/2+80,176); c.closePath(); c.fill(); });
+  for(const [x,z] of [[-10.7,-2.6],[4.2,-10.6],[10.7,2.6]]){ put(g, cyl(0.085,0.55,mat(0xc4261c,{roughness:.4}),18), x,0.62,z); put(g, cyl(0.03,0.08,D.dark,10), x,0.94,z); }
 
-  /* ---------- murs : fond et côtés, ouverts vers l'avant ---------- */
-  const WALL=mat(0xe9e6df,{roughness:0.95}), BASE=mat(0x7d8790,{roughness:0.8}), GLASS=new THREE.MeshStandardMaterial({ color:0xbfd6e6, roughness:0.15, metalness:0.1, transparent:true, opacity:0.55 });
-  const FRAME=mat(0x3f4a52,{metalness:0.4,roughness:0.5});
-  const wall=(len,x,z,ry)=>{ const w=new THREE.Group(); w.position.set(x,0,z); w.rotation.y=ry; g.add(w);
-    add(w, rbox(len,h,0.2,WALL,0), 0,h/2,-0.1); add(w, rbox(len,1.0,0.22,BASE,0), 0,0.5,-0.1); return w; };
-  const back=wall(W,(x0+x1)/2,z0,0);
-  // bandeau vitré en haut du mur du fond (lumière naturelle)
-  for(let x=x0+1.2;x<x1-1;x+=2.6){ add(back, rbox(2.2,1.1,0.06,GLASS,0), x-(x0+x1)/2+1.1,h-0.95,0.01); add(back, rbox(2.3,0.06,0.1,FRAME,0), x-(x0+x1)/2+1.1,h-1.52,0.02); }
-  const west=wall(D,x0,(z0+z1)/2,Math.PI/2);
-  const east=wall(D,x1,(z0+z1)/2,-Math.PI/2);
-  // porte sectionnelle (mur est), au bout de l'allée
-  { const dg=new THREE.Group(); dg.position.set(0,0,0); east.add(dg);
-    for(let i=0;i<6;i++) add(dg, rbox(3.2,0.52,0.06,mat(0x9aa5ad,{metalness:0.3,roughness:0.45}),0.01), -1.15,0.28+i*0.54,0.02);
-    add(dg, rbox(3.5,0.12,0.12,FRAME,0), -1.15,3.3,0.04); }
-  // poteaux
-  for(const x of [-6.5,0,6.5]) add(g, rbox(0.3,h,0.3,mat(0xc9cdd0,{metalness:0.3}),0), x,h/2,z0+0.15);
-  // panneaux d'affichage sur le mur du fond : consignes de sécurité (pictogrammes simplifiés)
-  const sign=(x,y,col,draw)=>{ const t=canvasTex(256,320,(c,w,hh)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,hh); c.fillStyle=col; c.beginPath(); c.arc(w/2,130,104,0,7); c.fill(); c.fillStyle='#fff'; draw(c,w); c.fillStyle='#1b2228'; });
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.52), new THREE.MeshBasicMaterial({ map:t, toneMapped:false })); m.position.set(x,y,z0+0.012); g.add(m); };
-  const glasses=(c,w)=>{ c.fillRect(w/2-80,112,62,40); c.fillRect(w/2+18,112,62,40); c.fillRect(w/2-20,118,40,12); };
-  const ears=(c,w)=>{ c.lineWidth=16; c.strokeStyle='#fff'; c.beginPath(); c.arc(w/2,140,62,Math.PI,0); c.stroke(); c.fillRect(w/2-80,128,36,54); c.fillRect(w/2+44,128,36,54); };
-  const shoes=(c,w)=>{ c.beginPath(); c.moveTo(w/2-70,170); c.lineTo(w/2-70,96); c.lineTo(w/2-10,96); c.lineTo(w/2-10,140); c.lineTo(w/2+80,150); c.lineTo(w/2+80,176); c.closePath(); c.fill(); };
-  sign(-11.3,2.0,'#1f5fae',glasses); sign(-10.8,2.0,'#1f5fae',ears); sign(-10.3,2.0,'#1f5fae',shoes);
-  // extincteurs
-  for(const [x,z] of [[-12.75,0.4],[12.75,-3.2],[1.0,z0+0.25]]){ const e=add(g, cyl(0.085,0.55,mat(0xc4261c,{roughness:0.4}),18), x,0.62,z); e.castShadow=true; add(g, cyl(0.03,0.08,M.dark,10), x,0.94,z); }
+  /* aspiration : collecteurs au plafond le long du mur du haut et du mur de gauche */
+  const DUCT=new THREE.MeshStandardMaterial({ color:0xb9c0c6, metalness:.75, roughness:.32 });
+  const dy=H-0.35, dz=-RZ+0.55, dx=-RX+0.55;
+  const DROP=DUCT.clone(), HOSE=new THREE.MeshStandardMaterial({ color:0x2a2e31, roughness:.9 }); DROP.transparent=HOSE.transparent=true;
+  add(g, cyl(0.17,W-1.0,DUCT,24,'x'), 0,dy,dz); add(g, cyl(0.17,Dp-1.2,DUCT,24,'z'), dx,dy,0);
+  for(let x=-RX+1;x<RX-1;x+=1.5) add(g, cyl(0.182,0.05,DUCT,24,'x'), x,dy,dz);
 
-  /* ---------- stockage : bois massifs (râtelier cantilever), panneaux (chevalet) ---------- */
-  const STEEL=mat(0x2e5d8c,{metalness:0.4,roughness:0.45}), ARM=mat(0xd06a12,{metalness:0.3,roughness:0.5});
-  const wood=woodTex(); wood.wrapS=wood.wrapT=THREE.RepeatWrapping;
-  const plank=(L,w,t,tint)=>{ const m=new THREE.MeshStandardMaterial({ map:wood, color:tint, roughness:0.85 }); return rbox(L,t,w,m,0.003); };
-  { const r=new THREE.Group(); r.position.set(-12.55,0,-4.4); r.rotation.y=Math.PI/2; g.add(r);
-    for(const x of [-1.7,0,1.7]){ add(r, rbox(0.12,2.6,0.12,STEEL,0), x,1.3,-0.3); add(r, rbox(0.12,0.12,0.9,STEEL,0), x,0.06,0.05);
-      for(const y of [0.45,1.15,1.85]) add(r, rbox(0.06,0.06,0.62,ARM,0), x,y,0.07); }
-    const tints=[0xe9d2a8,0xd8b886,0xc79a68,0xe2c79a];
-    for(const [y,n] of [[0.48,6],[1.18,5],[1.88,4]]) for(let i=0;i<n;i++){ const b=plank(3.9-(i%2)*0.3,0.17+0.02*(i%3),0.027,tints[(i+n)%4]); add(r,b,0.05*(i%2),y+0.045+Math.floor(i/3)*0.03,-0.17+(i%3)*0.18); }
-    shadow(r); r.userData.label='Stock de bois massifs'; }
-  { const p=new THREE.Group(); p.position.set(-12.35,0,4.6); p.rotation.y=Math.PI/2; g.add(p);
-    add(p, rbox(3.0,0.12,0.9,STEEL,0), 0,0.06,0); for(const x of [-1.3,1.3]) add(p, rbox(0.1,1.9,0.1,STEEL,0), x,1.0,-0.25);
-    const cols=[0xf1efe8,0xd9c29a,0xb07a4a,0xf1efe8,0xe6e2d6];
-    for(let i=0;i<5;i++){ const m=add(p, rbox(2.8,2.07,0.019,mat(cols[i],{roughness:0.6}),0.002), 0,1.15,-0.18+i*0.022); m.rotation.x=-0.12; }
-    shadow(p); }
-  // chariot de transfert et pile de pièces débitées entre les machines
-  const cart=(x,z,ry,load)=>{ const c=new THREE.Group(); c.position.set(x,0,z); c.rotation.y=ry; g.add(c);
-    add(c, rbox(1.2,0.05,0.7,mat(0x6b7178,{metalness:0.4}),0.004), 0,0.62,0);
-    for(const sx of [-0.55,0.55]) for(const sz of [-0.3,0.3]){ add(c, rbox(0.04,0.5,0.04,M.dark,0), sx,0.36,sz); add(c, cyl(0.05,0.03,M.dark,14,'z'), sx,0.06,sz); }
-    add(c, rbox(0.04,0.5,0.7,mat(0x6b7178,{metalness:0.4}),0), 0.62,0.9,0);
-    for(let i=0;i<load;i++) add(c, plank(1.05,0.08,0.03,0xe1c597), -0.02,0.665+0.032*Math.floor(i/4),-0.24+0.16*(i%4));
-    shadow(c); };
-  cart(-5.6,-2.75,0,8); cart(6.1,-2.75,0,7); cart(10.6,0.9,Math.PI/2,6);
-
-  /* ---------- établis (montage) ---------- */
-  const BENCH=new THREE.MeshStandardMaterial({ map:wood, color:0xd9b98a, roughness:0.75 });
-  for(const [x,z] of [[-2.8,4.9],[-0.2,4.9],[-2.8,6.3],[-0.2,6.3]]){ const b=new THREE.Group(); b.position.set(x,0,z); g.add(b);
-    add(b, rbox(2.0,0.08,0.75,BENCH,0.006), 0,0.86,0);
-    for(const sx of [-0.88,0.88]){ add(b, rbox(0.08,0.82,0.6,mat(0x8a5a32),0), sx,0.41,0); }
-    add(b, rbox(1.8,0.05,0.5,mat(0x8a5a32),0), 0,0.18,0);
-    add(b, rbox(0.22,0.1,0.18,M.dark,0.004), 0.82,0.93,0.34);     // presse d'établi
-    shadow(b); }
-
-  /* ---------- aspiration centralisée : collecteur le long du mur du fond, descentes aux machines ---------- */
-  const DUCT=new THREE.MeshStandardMaterial({ color:0xb9c0c6, metalness:0.75, roughness:0.32 });
-  const ductY=3.55, ductZ=z0+0.55;
-  const main=add(g, cyl(0.16,x1-x0-1.0,DUCT,24,'x'), (x0+x1)/2-0.3,ductY,ductZ);
-  for(let x=x0+1;x<x1-1;x+=1.5) add(g, cyl(0.172,0.05,DUCT,24,'x'), x,ductY,ductZ);
-  // sortie vers le silo (mur ouest)
-  add(g, cyl(0.2,0.6,DUCT,24,'x'), x0+0.25,ductY,ductZ);
-  main.castShadow=false;
-
-  return { group:g,
-    /* descente d'aspiration jusqu'au-dessus d'une machine (x, z : point de raccordement ; yTop : haut de la machine) */
-    drop(x,z,yTop){ const r=0.075; const y1=Math.max(yTop+0.35,2.2);
-      const run=z-ductZ; if(Math.abs(run)>0.05){ add(g, cyl(r,Math.abs(run),DUCT,18,'z'), x,ductY-0.02,ductZ+run/2); }
-      add(g, cyl(r*1.15,0.1,DUCT,18), x,ductY-0.06,ductZ);
-      add(g, cyl(r,ductY-y1,DUCT,18), x,(ductY+y1)/2,z);
-      add(g, cyl(r*0.9,0.5,new THREE.MeshStandardMaterial({ color:0x2a2e31, roughness:0.9 }),14), x,y1-0.25,z); } };
+  const drops=[];
+  return { group:g, drops,
+    /* descente d'aspiration au-dessus d'une machine */
+    drop(x,z,yTop){ const r=0.075, y1=Math.max(yTop+0.3,2.0), yc=H+0.4;   // descente verticale jusqu'au réseau du plafond (non dessiné)
+      drops.push(add(g, cyl(r,yc-y1,DROP,16), x,(yc+y1)/2,z), add(g, cyl(r*0.9,0.45,HOSE,14), x,y1-0.22,z)); } };
 }
 
 /* ---------- chaîne de débit : chevrons peints au sol le long d'un tracé ---------- */
 export function buildFlow(scene, points){
   const g=new THREE.Group(); scene.add(g);
   const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,0.006,z)),false,'centripetal',0.4);
-  const L=curve.getLength(), step=0.62, n=Math.floor(L/step);
+  const L=curve.getLength(), step=0.6, n=Math.floor(L/step);
   const sh=new THREE.Shape(); sh.moveTo(-0.13,-0.17); sh.lineTo(0.02,-0.17); sh.lineTo(0.2,0); sh.lineTo(0.02,0.17); sh.lineTo(-0.13,0.17); sh.lineTo(0.05,0); sh.closePath();
   const geo=new THREE.ShapeGeometry(sh); geo.rotateX(-Math.PI/2);
   const chev=[];
   for(let i=0;i<n;i++){ const u=(i+0.5)/n, p=curve.getPointAt(u), t=curve.getTangentAt(u);
     const m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:0xe0761a, transparent:true, opacity:0.85, depthWrite:false, toneMapped:false }));
     m.position.copy(p); m.rotation.y=Math.atan2(-t.z,t.x); m.renderOrder=2; g.add(m); chev.push({ m, u }); }
-  return { group:g, curve,
+  const drops=[];
+  return { group:g, drops, curve,
     tick(time){ for(const c of chev){ const w=0.5+0.5*Math.sin((c.u*L/step)*0.9 - time*3.2); c.m.material.opacity=0.35+0.6*w; } } };
 }

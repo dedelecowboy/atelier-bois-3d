@@ -4,7 +4,7 @@
     <div class="at-tools">
       <button class="toggle" type="button" id="home" title="Revenir à la vue d'ensemble">Vue d'ensemble</button>
       <button class="toggle" type="button" id="chaine" aria-pressed="true" title="Afficher la chaîne de débit peinte au sol">Chaîne de débit</button>
-      <button class="toggle" type="button" id="eleve" aria-pressed="false" title="Voir l'atelier comme un élève : les machines se déverrouillent une à une">Aperçu élève</button>
+      <span class="vseg" role="group" aria-label="Version"><button class="toggle" type="button" id="vWeb" aria-pressed="true" title="Entraînement en ligne : toutes les machines ouvertes, sans note">Entraînement</button><button class="toggle" type="button" id="eleve" aria-pressed="false" title="Aperçu de la version Moodle : les machines se déverrouillent une à une">Moodle</button></span>
       <button class="toggle fs-btn" type="button" id="fs" title="Plein écran" aria-label="Plein écran">⛶</button>
     </div>
   </header>
@@ -24,6 +24,7 @@
   <div class="at-stage">
     <canvas id="c" aria-label="Vue 3D de l'atelier bois : cliquez une machine"></canvas>
     <div class="labels" id="labels"></div>
+    <div class="tip" id="tip" role="status" hidden></div>
     <div class="card" id="card" hidden></div>
     <p class="help">Glisser pour tourner · molette ou pincement pour zoomer · clic sur une machine</p>
     <div class="lost" id="lost" hidden><p>L'affichage 3D a été interrompu par la carte graphique.</p><button class="toggle" id="relaunch" type="button">Relancer l'affichage</button></div>

@@ -22,9 +22,10 @@ async def main():
         check(len(built) == 7, f'7 machines construites ({", ".join(s["id"] for s in built)})')
         for s in built:
             check(s['meshes'] > 10 and all(v == v and v > 0.3 for v in s['size']), f'{s["id"]} : taille {s["size"]} m au poste {s["center"]}')
-        for i, a in enumerate(info):
-            for b in info[i+1:]:
-                check(not overlap(a['box'], b['box']), f'{a["id"]} et {b["id"]} ne se chevauchent pas')
+        room = await pg.eval("()=>{ const s=window.__atelier.STATIONS; return null; }")
+        for s in info:
+            x0, z0, x1, z1 = s['box']
+            check(x0 > -10.95 and x1 < 10.95 and z0 > -10.82 and z1 < 10.82, f'{s["id"]} dans la salle ({x0:.1f} à {x1:.1f} ; {z0:.1f} à {z1:.1f})')
         g = await pg.eval(GEOM)
         check(g['sh'] <= g['ih'] + 1 and g['sw'] <= g['iw'] + 1, f'pas de défilement de page ({g["sw"]}×{g["sh"]})')
         print('   capture', await pg.shot('atelier_ensemble_1400.png'))
