@@ -68,10 +68,33 @@ html,body{height:100%;overflow:hidden}
 .tip{position:absolute;z-index:2;transform:translate(12px,-130%);pointer-events:none;background:var(--fg);color:var(--bg);font-size:13px;padding:5px 9px;border-radius:4px;white-space:nowrap}
 .help{position:absolute;z-index:2;left:16px;bottom:12px;margin:0;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:4px 8px;border-radius:4px;pointer-events:none}
 
+.dlbl{position:absolute;left:0;top:0;pointer-events:auto;font:600 12px/1.1 var(--f-body);background:color-mix(in srgb,var(--panel) 90%,transparent);color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:2px 6px;white-space:nowrap;cursor:pointer}
+.dlbl.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.tip.flash{transform:translate(-50%,0);white-space:normal;max-width:calc(100% - 32px);text-align:center;font-size:14px;padding:9px 14px;z-index:5}
+.edit{position:absolute;right:16px;top:16px;bottom:16px;width:320px;max-width:calc(100% - 32px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:6px;padding:12px 14px 14px;
+  box-shadow:0 10px 30px rgb(0 0 0 / .18);display:flex;flex-direction:column;gap:12px;z-index:3}
+.ed-head{display:flex;justify-content:space-between;align-items:center}
+.ed-head h2{margin:0}
+.edit .x{border:0;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:0 4px}
+.edit section{display:flex;flex-direction:column;gap:8px}
+.edit .kick{margin:0;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.edit h3{margin:0;font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.05}
+.edit label{display:grid;gap:3px;font-size:12px;color:var(--muted);min-width:0}
+.edit input,.edit select{font:14px var(--f-mono);padding:6px 7px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box;font-variant-numeric:tabular-nums}
+.edit textarea{width:100%;box-sizing:border-box;min-height:70px;font:11px/1.35 var(--f-mono);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);padding:6px;resize:vertical}
+.ed-rot{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.ed-rot .toggle{padding:8px 2px;text-transform:none;letter-spacing:0;font-size:13px}
+.ed-row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.edit .note{margin:0;color:var(--muted);font-size:12.5px;line-height:1.4}
+.edit .toggle.main{background:var(--accent);border-color:var(--accent);color:#fff}
+.edit .vseg{align-self:flex-start}
+.edit button:focus-visible,.edit input:focus-visible,.edit select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+body.editing .lbl .lock{display:none}
+body.editing .lbl,body.editing .dlbl{pointer-events:none}
 @media (max-width:900px){
   .at{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
   .at-top{padding:8px 12px;flex-direction:column;align-items:stretch;gap:6px}
-  .at-tools{justify-content:flex-start;flex-wrap:nowrap}
+  .at-tools{justify-content:flex-start;flex-wrap:wrap}
+  .at{grid-template-columns:minmax(0,1fr)}
   .at-tools .fs-btn{display:none}
   .at-logo{display:none}
   .at-brand h1{font-size:22px}
@@ -88,5 +111,7 @@ html,body{height:100%;overflow:hidden}
   .lbl.sel .nm,.lbl.hot .nm{display:inline;padding-right:6px}
   .lbl.sel,.lbl.hot{border-radius:16px}
   .card{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-width:none}
+  .edit{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-width:none;max-height:48%}
+  .dlbl{font-size:10px}
   .help{display:none}
 }

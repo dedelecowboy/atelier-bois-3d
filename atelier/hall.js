@@ -41,6 +41,9 @@ const B={
 /* une machine du plan en modèle simplifié, à l'échelle de ses cotes l × h × p, à sa place */
 /* fond estompé quand une machine est choisie : machines sans module et descentes d'aspiration ne cachent plus le poste */
 export const DECOR_MATS = Object.values(D);
+/* modèles proposés pour une machine sans module (éditeur) */
+export const TYPES = { bloc:'Machine (bloc à préciser)', scie:'Scie à format (bleue)', scieV:'Scie à format (verte)', degau:'Dégauchisseuse', rabot:'Raboteuse (verte)',
+  rabotA:'Raboteuse (grise)', rabotC:'Raboteuse (beige)', ruban:'Scie à ruban', toupie:'Toupie', radiale:'Scie radiale', tenon:'Tenonneuse', teal:'Machine longue (bleu-vert)' };
 for(const m of DECOR_MATS) m.transparent=true;
 export function decorMachine(L){
   const body=(B[L.type]||B.bloc)(); const sz=new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3());
@@ -60,7 +63,7 @@ export function buildHall(scene){
   conc.wrapS=conc.wrapT=THREE.RepeatWrapping; conc.repeat.set(W/5,Dp/5);
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,Dp), new THREE.MeshStandardMaterial({ map:conc, roughness:0.92, metalness:0 }));
   floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; g.add(floor);
-  add(g, new THREE.Mesh(new THREE.BoxGeometry(W+0.6,0.25,Dp+0.6), mat(0x5a5f63,{roughness:0.9,metalness:0})), 0,-0.126,0);
+  add(g, new THREE.Mesh(new THREE.BoxGeometry(W+0.6,0.25,Dp+0.6), mat(0x5a5f63,{roughness:0.9,metalness:0})), 0,-0.145,0);   // dessus 2 cm sous le sol : pas de scintillement (z-fighting) vu de haut
 
   /* murs relevés sur le plan (soubassement gris, mur vert d'eau) */
   const WALL=mat(0xcfe0d6,{roughness:.95,metalness:0}), BASE=mat(0x7d8790,{roughness:.8,metalness:0});
@@ -92,7 +95,7 @@ export function buildHall(scene){
   return { group:g, drops,
     /* descente d'aspiration au-dessus d'une machine */
     drop(x,z,yTop){ const r=0.075, y1=Math.max(yTop+0.3,2.0), yc=H+0.4;   // descente verticale jusqu'au réseau du plafond (non dessiné)
-      drops.push(add(g, cyl(r,yc-y1,DROP,16), x,(yc+y1)/2,z), add(g, cyl(r*0.9,0.45,HOSE,14), x,y1-0.22,z)); } };
+      const m=[add(g, cyl(r,yc-y1,DROP,16), x,(yc+y1)/2,z), add(g, cyl(r*0.9,0.45,HOSE,14), x,y1-0.22,z)]; drops.push(...m); return m; } };
 }
 
 /* ---------- chaîne de débit : chevrons peints au sol le long d'un tracé ---------- */
@@ -106,7 +109,6 @@ export function buildFlow(scene, points){
   for(let i=0;i<n;i++){ const u=(i+0.5)/n, p=curve.getPointAt(u), t=curve.getTangentAt(u);
     const m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:0xe0761a, transparent:true, opacity:0.85, depthWrite:false, toneMapped:false }));
     m.position.copy(p); m.rotation.y=Math.atan2(-t.z,t.x); m.renderOrder=2; g.add(m); chev.push({ m, u }); }
-  const drops=[];
-  return { group:g, drops, curve,
+  return { group:g, curve,
     tick(time){ for(const c of chev){ const w=0.5+0.5*Math.sin((c.u*L/step)*0.9 - time*3.2); c.m.material.opacity=0.35+0.6*w; } } };
 }

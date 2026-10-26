@@ -1,10 +1,8 @@
 /* Postes de l'atelier : une entrée par machine, dans l'ordre du parcours.
-   pos : [x, z] du centre du poste dans le hall (m) ; yaw : rotation de la machine (rad) autour de Y.
-   Repère du hall : X vers la droite (est), Z vers l'avant (sud, côté de la vue d'ensemble), sol en y = 0.
    rest(model) : met la machine dans sa position de repos (mêmes arguments que son main.js, sans pièce).
    clip : [x0, x1, z0, z1] (repère de la machine) : organes cachés hors de ce rectangle (raccords vers la page de la machine).
    url : simulateur publié (artifact) ; etat : 'service' | 'essai' | 'avenir'.
-   Place de chaque poste : celle de sa machine dans le plan réel (plan.js, MODULE_SLOT) ; pos et yaw en sont calculés. */
+   La place de chaque poste est celle de sa machine dans la disposition (plan.js, MODULE_SLOT ; modifiable dans la page). */
 import { buildModel as radiale } from '../machines/scie-radiale/model.js';
 import { buildModel as deligneuse } from '../machines/deligneuse/model.js';
 import { buildModel as degau } from '../machines/degauchisseuse/model.js';
@@ -15,7 +13,6 @@ import { buildModel as format } from '../machines/scie-format/model.js';
 import * as R from '../machines/scie-radiale/state.js';
 import * as D from '../machines/deligneuse/state.js';
 import * as G from '../machines/degauchisseuse/state.js';
-import { LAYOUT, MODULE_SLOT } from './plan.js';
 
 const PI = Math.PI;
 
@@ -45,12 +42,6 @@ export const STATIONS = [
     role:'Chantournage et débit de pièces cintrées. Module prévu.',
     url:null, build:null },
 ];
-
-/* place réelle : position et orientation de la machine du plan ; pour un poste à venir, son encombrement (l, h, p) */
-for(const s of STATIONS){ const L=LAYOUT.machines.find(m=>m.id===MODULE_SLOT[s.id]);
-  s.pos=[L.x,L.z]; s.yaw=-L.rot*Math.PI/180; s.slot=L; if(!s.build) s.foot=[L.l,L.h,L.p]; }
-/* machines du plan sans module : modèles simplifiés */
-export const AUTRES = LAYOUT.machines.filter(m=>!Object.values(MODULE_SLOT).includes(m.id));
 
 export const FAMILLES = {
   debit:{ nom:'Débit', col:'#c76a14' },
