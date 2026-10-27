@@ -2,7 +2,11 @@
    repérage d'organes, QCM, scénarios notés. Barème : repérage 20, QCM 20, 20 par scénario
    (5 critères de 4 points dont « aucune faute grave »). Réussite : 70 / 100 ET aucune faute grave.
    Faute grave = alerte « danger » active au moment où une coupe commence (recordDangers), ou liste d'alertes
-   passée par la machine (recordDangers(liste) : geste dangereux hors coupe, ex. pièce touchée lame en avant). */
+   passée par la machine (recordDangers(liste) : geste dangereux hors coupe, ex. pièce touchée lame en avant).
+   Traces Moodle (lisibles après export Excel) : identifiants préfixés par le code de la machine (config.scorm.code) :
+   CODE_rep_<organe>, CODE_qcm_NN, CODE_sN_c1…c4 / CODE_sN_securite, CODE_faute_sN_K (texte de la faute grave),
+   CODE_bilan (une ligne de synthèse datée) ; objectif SCORM CODE (note, passed / failed).
+   Bilan local (localStorage atelier.bilan.<id>) relu par la page atelier du paquetage. */
 import { createScorm } from './scorm.js';
 
 const $ = id=>document.getElementById(id);
@@ -15,6 +19,8 @@ export function createParcours(app, { reperage, qcm }, P){
   const REP = reperage, QCM = qcm, SCENS = P.scenarios;
   const parc={ph:'rep', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
   let repFeedback='', repLock=false, repCfgKey=null, repQKey=null, parcKey='';
+  const CODE=(app.config.scorm?.code||app.config.id||'M').toUpperCase();
+  const txt=v=>String(v).replace(/[^\p{L}\p{N}.,:;\/()×+%°' -]/gu,' ').replace(/\s+/g,' ').trim();
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
     state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}; } });
   const repName=r=>r.name||parts.PARTS[r.k].n.toLowerCase();
@@ -25,7 +31,7 @@ export function createParcours(app, { reperage, qcm }, P){
   function repValidate(){ const k=parc.cand; if(!k) return; parc.cand=null; repAnswer(k); }
   function repCancel(){ parc.cand=null; parts.select(null); render(); }
   function repAnswer(k){ if(parc.ph!=='rep'||repLock) return; const target=REP[parc.ri].k, ok=k===target, N=k=>parts.PARTS[k]?.n||k;
-    parc.rk.push(ok?1:0); scorm.inter('reperage_'+target,'choice',k||'rien',ok?'correct':'wrong');
+    parc.rk.push(ok?1:0); scorm.inter(`${CODE}_rep_${target}`,'choice',k||'rien',ok?'correct':'wrong');
     repFeedback= ok? `Exact : ${N(target)}.` : `Non : c'était « ${N(k)} ». Voici « ${N(target)} ».`;
     parts.select(target); repLock=true;
     setTimeout(()=>{ repLock=false; repFeedback=''; parts.select(null); parc.ri++; if(parc.ri>=REP.length){ parc.ph='qcm'; } scorm.save(); render(); }, ok?900:2200);
@@ -37,7 +43,7 @@ export function createParcours(app, { reperage, qcm }, P){
 
   /* --- QCM --- */
   function qcmAnswer(i){ if(parc.ph!=='qcm'||parc.qAns!==null) return; const Q=QCM[parc.qi], ok=i===Q.a; parc.qAns=i; parc.qk.push(ok?1:0);
-    scorm.inter('qcm_'+(parc.qi+1),'choice','abcdef'[i],ok?'correct':'wrong'); scorm.save(); render(); }
+    scorm.inter(`${CODE}_qcm_${String(parc.qi+1).padStart(2,'0')}`,'choice','abcdef'[i],ok?'correct':'wrong'); scorm.save(); render(); }
   function qcmNext(){ parc.qAns=null; parc.qi++; if(parc.qi>=QCM.length){ parc.ph='scen-intro'; parc.si=0; } scorm.save(); render(); }
 
   /* --- scénarios --- */
@@ -46,14 +52,24 @@ export function createParcours(app, { reperage, qcm }, P){
   const criteria=m=>P.criteria(m, { dangers:parc.dangers.length, ok:parc.dangers.length===0 });
   function finishScen(){ const S=SCENS[parc.si], C=criteria(S.mode), pts=C.reduce((a,c)=>a+(c[2]?4:0),0);
     parc.scens[parc.si]={pts, crit:C.map(c=>[c[0],c[1],c[2]?1:0]), dangers:parc.dangers.slice()};
-    C.forEach((c,i)=>scorm.inter(`scen${parc.si+1}_${['c1','c2','c3','c4','securite'][i]}`, i===4?'performance':'numeric', String(c[1]).replace(/[^\w.,\/ -]/g,'').slice(0,60)||'-', c[2]?'correct':'wrong'));
+    C.forEach((c,i)=>scorm.inter(`${CODE}_s${parc.si+1}_${['c1','c2','c3','c4','securite'][i]}`, 'performance', txt(`${c[0]} : ${c[1]}`).slice(0,250)||'-', c[2]?'correct':'wrong'));
+    parc.dangers.forEach((d,k)=>scorm.inter(`${CODE}_faute_s${parc.si+1}_${k+1}`,'performance',txt(d).slice(0,250)||'-','wrong'));
     parc.dangers=[]; parc.si++;
     if(parc.si<SCENS.length){ parc.ph='scen-intro'; scorm.save(); render(); return; }
     const repPts=Math.round(W_REP*sum(parc.rk)/REP.length), qcmPts=Math.round(W_QCM*sum(parc.qk)/QCM.length), scPts=parc.scens.reduce((a,s)=>a+(s?s.pts:0),0);
     const fautes=parc.scens.reduce((a,s)=>a+(s?s.dangers.length:0),0);
     parc.total=repPts+qcmPts+scPts; parc.passed=parc.total>=PASS && fautes===0; parc.done=true; parc.ph='fin';
     scorm.set('cmi.core.score.min',0); scorm.set('cmi.core.score.max',100); scorm.set('cmi.core.score.raw',parc.total);
-    scorm.set('cmi.core.lesson_status',parc.passed?'passed':'failed'); scorm.save(); render(); }
+    scorm.set('cmi.core.lesson_status',parc.passed?'passed':'failed');
+    /* synthèse lisible dans les rapports : une ligne datée, et un objectif SCORM au nom de la machine */
+    const now=new Date(), date=now.toLocaleDateString('fr-FR')+' '+now.toTimeString().slice(0,5);
+    const bilan=`${parc.passed?'VALIDÉE':'NON VALIDÉE'} ${parc.total}/100 le ${date} · Repérage ${sum(parc.rk)}/${REP.length} · QCM ${sum(parc.qk)}/${QCM.length} · `
+      +parc.scens.map((s,i)=>`S${i+1} ${s?s.pts:0}/${W_SCEN}`).join(' · ')+` · Fautes graves ${fautes}`;
+    scorm.inter(`${CODE}_bilan`,'performance',txt(bilan).slice(0,250),parc.passed?'correct':'wrong');
+    scorm.set('cmi.objectives.0.id',CODE); scorm.set('cmi.objectives.0.score.min',0); scorm.set('cmi.objectives.0.score.max',100);
+    scorm.set('cmi.objectives.0.score.raw',parc.total); scorm.set('cmi.objectives.0.status',parc.passed?'passed':'failed');
+    try{ localStorage.setItem('atelier.bilan.'+app.config.id, JSON.stringify({ total:parc.total, passed:parc.passed, date })); }catch(e){}
+    scorm.save(); render(); }
 
   /* --- affichage --- */
   function render(){ if(!PARC_ON) return; const el=$('parcCard'); if(!el) return;

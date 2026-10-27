@@ -22,6 +22,7 @@ import { createParts } from './parts.js';
 import { createExercise } from './exercise.js';
 import { createParcours } from './parcours.js';
 import { parseOrganes, parseQcm, parseReperage, checkData } from './data.js';
+import { moodleNav, pkg } from './moodlenav.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -54,6 +55,9 @@ export function createApp(config, raw){
       document.querySelectorAll('button[data-ui]').forEach(b=>b.onclick=()=>app.setUI(b.dataset.ui));
       ex.setMode(config.modes[0].id); app.setUI('pres');
       if(parc.PARC_ON) parc.start();
+      /* paquetage « Atelier bois 3D » : retour à l'atelier par le sommaire de Moodle (la progression est enregistrée à la sortie) */
+      if(pkg()){ const b=$('toAtelier'); b.hidden=false;
+        b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
       stage.run(hooks.tick||(()=>{}));
       stage.onContext(()=>{ hooks.onContextRestored?.(); app.apply(); });
       /* poignée pour les tests automatiques */

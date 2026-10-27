@@ -23,6 +23,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);fon
 .app[data-ui="ex"] #presSlot,.app[data-ui="ex"] .left,.app[data-ui="pres"] .dock,.app[data-ui="pres"] #exPanel,.app[data-ui="pres"] .exsel{display:none}
 .top{grid-area:top;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:baseline;gap:10px;margin-right:auto;min-width:0}
+.brand .back-atelier{align-self:center;white-space:nowrap}
 .brand h1{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:0}
 .brand span{color:var(--muted);font-size:13px}
 .seg2,.exsel{display:flex;gap:4px;flex-wrap:wrap}

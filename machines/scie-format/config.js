@@ -34,6 +34,7 @@ export default {
 
   /* paquetage SCORM 1.2 */
   scorm: {
+    code: 'FORMAT',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 550 · Scie à format · Parcours évalué',
     zip: 'KANAK550_scie_format_SCORM12.zip',
     identifier: 'KANAK550_SCIE_FORMAT_PARCOURS',

@@ -32,6 +32,7 @@ export default {
   xray: { parts: [['bati',0.12],['capot',0.10],['carters',0.18],['aspiration',0.15],['protecteur',0.5]], cam: { pos: [0.70,1.10,1.70], tgt: [-0.55,0.70,-0.40] } },
 
   scorm: {
+    code: 'TENONNEUSE',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 160 TN · Tenonneuse · Parcours évalué',
     zip: 'KANAK160TN_tenonneuse_SCORM12.zip',
     identifier: 'KANAK160TN_TENONNEUSE_PARCOURS',

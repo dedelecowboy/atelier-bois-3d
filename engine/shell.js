@@ -8,7 +8,7 @@ export function renderShell(c, frag){
   const views = c.views.filter(v=>!v.hidden).map(v=>`<button id="${v.id}" type="button"${v.title?` title="${esc(v.title)}"`:''}>${v.label}</button>`).join('');
   return `<div class="app${frag.pupitre?' has-pup':''}" id="app" data-ui="pres">
   <header class="top">
-    <div class="brand"><h1>${c.title}</h1></div>
+    <div class="brand"><button class="toggle back-atelier" type="button" id="toAtelier" hidden title="Revenir à l'atelier (votre progression est enregistrée)">← Atelier</button><h1>${c.title}</h1></div>
     <div class="seg2" role="group" aria-label="Mode d'affichage"><button class="toggle" type="button" data-ui="pres" id="ui-pres">Présentation</button><button class="toggle" type="button" data-ui="ex" id="ui-ex">Exercice</button></div>
     <div class="exsel" role="group" aria-label="Exercice">${modes}</div>
     <div class="views">${views}<button id="fs" type="button" class="fs-btn" aria-pressed="false" title="Afficher en plein écran (Échap pour quitter)" aria-label="Plein écran">⛶</button></div>

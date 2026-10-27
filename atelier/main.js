@@ -10,9 +10,13 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { STATIONS, FAMILLES, FLOW } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
+import { moodleNav, pkg } from '../engine/moodlenav.js';
 
 const $ = id=>document.getElementById(id);
 const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
+/* dans le paquetage Moodle : pas de modification de l'implantation ni d'aperçu, bilans des machines lus dans le navigateur */
+const PKG = pkg();
+const bilan=id=>{ try{ return JSON.parse(localStorage.getItem('atelier.bilan.'+id)||'null'); }catch(e){ return null; } };
 const DEG = Math.PI/180, UP = new THREE.Vector3(0,1,0);
 
 /* ---------- disposition : celle du plan, ou celle modifiée dans ce navigateur ---------- */
@@ -135,7 +139,7 @@ for(const s of STATIONS){
 const list=$('postes');
 for(const s of STATIONS){
   const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.dataset.id=s.id; b.style.setProperty('--fam',FAMILLES[s.famille].col);
-  b.innerHTML=`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · <span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span></small></span><span class="lock">${lockSvg}</span>`;
+  b.innerHTML=`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'} · ${b.total}</span>` : '<span class="st">à faire</span>')(bilan(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
   b.onclick=()=>editing? edSelect({ s }) : select(s); b.onmouseenter=()=>{ if(!editing) hover(s); }; b.onmouseleave=()=>hover(null);
   li.appendChild(b); list.appendChild(li); s.item=b;
 }
@@ -145,7 +149,7 @@ const ORDER=STATIONS.filter(s=>s.etat!=='avenir');
 let eleve=false, done=0;
 const locked=s=>s.etat==='avenir' || (eleve && ORDER.indexOf(s)>done);
 function applyLocks(){
-  for(const s of STATIONS){ const L=locked(s), D=eleve && ORDER.indexOf(s)>=0 && ORDER.indexOf(s)<done;
+  for(const s of STATIONS){ const L=locked(s), D=(eleve && ORDER.indexOf(s)>=0 && ORDER.indexOf(s)<done) || !!(PKG && bilan(s.id)?.passed);
     s.lbl.dataset.locked=String(L); s.item.dataset.locked=String(L); s.lbl.dataset.done=String(D); s.item.dataset.done=String(D);
     for(const m of s.mats){ if(!m.userData.c0) continue; m.color.copy(m.userData.c0); if(L && s.build) m.color.lerp(GREY,0.72); }
     s.fill.material.opacity= L? 0.03 : 0.07; s.lineMat.opacity= L? 0.3 : 0.75; }
@@ -176,10 +180,12 @@ function renderCard(s){
     <p class="etat" data-etat="${s.etat}">${ETAT[s.etat]}</p>
     ${ s.etat==='avenir' ? '<p class="note">Ce module n\'est pas encore construit.</p>'
       : L ? `<p class="note lockmsg">${lockSvg}Verrouillée : valider d'abord le module « ${prev?.nom||''} ».</p>`
+      : PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${b.passed?'Validée':'Non validée'} · ${b.total} / 100 · ${b.date}</p>`:'')(bilan(s.id))}<button type="button" class="go" id="cardGo">Ouvrir la machine</button>`
       : `<a class="go" href="${s.url}" target="_blank" rel="noopener">Ouvrir le simulateur</a>` }
     <button type="button" class="toggle back" id="cardBack">Vue d'ensemble</button>`;
   c.hidden=false;
   $('cardX').onclick=()=>select(null); $('cardBack').onclick=()=>select(null);
+  const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id])) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); };
 }
 function select(s){
   if(sel && sel!==hov) tint(sel,false); sel=s;
@@ -367,6 +373,7 @@ function frame(){ requestAnimationFrame(frame);
   catch(err){ console.error(err); } }
 canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); $('lost').hidden=false; });
 $('relaunch').onclick=()=>location.reload();
+if(PKG){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
 applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
 window.__atelier={ STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
 window.__ready=true;

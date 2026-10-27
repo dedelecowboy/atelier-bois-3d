@@ -46,7 +46,12 @@ async def complet():
         check(store['cmi.core.score.raw'] == '94' and store['cmi.core.score.min'] == '0' and store['cmi.core.score.max'] == '100', 'score.raw / min / max envoyés')
         check(store['cmi.core.lesson_status'] == 'passed', 'statut « passed » posé par le module')
         n = int(store['cmi.interactions._count']); ids = [store[f'cmi.interactions.{i}.id'] for i in range(n)]
-        check(n == 50, '50 interactions (15 repérage + 20 QCM + 15 critères de scénarios)')
+        check(n == 51, '51 interactions (15 repérage + 20 QCM + 15 critères de scénarios + 1 bilan)')
+        check(all(i.startswith('FORMAT_') for i in ids), 'identifiants préfixés « FORMAT_ »')
+        b = [i for i in range(n) if store[f'cmi.interactions.{i}.id'] == 'FORMAT_bilan']
+        check(len(b) == 1 and store[f'cmi.interactions.{b[0]}.student_response'].startswith('VALIDÉE') and store[f'cmi.interactions.{b[0]}.result'] == 'correct',
+              'bilan : ' + (store[f'cmi.interactions.{b[0]}.student_response'] if b else '?'))
+        check(store.get('cmi.objectives.0.id') == 'FORMAT' and store.get('cmi.objectives.0.status') == 'passed' and store.get('cmi.objectives.0.score.raw') == store['cmi.core.score.raw'], 'objectif SCORM « FORMAT » réussi, même note')
         check(all(' ' not in i for i in ids), 'identifiants d\'interactions sans espace')
         types = {store[f'cmi.interactions.{i}.type'] for i in range(n)}
         check(types <= {'choice', 'numeric', 'performance'}, f'types d\'interactions valides {sorted(types)}')

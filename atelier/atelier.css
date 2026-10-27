@@ -64,6 +64,7 @@ html,body{height:100%;overflow:hidden}
 .card .lockmsg{display:flex;gap:8px;align-items:center}.card .lockmsg svg{width:15px;height:15px;flex:none}
 .card .go{display:block;text-align:center;text-decoration:none;background:var(--accent);color:#fff;font:600 13px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:12px;border-radius:4px}
 .card .go:hover{filter:brightness(1.08)}
+.card button.go{border:0;width:100%;cursor:pointer}
 .card .back{align-self:flex-start}
 .tip{position:absolute;z-index:2;transform:translate(12px,-130%);pointer-events:none;background:var(--fg);color:var(--bg);font-size:13px;padding:5px 9px;border-radius:4px;white-space:nowrap}
 .help{position:absolute;z-index:2;left:16px;bottom:12px;margin:0;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:4px 8px;border-radius:4px;pointer-events:none}

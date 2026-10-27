@@ -33,6 +33,7 @@ export default {
   xray: { parts: [['bati',0.12],['porte',0.12],['capot_guide',0.18],['aspiration',0.15],['presseur_v',0.6],['presseur_h',0.6]], cam: { pos: [0.85,0.85,1.30], tgt: [-0.08,0.50,0] } },
 
   scorm: {
+    code: 'TOUPIE',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 130 T · Toupie · Parcours évalué',
     zip: 'KANAK130T_toupie_SCORM12.zip',
     identifier: 'KANAK130T_TOUPIE_PARCOURS',
