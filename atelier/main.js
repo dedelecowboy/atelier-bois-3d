@@ -10,7 +10,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { STATIONS, FAMILLES, FLOW } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
-import { moodleNav, pkg } from '../engine/moodlenav.js';
+import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
 import { toggleFs, fsOn, onFsChange } from '../engine/fullscreen.js';
 
 const $ = id=>document.getElementById(id);
@@ -18,6 +18,10 @@ const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
 /* dans le paquetage Moodle : pas de modification de l'implantation ni d'aperçu, bilans des machines lus dans le navigateur */
 const PKG = pkg();
 const bilan=id=>{ try{ return JSON.parse(localStorage.getItem('atelier.bilan.'+id)||'null'); }catch(e){ return null; } };
+/* verrous du paquetage : la vérité est le sommaire de Moodle (élément sans lien = prérequis non rempli, statut de son
+   icône) ; à défaut (sommaire illisible), le bilan enregistré dans ce navigateur à la fin de chaque évaluation */
+const pkgValid=id=>{ const ti=PKG && tocInfo(PKG.titles[id]); if(ti?.status) return ti.status==='passed'||ti.status==='completed'; return !!bilan(id)?.passed; };
+const pkgLocked=s=>!!(PKG && pkgLock(s.id));
 /* dans le paquetage, l'atelier est un élément SCORM suivi qui reste « incomplete » : Moodle l'ouvre en premier à chaque
    entrée (premier élément non terminé) et il ne compte pas comme machine réussie. Session fermée en partant. */
 const atApi=(()=>{ if(!PKG) return null; let w=window, n=0; while(w && !w.API && w.parent && w.parent!==w && n<12){ w=w.parent; n++; }
@@ -155,9 +159,9 @@ for(const s of STATIONS){
 /* ---------- aperçu élève : progression ---------- */
 const ORDER=STATIONS.filter(s=>s.etat!=='avenir');
 let eleve=false, done=0;
-const locked=s=>s.etat==='avenir' || (eleve && ORDER.indexOf(s)>done);
+const locked=s=>s.etat==='avenir' || (eleve && ORDER.indexOf(s)>done) || pkgLocked(s);
 function applyLocks(){
-  for(const s of STATIONS){ const L=locked(s), D=(eleve && ORDER.indexOf(s)>=0 && ORDER.indexOf(s)<done) || !!(PKG && bilan(s.id)?.passed);
+  for(const s of STATIONS){ const L=locked(s), D=(eleve && ORDER.indexOf(s)>=0 && ORDER.indexOf(s)<done) || !!(PKG && pkgValid(s.id));
     s.lbl.dataset.locked=String(L); s.item.dataset.locked=String(L); s.lbl.dataset.done=String(D); s.item.dataset.done=String(D);
     for(const m of s.mats){ if(!m.userData.c0) continue; m.color.copy(m.userData.c0); if(L && s.build) m.color.lerp(GREY,0.72); }
     s.fill.material.opacity= L? 0.03 : 0.07; s.lineMat.opacity= L? 0.3 : 0.75; }
@@ -180,7 +184,7 @@ function hover(s){ if(s===hov) return; if(hov && hov!==sel) tint(hov,false); hov
   canvas.style.cursor= s? 'pointer' : ''; }
 
 function renderCard(s){
-  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev=ORDER[ORDER.indexOf(s)-1];
+  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev= PKG?.prereq?.[s.id] ? STATIONS.find(t=>t.id===PKG.prereq[s.id]) : ORDER[ORDER.indexOf(s)-1];
   c.style.setProperty('--fam',f.col);
   c.innerHTML=`<div class="card-head"><span class="num">${s.n}</span><div><p class="kick">${f.nom} · ${s.ref}</p><h2>${s.nom}</h2></div>
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>

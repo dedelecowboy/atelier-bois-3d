@@ -144,7 +144,8 @@ const itemId = id => 'ITEM_' + BUILT[id].config.scorm.code;
 function buildPackage(lock){
   const ids = PKG_ORDER.filter(id => BUILT[id]);
   const titles = Object.fromEntries(ids.map((id, i) => [id, pkgTitle(id, i)]));
-  const PKG = `<script>window.ATELIER_PKG=${JSON.stringify({ atelier: PKG_ATELIER, titles })};</script>`;
+  const prereq = lock ? Object.fromEntries(ids.filter(id => PKG_PREREQ[id] && BUILT[PKG_PREREQ[id]]).map(id => [id, PKG_PREREQ[id]])) : {};
+  const PKG = `<script>window.ATELIER_PKG=${JSON.stringify({ atelier: PKG_ATELIER, titles, prereq })};</script>`;
   const LIBMAP = '"three":"../lib/three.module.js","three/addons/":"../lib/addons/"';
   const doc = (title, head, body, js) => `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n${head}\n<title>${esc(title)}</title>\n${FONTS}\n</head>\n<body>\n${body}\n<script type="importmap">\n{"imports":{${LIBMAP}}}\n</script>\n<script type="module">\n${js}</script>\n</body>\n</html>\n`;
   const files = {};

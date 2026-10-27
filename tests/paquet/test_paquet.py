@@ -46,12 +46,18 @@ function go(href,t){ __cur=t; document.getElementById('scorm_object').src='pkg/'
 <iframe id="scorm_object" style="flex:1;border:0" src="about:blank"></iframe></body></html>"""
 
 async def main():
-    z = manifest(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12.zip'), True)
-    manifest(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12_sans_verrous.zip'), False)
-    m = ET.fromstring(z.read('imsmanifest.xml')); res = {r.get('identifier'): r.get('href') for r in m.findall('.//c:resource', NS)}
-    toc = ''.join(f'<p><a href="#" onclick="go(\'{res[i.get("identifierref")]}\',\'{i.get("identifier")}\');return false">{i.find("c:title", NS).text}</a></p>'
-                  for i in m.findall('.//c:organization/c:item', NS))
-    page = PLAYER.replace('%TOC%', toc)
+    zl = manifest(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12.zip'), True)
+    z = manifest(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12_sans_verrous.zip'), False)
+    def player(zz, enforce=True):
+        # comme Moodle : un élément dont le prérequis n'est pas rempli est affiché sans lien dans le sommaire (enforce),
+        # sinon tout est cliquable et chaque élément a son icône de statut (Non tenté)
+        m = ET.fromstring(zz.read('imsmanifest.xml')); res = {r.get('identifier'): r.get('href') for r in m.findall('.//c:resource', NS)}
+        ico = '' if enforce else '<img alt="Non tenté" src="pix/notattempted.png"> '
+        toc = ''.join((f'<p><span>{i.find("c:title", NS).text}</span></p>' if enforce and i.find('a:prerequisites', NS) is not None else
+                       f'<p>{ico}<a href="#" onclick="go(\'{res[i.get("identifierref")]}\',\'{i.get("identifier")}\');return false">{i.find("c:title", NS).text}</a></p>')
+                      for i in m.findall('.//c:organization/c:item', NS))
+        return PLAYER.replace('%TOC%', toc)
+    pages = { 'http://local/': player(z), 'http://local/verrous': player(zl), 'http://local/verrous-libres': player(zl, False) }
     print('Faux lecteur Moodle')
     async with async_playwright() as pw:
         br = await pw.chromium.launch(executable_path=CHROMIUM, args=['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'])
@@ -59,10 +65,10 @@ async def main():
         pg.on('pageerror', lambda e: errs.append(str(e)))
         async def route(r):
             u = r.request.url
-            if u == 'http://local/': return await r.fulfill(body=page, content_type='text/html')
+            if u in pages: return await r.fulfill(body=pages[u], content_type='text/html')
             if u.startswith('http://local/pkg/'):
-                n = u.split('http://local/pkg/')[1].split('?')[0]
-                if n in z.namelist(): return await r.fulfill(body=z.read(n), content_type=mimetypes.guess_type(n)[0] or 'application/octet-stream')
+                n = u.split('http://local/pkg/')[1].split('?')[0]; zz = zl if 'verrous' in (r.request.frame.parent_frame.url if r.request.frame.parent_frame else '') else z
+                if n in zz.namelist(): return await r.fulfill(body=zz.read(n), content_type=mimetypes.guess_type(n)[0] or 'application/octet-stream')
                 return await r.fulfill(status=404, body='')
             await r.abort()
         await pg.route('**/*', route)
@@ -116,6 +122,26 @@ async def main():
         check((await f.evaluate('location.pathname')).endswith('/toupie/index.html'), '« Ouvrir la machine » ouvre l\'élément Toupie du sommaire')
         check('finish:ITEM_ATELIER' in await pg.evaluate('__log'), 'l\'atelier a fermé sa session en partant')
         await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'paquet_toupie.png'))
+        # verrous : version avec verrous, l'atelier lit le sommaire (élément sans lien = verrouillé)
+        await pg.goto('http://local/verrous'); await pg.click('text=Atelier'); f = await frame_ready(); await pg.wait_for_timeout(500)
+        lk = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id,b.dataset.locked]))")
+        check(lk['scie-radiale'] == 'false' and lk['scie-format'] == 'false' and all(lk[m] == 'true' for m in ['deligneuse','degauchisseuse','raboteuse','toupie','tenonneuse']),
+              'verrous : déligneuse à tenonneuse verrouillées, scie radiale et scie à format ouvertes')
+        await f.evaluate("()=>document.querySelector('#postes [data-id=deligneuse]').click()"); await pg.wait_for_timeout(1300)
+        msg = await f.evaluate("()=>({ m:document.querySelector('#card .lockmsg')?.textContent||'', go:!!document.getElementById('cardGo') })")
+        check('Scie radiale' in msg['m'] and not msg['go'], f'fiche verrouillée : {msg["m"].strip()}')
+        await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'paquet_verrous.png'))
+        # Moodle qui n'applique pas les prérequis : le paquetage verrouille lui-même d'après les statuts du sommaire
+        await pg.goto('http://local/verrous-libres'); await pg.click('text=Atelier'); f = await frame_ready(); await pg.wait_for_timeout(500)
+        lk = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id,b.dataset.locked]))")
+        check(lk['scie-radiale'] == 'false' and lk['deligneuse'] == 'true' and lk['scie-format'] == 'false', 'prérequis non appliqués par Moodle : l\'atelier verrouille d\'après le statut « Non tenté » de la scie radiale')
+        await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
+        ev = await f.evaluate("()=>({ dis:document.getElementById('chEval').disabled, t:document.getElementById('chEvalS').textContent, tr:!document.getElementById('chTrain').disabled })")
+        check(ev['dis'] and 'Scie radiale' in ev['t'] and ev['tr'], 'déligneuse ouverte par le sommaire : évaluation verrouillée, entraînement possible')
+        await pg.evaluate("const im=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('1. Scie radiale')).querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png')")
+        await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
+        await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
+        check(not await f.evaluate("document.getElementById('chEval').disabled"), 'scie radiale réussie : évaluation de la déligneuse ouverte')
         real = [e for e in errs if 'context' not in e.lower()]
         check(not real, 'aucune erreur JavaScript' + (' : ' + '; '.join(real) if real else ''))
         await br.close()

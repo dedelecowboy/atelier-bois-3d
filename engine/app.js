@@ -22,7 +22,7 @@ import { createParts } from './parts.js';
 import { createExercise } from './exercise.js';
 import { createParcours } from './parcours.js';
 import { parseOrganes, parseQcm, parseReperage, checkData } from './data.js';
-import { moodleNav, pkg } from './moodlenav.js';
+import { moodleNav, pkg, pkgLock } from './moodlenav.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -65,7 +65,12 @@ export function createApp(config, raw){
         $('chTitle').textContent=config.title;
         if(P.done){ $('chEvalT').textContent='Voir mon résultat'; $('chEvalS').textContent=`Évaluation terminée : ${P.total} / 100, ${P.passed?'machine validée':'machine non validée'}.`; }
         else if(P.ph!=='rep' || P.rk.length){ $('chEvalT').textContent='Reprendre l\'évaluation'; }
-        $('chTrain').onclick=()=>train(true); $('chEval').onclick=()=>train(false); sw.onclick=()=>train(sw.dataset.train!=='true');
+        /* version avec verrous : évaluation fermée tant que la machine précédente n'est pas réussie (l'entraînement reste ouvert) */
+        const lockBy=pkgLock(config.id);
+        if(lockBy && !P.done && P.ph==='rep' && !P.rk.length){ const n=(pkg().titles[lockBy]||lockBy).replace(/^\d+\.\s*/,'');
+          $('chEval').disabled=true; $('chEvalT').textContent='🔒 Évaluation verrouillée'; $('chEvalS').textContent=`Réussissez d'abord l'évaluation « ${n} ». Vous pouvez vous entraîner sur cette machine en attendant.`; }
+        $('chTrain').onclick=()=>train(true); $('chEval').onclick=()=>train(false);
+        sw.onclick=()=>{ if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); return; } train(sw.dataset.train!=='true'); };
         parc.setActive(false); $('choice').hidden=false; }
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }

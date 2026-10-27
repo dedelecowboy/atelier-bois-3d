@@ -35,6 +35,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);fon
 .choice-opt span{font-size:14px;line-height:1.4;color:var(--muted)}
 .choice-opt.main{border-color:var(--accent);background:var(--accent-soft)}
 .choice-opt:hover{border-color:var(--accent)}
+.choice-opt:disabled{opacity:.6;cursor:not-allowed;border-color:var(--line);background:var(--bg)}
 @media (max-width:600px){.choice-opts{grid-template-columns:1fr}}
 .brand h1{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:0}
 .brand span{color:var(--muted);font-size:13px}

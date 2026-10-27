@@ -15,3 +15,28 @@ export function moodleNav(title, { before, doc }={}){
     if(o){ before?.(); sel.value=o.value; sel.dispatchEvent(new Event('change',{ bubbles:true })); return true; } }
   return false; }
 export const pkg=()=> window.ATELIER_PKG || null;
+/* verrou d'une machine du paquetage (version avec verrous), le même pour l'atelier et pour la machine :
+   - Moodle applique le prérequis : l'élément est affiché sans lien dans le sommaire → verrouillé ;
+   - sinon, si le sommaire montre le statut de la machine précédente : verrouillé tant qu'elle n'est pas réussie ;
+   - sommaire illisible : bilan enregistré dans ce navigateur, et à défaut ouvert (on ne bloque pas un élève par erreur). */
+export function pkgLock(id){ const P=pkg(), pre=P?.prereq?.[id]; if(!pre) return null;
+  const me=tocInfo(P.titles[id]); if(me?.found && !me.linked) return pre;
+  const tp=tocInfo(P.titles[pre]); if(tp?.status) return (tp.status==='passed'||tp.status==='completed')? null : pre;
+  let b=null; try{ b=JSON.parse(localStorage.getItem('atelier.bilan.'+pre)||'null'); }catch(e){}
+  return b && !b.passed ? pre : null; }
+/* état d'un élément d'après le sommaire du lecteur Moodle : trouvé, cliquable (un élément dont le prérequis n'est pas
+   rempli y est affiché sans lien), statut d'après le texte de son icône (Réussi / Terminé / Échoué…). null hors Moodle. */
+export function tocInfo(title, doc){
+  if(!doc){ if(window.top===window) return null; try{ doc=window.top.document; }catch(e){ return null; } }
+  const t=norm(title); if(!t) return null;
+  const a=[...doc.querySelectorAll('a')].find(a=>norm(a.textContent)===t || norm(a.title)===t || norm(a.textContent).endsWith(t));
+  let el=a; if(!el) el=[...doc.querySelectorAll('li,span,p,div,td')].find(e=>norm([...e.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' '))===t);
+  if(!el) return { found:false, linked:false, status:null };
+  const box=el.closest('li')||el.parentElement||el;
+  const txt=[...box.querySelectorAll('img,[title],[aria-label]')].slice(0,4)
+    .map(i=>[i.getAttribute('alt'),i.getAttribute('title'),i.getAttribute('aria-label'),i.getAttribute('src')].join(' ')).join(' ').toLowerCase();
+  /* nom de l'icône (indépendant de la langue), puis texte français ou anglais */
+  const status= /notattempted|non tenté|pas tenté|not attempted|pas commencé|non commencé/.test(txt)? 'notattempted'
+    : /passed|réussi/.test(txt)? 'passed' : /failed|échou|échec/.test(txt)? 'failed' : /incomplete|incomplet/.test(txt)? 'incomplete'
+    : /browsed|parcouru/.test(txt)? 'browsed' : /completed|termin/.test(txt)? 'completed' : null;
+  return { found:true, linked:!!a, status }; }
