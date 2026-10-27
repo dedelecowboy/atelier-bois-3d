@@ -18,6 +18,13 @@ const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
 /* dans le paquetage Moodle : pas de modification de l'implantation ni d'aperçu, bilans des machines lus dans le navigateur */
 const PKG = pkg();
 const bilan=id=>{ try{ return JSON.parse(localStorage.getItem('atelier.bilan.'+id)||'null'); }catch(e){ return null; } };
+/* dans le paquetage, l'atelier est un élément SCORM suivi qui reste « incomplete » : Moodle l'ouvre en premier à chaque
+   entrée (premier élément non terminé) et il ne compte pas comme machine réussie. Session fermée en partant. */
+const atApi=(()=>{ if(!PKG) return null; let w=window, n=0; while(w && !w.API && w.parent && w.parent!==w && n<12){ w=w.parent; n++; }
+  const api=w&&w.API; if(!api) return null;
+  try{ if(String(api.LMSInitialize(''))!=='true') return null; api.LMSSetValue('cmi.core.lesson_status','incomplete'); api.LMSSetValue('cmi.core.exit','suspend'); api.LMSCommit(''); }catch(e){ return null; }
+  let open=true; const close=()=>{ if(!open) return; open=false; try{ api.LMSSetValue('cmi.core.lesson_status','incomplete'); api.LMSCommit(''); api.LMSFinish(''); }catch(e){} };
+  addEventListener('pagehide',close); addEventListener('beforeunload',close); return { close }; })();
 const DEG = Math.PI/180, UP = new THREE.Vector3(0,1,0);
 
 /* ---------- disposition : celle du plan, ou celle modifiée dans ce navigateur ---------- */
@@ -186,7 +193,7 @@ function renderCard(s){
     <button type="button" class="toggle back" id="cardBack">Vue d'ensemble</button>`;
   c.hidden=false;
   $('cardX').onclick=()=>select(null); $('cardBack').onclick=()=>select(null);
-  const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id])) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); };
+  const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id],{ before:()=>atApi?.close() })) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); };
 }
 function select(s){
   if(sel && sel!==hov) tint(sel,false); sel=s;

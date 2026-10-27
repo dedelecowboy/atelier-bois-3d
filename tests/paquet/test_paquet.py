@@ -18,7 +18,7 @@ def manifest(zp, lock):
     items = m.findall('.//c:organization/c:item', NS); res = {r.get('identifier'): r for r in m.findall('.//c:resource', NS)}
     check(len(items) == 8 and items[0].find('c:title', NS).text == 'Atelier', f'{os.path.basename(zp)} : 8 éléments, l\'atelier en premier')
     kinds = [res[i.get('identifierref')].get(A + 'scormtype') for i in items]
-    check(kinds == ['asset'] + ['sco'] * 7, 'atelier « asset » (non noté), 7 machines « sco »')
+    check(kinds == ['sco'] * 8, 'atelier et 7 machines « sco » (Moodle ne lance pas un asset de lui-même)')
     hrefs = [res[i.get('identifierref')].get('href') for i in items]
     check(hrefs == ['atelier/index.html'] + [f'{m}/index.html' for m in ORDER] and all(h in names for h in hrefs), 'une page par élément, dans l\'ordre de la chaîne de débit')
     files = [f.get('href') for r in res.values() for f in r.findall('c:file', NS)]
@@ -105,6 +105,7 @@ async def main():
         check((await f.evaluate('location.pathname')).endswith('/atelier/index.html'), '« ← Atelier » ouvre l\'élément Atelier du sommaire')
         log = await pg.evaluate('__log'); check('finish:ITEM_RABOTEUSE' in log, 'la raboteuse a fermé sa session SCORM en partant')
         check(await pg.evaluate('!!document.fullscreenElement'), 'toujours en plein écran après le retour à l\'atelier')
+        check(await pg.evaluate("(__S['ITEM_ATELIER']||{})['cmi.core.lesson_status']") == 'incomplete', 'atelier : élément suivi, toujours « incomplete » (ouvert en premier, non compté)')
         await pg.evaluate('document.exitFullscreen()'); await pg.wait_for_timeout(300)
         st = await f.evaluate("()=>({ edit:document.getElementById('editBtn').hidden, rab:document.querySelector('#postes [data-id=raboteuse]').textContent, done:document.querySelector('#postes [data-id=raboteuse]').dataset.done })")
         check(st['edit'] and 'validée · 94' in st['rab'] and st['done'] == 'true', f'atelier : modification cachée, raboteuse « validée · 94 »')
@@ -113,6 +114,7 @@ async def main():
         await f.evaluate("()=>document.querySelector('#postes [data-id=toupie]').click()"); await pg.wait_for_timeout(1300)
         await f.evaluate("()=>document.getElementById('cardGo').click()"); await pg.wait_for_timeout(500); f = await frame_ready()
         check((await f.evaluate('location.pathname')).endswith('/toupie/index.html'), '« Ouvrir la machine » ouvre l\'élément Toupie du sommaire')
+        check('finish:ITEM_ATELIER' in await pg.evaluate('__log'), 'l\'atelier a fermé sa session en partant')
         await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'paquet_toupie.png'))
         real = [e for e in errs if 'context' not in e.lower()]
         check(not real, 'aucune erreur JavaScript' + (' : ' + '; '.join(real) if real else ''))

@@ -129,7 +129,9 @@ async function buildAtelier(){
 }
 
 /* ---------- paquetage unique « Atelier bois 3D » (SCORM 1.2, un élément par machine) ----------
-   Un seul zip pour Moodle : l'atelier (élément non noté, « asset ») puis un élément noté par machine (SCO),
+   Un seul zip pour Moodle : l'atelier puis un élément noté par machine (SCO). L'atelier est aussi une SCO (Moodle ne
+   lance jamais un « asset » de lui-même : il ouvrait la scie radiale) qui reste toujours « incomplete » : Moodle ouvre
+   le premier élément non terminé, donc l'atelier à chaque entrée, et il ne compte pas dans « Objets d'apprentissage ».
    three.js partagé dans lib/. Chaque machine a sa note, son statut, ses interactions et son objectif dans les rapports
    SCORM ; le carnet de notes n'a qu'une colonne (méthode conseillée : « Objets d'apprentissage » = machines validées).
    Deux versions : avec verrous (prérequis : la machine précédente de la chaîne de débit réussie) et sans verrous. */
@@ -159,7 +161,7 @@ function buildPackage(lock){
       + (lock && PKG_PREREQ[id] && BUILT[PKG_PREREQ[id]] ? `        <adlcp:prerequisites type="aicc_script">${itemId(PKG_PREREQ[id])}</adlcp:prerequisites>\n` : '')
       + `      </item>`));   // pas de masteryscore : le module pose lui-même passed / failed (70 ET aucune faute grave)
   const res = [`    <resource identifier="RES_LIB" type="webcontent" adlcp:scormtype="asset">\n${libFiles.map(f => `      <file href="${f}"/>`).join('\n')}\n    </resource>`,
-    `    <resource identifier="RES_ATELIER" type="webcontent" adlcp:scormtype="asset" href="atelier/index.html">\n      <file href="atelier/index.html"/>\n      <dependency identifierref="RES_LIB"/>\n    </resource>`]
+    `    <resource identifier="RES_ATELIER" type="webcontent" adlcp:scormtype="sco" href="atelier/index.html">\n      <file href="atelier/index.html"/>\n      <dependency identifierref="RES_LIB"/>\n    </resource>`]
     .concat(ids.map(id => `    <resource identifier="RES_${BUILT[id].config.scorm.code}" type="webcontent" adlcp:scormtype="sco" href="${id}/index.html">\n      <file href="${id}/index.html"/>\n      <dependency identifierref="RES_LIB"/>\n    </resource>`));
   files['imsmanifest.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
 <manifest identifier="ATELIER_BOIS_3D" version="1.0"
