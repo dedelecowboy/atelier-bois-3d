@@ -1,6 +1,7 @@
 /* Scène 3D commune : rendu, caméra et vues, lumières, boucle d'affichage, perte de contexte WebGL,
    plein écran et messages flottants (toast). */
 import * as THREE from 'three';
+import { toggleFs, fsOn, onFsChange } from './fullscreen.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
@@ -62,15 +63,12 @@ export function createStage(views){
   let toastT=0;
   function toast(html,ms=4500){ const t=$('toast'); t.innerHTML=html; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,ms); }
 
-  /* plein écran */
-  const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
-  $('fs').onclick=async()=>{ try{
-      if(fsEl()){ await (document.exitFullscreen||document.webkitExitFullscreen).call(document); return; }
-      const el=document.documentElement; await (el.requestFullscreen||el.webkitRequestFullscreen).call(el);
-    }catch(e){ toast('Plein écran indisponible dans cet affichage. Ouvrez la page dans un nouvel onglet du navigateur, ou utilisez la touche <kbd>F11</kbd>.',6000); } };
-  function onFs(){ const on=!!fsEl(); $('fs').setAttribute('aria-pressed',String(on)); $('fs').textContent=on?'⛶ Quitter':'⛶';
+  /* plein écran (dans le paquetage unique : le lecteur Moodle entier, voir fullscreen.js) */
+  $('fs').onclick=async()=>{ try{ await toggleFs(); }
+    catch(e){ toast('Plein écran indisponible dans cet affichage. Ouvrez la page dans un nouvel onglet du navigateur, ou utilisez la touche <kbd>F11</kbd>.',6000); } };
+  function onFs(){ const on=fsOn(); $('fs').setAttribute('aria-pressed',String(on)); $('fs').textContent=on?'⛶ Quitter':'⛶';
     if(on) toast('Plein écran : appuyez sur <kbd>Échap</kbd> (ou <kbd>Esc</kbd>) pour quitter.'); }
-  document.addEventListener('fullscreenchange',onFs); document.addEventListener('webkitfullscreenchange',onFs);
+  onFsChange(onFs); onFs();
 
   return { THREE, canvas, renderer, scene, camera, controls, root, VIEWS, setView, setCam, resize, run, onContext, toast,
     dirty(){ renderer.shadowMap.needsUpdate=true; } };

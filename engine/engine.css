@@ -24,6 +24,18 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);fon
 .top{grid-area:top;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:baseline;gap:10px;margin-right:auto;min-width:0}
 .brand .back-atelier{align-self:center;white-space:nowrap}
+.brand .mode-switch{align-self:center;white-space:nowrap}
+.brand .mode-switch[data-train="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.choice{position:absolute;inset:0;z-index:6;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--stage) 72%,transparent)}
+.choice-card{width:min(560px,100%);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;box-shadow:0 12px 36px rgb(0 0 0 / .2);display:grid;gap:12px}
+.choice-card h2{margin:0;font-size:15px}
+.choice-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice-opt{display:grid;gap:6px;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:14px;cursor:pointer;font:inherit}
+.choice-opt b{font-family:var(--f-display);font-size:22px;font-weight:700}
+.choice-opt span{font-size:14px;line-height:1.4;color:var(--muted)}
+.choice-opt.main{border-color:var(--accent);background:var(--accent-soft)}
+.choice-opt:hover{border-color:var(--accent)}
+@media (max-width:600px){.choice-opts{grid-template-columns:1fr}}
 .brand h1{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:0}
 .brand span{color:var(--muted);font-size:13px}
 .seg2,.exsel{display:flex;gap:4px;flex-wrap:wrap}

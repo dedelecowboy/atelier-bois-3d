@@ -11,6 +11,7 @@ import { STATIONS, FAMILLES, FLOW } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg } from '../engine/moodlenav.js';
+import { toggleFs, fsOn, onFsChange } from '../engine/fullscreen.js';
 
 const $ = id=>document.getElementById(id);
 const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
@@ -341,7 +342,8 @@ function setEditing(on){ if(on===editing) return; if(on) select(null); editing=o
 $('editBtn').onclick=()=>setEditing(!editing);
 
 /* plein écran */
-$('fs').onclick=()=>{ const el=document.documentElement; if(document.fullscreenElement) document.exitFullscreen?.(); else (el.requestFullscreen||el.webkitRequestFullscreen)?.call(el); };
+$('fs').onclick=()=>{ toggleFs().catch(()=>flash('Plein écran indisponible dans cet affichage : utilisez la touche F11.')); };
+onFsChange(()=>$('fs').setAttribute('aria-pressed',String(fsOn())));
 
 /* ---------- boucle ---------- */
 const v=new THREE.Vector3();

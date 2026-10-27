@@ -56,6 +56,17 @@ export function createApp(config, raw){
       ex.setMode(config.modes[0].id); app.setUI('pres');
       if(parc.PARC_ON) parc.start();
       /* paquetage « Atelier bois 3D » : retour à l'atelier par le sommaire de Moodle (la progression est enregistrée à la sortie) */
+      /* paquetage unique : à l'entrée, l'élève choisit S'entraîner (présentation + exercices, rien d'enregistré)
+         ou l'évaluation (parcours noté) ; un bouton de l'en-tête passe de l'un à l'autre */
+      if(pkg() && parc.PARC_ON){ const sw=$('modeSwitch'), P=parc.parc;
+        const train=on=>{ $('choice').hidden=true; sw.hidden=false; sw.dataset.train=String(on);
+          sw.textContent= on? 'Passer l\'évaluation' : 'S\'entraîner';
+          if(on){ parc.setActive(false); ex.setMode(config.modes[0].id); app.setUI('pres'); } else parc.setActive(true); };
+        $('chTitle').textContent=config.title;
+        if(P.done){ $('chEvalT').textContent='Voir mon résultat'; $('chEvalS').textContent=`Évaluation terminée : ${P.total} / 100, ${P.passed?'machine validée':'machine non validée'}.`; }
+        else if(P.ph!=='rep' || P.rk.length){ $('chEvalT').textContent='Reprendre l\'évaluation'; }
+        $('chTrain').onclick=()=>train(true); $('chEval').onclick=()=>train(false); sw.onclick=()=>train(sw.dataset.train!=='true');
+        parc.setActive(false); $('choice').hidden=false; }
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
       stage.run(hooks.tick||(()=>{}));

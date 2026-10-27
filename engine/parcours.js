@@ -16,6 +16,8 @@ const W_REP=20, W_QCM=20, W_SCEN=20, PASS=70;
 export function createParcours(app, { reperage, qcm }, P){
   const { stage, parts, ex } = app;
   const PARC_ON = !!window.PARCOURS;
+  let on = true;                                   // false : entraînement (paquetage unique), le parcours ne relève rien
+  const act = ()=> PARC_ON && on;
   const REP = reperage, QCM = qcm, SCENS = P.scenarios;
   const parc={ph:'rep', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
   let repFeedback='', repLock=false, repCfgKey=null, repQKey=null, parcKey='';
@@ -37,7 +39,7 @@ export function createParcours(app, { reperage, qcm }, P){
     setTimeout(()=>{ repLock=false; repFeedback=''; parts.select(null); parc.ri++; if(parc.ri>=REP.length){ parc.ph='qcm'; } scorm.save(); render(); }, ok?900:2200);
     render(); }
   /* au clic dans la 3D pendant le repérage : pièces et organes masqués par la transparence ignorés */
-  function pick(hits){ if(!PARC_ON||parc.ph!=='rep') return false;
+  function pick(hits){ if(!act()||parc.ph!=='rep') return false;
     const h=hits.find(h=>h.object.userData.part && !(P.ignore||[]).includes(h.object.userData.part) && !parts.hiddenByXray(h.object.userData.part));
     if(h) repPick(h.object.userData.part); return true; }
 
@@ -48,7 +50,7 @@ export function createParcours(app, { reperage, qcm }, P){
 
   /* --- scénarios --- */
   function startScen(){ parc.ph='scen'; /* les fautes d'une tentative interrompue sont conservées */ const S=SCENS[parc.si]; ex.setMode(S.mode); stage.setView(S.view||Object.keys(stage.VIEWS)[0]); scorm.save(); render(); }
-  function recordDangers(list){ if(!PARC_ON||parc.ph!=='scen') return; for(const [l,t] of (list||app.alerts())) if(l==='danger'){ const k=t.split('. ')[0].slice(0,170); if(!parc.dangers.includes(k)) parc.dangers.push(k); } }
+  function recordDangers(list){ if(!act()||parc.ph!=='scen') return; for(const [l,t] of (list||app.alerts())) if(l==='danger'){ const k=t.split('. ')[0].slice(0,170); if(!parc.dangers.includes(k)) parc.dangers.push(k); } }
   const criteria=m=>P.criteria(m, { dangers:parc.dangers.length, ok:parc.dangers.length===0 });
   function finishScen(){ const S=SCENS[parc.si], C=criteria(S.mode), pts=C.reduce((a,c)=>a+(c[2]?4:0),0);
     parc.scens[parc.si]={pts, crit:C.map(c=>[c[0],c[1],c[2]?1:0]), dangers:parc.dangers.slice()};
@@ -72,7 +74,7 @@ export function createParcours(app, { reperage, qcm }, P){
     scorm.save(); render(); }
 
   /* --- affichage --- */
-  function render(){ if(!PARC_ON) return; const el=$('parcCard'); if(!el) return;
+  function render(){ if(!act()) return; const el=$('parcCard'); if(!el) return;
     $('app').dataset.phase=parc.ph;
     const R=curRep(), cfg=parc.ph==='rep'?R.cfg:{}, wantX=!!cfg.x, ck=parc.ph==='rep'?JSON.stringify(cfg):'none';
     /* la vue intérieure est imposée par la question (ni plus, ni moins) : remise à chaque question et à la sortie du repérage */
@@ -106,12 +108,17 @@ export function createParcours(app, { reperage, qcm }, P){
         ${all.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<p class="pk">${scorm.ok||scorm.api?'Résultat enregistré dans Moodle.':'Mode autonome : aucun Moodle détecté, le résultat n\'est pas enregistré.'} Seuil de réussite : ${PASS} / 100 sans faute grave.</p>`; }
   }
   /* rafraîchit la carte pendant un scénario (étape ou fautes changées) */
-  function refresh(){ if(PARC_ON && parc.ph==='scen'){ const k=ex.step+'|'+parc.dangers.length; if(k!==parcKey){ parcKey=k; render(); } } }
+  function refresh(){ if(act() && parc.ph==='scen'){ const k=ex.step+'|'+parc.dangers.length; if(k!==parcKey){ parcKey=k; render(); } } }
 
   /* démarrage dans Moodle : reprise éventuelle, scénario interrompu recommencé depuis son intro */
   function start(){ scorm.init(); if(parc.ph==='scen') parc.ph='scen-intro'; P.onStart?.(); app.setUI('parcours'); if(parc.ph==='rep') parts.select(null); render(); }
 
   /* pendant le repérage, la vue intérieure n'est pas libre (le bouton « Vue intérieure » est caché) */
-  const inRep=()=>PARC_ON && parc.ph==='rep';
-  return { PARC_ON, parc, inRep, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, QCM, REP };
+  const inRep=()=>act() && parc.ph==='rep';
+  /* paquetage unique : passage entraînement ↔ évaluation. Un scénario quitté est repris depuis son introduction
+     (ses fautes graves sont conservées), comme à la reprise d'une session. */
+  function setActive(v){ if(!PARC_ON || v===on) return; on=v;
+    if(!v){ $('repBar').hidden=true; parc.cand=null; parts.select(null); if(parts.xray) parts.setXray(false,false); return; }
+    if(parc.ph==='scen') parc.ph='scen-intro'; repCfgKey=null; repQKey=null; parcKey=''; app.setUI('parcours'); if(parc.ph==='rep') parts.select(null); render(); }
+  return { PARC_ON, parc, inRep, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, setActive, get active(){ return act(); }, QCM, REP };
 }
