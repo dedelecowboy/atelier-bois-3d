@@ -18,9 +18,12 @@ def main():
     machines = sys.argv[1:] or sorted(d for d in os.listdir(os.path.join(ROOT, 'tests')) if os.path.isdir(os.path.join(ROOT, 'tests', d)) and glob.glob(os.path.join(ROOT, 'tests', d, 'test_*.py')))
     bad = []
     for mac in machines:
-        if not os.path.exists(os.path.join(ROOT, 'dist', mac + '.html')): sys.exit(f'dist/{mac}.html absent : lancez « npm run build ».')
-        ok, err = node_check(mac); print(f'[{mac}] node --check : {"OK" if ok else "ÉCHEC"} {err}')
-        if not ok: bad.append(f'{mac} node --check')
+        if mac == 'paquet':   # paquetage unique : pas de page dist/paquet.html, le test lit les zips
+            if not os.path.exists(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12.zip')): sys.exit('dist/Atelier_bois_3D_SCORM12.zip absent : lancez « npm run build ».')
+        else:
+            if not os.path.exists(os.path.join(ROOT, 'dist', mac + '.html')): sys.exit(f'dist/{mac}.html absent : lancez « npm run build ».')
+            ok, err = node_check(mac); print(f'[{mac}] node --check : {"OK" if ok else "ÉCHEC"} {err}')
+            if not ok: bad.append(f'{mac} node --check')
         for t in sorted(glob.glob(os.path.join(ROOT, 'tests', mac, 'test_*.py'))):
             t0 = time.time(); print(f'[{mac}] {os.path.basename(t)}', flush=True)
             r = subprocess.run([sys.executable, '-u', t])
