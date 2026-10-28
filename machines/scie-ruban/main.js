@@ -6,13 +6,13 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
-import { TABLE_Y, ZONE, PROT_GAP, VC, DEV_MAX, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, RIM_W } from './constants.js';
-import { st, lame, voie, rmin, dents, rimPos, rimOk, wide, ctx, $ } from './state.js';
+import { TABLE_Y, ZONE, NEAR, PROT_GAP, VC, DEV_MAX, DEV_STEP, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, RIM_W } from './constants.js';
+import { st, lame, voie, rmin, dents, rimPos, rimOk, wide, tensionOk, ctx, $ } from './state.js';
 import { BLADES, bladeById, rmin as rminOf, toothH } from './lame.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, onTable, cur, extent, measure, label, fmt, feedMode, feedStep, backStep, finishCut, inCurve, build, place,
   toTrace, toFence, toGab, toMiter, setChant, nudge, chutes, nearBlade, distToBlade, woodAt, evacuate, aside, reject, setKeep, setKind, take, traceDist, toLocal } from './piece.js';
-import { computeAlerts, motorBlock, feedBlock, drift, remaining, broken, guideIssues, protOk } from './rules.js';
+import { computeAlerts, motorBlock, feedBlock, drift, remaining, broken, guideIssues, guidesOk, protOk } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria, ev, startGap } from './scenarios.js';
 
 const app = createApp(config, { organes, qcm, reperage });
@@ -75,8 +75,10 @@ function drawProt(){ const p=cur(), H=p?p.H:null, key=st.hg+'|'+H; if(key===prot
   const yT=84, k=Math.min(0.42,60/Math.max(60,(H||40)+30)), ok=p&&protOk(p), low=p&&st.hg<H, col=!p?'var(--muted)':ok?'var(--ok)':low?'#c98a12':'var(--danger)', yg=yT-st.hg*k;
   let g=`<rect x="6" y="${yT}" width="288" height="7" fill="var(--muted)" opacity=".45"/>`;
   if(p) g+=`<rect x="40" y="${yT-H*k}" width="180" height="${H*k}" fill="#d9b98a" stroke="#8a6a40" stroke-width=".7"/>`;
-  g+=`<line x1="150" y1="${Math.max(4,yg-30)}" x2="150" y2="${yT}" stroke="var(--fg)" stroke-dasharray="3 2" opacity=".5"/>`;
-  g+=`<rect x="134" y="${Math.max(2,yg-20)}" width="32" height="${Math.min(20,yg-2)}" fill="#e9c22c" stroke="${col}" stroke-width="1.6"/>`;
+  const yb=Math.max(30,yg-20), hb=Math.max(4,Math.min(20,yg-yb)), clip=yg-20<30;   // sous les deux lignes de texte ; trop haut : flèche
+  g+=`<line x1="150" y1="${yb}" x2="150" y2="${yT}" stroke="var(--fg)" stroke-dasharray="3 2" opacity=".5"/>`;
+  g+=`<rect x="134" y="${yb}" width="32" height="${clip?14:hb}" fill="#e9c22c" stroke="${col}" stroke-width="1.6"/>`;
+  if(clip) g+=`<text x="171" y="${yb+11}" font-size="10" font-weight="700" fill="${col}">↑ plus haut</text>`;
   g+=`<text x="4" y="12" font-size="9.5" font-weight="600" fill="var(--fg)">guide-lame à ${st.hg} mm${p?` · pièce ${fmt(H,0)} mm`:''}</text>`;
   g+=`<text x="4" y="24" font-size="8.5" fill="${col}">${!p?'pas de pièce':ok?`réglé au plus près (${PROT_GAP[0]} à ${PROT_GAP[1]} mm)`:low?'plus bas que la pièce : elle ne passe pas':'trop haut : lame accessible'}</text>`;
   $('protSvg').innerHTML=g; }
@@ -107,7 +109,7 @@ function drawPlan(force){ const p=cur(), t=onTable(), b=lame(); const now=perfor
       if(Math.abs(d.d)<=8) r1= gap<-0.3? `Trait de scie DANS la pièce : ${fmt(-gap)} mm au-delà du trait` : `Trait côté chute : bord à ${fmt(gap)} mm du trait`;
       if(sg!==null&&!cut.entered) r2='Départ du tracé devant la lame'; }
     if(mode==='fence') r1=`Contre le guide : épaisseur sciée ${fmt(st.fx)} mm`;
-    if(mode==='fence'||mode==='gab'||mode==='miter') r2=`Arrière de la pièce à ${fmt(remaining(p),0)} mm de la lame${remaining(p)<ZONE&&!st.pouss?' : poussoir !':''}`; }
+    if(mode==='fence'||mode==='miter') r2=`Arrière de la pièce à ${fmt(remaining(p),0)} mm de la lame${remaining(p)<ZONE&&!st.pouss?' : poussoir !':''}`; if(mode==='gab') r2='Rondin dans le gabarit en vé : mains sur la poignée du gabarit'; }
   g+=`<text x="4" y="10" font-size="8" fill="var(--muted)">vue de dessus · lame en rouge quand elle tourne · opérateur en bas</text><text x="4" y="164" font-size="9" fill="var(--fg)">${r1}</text><text x="4" y="176" font-size="9" fill="var(--fg)">${r2}</text>`;
   $('planSvg').innerHTML=g; }
 
@@ -132,16 +134,23 @@ function handsPose(){ const p=cur(); if(!p) return { hands:[], pouss:null }; con
     else { put([[0,80],[0,120],[0,170]],{bad:true}); put([[-140,140],[-110,200],[110,140]],{rot:0.3}); }
     return { hands:out, pouss:null }; }
   const xm=(e.x0+e.x1)/2000, zt=e.z1/1000, bad=remaining(p)<ZONE&&(cut.entered||cut.inWood);
-  if(st.pouss) return { hands:[{x:e.x0/1000-0.07,z:Math.min(zt,0.30)+0.10,y:0.001,rot:0.2}], pouss:{x:xm,z:zt+0.15,y:Math.min(p.H/1000,0.04)-0.035,th:Math.PI/2} };
-  return { hands:[{x:xm,z:zt+0.10,y:Math.min(y,0.06),bad},{x:e.x0/1000-0.06,z:Math.min(zt,0.35)-0.05,y:0.001,rot:0.3}], pouss:null }; }
+  // main gauche : elle tient la pièce sur son flanc gauche, jamais à moins de 200 mm devant la lame ; plus de bois à portée : posée sur la table
+  const left={x:e.x0/1000-0.06,z:Math.max(0.20,Math.min(zt-0.10,0.35)),y:0.001,rot:0.3};
+  if(mode==='gab')     // gabarit : les deux mains sur la poignée et sur la planchette, derrière le rondin
+    return { hands:[{x:0.045,z:zt+0.19,y:0.065,rot:-0.2},{x:-0.085,z:zt+0.15,y:0.022,rot:0.35}], pouss:null, gab:{z0:e.z0/1000,z1:zt} };
+  if(st.pouss){        // poussoir entre la lame et le guide, talon contre l'arrière de la pièce ; la main droite sur sa poignée
+    const xa=voie()/2+0.5, xb= mode==='fence'? voie()/2+st.fx : e.x1, w=Math.max(6,Math.min(40,xb-xa-2)), xc=(xa+xb)/2000, py=Math.max(0,Math.min(p.H/1000,0.12)-0.05);
+    return { hands:[{x:xc,z:zt+0.31,y:py+0.085,rot:0},{...left,z:Math.max(0.25,left.z)}], pouss:{x:xc,z:zt+0.20,y:py,th:-Math.PI/2,w:w/1000}, gab:null }; }
+  return { hands:[{x:xm,z:zt+0.10,y:Math.min(y,0.06),bad},left], pouss:null, gab:null }; }
 
 /* ---------- mise à jour complète ---------- */
 function update(){
   syncBlade();
   const b=lame(), H=handsPose();
   model.update({ hg:st.hg, tilt:st.tilt, fence:st.fence, fx:(voie()/2+st.fx)/1000, mitOn:st.mitOn, mit:st.mit, serv:st.serv, doors:st.doors, cad:st.cad, main:st.main, au:st.au, ten:st.ten,
-    guide:{ L:st.gL, B:st.gB, F:st.gF, Li:st.gLi, Bi:st.gBi, Fi:st.gFi }, e:b?.e||0.8, hands:H.hands, pouss:H.pouss });
+    guide:{ L:st.gL, B:st.gB, F:st.gF, Li:st.gLi, Bi:st.gBi, Fi:st.gFi }, e:b?.e||0.8, hands:H.hands, pouss:H.pouss, gab:H.gab||null });
   for(const k of ['asp','gants','main','cad','doors','serv','pouss','feed','au']) $(k)?.setAttribute('aria-pressed',String(!!st[k]));
+  syncTools();
   $('motor').setAttribute('aria-pressed',String(st.motor)); $('motor').textContent= st.motor? 'O · Lame' : 'I · Lame';
   $('main').textContent= st.main? 'Sectionneur sur I' : 'Sectionneur sur 0'; $('cad').textContent= st.cad? 'Consignée (cadenas)' : 'Consigner';
   $('doors').textContent= st.doors? 'Portes ouvertes' : 'Portes fermées'; $('serv').textContent= st.serv? 'Servante en sortie' : 'Servante rangée';
@@ -205,6 +214,30 @@ $('hwheel').onclick=()=>{ if(!st.blade) return say('Aucune lame montée.'); if(!
   if(st.ten<lame().w*0.5) return say('Tendez d\'abord la lame : détendue, elle ne se place pas.');
   st.posDev=st.dev; st.posOk=true; const r=rimPos(), b=lame();
   info(`Volant tourné à la main : la lame se place ${r.c>0?'vers l\'avant':r.c<0?'vers l\'arrière':'au milieu'} du bandage. ${rimOk()? 'Bonne position.' : wide()? (r.frac<0.6? 'Elle déborde trop : elle sortirait du volant.' : 'Dents encore sur le bandage : un quart de tour de plus (+).') : 'Ramenez-la au milieu du bandage.'}`); };
+/* simplifications de l'exercice : changement de lame complet en un geste (la procédure est l'objet du scénario 1, où ce bouton est caché),
+   guide-lame inférieur réglé comme le supérieur, aide au suivi du trait (exercice guidé seulement, jamais au parcours) */
+const goodGuides=b=>({ L:0.2, F:Math.round((toothH(b)+2)*2)/2, B:b.w+1 });
+function goodDev(b){ for(let d=0; d<=DEV_MAX; d++){ if(b.w<20) return 0; const c=d*DEV_STEP, over=c+b.w/2-RIM_W/2, on=Math.max(0,Math.min(RIM_W/2,c+b.w/2)-Math.max(-RIM_W/2,c-b.w/2)); if(over>=toothH(b)&&on/b.w>=0.6) return d; } return 0; }
+$('quick').onclick=()=>{ if(spin()>0.02||st.motor) return say('Arrêtez la lame et attendez son arrêt complet.');
+  const b=bladeById($('bladeSel').value); if(!b) return;
+  if(b.crack) return say(`Lame ${b.n} : CRIQUE à la soudure (« Examiner »). Elle va au rebut : choisissez-en une autre.`);
+  if(st.blade===b.id&&!st.inv&&tensionOk()&&rimOk()&&guidesOk(true)&&guidesOk(false)) return info('Cette lame est déjà montée et réglée.');
+  const was=lame(); if(was) rackInv[was.id]=false;
+  st.motor=false; st.main=false; st.cad=true; st.gants=true; st.doors=true; st.ten=0;
+  st.blade=b.id; st.inv=false; st.ten=b.w; st.dev=goodDev(b); st.posDev=st.dev; st.posOk=true; broken.on=false; if(was) ev.demonte=true;
+  const g=goodGuides(b); Object.assign(st,{ gL:g.L, gF:g.F, gB:g.B, gLi:g.L, gFi:g.F, gBi:g.B });
+  st.doors=false; st.cad=false; st.main=true;
+  info(`Lame changée${was?` (${was.w} mm démontée)`:''} : ${b.n}, dents vers le bas. Procédure faite pour vous : consigner (sectionneur sur 0, cadenas, gants), ouvrir les portes, détendre et démonter, monter, tendre sur ${b.w}, tourner le volant à la main (${b.w>=20?'dents hors du bandage':'lame au milieu du bandage'}), guide-lames (galets à 0,2 mm, avant à ${fmt(g.F)} mm, galet arrière à ${fmt(g.B)} mm), fermer, déconsigner.`); };
+$('gCopy').onclick=()=>{ if(!settingGuard()) return; st.gLi=st.gL; st.gFi=st.gF; st.gBi=st.gB; info('Guide-lame inférieur réglé comme le supérieur.'); };
+$('aide').onclick=()=>{ pilot.on=!pilot.on; pilot.aide=pilot.on; pilot.off=0.5; if(!pilot.on) st.steer=0;
+  info(pilot.on? 'Aide au suivi du trait : la pièce tourne seule pour suivre le trait. Gérez l\'avance (« Avance », vitesse lente dans les courbes) et arrêtez à la fin. Pas d\'aide dans le parcours noté.' : 'Aide au suivi du trait arrêtée : ↺ ↻ (ou les flèches) pour suivre le trait.'); };
+/* boutons de la pièce utiles dans chaque exercice (tous en mode libre) */
+const OPS_OF={ chant:['trace','evac','pchute','aside','xm1','xp1','zm10','zp10','reset'], refente:['fence','chant','gab','reject','evac','pchute','aside','zm10','zp10','reset'] };
+function syncTools(){ const m=app.ex?.mode||'libre', ui=$('app')?.dataset.ui, list=OPS_OF[m];
+  document.querySelectorAll('#tools [data-op], #nudge [data-op]').forEach(b=>{ b.hidden= !!list && !list.includes(b.dataset.op); });
+  $('quick').hidden= m==='lame';
+  const aideOk= ui==='ex' && m==='chant'; $('aideRow').hidden=!aideOk; if(!aideOk&&pilot.aide){ pilot.on=pilot.aide=false; st.steer=0; }
+  $('aide').setAttribute('aria-pressed',String(pilot.on)); }
 for(const k of ['gL','gF','gB','gLi','gFi','gBi','hg','tilt']){
   const fn=v=>{ if(!settingGuard()) return; if(k==='tilt'&&cut.inWood) return say('La lame est dans la pièce.'); st[k]=v; apply(); };
   $(k).addEventListener('input',e=>fn(+e.target.value)); $(k+'-n').addEventListener('change',e=>fn(num($(k),e.target.value))); }
@@ -225,7 +258,12 @@ $('motor').onclick=()=>{ if(st.motor){ st.motor=false; st.feed=false; F.msg=''; 
   app.recordDangers(computeAlerts(spin()).filter(a=>a[0]==='danger'&&(a[2]==='outil'||a[2]==='machine')));   // faute grave : démarrer une lame dangereuse
   st.motor=true; F.msg=''; apply(); };
 $('au').onclick=()=>{ if(st.au){ st.au=false; info('Arrêt d\'urgence déverrouillé. Redémarrez avec I si tout est en ordre.'); return; } st.au=true; st.motor=false; st.feed=false; say('Arrêt d\'urgence : la lame freine.','info'); };
-$('pouss').onclick=()=>{ st.pouss=!st.pouss; apply(); };
+$('pouss').onclick=()=>{ st.pouss=!st.pouss; const p=cur(), m=p&&feedMode(p);
+  if(st.pouss) info(m==='gab'? 'Poussoir en main. Au gabarit, il n\'est pas utile : les mains restent sur la poignée du gabarit, derrière le rondin.'
+    : m==='free'? 'Poussoir en main : il sert en fin de passe contre le guide parallèle ou au guide d\'onglet. À main levée, les mains restent de part et d\'autre de la lame.'
+    : 'Poussoir en main : son talon pousse l\'arrière de la pièce, entre la lame et le guide. Continuez « Avance » jusqu\'à la sortie de la lame ; la main reste sur la poignée, loin de la lame.');
+  else info('Poussoir reposé : les mains poussent directement la pièce.');
+  apply(); };
 $('feed').onclick=()=>{ if(st.feed){ st.feed=false; F.msg=''; apply(); return; } startFeed(); };
 function startFeed(){ const p=cur(), why=feedBlock(spin()); if(why){ say(why); return false; }
   if(p.round&&!p.gab&&p.gen===0){ app.recordDangers(); say('Refusé : PIÈCE RONDE NON MAINTENUE. Elle roulerait sous la lame et entraînerait la main. Gabarit (vé) ou « Écarter : gabarit ».','danger'); return false; }
@@ -251,6 +289,10 @@ function advance(mm){ let p=cur(); if(!p) return false; let left=mm;
   while(left>1e-6){ const ds=Math.min(1,left); left-=ds;
     if(pilot.on) st.steer=pilotSteer(p);
     const r=feedStep(p, ds, { blade:{ id:st.blade, rmin:rmin() }, drift:drift(), rec:{ hgOver:st.hg-p.H } });
+    const md=feedMode(p);                                 // fin de passe sans poussoir : l'avance s'arrête à 150 mm (rappel), puis à 40 mm (la main est sur la lame)
+    if((md==='fence'||md==='miter')&&!st.pouss&&cut.entered){ const r0=remaining(p);
+      if(r0<=NEAR&&r0>ZONE&&cut.pauseRec!==cut.rec){ cut.pauseRec=cut.rec; st.feed=false; say(`Arrêt de l'avance : l'arrière de la pièce est à ${fmt(r0,0)} mm de la lame. Prenez le poussoir (bouton « Poussoir »), puis « Avance » pour finir la passe.`); app.ex.invalidate(); return false; }
+      if(r0<=40){ st.feed=false; say('Arrêt : sans poussoir, la main arrive sur la lame. Prenez le poussoir pour finir la passe.','danger'); app.ex.invalidate(); return false; } }
     app.recordDangers();                                 // faute grave : alerte danger active pendant l'avance de la pièce
     if(r.done){ const out=finishCut(); st.feed=false;
       F.level='info'; F.msg= out.length>1? `Coupe terminée : ${out.length} morceaux. La pièce gardée est entourée en orange (cliquez une autre pièce pour la garder). ${spin()>0.02&&out.some(nearBlade)?'Chute contre la lame : poussoir, ou arrêt complet avant de la prendre.':''}` : 'La lame est sortie de la pièce.';
@@ -279,7 +321,7 @@ function doOp(op){ const p=cur(), t=onTable();
   if(op==='trace'){ const why=toTrace(p,0); if(why) return say(why); }
   else if(op==='fence'){ if(!st.fence) return say('Guide parallèle retiré : mettez-le en place (« Table et guides »).'); if(p.round) return say('Une pièce ronde ne se scie pas contre le guide : elle roule. Gabarit en vé.'); toFence(p); }
   else if(op==='miter'){ if(!st.mitOn) return say('Guide d\'onglet rangé : mettez-le en place.'); toMiter(p); }
-  else if(op==='gab'){ if(!p.round) return say('Le gabarit en vé est fait pour les pièces rondes.'); toGab(p); }
+  else if(op==='gab'){ if(!p.round) return say('Le gabarit en vé est fait pour les pièces rondes.'); if(st.fence&&voie()/2+st.fx<85) return say('Le guide parallèle gêne le gabarit : écartez-le à 85 mm au moins, ou retirez-le (« Table et guides »).'); toGab(p); }
   else if(op==='chant'){ const why=setChant(p,!p.chant); if(why) return say(why); if(st.fence&&p.chant) toFence(p); else place(p); }
   else { const d={xm1:[-1,0],xp1:[1,0],zm10:[0,-10],zp10:[0,10]}[op]; if(d){ if(p.gab&&d[0]) return say('La pièce est dans le gabarit.'); nudge(p,...d); } }
   app.ex.invalidate(); apply(); }

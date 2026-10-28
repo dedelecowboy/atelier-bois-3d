@@ -13,6 +13,7 @@
   <div class="ctl bl" role="group" aria-labelledby="l-bl"><span id="l-bl" class="bl-t">Râtelier des lames <small>montage : machine consignée, portes ouvertes, gants</small></span><output id="o-bl"></output>
     <select id="bladeSel" aria-label="Lame du râtelier"></select>
     <div class="bl-b"><button class="toggle mini" type="button" id="exam" title="Regarde la lame choisie : dimensions, sens des dents, état (criques)">Examiner</button><button class="toggle mini" type="button" id="flip" title="Retourne la lame (le sens des dents s'inverse)">Retourner la lame</button><button class="toggle mini" type="button" id="unmount">Démonter</button><button class="toggle mini" type="button" id="mount">Monter la lame</button></div>
+    <button class="toggle mini quick" type="button" id="quick" hidden style="grid-column:1/-1;width:100%" title="Fait toute la procédure avec la lame choisie : consigner, ouvrir, détendre, démonter, monter, tendre, placer sur le bandage, régler les guide-lames, fermer, déconsigner">Changer la lame : procédure complète</button>
     <p class="g-i" id="bladeInfo"></p></div>
   <div class="ctl"><label for="ten">Tension : indicateur (largeur de lame, mm)</label><input class="num" id="ten-n" type="number" min="0" max="50" step="1" aria-label="Indicateur de tension en mm de largeur de lame"><input id="ten" type="range" min="0" max="50" step="1" value="10"></div>
   <div class="ctl dv" role="group" aria-labelledby="l-dv"><span id="l-dv" style="font-weight:500">Dévers du volant supérieur</span><output id="o-dv"></output>
@@ -24,6 +25,7 @@
   <div class="ctl"><label for="gL">Haut : jeu des galets latéraux (mm)</label><input class="num" id="gL-n" type="number" min="0" max="1" step="0.05"><input id="gL" type="range" min="0" max="1" step="0.05" value="0.2"></div>
   <div class="ctl"><label for="gF">Haut : avant des galets (mm)</label><input class="num" id="gF-n" type="number" min="0" max="20" step="0.5"><input id="gF" type="range" min="0" max="20" step="0.5" value="4"></div>
   <div class="ctl"><label for="gB">Haut : galet arrière (mm)</label><input class="num" id="gB-n" type="number" min="0" max="45" step="0.5"><input id="gB" type="range" min="0" max="45" step="0.5" value="11"></div>
+  <button class="toggle mini" type="button" id="gCopy" title="Reporte les trois cotes du guide-lame supérieur sur le guide-lame inférieur">Bas réglé comme le haut</button>
   <div class="ctl"><label for="gLi">Bas : jeu des galets latéraux (mm)</label><input class="num" id="gLi-n" type="number" min="0" max="1" step="0.05"><input id="gLi" type="range" min="0" max="1" step="0.05" value="0.2"></div>
   <div class="ctl"><label for="gFi">Bas : avant des galets (mm)</label><input class="num" id="gFi-n" type="number" min="0" max="20" step="0.5"><input id="gFi" type="range" min="0" max="20" step="0.5" value="4"></div>
   <div class="ctl"><label for="gBi">Bas : galet arrière (mm)</label><input class="num" id="gBi-n" type="number" min="0" max="45" step="0.5"><input id="gBi" type="range" min="0" max="45" step="0.5" value="11"></div>
@@ -42,6 +44,7 @@
   <section class="fam" data-fam="piece" data-key="mains" data-title="Mains et avance">
   <div class="ctl" role="group" aria-labelledby="l-mains"><span id="l-mains" style="font-weight:500">Position des mains (à main levée)</span>
     <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" data-mains="cote">De part et d'autre de la lame</button><button class="toggle mini" type="button" data-mains="axe">Une main devant la lame</button></div></div>
+  <div class="srow" id="aideRow" hidden><button class="toggle mini" type="button" id="aide" aria-pressed="false" title="Exercice seulement (pas dans le parcours noté) : la pièce tourne seule pour suivre le trait, vous gérez l'avance, la vitesse et l'arrêt">Aide : suivre le trait</button></div>
   <div class="ctl" role="group" aria-labelledby="l-sp"><span id="l-sp" style="font-weight:500">Vitesse d'avance</span>
     <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" data-speed="1">Lente</button><button class="toggle mini" type="button" data-speed="2">Normale</button><button class="toggle mini" type="button" data-speed="3">Rapide</button></div></div>
   </section>

@@ -5,7 +5,7 @@
    - lame à l'envers, fissurée, pas tendue, qui déjante → danger au démarrage ;
    - protecteur à plus de 10 mm au-dessus de la pièce → danger ;
    - main dans l'axe de la lame (chantournage) → danger ;
-   - fin de passe au guide sans poussoir (moins de 120 mm entre la lame et l'arrière de la pièce) → danger ;
+   - fin de passe au guide sans poussoir (au gabarit, les mains sont sur sa poignée : pas de poussoir) (moins de 120 mm entre la lame et l'arrière de la pièce) → danger ;
    - pièce ronde sans gabarit, pièce sur chant instable → danger. */
 import { ZONE, PROT_GAP, MIN_TEETH, MAX_TEETH, STAB, E_MAX, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, TENSION_TOL } from './constants.js';
 import { st, lame, rimPos, wide, dents } from './state.js';
@@ -75,9 +75,9 @@ export function computeAlerts(spin){ const out=[], b=lame(), p=cur(), t=onTable(
     if(p.round&&!p.gab&&p.gen===0) out.push(['danger','PIÈCE RONDE NON MAINTENUE : un rondin roule sous la lame, il est happé et entraîne la main. Sciez-le dans un gabarit (vé), ou écartez-le.','piece']);
     if(p.chant&&p.H>STAB*footW(p)) out.push(['danger',`PIÈCE INSTABLE : sur chant, ${fmt(p.H,0)} mm de haut pour ${fmt(footW(p),0)} mm d'appui (plus de ${STAB} fois). Elle peut basculer.`,'piece']);
     if(mode==='free'&&st.mains==='axe') out.push(['danger','MAIN DANS L\'AXE DE LA LAME : les mains restent derrière la pointe des dents, de part et d\'autre de la lame, jamais devant elle.','mains']);
-    if((mode==='fence'||mode==='gab'||mode==='miter')&&(cut.entered||cut.inWood)&&remaining(p)<ZONE&&!st.pouss)
+    if((mode==='fence'||mode==='miter')&&(cut.entered||cut.inWood)&&remaining(p)<ZONE&&!st.pouss)
       out.push(['danger',`FIN DE PASSE SANS POUSSOIR : la main arrive à moins de ${ZONE} mm de la lame. Prenez le poussoir pour finir la passe.`,'mains']);
-    else if((mode==='fence'||mode==='gab')&&!st.pouss) out.push(['info','Poussoir à portée de main : prenez-le avant la fin de la passe.','mains']);
+    else if(mode==='fence'&&!st.pouss) out.push(['info','Poussoir à portée de main : prenez-le avant la fin de la passe.','mains']);
     if(b){ const n=p.H/b.p; if(n<MIN_TEETH) out.push(['warn',`Pas trop grand (${b.p} mm) pour ${fmt(p.H,0)} mm d'épaisseur : moins de ${MIN_TEETH} dents en prise, la coupe donne des à-coups.`,'outil']);
       else if(n>MAX_TEETH) out.push(['warn',`Pas trop fin (${b.p} mm) pour ${fmt(p.H,0)} mm à scier : la denture bourre de sciure et chauffe.`,'outil']); }
     if(cut.forcing) out.push(['warn',`LA LAME FORCE : elle ne suit pas un rayon plus petit que ${b?.w? (b.w>=30?'son rayon mini (lame large : sciage droit seulement)':'environ '+(rminText(b))+' mm'):'?'}. Elle se tord et peut casser : prenez une lame plus étroite.`,'outil']);

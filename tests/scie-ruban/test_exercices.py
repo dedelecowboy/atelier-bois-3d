@@ -33,7 +33,7 @@ GESTES2 = BASE + r"""
  const r={}, A=k=>alerts().some(a=>a.includes(k)), D=k=>alerts().some(a=>a.startsWith('danger')&&a.includes(k));
  // fin de passe sans poussoir (refente au guide, pièce de 400 mm)
  on('fenceOn'); setN('fx-n',20); setN('hg-n',32); on('asp'); op('fence'); await start(); r.pousInfo=A('Poussoir à portée de main');
- for(let i=0;i<120;i++){ R.advance(5); if(D('FIN DE PASSE SANS POUSSOIR')) break; } r.fin=D('FIN DE PASSE SANS POUSSOIR');
+ let pz=null; for(let i=0;i<120;i++){ const o=R.advance(5); if(o===false&&pz===null) pz=R.extent(R.pieces.find(q=>q.state==='table')).z1; if(D('FIN DE PASSE SANS POUSSOIR')) break; } r.fin=D('FIN DE PASSE SANS POUSSOIR'); r.pause=pz!==null&&pz>120&&pz<=150;
  $('pouss').click(); r.finOk=!D('FIN DE PASSE SANS POUSSOIR');
  for(let i=0;i<200;i++){ if(R.advance(5)===false) break; }
  // mains dans l'axe (chantournage)
@@ -48,11 +48,28 @@ GESTES2 = BASE + r"""
 RONDIN = BASE + r"""
  const r={}, D=k=>alerts().some(a=>a.startsWith('danger')&&a.includes(k));
  setN('tilt-n',0); on('serv'); on('asp'); op('aside'); document.querySelector('li[data-k=rond] [data-take]').click();
- setN('hg-n',95); r.rouge=D('PIÈCE RONDE'); await start(); $('feed').click(); r.refus=!R.st.feed&&D('PIÈCE RONDE');
+ setN('hg-n',95); r.rouge=D('PIÈCE RONDE');
  op('fence'); r.pasGuide=alerts().some(a=>a.includes('ne se scie pas contre le guide'));
- op('gab'); r.gabOk=!D('PIÈCE RONDE');
- $('pouss').click(); for(let i=0;i<200;i++){ if(R.advance(5)===false) break; }
+ op('gab'); r.gabGuide=!R.pieces.find(q=>q.state==='table').gab&&alerts().some(a=>a.includes('Le guide parallèle gêne le gabarit'));
+ off('fenceOn'); await start(); $('feed').click(); r.refus=!R.st.feed&&D('PIÈCE RONDE');
+ op('gab'); r.gabOk=!D('PIÈCE RONDE')&&!D('POUSSOIR');
+ for(let i=0;i<200;i++){ if(R.advance(5)===false) break; r.gabOk=r.gabOk&&!D('POUSSOIR'); }
  r.moities=R.pieces.filter(q=>q.round&&q.gen>0).length;
+ return r;"""
+
+
+SIMPLE = BASE + r"""
+ const r={}, vis=o=>!document.querySelector(`[data-op=${o}]`).hidden;
+ r.toolsChant=vis('trace')&&!vis('fence')&&!vis('gab')&&!vis('miter');
+ on('asp'); sel('r10'); $('quick').click();
+ r.quick=R.st.blade==='r10'&&!R.st.cad&&R.st.main&&!R.st.doors&&R.st.ten===10&&R.st.posOk;
+ r.step1=stepOk(); next();
+ off('fenceOn'); setN('hg-n',28); document.querySelector('[data-mains=cote]').click(); r.step2=stepOk(); next();
+ op('trace'); const g0=R.startGap(); op('xp1'); const g1=R.startGap(); const k=g1>g0? 'xp1':'xm1'; if(k==='xm1') op('xm1');
+ let n=0; while(R.startGap()<0.3 && n<6){ op(k); n++; } r.step3=stepOk(); next();
+ r.aideVisible=!$('aideRow').hidden; $('aide').click(); await start();
+ for(let i=0;i<400;i++){ const o=R.advance(5); if(o===false||typeof o==='string') break; }
+ r.step4=stepOk(); r.dangers=alerts().filter(a=>a.startsWith('danger'));
  return r;"""
 
 async def main():
@@ -82,6 +99,16 @@ async def main():
             dang = [a for a in m if a.startswith('danger')]
             check(not dang, 'aucune alerte danger pendant l\'avance' + ('' if not dang else ' : ' + dang[0]))
             await pg.shot(f'scie-ruban_{mode}.png')
+        print('Chantourner simplifié (exercice) : changement de lame en un geste, aide au suivi du trait')
+        await pg.eval("()=>{document.getElementById('ui-ex').click(); document.querySelector('[data-mode=chant]').click();}"); await pg.page.wait_for_timeout(100)
+        r = await pg.eval(js(SIMPLE))
+        check(r['toolsChant'], 'chantourner : seuls les boutons utiles de la pièce sont affichés')
+        check(r['quick'] and r['step1'], 'lame de 10 choisie, « procédure complète » : montée, tendue, placée, machine déconsignée ; étape 1 réussie')
+        check(r['step2'] and r['step3'], 'réglages et présentation réussis sans refaire la procédure')
+        check(r['aideVisible'] and r['step4'] and not r['dangers'], f'aide au suivi du trait : tracé scié en entier sans danger {r["dangers"]}')
+        hid = await pg.eval("()=>{document.querySelector('[data-mode=lame]').click(); return document.getElementById('quick').hidden && document.getElementById('aideRow').hidden;}")
+        check(hid, 'exercice « Lame » : pas de procédure complète en un geste, pas d\'aide au trait')
+        await pg.eval("()=>document.getElementById('ui-pres').click()")
         print('Gestes refusés et alertes (mode libre)')
         await pg.eval("()=>document.querySelector('[data-mode=libre]').click()"); await pg.page.wait_for_timeout(100)
         r = await pg.eval(js(GESTES))
@@ -99,6 +126,7 @@ async def main():
         r = await pg.eval(js(GESTES2))
         check(r['pousInfo'], 'contre le guide : « poussoir à portée de main »')
         check(r['fin'], 'fin de passe à moins de 120 mm sans poussoir : alerte rouge')
+        check(r['pause'], 'sans poussoir, l\'avance s\'arrête à 150 mm de la fin de passe (rappel : prendre le poussoir)')
         check(r['finOk'], 'poussoir pris : l\'alerte disparaît')
         check(r['axe'], 'main devant la lame : alerte rouge « main dans l\'axe de la lame »')
         check(r['prot'], 'protecteur à 80 mm pour 27 mm : alerte rouge « protecteur trop haut »')
@@ -110,7 +138,8 @@ async def main():
         r = await pg.eval(js(RONDIN))
         check(r['rouge'] and r['refus'], 'rondin tenu à la main : alerte rouge, avance refusée')
         check(r['pasGuide'], 'rondin contre le guide parallèle : refusé')
-        check(r['gabOk'] and r['moities'] == 2, f'rondin dans le gabarit : scié en deux moitiés ({r["moities"]})')
+        check(r['gabGuide'], 'gabarit refusé tant que le guide parallèle est près de la lame')
+        check(r['gabOk'] and r['moities'] == 2, f'rondin dans le gabarit, sans poussoir exigé : scié en deux moitiés ({r["moities"]})')
         await pg.shot('scie-ruban_rondin.png')
 
 if __name__ == '__main__': run(main)

@@ -222,11 +222,21 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(serv, rbox(0.04,TABLE_Y-0.08,0.04,M.dark,0.004), 0,(TABLE_Y-0.08)/2,0); add(serv, rbox(0.40,0.02,0.40,M.dark,0.004), 0,0.01,0);
   tagPart(serv,'servante');
   const poussR=new THREE.Group(); root.add(poussR);           // poussoir accroché sur le côté droit de la table
-  function poussoirMesh(){ const g=new THREE.Group(); const b=rbox(0.30,0.025,0.06,BEECH,0.004); b.position.set(0,0.035,0); g.add(b);
-    const h=rbox(0.10,0.04,0.03,M.red,0.008); h.position.set(0.02,0.07,0); g.add(h); const k=rbox(0.03,0.025,0.06,BEECH,0.003); k.position.set(-0.14,0.012,0); g.add(k); return g; }
+  function poussoirMesh(){ const g=new THREE.Group(); const b=rbox(0.40,0.025,0.06,BEECH,0.004); b.position.set(0,0.035,0); g.add(b);
+    const h=rbox(0.10,0.04,0.03,M.red,0.008); h.position.set(0.14,0.07,0); g.add(h); const k=rbox(0.03,0.025,0.06,BEECH,0.003); k.position.set(-0.185,0.012,0); g.add(k); return g; }
   const pHook=poussoirMesh(); pHook.rotation.z=Math.PI/2; pHook.position.set(TABLE_X1+0.04,TABLE_Y-0.22,0.12); poussR.add(pHook);
   const pHand=poussoirMesh(); tilt.add(pHand); pHand.visible=false;
   tagPart(poussR,'poussoir'); tagPart(pHand,'poussoir');
+  /* gabarit en vé (pièces rondes) : deux cales à 45° de part et d'autre du rondin, traverse arrière fendue au droit de la lame,
+     planchette de poussée et poignée ; il glisse avec le rondin et tient les mains loin de la lame. Dimensions en m, repère de la table. */
+  const gab=new THREE.Group(); tilt.add(gab); gab.visible=false; pickable(gab);
+  function wedge(sg){ const R=0.045, xa=0.0186, W=0.075, Hh=0.045, sh=new THREE.Shape();
+    sh.moveTo(sg*xa,0); sh.lineTo(sg*W,0); sh.lineTo(sg*W,Hh); sh.lineTo(sg*(xa+Hh),Hh); sh.closePath();
+    const g=new THREE.ExtrudeGeometry(sh,{depth:1,bevelEnabled:false}); const m=new THREE.Mesh(g,BEECH); m.castShadow=true; return m; }
+  const gW=[wedge(1),wedge(-1)]; gW.forEach(m=>gab.add(m));
+  const gBar=[rbox(0.072,0.05,0.04,BEECH,0.003),rbox(0.072,0.05,0.04,BEECH,0.003)]; gBar.forEach(m=>gab.add(m));
+  const gBoard=rbox(0.16,0.02,0.16,BEECH,0.003); gab.add(gBoard);
+  const gHandle=rbox(0.12,0.045,0.035,M.red,0.01); gab.add(gHandle);
 
   /* ---------- 21 Boîtier de commande, 22 arrêt d'urgence, 23 sectionneur cadenassable, 24 aspiration ---------- */
   const cmd=new THREE.Group(); root.add(cmd);
@@ -267,7 +277,7 @@ export function buildModel({ root, tagPart, partMeshes }){
 
   /* ---------- mise à jour ----------
      S = { hg (mm), tilt (°), fence, fx (m, face du guide), mitOn, mit (°), serv, doors, cad, au, ten (mm), guide:{ L,B,F, Li,Bi,Fi } (mm),
-           e (épaisseur de lame, mm), hands:[{x,z,y,bad,rot}] (m), pouss:{x,z,y,th}|null } */
+           e (épaisseur de lame, mm), hands:[{x,z,y,bad,rot}] (m), pouss:{x,z,y,th,w}|null, gab:{z0,z1}|null } */
   function update(S){
     upper.position.y=TABLE_Y+S.hg/1000;
     chanIn.position.y=0;     // le canal intérieur suit le guide ; l'extérieur reste fixe : le brin descendant est toujours couvert
@@ -288,7 +298,13 @@ export function buildModel({ root, tagPart, partMeshes }){
     // mains et poussoir (repère de la table inclinée)
     // objets cachés : non cliquables (pickable), le Raycaster ignorant « visible »
     hands.forEach((h,i)=>{ const d=S.hands?.[i]; h.visible=!!d; if(d){ h.position.set(d.x,d.y,d.z); h.rotation.y=d.rot||0; h.userData.ring.visible=!!d.bad; } });
-    pHand.visible=!!S.pouss; if(S.pouss){ pHand.position.set(S.pouss.x,S.pouss.y,S.pouss.z); pHand.rotation.y=S.pouss.th||0; }
+    pHand.visible=!!S.pouss; if(S.pouss){ pHand.position.set(S.pouss.x,S.pouss.y,S.pouss.z); pHand.rotation.y=S.pouss.th||0;
+      const k=(S.pouss.w||0.06)/0.06; pHand.children[0].scale.z=k; pHand.children[2].scale.z=k; }
+    // gabarit : de l'avant du rondin (z0) à son arrière (z1), traverse et planchette derrière
+    gab.visible=!!S.gab; if(S.gab){ const {z0,z1}=S.gab, L=z1-z0+0.03;
+      gW.forEach(m=>{ m.scale.z=L; m.position.z=z0-0.01; });
+      gBar[0].position.set(0.040,0.025,z1+0.022); gBar[1].position.set(-0.040,0.025,z1+0.022);
+      gBoard.position.set(0,0.010,z1+0.12); gHandle.position.set(0,0.042,z1+0.15); }
     pHook.visible=!S.pouss;
   }
   /* animation : volants et dents (rotation ralentie à l'affichage) ; spin = vitesse relative 0 à 1, freinée en BRAKE_S */
