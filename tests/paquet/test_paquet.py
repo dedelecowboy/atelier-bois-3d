@@ -45,6 +45,9 @@ window.API={LMSInitialize(){__log.push('init:'+__cur);return 'true'},LMSFinish()
  LMSGetValue(k){return (S[__cur]||{})[k]??''},LMSSetValue(k,v){(S[__cur]=S[__cur]||{})[k]=v;return 'true'},LMSGetLastError(){return '0'},LMSGetErrorString(){return ''},LMSGetDiagnostic(){return ''}};
 window.__S=S;
 function go(href,t){ __cur=t; document.getElementById('scorm_object').src='pkg/'+href; }
+/* comme Moodle 4 (arbre du sommaire) : icône Font Awesome, titre et note dans le même lien */
+function setSt(title,fa,label,score){ const a=[...document.querySelectorAll('#scorm_toc a')].find(a=>a.textContent.includes(title));
+  a.innerHTML='<i class="icon fa '+fa+' fa-fw" title="'+label+'" aria-label="'+label+'" role="img"></i>&nbsp;'+title+'&nbsp;'+(score!=null?'(Score&nbsp;: '+score+')':''); }
 </script></head><body style="margin:0;display:flex;height:100vh">
 <div id="scorm_toc" style="width:180px;font:12px sans-serif">%TOC%</div>
 <iframe id="scorm_object" style="flex:1;border:0" src="about:blank"></iframe></body></html>"""
@@ -56,10 +59,13 @@ async def main():
         # comme Moodle : un élément dont le prérequis n'est pas rempli est affiché sans lien dans le sommaire (enforce),
         # sinon tout est cliquable et chaque élément a son icône de statut (Non tenté)
         m = ET.fromstring(zz.read('imsmanifest.xml')); res = {r.get('identifier'): r.get('href') for r in m.findall('.//c:resource', NS)}
-        ico = '' if enforce else '<img alt="Non tenté" src="pix/notattempted.png"> '
-        toc = ''.join((f'<p><span>{i.find("c:title", NS).text}</span></p>' if enforce and i.find('a:prerequisites', NS) is not None else
-                       f'<p>{ico}<a href="#" onclick="go(\'{res[i.get("identifierref")]}\',\'{i.get("identifier")}\');return false">{i.find("c:title", NS).text}</a></p>')
-                      for i in m.findall('.//c:organization/c:item', NS))
+        if enforce:
+            toc = ''.join((f'<p><span>{i.find("c:title", NS).text}</span></p>' if i.find('a:prerequisites', NS) is not None else
+                           f'<p><a href="#" onclick="go(\'{res[i.get("identifierref")]}\',\'{i.get("identifier")}\');return false">{i.find("c:title", NS).text}</a></p>')
+                          for i in m.findall('.//c:organization/c:item', NS))
+        else:   # balisage réel de Moodle 4 (arbre) : <a data-scoid title=url><i class="icon fa …" title="Non tenté"></i>&nbsp;Titre&nbsp;(Score : 96)</a>, sans href
+            toc = '<ul>' + ''.join(f'<li><a data-scoid="{k}" title="&scoid={k}" onclick="go(\'{res[i.get("identifierref")]}\',\'{i.get("identifier")}\')"><i class="icon fa fa-regular fa-square fa-fw" title="Non tenté" aria-label="Non tenté" role="img"></i>&nbsp;{i.find("c:title", NS).text}&nbsp;</a></li>'
+                                   for k, i in enumerate(m.findall('.//c:organization/c:item', NS))) + '</ul>'
         return PLAYER.replace('%TOC%', toc)
     pages = { 'http://local/': player(z), 'http://local/verrous': player(zl), 'http://local/verrous-libres': player(zl, False) }
     print('Faux lecteur Moodle')
@@ -162,17 +168,17 @@ async def main():
         await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
         ev = await f.evaluate("()=>({ dis:document.getElementById('chEval').disabled, t:document.getElementById('chEvalS').textContent, tr:!document.getElementById('chTrain').disabled })")
         check(ev['dis'] and 'Scie radiale' in ev['t'] and ev['tr'], 'déligneuse ouverte par le sommaire : évaluation verrouillée, entraînement possible')
-        await pg.evaluate("const im=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('1. Scie radiale')).querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png')")
+        await pg.evaluate("setSt('1. Scie radiale','fa-check','Réussi',null)")
         await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
         await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
-        check(not await f.evaluate("document.getElementById('chEval').disabled"), 'scie radiale réussie : évaluation de la déligneuse ouverte')
+        check(not await f.evaluate("document.getElementById('chEval').disabled"), 'scie radiale réussie (icône Moodle 4) : évaluation de la déligneuse ouverte')
         # paquetage mis à jour, autre navigateur : rien dans localStorage, l'atelier lit le statut et la note du sommaire
-        await pg.evaluate("const p=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('1. Scie radiale')); p.append(' (Score : 100)')")
+        await pg.evaluate("setSt('1. Scie radiale','fa-check','Réussi',100)")
         await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
         f = await frame_ready(); await f.evaluate("()=>localStorage.clear()"); await f.evaluate("()=>location.reload()"); await pg.wait_for_timeout(500); f = await frame_ready(); await pg.wait_for_timeout(1800)
         st = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id, b.querySelector('.st')?.textContent+'|'+b.dataset.done+'|'+b.dataset.locked]))")
         check(st['scie-radiale'] == 'validée · 100|true|false' and st['deligneuse'].startswith('à faire|false|false'), f'sans bilan dans le navigateur : état lu dans le sommaire (radiale {st["scie-radiale"]}, déligneuse {st["deligneuse"]})')
-        await pg.evaluate("const p=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('2. Déligneuse')); const im=p.querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png'); p.append(' (Score : 88)')")
+        await pg.evaluate("setSt('2. Déligneuse multilames','fa-check','',88)")
         await pg.wait_for_timeout(1200)
         st = await f.evaluate("()=>[...document.querySelectorAll('#postes button')].map(b=>b.dataset.id+':'+(b.querySelector('.st')?.textContent||'')+':'+b.dataset.locked).join(' ')")
         check('deligneuse:validée · 88:false' in st and 'degauchisseuse:à faire:false' in st, 'sommaire mis à jour par Moodle pendant que l\'atelier est ouvert : états relus')

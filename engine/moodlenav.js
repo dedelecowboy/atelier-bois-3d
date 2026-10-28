@@ -4,11 +4,14 @@
    moodleNav(titre, { before }) rend true si l'élément a été trouvé dans le sommaire (arbre ou liste déroulante) ;
    before() est appelé juste avant de changer d'élément (la machine y ferme sa session SCORM : enregistrement, LMSFinish). */
 const norm=s=>String(s||'').replace(/\s+/g,' ').trim().toLowerCase();
+/* texte d'un élément du sommaire sans la note que Moodle ajoute dans le lien : « 1. Scie radiale (Score : 96) » */
+const lab=s=>norm(s).replace(/\s*\((?:score|note|résultat)[^)]*\)\s*$/i,'').trim();
+const hit=(a,t)=>{ const x=lab(a.textContent); return x===t || norm(a.title)===t || x.endsWith(' '+t) || x.endsWith(t); };
 export function moodleNav(title, { before, doc }={}){
   if(!doc){ if(window.top===window) return false; try{ doc=window.top.document; }catch(e){ return false; } }
   const t=norm(title); if(!t) return false;
   const links=[...doc.querySelectorAll('a')];
-  const a= links.find(a=>norm(a.textContent)===t || norm(a.title)===t) || links.find(a=>norm(a.textContent).endsWith(t));
+  const a= links.find(a=>lab(a.textContent)===t || norm(a.title)===t) || links.find(a=>hit(a,t));
   if(a){ before?.(); a.click(); return true; }
   for(const sel of doc.querySelectorAll('select')){
     const o=[...sel.options].find(o=>norm(o.text).replace(/^[-–>\s]+/,'')===t);
@@ -29,8 +32,8 @@ export function pkgLock(id){ const P=pkg(), pre=P?.prereq?.[id]; if(!pre) return
 export function tocInfo(title, doc){
   if(!doc){ if(window.top===window) return null; try{ doc=window.top.document; }catch(e){ return null; } }
   const t=norm(title); if(!t) return null;
-  const a=[...doc.querySelectorAll('a')].find(a=>norm(a.textContent)===t || norm(a.title)===t || norm(a.textContent).endsWith(t));
-  let el=a; if(!el) el=[...doc.querySelectorAll('li,span,p,div,td')].find(e=>norm([...e.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' '))===t);
+  const a=[...doc.querySelectorAll('a')].find(a=>hit(a,t));
+  let el=a; if(!el) el=[...doc.querySelectorAll('li,span,p,div,td')].find(e=>lab([...e.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' '))===t);
   if(!el) return { found:false, linked:false, status:null };
   const box=el.closest('li')||el.parentElement||el;
   const txt=[...box.querySelectorAll('img,[title],[aria-label]')].slice(0,4)
@@ -39,6 +42,10 @@ export function tocInfo(title, doc){
   const status= /notattempted|non tenté|pas tenté|not attempted|pas commencé|non commencé/.test(txt)? 'notattempted'
     : /passed|réussi/.test(txt)? 'passed' : /failed|échou|échec/.test(txt)? 'failed' : /incomplete|incomplet/.test(txt)? 'incomplete'
     : /browsed|parcouru/.test(txt)? 'browsed' : /completed|termin/.test(txt)? 'completed' : null;
+  /* Moodle 4 (thème Boost) : icônes Font Awesome, statut aussi lisible dans la classe (mod_scorm_get_fontawesome_icon_map) */
+  const cls=status? '' : [...box.querySelectorAll('i,span.icon,[class*="fa-"]')].map(i=>' '+i.className+' ').join(' ');
+  const st2= status || (/ fa-square-check /.test(cls)? 'completed' : / fa-check /.test(cls)? 'passed' : / fa-xmark /.test(cls)? 'failed'
+    : / fa-pen-to-square | fa-pause /.test(cls)? 'incomplete' : / fa-eye /.test(cls)? 'browsed' : / fa-square /.test(cls)? 'notattempted' : null);
   /* note affichée par Moodle à côté du titre : « (Score : 96) » / « (Note : 96) » */
   const sc=(box.textContent||'').match(/\((?:score|note|résultat)\s*:?\s*(\d+(?:[.,]\d+)?)\s*\)/i);
-  return { found:true, linked:!!a, status, score: sc? Math.round(parseFloat(sc[1].replace(',','.'))) : null }; }
+  return { found:true, linked:!!a, status:st2, score: sc? Math.round(parseFloat(sc[1].replace(',','.'))) : null }; }
