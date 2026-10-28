@@ -181,7 +181,7 @@ export function buildModel({ root, tagPart }){
   const fig=(o,x,z,ry)=>{ const p=person(o); p.position.set(x,0,z); p.rotation.y=ry||0; return p; };
   const ticks=[];
   { const g=new THREE.Group(); const p=fig({ pose:'soufflette', epi:['chaussures','tenue','lunettes'], hair:'court' },0,0,Math.PI); g.add(p);
-    const s=soufflette(); p.userData.P.arms[1].add(s); s.position.set(0,-0.7,0.05); s.rotation.x=1.35;
+    const s=soufflette(); p.userData.P.handR.add(s); s.position.set(0,-0.07,0.02); s.rotation.x=Math.PI/2;
     const d=dustCloud(16,0.6); d.position.set(0.1,0.8,-0.9); g.add(d); ticks.push(d.userData.tick); g.position.set(4.95,0,1.85); danger('soufflette',g); }
   { const g=new THREE.Group(); const pts=[[-9.9,0.02,-7.0],[-9.4,0.02,-6.4],[-8.9,0.02,-5.6],[-8.6,0.02,-4.9],[-8.0,0.02,-4.2]].map(p=>new THREE.Vector3(...p));
     g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,0.018,8),K.orange));
@@ -195,7 +195,11 @@ export function buildModel({ root, tagPart }){
     g.rotation.y=Math.PI/2; g.position.set(-10.15,0,-5.5); danger('issue_bloquee',g); }
   { const g=new THREE.Group(); const pile=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,10,0,Math.PI*2,0,Math.PI/2),K.chip); pile.scale.set(1.3,0.45,1); g.add(pile); g.position.set(-4.2,0,6.75); danger('copeaux_sol',g); }
   { const g=new THREE.Group(); const c=can(mat(0x3366aa),true); g.add(c); g.position.set(8.9,0.9,10.0); danger('solvant_ouvert',g); }
-  { const g=new THREE.Group(); const p=fig({ pose:'porte', epi:['chaussures','tenue'], hair:'court' },0,0,0); g.add(p); const pn=box(2.5,0.019,1.25,K.panel); pn.position.set(0,1.05,0.75); pn.rotation.x=-0.25; g.add(pn); g.position.set(8.0,0,1.2); g.rotation.y=-Math.PI/2; danger('manutention_dos',g); }
+  { const g=new THREE.Group(); const p=fig({ pose:'dos_courbe', epi:['chaussures','tenue'], hair:'court' },0,0,0); g.add(p);
+    /* panneau soulevé d'un bord, l'autre bord au sol : le bord haut dans les mains de l'élève (dos courbé, jambes tendues) */
+    p.updateMatrixWorld(true); const h=p.userData.P.arms.map(a=>a.palm.getWorldPosition(new THREE.Vector3())).reduce((a,b)=>a.add(b)).multiplyScalar(0.5);
+    const D=1.25, y=Math.max(0.15,h.y-0.03), ang=Math.asin(Math.min(0.9,y/D)); const pn=box(2.5,0.019,D,K.panel); pn.position.set(h.x,y/2,h.z-0.02+D/2*Math.cos(ang)); pn.rotation.x=ang; g.add(pn);
+    g.position.set(8.0,0,1.2); g.rotation.y=-Math.PI/2; danger('manutention_dos',g); }
   /* situations correctes (pièges) */
   { const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif'], hair:'attache' },sc.x,sb.max.z+0.45,Math.PI); danger('p_epi',p); }
   { const g=new THREE.Group(); const p=fig({ pose:'aspire', epi:['chaussures','tenue','masque','lunettes'], hair:'court' },0,0,0); g.add(p); const v=vacuum(); v.position.set(-0.6,0,0.3); g.add(v); g.position.set(6.1,0,-6.0); g.rotation.y=Math.PI*0.75; danger('p_aspirateur',g); }

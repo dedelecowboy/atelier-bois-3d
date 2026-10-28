@@ -43,7 +43,8 @@ function frame(codes){ const b=new THREE.Box3(); for(const k of codes) for(const
    d'où l'on voit sa poitrine sans traverser une machine, un mur ou un meuble (et sans sortir de la salle) */
 const ray=new THREE.Raycaster();
 function clearSide(x,z,ry,dist,h,ty,skip){ const tgt=new THREE.Vector3(x,ty+0.25,z);
-  for(const side of [0.7,-0.7,1.1,-1.1,0.35,-0.35,1.5,-1.5,0,1.9,-1.9]){ const a=ry+side, p=new THREE.Vector3(x+Math.sin(a)*dist,h,z+Math.cos(a)*dist);
+  /* de face d'abord : on voit le visage et les EPI */
+  for(const side of [0.4,-0.4,0.7,-0.7,0.15,-0.15,1.0,-1.0,1.35,-1.35,1.7,-1.7]){ const a=ry+side, p=new THREE.Vector3(x+Math.sin(a)*dist,h,z+Math.cos(a)*dist);
     if(Math.abs(p.x)>10.4||Math.abs(p.z)>10.3) continue;
     const dir=p.clone().sub(tgt), L=dir.length(); ray.set(tgt,dir.normalize()); ray.far=L;
     const hit=ray.intersectObjects(stage.root.children,true).find(h=>visible(h.object) && !skip(h.object) && h.object.material?.opacity!==0);
@@ -137,7 +138,7 @@ function update(){ const m=mode();
     model.showDangers(m==='dangers'); for(const o of Object.values(model.DANG)) if(o.userData.off) o.visible=false;
     if(m!=='epi') model.hideAvatar(); if(m!=='feu') model.fire.set(0);
     if(m!=='consignation') model.setConsign({ sect:true, lock:false, tag:false, on:false }); }
-  if(m==='epi'){ const k=String(app.ex.step); if(k!==posteKey){ posteKey=k; dressAvatar(); const t=data.epi.tasks[Math.min(app.ex.step,data.epi.tasks.length-1)], p=POSTES[t?.k]; if(p){ const inAv=o=>{ while(o){ if(o===model.avatar) return true; o=o.parent; } return false; }; posteView(p[0],p[1],p[2],3.2,1.6,0.95,clearSide(p[0],p[1],p[2],3.2,1.6,0.95,inAv)); stage.setView('vposte'); } } }
+  if(m==='epi'){ const k=String(app.ex.step); if(k!==posteKey){ posteKey=k; dressAvatar(); const t=data.epi.tasks[Math.min(app.ex.step,data.epi.tasks.length-1)], p=POSTES[t?.k]; if(p){ const inAv=o=>{ while(o){ if(o===model.avatar) return true; o=o.parent; } return false; }; posteView(p[0],p[1],p[2],2.7,1.55,1.05,clearSide(p[0],p[1],p[2],2.7,1.55,1.05,inAv)); stage.setView('vposte'); } } }
   else posteKey='';
   renderMarks(); }
 function renderExtra(){ renderActs(); }
