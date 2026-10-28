@@ -1,0 +1,29 @@
+/* Styles propres à la scie à ruban : râtelier des lames, dévers, déplacement de la pièce, vue de dessus, pièces débitées. */
+.bl{grid-template-columns:1fr auto;align-items:center}
+.bl-t{font-weight:500}.bl-t small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+.bl select{grid-column:1/-1;width:100%;padding:6px;font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px}
+.bl-b{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.bl-b .toggle,.dv .toggle,.settings .ctl>.toggle,.settings .srow .mini{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 4px}
+.g-i{grid-column:1/-1;margin:2px 0 0;font-size:12px;color:var(--muted);line-height:1.35}
+.settings .toggle:disabled{opacity:.45;cursor:not-allowed}
+.nudge{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:6px}
+.nudge button{padding:7px 1px;text-transform:none;letter-spacing:0;font-size:11.5px}
+.nudge-l{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:4px}
+.plan-svg{width:100%;height:auto;max-height:190px;display:block;margin-top:8px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.debit{margin-top:14px}
+.debit h2 span{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-size:12px;color:var(--muted);margin-left:6px}
+.debit-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.debit-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.debit-list li[data-k="chute"]{opacity:.7}
+.debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.debit-list small{display:block;color:var(--muted);font-size:12px}
+.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 8px}
+.d-act{display:flex;flex-direction:column;gap:4px}
+.debit-empty{font-size:13px;color:var(--muted)}
+.pupitre .pup-s{border-radius:6px;min-width:44px;font-size:18px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pupitre .pup-s[aria-pressed="true"]{background:#8a4a0e;border-color:#c76a14}
+.pupitre .pup-p[aria-pressed="true"]{background:#a8743f;border-color:#d9b98a}
+@media (min-width:901px){.dock .tools{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){.app.has-pup .pupitre{grid-template-columns:repeat(4,minmax(0,1fr))}.app.has-pup{padding-bottom:150px}}
+/* parcours évalué : la liste des pièces débitées reste visible pendant les scénarios (le moteur la cache en parcours) */
+.app[data-ui="parcours"][data-phase="scen"] .debit{display:block}

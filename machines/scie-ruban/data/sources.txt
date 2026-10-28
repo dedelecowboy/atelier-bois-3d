@@ -1,0 +1,39 @@
+# Sources du module « Scie à ruban » (non lu par le simulateur).
+# Vérifiées en ligne le 28/10/2026 quand une adresse est donnée ; les autres sont les documents fournis par l'enseignant.
+
+INRS ED 6316 « Scies à ruban à table », aide-mémoire technique, 1re édition, novembre 2018 (fourni ; en ligne :
+  https://www.inrs.fr/dms/inrs/CataloguePapier/ED/TI-ED-6316/ed6316.pdf).
+  Utilisé pour : organes, épaisseur de lame = D / 1000, longueur L = π D + 2 H, largeurs 5 à 15 mm (chantournage)
+  et 20 à 60 mm (rectiligne), pas, tension (environ 100 N/mm², indicateur gradué en largeur), dévers (dents hors du
+  bandage pour les lames larges, au milieu pour les lames à chantourner), guide-lames, temps d'arrêt ≤ 10 s,
+  vitesse 15 à 25 m/s, protecteur à quelques millimètres de la pièce, poussoir en fin de passe ou fin de coupe
+  mains derrière la lame, petites chutes au poussoir jamais à la main, gants pour manipuler la lame, détendre la lame
+  et le signaler, nettoyage à l'aspirateur.
+OPPBTP, fiche prévention « Scie à ruban », C1 F 10 11, 2011 (fournie). Protecteurs, verrouillage des portes, montage
+  et réglage de la lame (épaisseur D / 1000 − 0,1 mm, tension, dévers fig. 3 et 4, guide-lames fig. 5), travail au guide
+  (poussoir, servante), travail au tracé (mains derrière la lame de part et d'autre), fin de travail.
+  L'OPPBTP a publié en décembre 2023 une série de 18 fiches « machines à bois » qui comprend la scie à ruban :
+  à consulter par l'enseignant (https://www.oppbtp.com/app/uploads/2023/12/OPPBTP_FA_Fiches-Machines-bois_Decembre-2023-.pdf).
+Centre de Formation Bois (Bruxelles), « Travail du bois, instructions de sécurité et données techniques : scie à ruban »,
+  fiche TB 2, 2e édition 2002 (fournie). Largeurs 8 à 20 mm (chantournement) et 25 à 50 mm (rectiligne), avoyage
+  1,5 à 1,9 fois l'épaisseur, réglage des galets, anomalies et causes, rupture du ruban, ne pas reculer la pièce lame
+  en mouvement.
+Cours « La scie à ruban » (Bac pro bois, Lycée-CFA André Malraux, Remiremont) (fourni) : organes, outils, procédures
+  de sciage, travail en sécurité (avant, pendant, après), causes de rupture de la lame.
+OPPBTP, fiche accident « Blessé à la main par une scie à ruban », L'Entrepreneur n° 220, avril 2007, p. 97-98 (fournie).
+Affiche INRS « Scie à ruban à table » (référencée AZ 647 dans l'ED 6316) et fiche « Scie à ruban » d'un lycée (2019),
+  fournies en image : organes de sécurité numérotés 1 à 10.
+LEMAN, « L'âme du ruban ! », document technique 2026 (https://leman-sa.com/img/cms/Lame-du-ruban-2026-ssp_compressed.pdf) :
+  au moins 3 dents en prise dans le bois ; pas selon le bois et l'épaisseur ; lames jusqu'à 20 mm pour les découpes
+  courbes, 25 à 40 mm polyvalentes.
+DICTUM, « Radientabelle » (rayons mini selon la largeur de lame, 3 à 13 mm)
+  (https://www.dictum.com/media/pdf/Produktinfos/DE/PRODUKTINFO_Radientabelle_de_en.pdf) et table Starrett / Lenox
+  reprise par ACE Makerspace (1/8" à 3/4") (https://wiki.acemakerspace.org/wp-content/uploads/2020/09/Bandsaw_Minimum_Cut_Radius_for_Blade_Width.pdf).
+  Rayons retenus (les plus prudents) : 6 mm → 20 mm ; 10 mm → 40 mm ; 15 mm → 95 mm ; 20 mm → 140 mm ;
+  30 mm et plus : sciage rectiligne (valeur proposée, À VALIDER).
+
+Valeurs proposées par le simulateur, À VALIDER par l'enseignant : protecteur 3 à 10 mm au-dessus de la pièce ;
+poussoir à moins de 120 mm de la lame en fin de passe ; chute à moins de 150 mm de la lame : dégagée à l'arrêt complet
+ou au poussoir ; galets latéraux 0,1 à 0,3 mm ; galet arrière 0,5 à 2 mm du dos ; avant des galets 1 à 4 mm derrière
+le fond de denture ; tension à ± 2 mm de la largeur ; pièce sur chant : hauteur au plus 4 fois l'appui ; plus de 16
+dents en prise : denture qui bourre.

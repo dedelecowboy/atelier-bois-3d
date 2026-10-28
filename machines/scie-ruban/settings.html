@@ -1,0 +1,47 @@
+  <section class="fam" data-fam="machine" data-key="machine">
+  <div class="srow">
+    <button class="toggle" id="main" type="button" aria-pressed="true" title="Sectionneur (interrupteur général) : I / 0">Sectionneur</button>
+    <button class="toggle" id="cad" type="button" aria-pressed="false" title="Consigner : sectionneur sur 0, puis votre cadenas (changement de lame)">Consigner</button>
+    <button class="toggle" id="doors" type="button" aria-pressed="false" title="Portes des volants (verrouillées : ouvrables lame arrêtée seulement)">Portes fermées</button>
+    <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+    <button class="toggle" id="gants" type="button" aria-pressed="false" title="Gants de manutention, pour manipuler la lame">Gants</button>
+    <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+    <button class="toggle" id="rupture" type="button" hidden title="Mode libre : la lame casse pendant le travail. Appliquez la conduite à tenir.">Rupture de la lame</button>
+  </div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil" data-title="Lame">
+  <div class="ctl bl" role="group" aria-labelledby="l-bl"><span id="l-bl" class="bl-t">Râtelier des lames <small>montage : machine consignée, portes ouvertes, gants</small></span><output id="o-bl"></output>
+    <select id="bladeSel" aria-label="Lame du râtelier"></select>
+    <div class="bl-b"><button class="toggle mini" type="button" id="exam" title="Regarde la lame choisie : dimensions, sens des dents, état (criques)">Examiner</button><button class="toggle mini" type="button" id="flip" title="Retourne la lame (le sens des dents s'inverse)">Retourner la lame</button><button class="toggle mini" type="button" id="unmount">Démonter</button><button class="toggle mini" type="button" id="mount">Monter la lame</button></div>
+    <p class="g-i" id="bladeInfo"></p></div>
+  <div class="ctl"><label for="ten">Tension : indicateur (largeur de lame, mm)</label><input class="num" id="ten-n" type="number" min="0" max="50" step="1" aria-label="Indicateur de tension en mm de largeur de lame"><input id="ten" type="range" min="0" max="50" step="1" value="10"></div>
+  <div class="ctl dv" role="group" aria-labelledby="l-dv"><span id="l-dv" style="font-weight:500">Dévers du volant supérieur</span><output id="o-dv"></output>
+    <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" id="devM" title="Un quart de tour : la lame recule sur le bandage">− ¼ tour</button><button class="toggle mini" type="button" id="devP" title="Un quart de tour : la lame avance sur le bandage (dents vers l'avant)">+ ¼ tour</button><button class="toggle mini" type="button" id="hwheel" title="Machine consignée, portes ouvertes : tourner le volant inférieur à la main, la lame se place sur le bandage">Tourner le volant à la main</button></div>
+    <p class="g-i" id="rimInfo"></p></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guides" data-title="Guide-lames">
+  <p class="g-i">Cotes depuis la pointe des dents (avant des galets, galet arrière) et jeu des galets latéraux de chaque côté de la lame.</p>
+  <div class="ctl"><label for="gL">Haut : jeu des galets latéraux (mm)</label><input class="num" id="gL-n" type="number" min="0" max="1" step="0.05"><input id="gL" type="range" min="0" max="1" step="0.05" value="0.2"></div>
+  <div class="ctl"><label for="gF">Haut : avant des galets (mm)</label><input class="num" id="gF-n" type="number" min="0" max="20" step="0.5"><input id="gF" type="range" min="0" max="20" step="0.5" value="4"></div>
+  <div class="ctl"><label for="gB">Haut : galet arrière (mm)</label><input class="num" id="gB-n" type="number" min="0" max="45" step="0.5"><input id="gB" type="range" min="0" max="45" step="0.5" value="11"></div>
+  <div class="ctl"><label for="gLi">Bas : jeu des galets latéraux (mm)</label><input class="num" id="gLi-n" type="number" min="0" max="1" step="0.05"><input id="gLi" type="range" min="0" max="1" step="0.05" value="0.2"></div>
+  <div class="ctl"><label for="gFi">Bas : avant des galets (mm)</label><input class="num" id="gFi-n" type="number" min="0" max="20" step="0.5"><input id="gFi" type="range" min="0" max="20" step="0.5" value="4"></div>
+  <div class="ctl"><label for="gBi">Bas : galet arrière (mm)</label><input class="num" id="gBi-n" type="number" min="0" max="45" step="0.5"><input id="gBi" type="range" min="0" max="45" step="0.5" value="11"></div>
+  </section>
+  <section class="fam" data-fam="protection" data-key="protection" data-title="Protecteur">
+  <div class="ctl"><label for="hg">Guide-lame supérieur et protecteur : hauteur au-dessus de la table (mm)</label><input class="num" id="hg-n" type="number" min="0" max="500" step="1" aria-label="Hauteur du bas du guide-lame supérieur en mm"><input id="hg" type="range" min="0" max="500" step="1" value="60"></div>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="table" data-title="Table et guides">
+  <div class="ctl"><label for="tilt">Inclinaison de la table (°)</label><input class="num" id="tilt-n" type="number" min="0" max="45" step="1"><input id="tilt" type="range" min="0" max="45" step="1" value="0"></div>
+  <div class="ctl"><label for="fx">Guide parallèle : distance au trait de scie (mm)</label><input class="num" id="fx-n" type="number" min="0" max="300" step="0.5"><input id="fx" type="range" min="0" max="300" step="0.5" value="50">
+    <button class="toggle mini" type="button" id="fenceOn" aria-pressed="false" style="grid-column:1/-1">Guide parallèle retiré</button></div>
+  <div class="ctl"><label for="mit">Guide d'onglet : angle (°)</label><input class="num" id="mit-n" type="number" min="-45" max="45" step="1"><input id="mit" type="range" min="-45" max="45" step="1" value="0">
+    <button class="toggle mini" type="button" id="mitOn" aria-pressed="false" style="grid-column:1/-1">Guide d'onglet rangé</button></div>
+  <div class="srow"><button class="toggle mini" type="button" id="serv" aria-pressed="false" title="Servante à rouleau en sortie de table, pour les pièces longues">Servante rangée</button></div>
+  </section>
+  <section class="fam" data-fam="piece" data-key="mains" data-title="Mains et avance">
+  <div class="ctl" role="group" aria-labelledby="l-mains"><span id="l-mains" style="font-weight:500">Position des mains (à main levée)</span>
+    <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" data-mains="cote">De part et d'autre de la lame</button><button class="toggle mini" type="button" data-mains="axe">Une main devant la lame</button></div></div>
+  <div class="ctl" role="group" aria-labelledby="l-sp"><span id="l-sp" style="font-weight:500">Vitesse d'avance</span>
+    <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" data-speed="1">Lente</button><button class="toggle mini" type="button" data-speed="2">Normale</button><button class="toggle mini" type="button" data-speed="3">Rapide</button></div></div>
+  </section>

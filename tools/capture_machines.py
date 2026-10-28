@@ -4,7 +4,7 @@ import asyncio, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tests'))
 from harness import Page
 OUT = os.path.join(os.path.dirname(__file__), '..', 'attestations', 'img')
-IDS = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format']
+IDS = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format', 'scie-ruban']
 HIDE = """()=>{ const s=document.createElement('style'); s.textContent=`html,body,#app,.stage{background:transparent!important}
  .stage::before,.stage::after{display:none!important} body *{visibility:hidden} #c,#c *{visibility:visible}
  #c{position:fixed!important;left:0!important;top:0!important;width:1600px!important;height:1000px!important}`; document.head.appendChild(s);

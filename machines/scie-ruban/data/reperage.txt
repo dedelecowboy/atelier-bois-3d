@@ -1,0 +1,31 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = portes et bâti translucides (organes intérieurs)
+#     colonne      = commandes, indicateur et sectionneur, de près
+#     arrière      = arrière de la machine
+#     3/4, opérateur, table, guide-lame, volants = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « volants, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+table
+porte_sup
+guide_sup      | guide-lame            | guide-lame supérieur
+protecteur     | guide-lame            | protecteur de la lame
+coulisseau     | 3/4                   | levier de hauteur du guide-lame
+guide_par      | table                 | guide parallèle
+onglet         | table                 | guide d'onglet
+bloc_table     | table
+tension        | 3/4                   | volant de tension
+indicateur     | colonne               | indicateur de tension
+sectionneur    | colonne               | sectionneur cadenassable
+arret          | colonne               | arrêt d'urgence
+servante
+volant_inf     | volants, transparence | volant inférieur
+lame           | volants, transparence | lame à ruban

@@ -10,9 +10,11 @@ import { buildModel as rabot } from '../machines/raboteuse/model.js';
 import { buildModel as toupie } from '../machines/toupie/model.js';
 import { buildModel as tenon } from '../machines/tenonneuse/model.js';
 import { buildModel as format } from '../machines/scie-format/model.js';
+import { buildModel as ruban } from '../machines/scie-ruban/model.js';
 import * as R from '../machines/scie-radiale/state.js';
 import * as D from '../machines/deligneuse/state.js';
 import * as G from '../machines/degauchisseuse/state.js';
+import * as B from '../machines/scie-ruban/state.js';
 
 const PI = Math.PI;
 
@@ -38,9 +40,10 @@ export const STATIONS = [
   { id:'scie-format', n:7, nom:'Scie à format', ref:'KANAK 550', etat:'service', famille:'panneaux',
     role:'Débit et mise au format des panneaux, délignage au sabot, coupes d\'onglet et biaises.',
     url:'https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E', build:format, rest:m=>m.update(), clip:[-1.6,3.4,-1.4,3.8] },
-  { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'à venir', etat:'avenir', famille:'debit',
-    role:'Chantournage et débit de pièces cintrées. Module prévu.',
-    url:null, build:null },
+  { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'essai', famille:'debit',
+    role:'Chantournage des pièces cintrées, refente au guide parallèle ; changement et réglage de la lame.',
+    url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:false, fx:0.05, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
+      guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
 ];
 
 /* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;
