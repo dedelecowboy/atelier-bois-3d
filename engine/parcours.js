@@ -22,7 +22,7 @@ export function createParcours(app, { reperage, qcm }, P){
   const parc={ph:'rep', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
   let repFeedback='', repLock=false, repCfgKey=null, repQKey=null, parcKey='';
   const CODE=(app.config.scorm?.code||app.config.id||'M').toUpperCase();
-  const txt=v=>String(v).replace(/[^\p{L}\p{N}.,:;\/()×+%°' -]/gu,' ').replace(/\s+/g,' ').trim();
+  const txt=v=>String(v).replace(/±/g,'+/-').replace(/≤/g,'max').replace(/≥/g,'min').replace(/·/g,'|').replace(/[\u00a0\u202f]/g,' ').replace(/[^\p{L}\p{N}.,:;\/()×+%°'| -]/gu,' ').replace(/\s+/g,' ').trim();
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
     state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}; } });
   const repName=r=>r.name||parts.PARTS[r.k].n.toLowerCase();
