@@ -4,6 +4,7 @@ BASE = r"""
  const R=__risques, a=(k,v)=>{ const b=document.querySelector(`[data-act=${k}]`+(v!==undefined?`[data-v="${v}"]`:'')); if(!b) throw new Error('bouton absent : '+k+' '+(v??'')); b.click(); };
  const next=async n=>{ for(let i=0;i<n;i++){ $('stepNext').click(); await sleep(60); } };
  const fin=async()=>{ await next(8); return { res:results(), faults:R.st.faults.slice(), step:$('stepN').textContent }; };
+ const stopped=async()=>{ for(let i=0;i<60 && R.model.spin>0.02;i++) await sleep(250); };   // lame arrêtée (4 s, horloge réelle)
  const measure=code=>{ R.pickDanger(code); const d=R.data.dangers.find(x=>x.k===code); a('measure',d.a); };
 """
 JEUX = {
@@ -18,7 +19,7 @@ JEUX = {
     return await fin();""",
   # consignation complète dans l'ordre
   'consignation': BASE + r"""
-    a('stop'); await sleep(4300); a('sect'); a('lock'); a('key'); a('tag'); a('start'); a('inter');
+    a('stop'); await stopped(); a('sect'); a('lock'); a('key'); a('tag'); a('start'); a('inter');
     a('prot'); a('tag'); a('lock'); a('warn'); a('sect'); a('start'); await sleep(200);
     return await fin();""",
   # alerte, extincteur à eau à bonne distance, évacuation par la porte B
@@ -33,7 +34,7 @@ FAUTES = {
     for(let i=0;i<T.length;i++){ for(const k of T[i].req) a('epi',k); if(i===0) a('epi','gants_manut'); a('valider'); await sleep(100); await next(1); }
     return await fin();""",
   'consignation': BASE + r"""
-    a('inter'); a('stop'); a('au'); await sleep(4300); a('inter'); const f=R.st.faults.slice(); return { ...(await fin()), f };""",
+    a('inter'); a('stop'); a('au'); await stopped(); a('inter'); const f=R.st.faults.slice(); return { ...(await fin()), f };""",
   'feu': BASE + r"""
     a('ext','co2'); a('pos','fond'); a('aim','haut'); a('exit','A'); a('sac'); a('rass'); await sleep(200); return await fin();""",
 }
