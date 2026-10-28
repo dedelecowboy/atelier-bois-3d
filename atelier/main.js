@@ -20,7 +20,16 @@ const PKG = pkg();
 const bilan=id=>{ try{ return JSON.parse(localStorage.getItem('atelier.bilan.'+id)||'null'); }catch(e){ return null; } };
 /* verrous du paquetage : la vérité est le sommaire de Moodle (élément sans lien = prérequis non rempli, statut de son
    icône) ; à défaut (sommaire illisible), le bilan enregistré dans ce navigateur à la fin de chaque évaluation */
-const pkgValid=id=>{ const ti=PKG && tocInfo(PKG.titles[id]); if(ti?.status) return ti.status==='passed'||ti.status==='completed'; return !!bilan(id)?.passed; };
+/* état d'une machine dans le paquetage : le statut du sommaire de Moodle d'abord (il suit les mises à jour du paquetage,
+   les autres ordinateurs et navigateurs), complété par le bilan du navigateur (note, date) quand il est d'accord ;
+   sans sommaire lisible, le bilan du navigateur seul. null = à faire. */
+const pkgEtat=id=>{ const b=bilan(id), ti=PKG && tocInfo(PKG.titles[id]);
+  if(!ti?.status) return b;
+  if(ti.status==='notattempted' || ti.status==='incomplete' || ti.status==='browsed') return null;
+  const passed= ti.status==='passed' || ti.status==='completed';
+  const same= b && !!b.passed===passed;
+  return { passed, total: ti.score ?? (same? b.total : null), date: same? b.date : '' }; };
+const pkgValid=id=>!!pkgEtat(id)?.passed;
 const pkgLocked=s=>!!(PKG && pkgLock(s.id));
 /* dans le paquetage, l'atelier est un élément SCORM suivi qui reste « incomplete » : Moodle l'ouvre en premier à chaque
    entrée (premier élément non terminé) et il ne compte pas comme machine réussie. Session fermée en partant. */
@@ -148,10 +157,11 @@ for(const s of STATIONS){
   labels.appendChild(b); s.lbl=b;
 }
 /* liste des postes (colonne de gauche) */
+const itemHTML=s=>`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
 const list=$('postes');
 for(const s of STATIONS){
   const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.dataset.id=s.id; b.style.setProperty('--fam',FAMILLES[s.famille].col);
-  b.innerHTML=`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'} · ${b.total}</span>` : '<span class="st">à faire</span>')(bilan(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
+  b.innerHTML=itemHTML(s);
   b.onclick=()=>editing? edSelect({ s }) : select(s); b.onmouseenter=()=>{ if(!editing) hover(s); }; b.onmouseleave=()=>hover(null);
   li.appendChild(b); list.appendChild(li); s.item=b;
 }
@@ -169,6 +179,11 @@ function applyLocks(){
   $('progBar').style.width=`${100*done/ORDER.length}%`;
   if(sel) renderCard(sel);
 }
+/* paquetage : Moodle met son sommaire à jour un peu après le retour à l'atelier (statut et note de la machine qu'on
+   vient de quitter) : on relit les états quand il change, et à 1,5 s puis 4 s par sécurité */
+if(PKG){ let tm=0; const pkgRefresh=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ for(const s of STATIONS) if(s.item) s.item.innerHTML=itemHTML(s); applyLocks(); },250); };
+  try{ if(window.top!==window) new MutationObserver(pkgRefresh).observe(window.top.document.body,{ subtree:true, childList:true, attributes:true, attributeFilter:['src','alt','title','class'] }); }catch(e){}
+  setTimeout(pkgRefresh,1500); setTimeout(pkgRefresh,4000); }
 const setVersion=v=>{ eleve=v; $('eleve').setAttribute('aria-pressed',String(v)); $('vWeb').setAttribute('aria-pressed',String(!v)); applyLocks(); };
 $('eleve').onclick=()=>setVersion(true); $('vWeb').onclick=()=>setVersion(false);
 $('progMinus').onclick=()=>{ done=Math.max(0,done-1); applyLocks(); };
@@ -192,7 +207,7 @@ function renderCard(s){
     <p class="etat" data-etat="${s.etat}">${ETAT[s.etat]}</p>
     ${ s.etat==='avenir' ? '<p class="note">Ce module n\'est pas encore construit.</p>'
       : L ? `<p class="note lockmsg">${lockSvg}Verrouillée : valider d'abord le module « ${prev?.nom||''} ».</p>`
-      : PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${b.passed?'Validée':'Non validée'} · ${b.total} / 100 · ${b.date}</p>`:'')(bilan(s.id))}<button type="button" class="go" id="cardGo">Ouvrir la machine</button>`
+      : PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validée':'Non validée', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}<button type="button" class="go" id="cardGo">Ouvrir la machine</button>`
       : `<a class="go" href="${s.url}" target="_blank" rel="noopener">Ouvrir le simulateur</a>` }
     <button type="button" class="toggle back" id="cardBack">Vue d'ensemble</button>`;
   c.hidden=false;

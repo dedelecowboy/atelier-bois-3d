@@ -142,6 +142,16 @@ async def main():
         await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
         await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
         check(not await f.evaluate("document.getElementById('chEval').disabled"), 'scie radiale réussie : évaluation de la déligneuse ouverte')
+        # paquetage mis à jour, autre navigateur : rien dans localStorage, l'atelier lit le statut et la note du sommaire
+        await pg.evaluate("const p=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('1. Scie radiale')); p.append(' (Score : 100)')")
+        await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
+        f = await frame_ready(); await f.evaluate("()=>localStorage.clear()"); await f.evaluate("()=>location.reload()"); await pg.wait_for_timeout(500); f = await frame_ready(); await pg.wait_for_timeout(1800)
+        st = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id, b.querySelector('.st')?.textContent+'|'+b.dataset.done+'|'+b.dataset.locked]))")
+        check(st['scie-radiale'] == 'validée · 100|true|false' and st['deligneuse'].startswith('à faire|false|false'), f'sans bilan dans le navigateur : état lu dans le sommaire (radiale {st["scie-radiale"]}, déligneuse {st["deligneuse"]})')
+        await pg.evaluate("const p=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('2. Déligneuse')); const im=p.querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png'); p.append(' (Score : 88)')")
+        await pg.wait_for_timeout(1200)
+        st = await f.evaluate("()=>[...document.querySelectorAll('#postes button')].map(b=>b.dataset.id+':'+(b.querySelector('.st')?.textContent||'')+':'+b.dataset.locked).join(' ')")
+        check('deligneuse:validée · 88:false' in st and 'degauchisseuse:à faire:false' in st, 'sommaire mis à jour par Moodle pendant que l\'atelier est ouvert : états relus')
         real = [e for e in errs if 'context' not in e.lower()]
         check(not real, 'aucune erreur JavaScript' + (' : ' + '; '.join(real) if real else ''))
         await br.close()

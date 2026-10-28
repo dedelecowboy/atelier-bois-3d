@@ -39,4 +39,6 @@ export function tocInfo(title, doc){
   const status= /notattempted|non tenté|pas tenté|not attempted|pas commencé|non commencé/.test(txt)? 'notattempted'
     : /passed|réussi/.test(txt)? 'passed' : /failed|échou|échec/.test(txt)? 'failed' : /incomplete|incomplet/.test(txt)? 'incomplete'
     : /browsed|parcouru/.test(txt)? 'browsed' : /completed|termin/.test(txt)? 'completed' : null;
-  return { found:true, linked:!!a, status }; }
+  /* note affichée par Moodle à côté du titre : « (Score : 96) » / « (Note : 96) » */
+  const sc=(box.textContent||'').match(/\((?:score|note|résultat)\s*:?\s*(\d+(?:[.,]\d+)?)\s*\)/i);
+  return { found:true, linked:!!a, status, score: sc? Math.round(parseFloat(sc[1].replace(',','.'))) : null }; }
