@@ -21,6 +21,15 @@ Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html
 | Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
 | Scie à ruban | prévue | |
 
+## Risques généraux de l'atelier (module sécurité, élément « 0 » du paquetage Moodle)
+
+Module à faire avant les machines, sur la salle entière de l'atelier (`machines/risques/`) : poussières de bois, bruit, incendie et explosion, évacuation, risque électrique, manutention, chutes et circulation, produits chimiques, EPI, règles de l'atelier et conduite en cas d'accident.
+
+- **Présentation** : visite libre de l'atelier en 3D avec ses équipements de sécurité (extincteurs, issues, BAES, alarme, armoire électrique, arrêt d'urgence général, trousse, lave-œil, armoire des produits…) et 10 fiches risques sourcées (INRS, Code du travail) ; « Voir dans l'atelier » montre les équipements d'une fiche.
+- **Exercices guidés** : repérer 12 situations dangereuses dans l'atelier et choisir la bonne mesure ; choisir ses EPI pour 4 tâches (l'avatar s'habille) ; consigner la scie à format pour changer sa lame, puis la déconsigner ; réagir à un départ de feu (alerter, couper, extincteur, évacuer).
+- **Parcours évalué (SCORM)** : repérage de 15 équipements, QCM de 20 questions, 4 scénarios notés sur 15. Note sur 100, réussite à 70 sans faute grave. Dans le paquetage unique, il doit être réussi avant les machines.
+- Emplacements des équipements proposés : à vérifier sur le plan d'évacuation de l'atelier.
+
 Dans chaque machine, le schéma de principe du réglage s'affiche sur la vue 3D dès qu'on touche un réglage, puis disparaît au bout de 6 s ; le bouton « Schéma du réglage : afficher » le garde à l'écran.
 
 ## Scie à format KANAK 550
@@ -86,6 +95,7 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/qcm.txt` | les questions du QCM : `Q:` la question, `+` la bonne réponse, `-` les mauvaises, `=` l'explication |
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
+| `machines/risques/data/…` | risques généraux : les trois mêmes fichiers, plus `dangers.txt` (situations dangereuses et leurs mesures), `epi.txt` (EPI et tâches), `fiches.txt` (fiches de la présentation), `sources.txt` (références) |
 | `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…`, `machines/toupie/data/…`, `machines/tenonneuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale, la raboteuse, la toupie et la tenonneuse |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).

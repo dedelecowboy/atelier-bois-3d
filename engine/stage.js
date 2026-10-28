@@ -7,7 +7,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const $ = id=>document.getElementById(id);
 
-export function createStage(views){
+export function createStage(views, opt={}){
+  /* opt (facultatif, config.stage) : grande scène (atelier entier) : { fov, far, minDistance, maxDistance, maxPolar, shadow:{ ext, size }, sun:[x,y,z], floor:false } */
   const canvas = $('c');
   const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
@@ -23,9 +24,10 @@ export function createStage(views){
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.05, 60);
+  const FOV = opt.fov||34;
+  const camera = new THREE.PerspectiveCamera(FOV, 1, opt.near||0.05, opt.far||60);
   const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping = true; controls.maxPolarAngle = Math.PI*0.49; controls.minDistance = 0.12; controls.maxDistance = 14;
+  controls.enableDamping = true; controls.maxPolarAngle = opt.maxPolar||Math.PI*0.49; controls.minDistance = opt.minDistance||0.12; controls.maxDistance = opt.maxDistance||14;
   const VIEWS = Object.fromEntries(views.map(v=>[v.id,v]));
   function setView(k){ const v=VIEWS[k]; camera.position.set(...v.pos); controls.target.set(...v.tgt); controls.update(); }
   function setCam(pos,tgt){ camera.position.set(...pos); controls.target.set(...tgt); controls.update(); }
@@ -34,16 +36,16 @@ export function createStage(views){
   // lumières et sol (ombres portées)
   scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f94,0.55));
   const sun = new THREE.DirectionalLight(0xffffff,1.6);
-  sun.position.set(2.5,6,4); sun.castShadow = true;
-  sun.shadow.mapSize.set(1536,1536); Object.assign(sun.shadow.camera,{left:-4,right:4,top:4,bottom:-4,near:1,far:15}); sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.02;
+  sun.position.set(...(opt.sun||[2.5,6,4])); sun.castShadow = true;
+  { const e=opt.shadow?.ext||4, z=opt.shadow?.size||1536; sun.shadow.mapSize.set(z,z); Object.assign(sun.shadow.camera,{left:-e,right:e,top:e,bottom:-e,near:1,far:opt.shadow?.far||15}); } sun.shadow.bias=-0.0004; sun.shadow.normalBias=0.02;
   scene.add(sun);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(30,30), new THREE.ShadowMaterial({opacity:0.18}));
-  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; if(opt.floor!==false) scene.add(floor);
 
   const root = new THREE.Group(); scene.add(root); // tout ce qui peut être cliqué
 
   /* en portrait, le champ vertical s'élargit (55° max) pour que la machine tienne à l'écran */
-  function resize(){ const w=canvas.clientWidth,h=canvas.clientHeight; if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){ renderer.setSize(w,h,false); camera.aspect=w/h; { const a=w/h, k=Math.tan(17*Math.PI/180)*1.05; camera.fov= a>=1.05? 34 : Math.min(55, 2*Math.atan(k/a)*180/Math.PI); } camera.updateProjectionMatrix(); } }
+  function resize(){ const w=canvas.clientWidth,h=canvas.clientHeight; if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio())){ renderer.setSize(w,h,false); camera.aspect=w/h; { const a=w/h, k=Math.tan(17*Math.PI/180)*1.05; camera.fov= a>=1.05? FOV : Math.min(55, 2*Math.atan(Math.tan(FOV/2*Math.PI/180)*1.05/a)*180/Math.PI); } camera.updateProjectionMatrix(); } }
 
   /* boucle : tick(dt, now) fourni par la machine ; le rendu ne doit jamais casser la page */
   function run(tick){ let last=performance.now()/1000;

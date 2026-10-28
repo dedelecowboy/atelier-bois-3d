@@ -43,7 +43,14 @@ export const STATIONS = [
     url:null, build:null },
 ];
 
+/* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;
+   dans le paquetage Moodle, il doit être réussi avant les machines (verrou). */
+export const RISQUES = { id:'risques', n:0, nom:'Risques généraux', ref:'Tout l\'atelier', etat:'essai', famille:'risques',
+  role:'Poussières, bruit, incendie, électricité, manutention, circulation, produits, EPI, règles de l\'atelier : à valider avant les machines.',
+  url:'https://claude.ai/artifact/9fVgRR2Uk3tJ6o3D3Tp6za' };
+
 export const FAMILLES = {
+  risques:{ nom:'Sécurité', col:'#c4261c' },
   debit:{ nom:'Débit', col:'#c76a14' },
   corroyage:{ nom:'Corroyage', col:'#2f7d6f' },
   usinage:{ nom:'Usinage', col:'#5a5fb0' },

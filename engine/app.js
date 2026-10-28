@@ -13,7 +13,7 @@
      panelKey()          (facultatif) valeur qui force le rafraîchissement du panneau quand elle change
      onPanel()           (facultatif) appelé quand le panneau est redessiné
      renderExtra()       (facultatif) panneaux propres à la machine (pièces débitées…)
-     onPick(hit)         (facultatif) clic dans la 3D ; rendre true si la machine l'a traité
+     onPick(hit,hits)    (facultatif) clic dans la 3D (hit : premier organe touché ; hits : tout ce que le rayon traverse) ; rendre true si la machine l'a traité
      onContextRestored() (facultatif) après une perte de contexte WebGL
      (app.families : panneaux de réglage par famille, posés par initFamilies, engine/families.js)
      parcours            {scenarios:[{mode,t,intro,view}], criteria(mode,{dangers,ok}), onStart(), ignore:[codes]} */
@@ -29,7 +29,7 @@ const $ = id=>document.getElementById(id);
 export function createApp(config, raw){
   const organes=parseOrganes(raw.organes), qcm=parseQcm(raw.qcm), reperage=parseReperage(raw.reperage, config.views);
   checkData({organes, reperage});
-  const stage=createStage(config.views);
+  const stage=createStage(config.views, config.stage);
   const parts=createParts(stage, organes, config);
   const ex=createExercise(config.modes);
   let H=null, parc=null;
@@ -47,7 +47,7 @@ export function createApp(config, raw){
     start(hooks){ H=hooks;
       ex.bind({ ...hooks, apply:app.apply, onAlerts:a=>app.families?.update(a) });
       parc=createParcours(app, {reperage, qcm}, hooks.parcours||{scenarios:[]});
-      parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); if(hooks.onPick?.(hit)) return true;
+      parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); if(hooks.onPick?.(hit,hits)) return true;
         if(hit) app.families?.reveal(hit.object.userData.part); return false; });   // organe touché : son panneau de réglage s'ouvre
       /* boutons des vues ; une vue peut imposer la vue intérieure (avec un message) */
       /* pendant le repérage du parcours, la vue ne fait que déplacer la caméra : la transparence reste celle de la question */

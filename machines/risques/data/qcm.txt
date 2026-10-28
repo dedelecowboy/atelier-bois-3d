@@ -1,0 +1,152 @@
+# QCM « Risques généraux de l'atelier » (parcours évalué), 20 questions.
+# Sources : voir sources.txt (INRS ED 974, ED 6192, ED 6054, ED 6021, ED 6109, ED 6077, ED 4471, ED 7000,
+# Code du travail R4412-149, R4431-2, R4434-7, R4227-29, R4541-9, R4153-52, R4223-4, fiches INRS RG 01 à RG 04,
+# fiche « Sécurité atelier » 2MB du lycée).
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q: la question
+# - + la bonne réponse (une seule)      - une mauvaise réponse (2 à 5)
+# - = l'explication affichée après la réponse
+# - L'ordre des réponses est celui du fichier. La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: Pourquoi les poussières de bois sont-elles dangereuses ?
+- Elles salissent seulement les vêtements
++ Elles sont cancérogènes (fosses nasales, sinus) et provoquent allergies et asthme
+- Seules les poussières de bois exotiques sont dangereuses
+- Elles ne sont dangereuses que si on en avale
+= Toutes les poussières de bois, quel que soit le bois, sont classées cancérogènes. Le cancer des fosses nasales et des sinus peut apparaître 20 ans et plus après l'exposition.
+
+Q: Comment nettoyer sa machine et son poste après l'usinage ?
+- À la soufflette, c'est plus rapide
+- Au balai, puis à la soufflette
++ À l'aspirateur industriel, machine arrêtée
+- À la main, machine en marche
+= La soufflette et le balai remettent les poussières fines dans l'air que l'on respire. On aspire, machine arrêtée.
+
+Q: Que faire avant de lancer l'usinage sur une machine ?
+- Rien : l'aspiration se met toujours en route seule
++ Vérifier que l'aspiration est en marche et que la trappe de sa machine est ouverte
+- Fermer la trappe d'aspiration pour moins de bruit
+- Mettre un masque à la place de l'aspiration
+= L'aspiration capte les poussières à la source : c'est la protection principale. Le masque (FFP2 au minimum) ne vient qu'en complément.
+
+Q: Quelle est la valeur limite d'exposition aux poussières de bois en France ?
+- 10 mg par m³ d'air sur 8 heures
+- 5 mg par m³ d'air sur 8 heures
++ 1 mg par m³ d'air sur 8 heures
+- Il n'y a pas de valeur limite
+= La valeur limite (article R4412-149 du Code du travail) est de 1 mg/m³ sur 8 heures. Elle est contrôlée chaque année.
+
+Q: À partir de quel niveau de bruit moyen sur la journée le port des protections auditives est-il obligatoire ?
+- 70 dB(A)
+- 80 dB(A)
++ 85 dB(A)
+- 100 dB(A)
+= Dès 80 dB(A), les protections sont mises à disposition ; dès 85 dB(A), elles doivent être portées (Code du travail R4431-2 et R4434-7). Les machines à bois peuvent dépasser ces niveaux.
+
+Q: Une perte d'audition due au bruit…
+- se soigne avec des gouttes
+- se répare seule après quelques semaines
++ est définitive : les cellules de l'oreille interne détruites ne se réparent pas
+- fait toujours mal au moment où elle se produit
+= On ne sent rien, la perte est lente et irréversible. Seule la fatigue auditive (sifflements après une journée bruyante) disparaît avec le repos.
+
+Q: Quand faut-il porter ses protections auditives à l'atelier ?
+- Seulement quand on est soi-même à une machine
+- Seulement si le bruit fait mal
++ En permanence dès qu'une machine tourne dans l'atelier, même celle d'un camarade
+- Jamais pendant les cours
+= Le bruit des autres machines compte aussi dans la dose reçue sur la journée.
+
+Q: Quel extincteur utiliser sur un feu de copeaux de bois ?
++ L'extincteur à eau pulvérisée avec additif (classes A et B)
+- L'extincteur à CO2
+- Un seau de sciure
+- Un chiffon mouillé
+= Le bois est un feu de classe A (solides qui font des braises) : l'eau pulvérisée l'éteint et le refroidit. Le CO2 convient aux liquides et aux feux électriques.
+
+Q: Où viser avec l'extincteur ?
+- Le haut des flammes
+- La fumée
++ La base des flammes, en balayant
+- Le mur derrière le feu
+= On vise la base des flammes, à 2 – 3 m pour un extincteur à eau, en gardant une issue dans son dos.
+
+Q: L'alarme d'évacuation sonne. Que faites-vous ?
+- Je termine ma pièce puis je sors
+- Je retourne chercher mon sac au vestiaire
++ J'arrête ma machine et je sors par l'issue la plus proche non enfumée, jusqu'au point de rassemblement
+- Je reste dans l'atelier en attendant le professeur
+= On ne revient jamais en arrière. Au point de rassemblement, on se signale au professeur pour l'appel.
+
+Q: Où jeter les chiffons imbibés de vernis, d'huile ou de solvant ?
+- Dans la poubelle ordinaire
+- En tas sur l'établi pour les réutiliser
++ Dans la poubelle métallique à couvercle fermé
+- Dans le bac à copeaux de l'aspiration
+= Ces chiffons peuvent s'échauffer et s'enflammer seuls. Récipient métallique fermé, vidé chaque jour.
+
+Q: Pourquoi les poussières de bois peuvent-elles exploser ?
+- Elles ne peuvent pas exploser
++ Fines et en nuage dans un endroit fermé (silo, filtre), elles s'enflamment d'un coup au contact d'une étincelle
+- Seulement si elles sont mouillées
+- Seulement les copeaux de résineux
+= Combustible + air + source d'inflammation = feu ; poussières en suspension, concentration suffisante et confinement = explosion. D'où l'atelier propre et le nettoyage par aspiration.
+
+Q: Qui peut ouvrir l'armoire électrique de l'atelier ?
+- Tout élève qui sait ce qu'il fait
+- Le premier qui voit un voyant éteint
++ Seulement une personne habilitée
+- N'importe qui, si les machines sont arrêtées
+= Les armoires marquées du triangle jaune (éclair) restent fermées. Un élève signale le problème au professeur.
+
+Q: Vous devez changer la lame d'une machine. Quelle est la bonne suite d'actions ?
+- Appuyer sur l'arrêt d'urgence, puis démonter la lame
+- Arrêter la machine et démonter la lame dès qu'elle ralentit
++ Arrêter, mettre le sectionneur sur 0, poser son cadenas et le panneau, vérifier qu'elle ne démarre pas, puis intervenir
+- Débrancher l'aspiration et intervenir
+= C'est la consignation : arrêter, séparer, condamner et signaler, vérifier l'absence d'énergie. L'arrêt d'urgence peut être déverrouillé par quelqu'un d'autre : ce n'est pas une consignation.
+
+Q: À quoi sert l'arrêt d'urgence général (coup de poing rouge sur fond jaune) ?
++ À couper d'un seul geste toutes les machines de l'atelier en cas de danger
+- À consigner une machine pour la maintenance
+- À arrêter l'aspiration seulement
+- À déclencher l'alarme d'évacuation
+= C'est une commande de secours. Pour intervenir sur une machine, il faut la consigner (sectionneur sur 0 et cadenas).
+
+Q: Peut-on porter des gants pour travailler à une machine dont l'outil tourne (scie, toupie, dégauchisseuse) ?
+- Oui, c'est obligatoire
+- Oui, s'ils sont épais
++ Non : un gant peut être happé par l'outil et entraîner la main
+- Oui, si on fait attention
+= Pas de gants, de vêtements flottants, d'écharpe ni de bijoux près d'un outil en rotation. Les gants servent à porter les bois et à manipuler les outils, machine arrêtée et consignée.
+
+Q: Quelle tenue avant d'entrer à l'atelier ?
+- Sweat à capuche ouvert et baskets
++ Vêtement de travail fermé et ajusté, chaussures de sécurité, cheveux longs attachés, sans bijoux
+- Tenue libre, du moment qu'on a des lunettes
+- Blouse ouverte et sandales
+= Tout ce qui flotte (manches, capuche, cheveux, écharpe, bracelet) peut être happé par une machine.
+
+Q: Comment porter un grand panneau ?
+- Seul, bras tendus, en se penchant en avant
++ À deux ou sur le chariot porte-panneaux, la charge près du corps, le dos droit
+- En le faisant glisser sur le sol de l'allée
+- Sur l'épaule, en courant
+= On utilise d'abord les aides (chariot, table élévatrice). Si on porte : près du corps, jambes fléchies, sans torsion du dos.
+
+Q: Que signifie un pictogramme en losange à bord rouge sur un bidon de vernis ?
+- Le produit est recyclable
++ Un danger du produit (inflammable, toxique, nocif…) : lire l'étiquette et la fiche de données de sécurité
+- Le produit est sans danger pour les enfants
+- La date de péremption
+= Règlement européen CLP : 9 pictogrammes de danger, la mention « Danger » ou « Attention » et des conseils de prudence. La fiche de données de sécurité (FDS) précise les EPI et les premiers secours.
+
+Q: Un camarade se blesse à une machine. Quelle est la première chose à faire ?
+- Le déplacer tout de suite vers l'infirmerie
+- Continuer son travail, le professeur s'en occupera
++ Protéger : faire arrêter la machine (arrêt d'urgence) sans se mettre en danger, puis prévenir le professeur
+- Appeler ses parents
+= Protéger, examiner, faire alerter (professeur, 15 ou 18, 112), secourir. À l'appel : qui on est, où, ce qui s'est passé, l'état de la victime ; on ne raccroche pas le premier.

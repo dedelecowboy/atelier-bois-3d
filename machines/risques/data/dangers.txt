@@ -1,0 +1,95 @@
+# Situations du scénario « Repérer les dangers dans l'atelier ».
+#
+# Dans l'atelier en 3D, l'élève touche les situations qu'il juge dangereuses. Pour chaque danger trouvé,
+# il choisit la bonne mesure parmi celles proposées ici.
+#
+# Comment modifier ce fichier :
+# - Un danger par bloc ; les blocs sont séparés par une ligne vide.
+# - D: code | ce que l'élève a trouvé (texte affiché quand il touche la situation)
+#   + la bonne mesure (une seule)    - une mauvaise mesure (1 à 3)    = l'explication
+# - P: code | situation CORRECTE (piège : la toucher compte comme une fausse alerte)
+#   = l'explication (pourquoi ce n'est pas un danger)
+# - Le code relie la situation à la scène 3D : ne le changez pas. Les textes se modifient librement.
+#   Un bloc supprimé retire la situation du scénario (la scène 3D la cache).
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+D: soufflette | Un élève nettoie la toupie à la soufflette : nuage de poussière
++ Arrêter la machine et nettoyer à l'aspirateur industriel
+- Souffler en visant le sol, loin des camarades
+- Mettre un masque et continuer à souffler
+= La soufflette remet dans l'air les poussières de bois, cancérogènes, que tout l'atelier respire. On aspire, machine arrêtée (INRS ED 974).
+
+D: cable | Un câble de rallonge traverse l'allée
++ Brancher l'outil sur une prise proche du poste, sans traverser l'allée
+- Enjamber le câble avec prudence
+- Recouvrir le câble de sciure
+= On trébuche sur un câble, et en tombant on peut heurter une machine en marche. L'allée reste libre.
+
+D: chiffons | Des chiffons imbibés de vernis sont en tas sur l'établi
++ Les mettre dans la poubelle métallique à couvercle fermé
+- Les étaler au soleil pour qu'ils sèchent vite
+- Les jeter dans la poubelle à papier
+= Des chiffons imbibés d'huile ou de vernis peuvent s'échauffer et s'enflammer seuls. Récipient métallique fermé, vidé chaque jour.
+
+D: allee_encombree | Des planches sont posées en travers de l'allée
++ Les ranger au râtelier, hors des allées
+- Les pousser contre une machine en marche
+- Mettre un panneau « attention » et les laisser
+= Les allées marquées en jaune restent libres pour circuler, porter les bois et évacuer.
+
+D: gants_machine | Un élève travaille à la toupie avec des gants
++ Retirer les gants : jamais de gants près d'un outil en rotation
+- Prendre des gants plus épais
+- Garder les gants mais travailler plus lentement
+= Un gant peut être happé par l'outil et entraîner la main. Les gants servent à porter les bois, machine arrêtée.
+
+D: cheveux_echarpe | Un élève à la dégauchisseuse : cheveux longs détachés, écharpe et bracelet
++ Attacher les cheveux, retirer l'écharpe et les bijoux avant de travailler
+- Rentrer l'écharpe dans le col et continuer
+- Travailler en se tenant plus loin de la machine
+= Cheveux, écharpe, manches ou bracelet peuvent s'enrouler sur un arbre ou un outil en rotation.
+
+D: extincteur_masque | Des panneaux sont appuyés devant un extincteur
++ Dégager l'extincteur : il doit rester visible et accessible
+- Laisser les panneaux, on sait où il est
+- Déplacer l'extincteur dans un placard
+= En cas de feu, chaque seconde compte : un extincteur reste visible, signalé et accessible (INRS ED 6054).
+
+D: issue_bloquee | Une palette et des panneaux bloquent l'issue de secours
++ Dégager immédiatement l'issue et prévenir le professeur
+- La laisser : il y a d'autres portes
+- Fermer cette porte à clé pour être tranquille
+= Une issue de secours n'est jamais encombrée ni verrouillée pendant l'activité : c'est le chemin d'évacuation.
+
+D: armoire_ouverte | La porte de l'armoire électrique est restée ouverte
++ Ne pas y toucher, s'éloigner et prévenir le professeur
+- La refermer en vérifiant les disjoncteurs
+- Ranger ses outils dans l'armoire
+= Seule une personne habilitée intervient dans une armoire électrique. Risque d'électrisation et de brûlure.
+
+D: copeaux_sol | Un tas de copeaux s'est accumulé au pied de la raboteuse
++ Vérifier l'aspiration de la machine et aspirer les copeaux, machine arrêtée
+- Les pousser sous la machine avec le pied
+- Les laisser pour la fin de la semaine
+= Copeaux au sol : risque de glissade, et ils brûlent très vite. Un tas de copeaux signale souvent une aspiration fermée ou bouchée.
+
+D: solvant_ouvert | Un bidon de solvant est ouvert sur l'établi, sans étiquette
++ Le fermer, vérifier son étiquette et le ranger dans l'armoire des produits
+- Le laisser ouvert pour qu'il s'évapore
+- Le transvaser dans une bouteille d'eau
+= Vapeurs inflammables et nocives. Un produit reste fermé, dans son emballage d'origine étiqueté, rangé dans l'armoire de sécurité.
+
+D: manutention_dos | Un élève porte seul un grand panneau, le dos courbé
++ Utiliser le chariot porte-panneaux, ou porter à deux, dos droit
+- Porter plus vite pour moins se fatiguer
+- Mettre une ceinture et continuer seul
+= Les grands panneaux sont lourds et encombrants : lombalgies, chute, choc. On utilise les aides à la manutention.
+
+P: p_epi | Un élève à la scie à format : lunettes, casque antibruit, cheveux attachés, tenue fermée
+= C'est la bonne tenue pour travailler à une machine.
+
+P: p_aspirateur | Un élève nettoie le sol à l'aspirateur industriel, avec masque et lunettes
+= C'est la bonne façon de nettoyer l'atelier : jamais de soufflette ni de balai.
+
+P: p_chariot | Un élève déplace des panneaux sur le chariot, avec des gants de manutention
+= Le chariot évite de porter à bout de bras ; les gants protègent des échardes et des chants, loin des machines en marche.

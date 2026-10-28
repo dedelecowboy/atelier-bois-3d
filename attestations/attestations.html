@@ -154,6 +154,8 @@ td.n{font-weight:600}
 const IMG = /*IMAGES*/{};
 const LOGO = '/*LOGO*/';
 const MACH = [
+  { id:'risques', key:/risques/i, nom:'Risques généraux de l\'atelier', court:'Risques généraux', ref:'', sous:'Atelier menuiserie · module sécurité',
+    pied:'Repérage des équipements · QCM · 4 situations notées (dangers, EPI, consignation, départ de feu)' },
   { id:'scie-radiale', key:/radiale/i, nom:'Scie radiale', ref:'KANAK 900 R' },
   { id:'deligneuse', key:/d[ée]lign/i, nom:'Déligneuse multilames', ref:'KANAK 300 M' },
   { id:'degauchisseuse', key:/d[ée]gau/i, nom:'Dégauchisseuse', ref:'KANAK 520 D' },
@@ -233,7 +235,7 @@ function cellHTML(r, i, m){
   return `<label class="cell ok"><input type="checkbox" data-k="${k}" ${pick[k] ? 'checked' : ''} aria-label="Attestation ${m.nom} pour ${r.nom}">${n}</label>`;
 }
 function render(){
-  $('tbl').innerHTML = `<thead><tr><th>Élève</th>${MACH.map(m => `<th>${m.nom.replace(' multilames','')}</th>`).join('')}<th>Dernier accès</th></tr></thead><tbody>`
+  $('tbl').innerHTML = `<thead><tr><th>Élève</th>${MACH.map(m => `<th>${m.court || m.nom.replace(' multilames','')}</th>`).join('')}<th>Dernier accès</th></tr></thead><tbody>`
     + data.rows.map((r, i) => `<tr><td class="n">${esc(r.nom)}</td>${MACH.map(m => `<td>${cellHTML(r, i, m)}</td>`).join('')}<td>${r.date || '—'}</td></tr>`).join('') + '</tbody>';
   $('tbl').querySelectorAll('input[data-k]').forEach(c => c.onchange = () => { pick[c.dataset.k] = c.checked; preview(); });
   preview();
@@ -247,7 +249,7 @@ function att(r, m){
   const n = num(r.res[m.id]), cl = $('classe').value.trim();
   return `<article class="att${data.example ? ' ex' : ''}">
   <div class="hd"><img src="${LOGO}" alt="Lycée André Malraux"><div class="tag">Atelier bois 3D<br>Simulateurs de machines</div></div>
-  <div class="ttl"><h3>Attestation</h3><div class="m">${m.nom}</div><div class="r">Simulateur ${m.ref}</div></div>
+  <div class="ttl"><h3>Attestation</h3><div class="m">${m.nom}</div><div class="r">${m.sous || 'Simulateur ' + m.ref}</div></div>
   <div class="img">${IMG[m.id] ? `<img src="${IMG[m.id]}" alt="">` : ''}</div>
   <div class="who"><div class="lb">Délivrée à</div><div class="nm">${esc(r.nom)}</div>${cl ? `<div class="cl">Classe ${esc(cl)}</div>` : ''}</div>
   <div class="boxes">
@@ -262,7 +264,7 @@ function att(r, m){
       <div class="kv"><span></span><i></i></div>
       <div class="sig">Nom et signature de l'enseignant :</div></fieldset>
   </div>
-  <div class="ft"><span>Repérage des organes · QCM sécurité · 3 situations de travail notées</span><span><b>Validée</b> : 70 / 100 sans faute grave</span></div>
+  <div class="ft"><span>${m.pied || 'Repérage des organes · QCM sécurité · 3 situations de travail notées'}</span><span><b>Validée</b> : 70 / 100 sans faute grave</span></div>
 </article>`;
 }
 function preview(){

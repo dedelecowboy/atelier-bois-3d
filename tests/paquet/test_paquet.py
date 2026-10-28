@@ -1,7 +1,9 @@
 """Paquetage unique « Atelier bois 3D » (dist/Atelier_bois_3D_SCORM12*.zip) :
-- manifeste : atelier (asset, non noté) + 7 machines (SCO), lib partagée, verrous de la chaîne de débit (ou aucun) ;
+- manifeste : atelier (SCO toujours « incomplete ») + « 0. Risques généraux » + 7 machines (SCO), lib partagée,
+  verrous : risques généraux avant la scie radiale et la scie à format, puis la chaîne de débit (ou aucun) ;
 - dans un faux lecteur Moodle (sommaire + cadre + API SCORM 1.2) : « ← Atelier » depuis une machine,
-  « Ouvrir la machine » depuis l'atelier, bilan de la machine relu par l'atelier."""
+  « Ouvrir la machine » et « Ouvrir le module » (risques généraux) depuis l'atelier, bilan de la machine relu par l'atelier,
+  verrous lus dans le sommaire."""
 import asyncio, os, sys, zipfile, re, tempfile, mimetypes
 import xml.etree.ElementTree as ET
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -10,28 +12,30 @@ from playwright.async_api import async_playwright
 
 NS = {'c': 'http://www.imsproject.org/xsd/imscp_rootv1p1p2', 'a': 'http://www.adlnet.org/xsd/adlcp_rootv1p2'}
 A = '{http://www.adlnet.org/xsd/adlcp_rootv1p2}'
-ORDER = ['scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format']
+ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format']
 
 def manifest(zp, lock):
     z = zipfile.ZipFile(zp); names = set(z.namelist())
     m = ET.fromstring(z.read('imsmanifest.xml'))
     items = m.findall('.//c:organization/c:item', NS); res = {r.get('identifier'): r for r in m.findall('.//c:resource', NS)}
-    check(len(items) == 8 and items[0].find('c:title', NS).text == 'Atelier', f'{os.path.basename(zp)} : 8 éléments, l\'atelier en premier')
+    check(len(items) == 9 and items[0].find('c:title', NS).text == 'Atelier', f'{os.path.basename(zp)} : 9 éléments, l\'atelier en premier')
+    titles = [i.find('c:title', NS).text for i in items]
+    check(titles[1] == '0. Risques généraux' and titles[2] == '1. Scie radiale' and titles[8] == '7. Scie à format', 'titres : « 0. Risques généraux », machines numérotées de 1 à 7 comme avant')
     kinds = [res[i.get('identifierref')].get(A + 'scormtype') for i in items]
-    check(kinds == ['sco'] * 8, 'atelier et 7 machines « sco » (Moodle ne lance pas un asset de lui-même)')
+    check(kinds == ['sco'] * 9, 'atelier, risques généraux et 7 machines « sco » (Moodle ne lance pas un asset de lui-même)')
     hrefs = [res[i.get('identifierref')].get('href') for i in items]
-    check(hrefs == ['atelier/index.html'] + [f'{m}/index.html' for m in ORDER] and all(h in names for h in hrefs), 'une page par élément, dans l\'ordre de la chaîne de débit')
+    check(hrefs == ['atelier/index.html'] + [f'{m}/index.html' for m in ORDER] and all(h in names for h in hrefs), 'une page par élément : risques généraux, puis la chaîne de débit')
     files = [f.get('href') for r in res.values() for f in r.findall('c:file', NS)]
     check(all(f in names for f in files) and 'lib/three.module.js' in names, 'tous les fichiers déclarés sont dans le zip, three.js une seule fois')
     pre = [i.find('a:prerequisites', NS) for i in items]
     pre = [p.text if p is not None else None for p in pre]
     ids = [i.get('identifier') for i in items]
-    if lock: check(pre[1] is None and pre[7] is None and all(pre[k] == ids[k - 1] for k in range(2, 7)), 'verrous : chaque machine de la chaîne demande la précédente, scie à format libre')
+    if lock: check(pre[1] is None and pre[2] == ids[1] and pre[8] == ids[1] and all(pre[k] == ids[k - 1] for k in range(3, 8)), 'verrous : risques généraux avant la scie radiale et la scie à format, puis chaque machine de la chaîne demande la précédente')
     else: check(all(p is None for p in pre), 'sans verrous')
     check(b'masteryscore' not in z.read('imsmanifest.xml'), 'pas de masteryscore (le module pose passed / failed)')
     for mid in ORDER:
         h = z.read(f'{mid}/index.html').decode('utf-8')
-        check('window.PARCOURS=true' in h and 'window.ATELIER_PKG=' in h and '"three":"../lib/three.module.js"' in h, f'{mid} : parcours évalué, paquetage, three.js local') if mid == 'raboteuse' else None
+        check('window.PARCOURS=true' in h and 'window.ATELIER_PKG=' in h and '"three":"../lib/three.module.js"' in h, f'{mid} : parcours évalué, paquetage, three.js local') if mid in ('raboteuse', 'risques') else None
     return z
 
 # faux lecteur Moodle : sommaire (liens = titres des éléments), cadre du contenu, API SCORM 1.2 par élément
@@ -122,11 +126,24 @@ async def main():
         check((await f.evaluate('location.pathname')).endswith('/toupie/index.html'), '« Ouvrir la machine » ouvre l\'élément Toupie du sommaire')
         check('finish:ITEM_ATELIER' in await pg.evaluate('__log'), 'l\'atelier a fermé sa session en partant')
         await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'paquet_toupie.png'))
+        # 3 bis. le module « Risques généraux » depuis l'atelier (tête de liste, sans poste dans la salle)
+        await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')"); await pg.wait_for_timeout(300); f = await frame_ready()
+        await f.evaluate("()=>document.querySelector('#postes [data-id=risques]').click()"); await pg.wait_for_timeout(400)
+        rk = await f.evaluate("()=>({ first:document.querySelector('#postes button').dataset.id, card:document.getElementById('card').textContent, go:!!document.getElementById('cardGo') })")
+        check(rk['first'] == 'risques' and 'Risques généraux' in rk['card'] and rk['go'], 'atelier : « 0 Risques généraux » en tête de liste, fiche avec « Ouvrir le module »')
+        await f.evaluate("()=>document.getElementById('cardGo').click()"); await pg.wait_for_timeout(500); f = await frame_ready()
+        check((await f.evaluate('location.pathname')).endswith('/risques/index.html'), '« Ouvrir le module » ouvre l\'élément « 0. Risques généraux »')
+        ch = await f.evaluate("()=>({ choice:!document.getElementById('choice').hidden, back:!document.getElementById('toAtelier').hidden })")
+        check(ch['choice'] and ch['back'], 'risques généraux : choix entraînement / évaluation et « ← Atelier »')
+        await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'paquet_risques.png'))
         # verrous : version avec verrous, l'atelier lit le sommaire (élément sans lien = verrouillé)
         await pg.goto('http://local/verrous'); await pg.click('text=Atelier'); f = await frame_ready(); await pg.wait_for_timeout(500)
         lk = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id,b.dataset.locked]))")
-        check(lk['scie-radiale'] == 'false' and lk['scie-format'] == 'false' and all(lk[m] == 'true' for m in ['deligneuse','degauchisseuse','raboteuse','toupie','tenonneuse']),
-              'verrous : déligneuse à tenonneuse verrouillées, scie radiale et scie à format ouvertes')
+        check(all(lk[m] == 'true' for m in ORDER[1:]) and lk['risques'] in (None, 'false'),
+              'verrous : les 7 machines verrouillées tant que « Risques généraux » n\'est pas réussi, le module risques ouvert')
+        await f.evaluate("()=>document.querySelector('#postes [data-id=\"scie-radiale\"]').click()"); await pg.wait_for_timeout(1300)
+        msg = await f.evaluate("()=>({ m:document.querySelector('#card .lockmsg')?.textContent||'', go:!!document.getElementById('cardGo') })")
+        check('Risques généraux' in msg['m'] and not msg['go'], f'scie radiale verrouillée : {msg["m"].strip()}')
         await f.evaluate("()=>document.querySelector('#postes [data-id=deligneuse]').click()"); await pg.wait_for_timeout(1300)
         msg = await f.evaluate("()=>({ m:document.querySelector('#card .lockmsg')?.textContent||'', go:!!document.getElementById('cardGo') })")
         check('Scie radiale' in msg['m'] and not msg['go'], f'fiche verrouillée : {msg["m"].strip()}')
@@ -134,7 +151,14 @@ async def main():
         # Moodle qui n'applique pas les prérequis : le paquetage verrouille lui-même d'après les statuts du sommaire
         await pg.goto('http://local/verrous-libres'); await pg.click('text=Atelier'); f = await frame_ready(); await pg.wait_for_timeout(500)
         lk = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id,b.dataset.locked]))")
-        check(lk['scie-radiale'] == 'false' and lk['deligneuse'] == 'true' and lk['scie-format'] == 'false', 'prérequis non appliqués par Moodle : l\'atelier verrouille d\'après le statut « Non tenté » de la scie radiale')
+        check(lk['scie-radiale'] == 'true' and lk['deligneuse'] == 'true' and lk['scie-format'] == 'true', 'prérequis non appliqués par Moodle : l\'atelier verrouille d\'après le statut « Non tenté » des risques généraux et de la scie radiale')
+        await pg.click('text=1. Scie radiale'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('scie-radiale')"); await pg.wait_for_timeout(300); f = await frame_ready()
+        ev = await f.evaluate("()=>({ dis:document.getElementById('chEval').disabled, t:document.getElementById('chEvalS').textContent })")
+        check(ev['dis'] and 'Risques généraux' in ev['t'], 'scie radiale ouverte par le sommaire : évaluation verrouillée tant que « Risques généraux » n\'est pas réussi')
+        await pg.evaluate("const im=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('0. Risques généraux')).querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png')")
+        await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
+        await pg.click('text=1. Scie radiale'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('scie-radiale')"); await pg.wait_for_timeout(300); f = await frame_ready()
+        check(not await f.evaluate("document.getElementById('chEval').disabled"), 'risques généraux réussis : évaluation de la scie radiale ouverte')
         await pg.click('text=2. Déligneuse multilames'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('deligneuse')"); await pg.wait_for_timeout(300); f = await frame_ready()
         ev = await f.evaluate("()=>({ dis:document.getElementById('chEval').disabled, t:document.getElementById('chEvalS').textContent, tr:!document.getElementById('chTrain').disabled })")
         check(ev['dis'] and 'Scie radiale' in ev['t'] and ev['tr'], 'déligneuse ouverte par le sommaire : évaluation verrouillée, entraînement possible')

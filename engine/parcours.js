@@ -11,10 +11,15 @@ import { createScorm } from './scorm.js';
 
 const $ = id=>document.getElementById(id);
 const sum=a=>a.reduce((x,y)=>x+y,0);
-const W_REP=20, W_QCM=20, W_SCEN=20, PASS=70;
+const W_REP=20, W_QCM=20, PASS=70;
 
 export function createParcours(app, { reperage, qcm }, P){
   const { stage, parts, ex } = app;
+  /* P.scenWeight : points par scénario (20 par défaut : 3 scénarios ; risques généraux : 4 × 15), répartis entre ses critères.
+     P.labels (facultatif) : textes propres au module, voir L ci-dessous. */
+  const W_SCEN = P.scenWeight||20;
+  const L = { rep:'Repérage des organes', item:'organe', where:'sur la machine', inside:'Cet organe est à l\'intérieur : la machine est affichée en transparence.',
+    scenNote:'Suivez les étapes. À l\'étape « Contrôle », la pièce est mesurée, et toute faute grave de sécurité commise au moment d\'une coupe est relevée', ...(P.labels||{}) };
   const PARC_ON = !!window.PARCOURS;
   let on = true;                                   // false : entraînement (paquetage unique), le parcours ne relève rien
   const act = ()=> PARC_ON && on;
@@ -52,7 +57,7 @@ export function createParcours(app, { reperage, qcm }, P){
   function startScen(){ parc.ph='scen'; /* les fautes d'une tentative interrompue sont conservées */ const S=SCENS[parc.si]; ex.setMode(S.mode); stage.setView(S.view||Object.keys(stage.VIEWS)[0]); scorm.save(); render(); }
   function recordDangers(list){ if(!act()||parc.ph!=='scen') return; for(const [l,t] of (list||app.alerts())) if(l==='danger'){ const k=t.split('. ')[0].slice(0,170); if(!parc.dangers.includes(k)) parc.dangers.push(k); } }
   const criteria=m=>P.criteria(m, { dangers:parc.dangers.length, ok:parc.dangers.length===0 });
-  function finishScen(){ const S=SCENS[parc.si], C=criteria(S.mode), pts=C.reduce((a,c)=>a+(c[2]?4:0),0);
+  function finishScen(){ const S=SCENS[parc.si], C=criteria(S.mode), pts=Math.round(C.reduce((a,c)=>a+(c[2]?W_SCEN/C.length:0),0));
     parc.scens[parc.si]={pts, crit:C.map(c=>[c[0],c[1],c[2]?1:0]), dangers:parc.dangers.slice()};
     C.forEach((c,i)=>scorm.inter(`${CODE}_s${parc.si+1}_${['c1','c2','c3','c4','securite'][i]}`, 'performance', txt(`${c[0]} : ${c[1]}`).slice(0,250)||'-', c[2]?'correct':'wrong'));
     parc.dangers.forEach((d,k)=>scorm.inter(`${CODE}_faute_s${parc.si+1}_${k+1}`,'performance',txt(d).slice(0,250)||'-','wrong'));
@@ -87,21 +92,21 @@ export function createParcours(app, { reperage, qcm }, P){
       if(cfg.view) stage.setView(cfg.view); else if(cfg.x) parts.setXray(true,true); else if(prev!==null) stage.setView(Object.keys(stage.VIEWS)[0]); }
     { const bar=$('repBar'); bar.hidden=parc.ph!=='rep'; if(parc.ph==='rep'){
         $('repQ').textContent=`${Math.min(parc.ri+1,REP.length)}/${REP.length} · Trouvez : ${repName(R)}`;
-        const fb=$('repFb'); fb.textContent= repFeedback || (parc.cand? 'Organe en surbrillance : validez, ou touchez-en un autre.' : wantX? 'Vue en transparence : l\'organe est à l\'intérieur de la machine.' : 'Touchez l\'organe sur la machine (zoomez si besoin).');
+        const fb=$('repFb'); fb.textContent= repFeedback || (parc.cand? `${L.item[0].toUpperCase()+L.item.slice(1)} en surbrillance : validez, ou touchez-en un autre.` : wantX? 'Vue en transparence : l\'organe est à l\'intérieur de la machine.' : `Touchez l'${L.item} ${L.where} (zoomez si besoin).`);
         fb.dataset.ok= repFeedback? String(repFeedback.startsWith('Exact')) : '';
         $('repOk').disabled=!parc.cand||repLock; $('repNo').disabled=!parc.cand||repLock; $('repOk').onclick=repValidate; $('repNo').onclick=repCancel; } }
-    const steps=[['rep','Repérage des organes'],['qcm',P.qcmTitle||'QCM sécurité'],...SCENS.map((s,i)=>['s'+i,'Scénario '+(i+1)+' : '+s.t.toLowerCase()])];
+    const steps=[['rep',L.rep],['qcm',P.qcmTitle||'QCM sécurité'],...SCENS.map((s,i)=>['s'+i,'Scénario '+(i+1)+' : '+s.t.toLowerCase()])];
     const cur= parc.ph==='rep'?0 : parc.ph==='qcm'?1 : parc.ph==='fin'?99 : 2+parc.si;
     $('parcSteps').innerHTML=steps.map(([k,t],i)=>{ const state= i<cur?'done': i===cur?'cur':'lock';
       return `<li data-s="${state}"><span>${state==='done'?'✓':state==='lock'?'🔒':i+1}</span>${t}</li>`; }).join('');
     const rs=sum(parc.rk), qs=sum(parc.qk);
     if(parc.ph==='rep'){
-      el.innerHTML=`<p class="pk">Repérage ${Math.min(parc.ri+1,REP.length)} / ${REP.length}</p><h3>Trouvez : ${repName(R)}</h3><p>Touchez (ou cliquez) l'organe : il passe en surbrillance. Vérifiez, puis <b>Valider</b>. Faites tourner et zoomez si besoin. Une seule réponse validée par organe.${wantX?' Cet organe est à l\'intérieur : la machine est affichée en transparence.':''}</p>${repFeedback?`<p class="fb" data-ok="${repFeedback.startsWith('Exact')}">${repFeedback}</p>`:''}<p class="pk">Bonnes réponses : ${rs} / ${parc.rk.length}</p>`; }
+      el.innerHTML=`<p class="pk">${L.rep.split(' ')[0]} ${Math.min(parc.ri+1,REP.length)} / ${REP.length}</p><h3>Trouvez : ${repName(R)}</h3><p>Touchez (ou cliquez) l'${L.item} : il passe en surbrillance. Vérifiez, puis <b>Valider</b>. Faites tourner et zoomez si besoin. Une seule réponse validée par ${L.item}.${wantX?' '+L.inside:''}</p>${repFeedback?`<p class="fb" data-ok="${repFeedback.startsWith('Exact')}">${repFeedback}</p>`:''}<p class="pk">Bonnes réponses : ${rs} / ${parc.rk.length}</p>`; }
     else if(parc.ph==='qcm'){ const Q=QCM[parc.qi], ans=parc.qAns;
       el.innerHTML=`<p class="pk">Question ${parc.qi+1} / ${QCM.length}</p><h3>${Q.q}</h3><div class="qopts">${Q.o.map((o,i)=>`<button type="button" class="qopt" data-q="${i}" ${ans!==null?'disabled':''} data-r="${ans===null?'':i===Q.a?'ok':i===ans?'ko':''}">${'ABCDEF'[i]}. ${o}</button>`).join('')}</div>${ans!==null?`<p class="fb" data-ok="${ans===Q.a}">${ans===Q.a?'Exact. ':'Non. '}${Q.e}</p><button type="button" class="toggle" id="qNext">${parc.qi<QCM.length-1?'Question suivante':'Terminer le QCM'}</button>`:''}`;
       el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>qcmAnswer(+b.dataset.q)); const n=$('qNext'); if(n) n.onclick=qcmNext; }
     else if(parc.ph==='scen-intro'){ const S=SCENS[parc.si];
-      el.innerHTML=`<p class="pk">Repérage ${rs}/${REP.length} · QCM ${qs}/${QCM.length}${parc.si?` · scénarios faits : ${parc.si}/${SCENS.length}`:''}</p><h3>Scénario ${parc.si+1} / ${SCENS.length} : ${S.t}</h3><p>${S.intro} Suivez les étapes. À l'étape « Contrôle », la pièce est mesurée, et toute faute grave de sécurité commise au moment d'une coupe est relevée : <b>une seule faute grave fait échouer le module</b>.</p><button type="button" class="toggle" id="scenGo" aria-pressed="true">Commencer le scénario ${parc.si+1}</button>`; $('scenGo').onclick=startScen; }
+      el.innerHTML=`<p class="pk">Repérage ${rs}/${REP.length} · QCM ${qs}/${QCM.length}${parc.si?` · scénarios faits : ${parc.si}/${SCENS.length}`:''}</p><h3>Scénario ${parc.si+1} / ${SCENS.length} : ${S.t}</h3><p>${S.intro} ${L.scenNote} : <b>une seule faute grave fait échouer le module</b>.</p><button type="button" class="toggle" id="scenGo" aria-pressed="true">Commencer le scénario ${parc.si+1}</button>`; $('scenGo').onclick=startScen; }
     else if(parc.ph==='scen'){ const last=ex.step===ex.STEPS.length-1;
       el.innerHTML=`<p class="pk">Scénario ${parc.si+1} / ${SCENS.length} · ${SCENS[parc.si].t}</p><p class="pk">Fautes graves relevées : <b>${parc.dangers.length}</b></p>${parc.dangers.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<button type="button" class="toggle" id="scenEnd" ${last?'':'disabled'} aria-pressed="${last}">${parc.si<SCENS.length-1?'Valider et passer au scénario suivant':'Terminer et envoyer le résultat'}</button>${last?'':'<p class="pk">Disponible à l\'étape « Contrôle ».</p>'}`; $('scenEnd').onclick=finishScen; }
     else if(parc.ph==='fin'){ const row=(l,v)=>`<tr><td>${l}</td><td>${v}</td></tr>`;

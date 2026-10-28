@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { zipSync, strToU8 } from 'fflate';
 import { renderShell } from '../engine/shell.js';
-import { parseOrganes, parseQcm, parseReperage, checkData } from '../engine/data.js';
+import { parseOrganes, parseQcm, parseReperage, checkData, parseDangers, parseEpi, parseFiches } from '../engine/data.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -41,6 +41,17 @@ function checkMachineData(dir, config){
     for (const m of read(path.join(dir, f)).matchAll(/tagPart\([^;]*?,\s*'([a-z0-9_]+)'\)/g))
       if (!organes[m[1]]) throw new Error(`organes.txt : l'organe [${m[1]}] est utilisé par le modèle 3D (${f}) mais n'est pas dans le fichier.`);
   }
+  /* module « Risques généraux » : situations dangereuses, EPI, fiches */
+  if (fs.existsSync(D('dangers.txt'))) {
+    const dangers = parseDangers(read(D('dangers.txt')));
+    const codes = new Set(fs.readdirSync(dir).filter(f => f.endsWith('.js')).flatMap(f => [...read(path.join(dir, f)).matchAll(/danger\('([a-z0-9_]+)'/g)].map(m => m[1])).concat(['armoire_ouverte']));
+    for (const d of dangers) if (!codes.has(d.k)) throw new Error(`dangers.txt : la situation « ${d.k} » n'existe pas dans la scène 3D (codes possibles : ${[...codes].join(', ')}).`);
+  }
+  if (fs.existsSync(D('epi.txt'))) { const { tasks } = parseEpi(read(D('epi.txt')));
+    if (tasks.length !== 4) throw new Error(`epi.txt : il faut exactement 4 tâches (une par critère noté), ici ${tasks.length}.`);
+    for (const t of tasks) if (!['toupie', 'poncage', 'manutention', 'vernis'].includes(t.k)) throw new Error(`epi.txt : tâche « ${t.k} » inconnue (codes possibles : toupie, poncage, manutention, vernis).`); }
+  if (fs.existsSync(D('fiches.txt'))) for (const f of parseFiches(read(D('fiches.txt')))) for (const k of f.parts)
+    if (!organes[k]) throw new Error(`fiches.txt, ligne ${f.n} : l'équipement « ${k} » n'est pas dans organes.txt.`);
   return { organes: Object.keys(organes).length, qcm: qcm.length, reperage: reperage.length };
 }
 
@@ -137,10 +148,11 @@ async function buildAtelier(){
    SCORM ; le carnet de notes n'a qu'une colonne (méthode conseillée : « Objets d'apprentissage » = machines validées).
    Deux versions : avec verrous (prérequis : la machine précédente de la chaîne de débit réussie) et sans verrous. */
 const BUILT = {};
-const PKG_ORDER = ['scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format'];
-const PKG_PREREQ = { deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', tenonneuse: 'toupie' };
+const PKG_ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format'];
+const PKG_PREREQ = { 'scie-radiale': 'risques', 'scie-format': 'risques', deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', tenonneuse: 'toupie' };
 const PKG_ATELIER = 'Atelier';
-const pkgTitle = (id, i) => `${i + 1}. ${BUILT[id].config.title}`;
+/* numérotation : « 0. Risques généraux », puis les machines de 1 à 7 (titres inchangés depuis le premier essai Moodle) */
+const pkgTitle = (id, i) => `${BUILT.risques ? i : i + 1}. ${BUILT[id].config.title}`;
 const itemId = id => 'ITEM_' + BUILT[id].config.scorm.code;
 function buildPackage(lock){
   const ids = PKG_ORDER.filter(id => BUILT[id]);
@@ -177,7 +189,7 @@ function buildPackage(lock){
   </metadata>
   <organizations default="ORG1">
     <organization identifier="ORG1">
-      <title>Atelier bois 3D – machines à bois (bac pro)</title>
+      <title>Atelier bois 3D – risques généraux et machines à bois (bac pro)</title>
 ${items.join('\n')}
     </organization>
   </organizations>
@@ -188,7 +200,7 @@ ${res.join('\n')}
 `);
   const zip = lock ? 'Atelier_bois_3D_SCORM12.zip' : 'Atelier_bois_3D_SCORM12_sans_verrous.zip';
   fs.writeFileSync(path.join(DIST, zip), zipSync(files, { level: 9, mtime: new Date('2026-01-01') }));
-  console.log(`paquetage unique → dist/${zip} (atelier + ${ids.length} machines${lock ? ', verrous de la chaîne de débit' : ', sans verrous'})`);
+  console.log(`paquetage unique → dist/${zip} (atelier + ${ids.length} éléments${lock ? ', verrous : risques généraux puis chaîne de débit' : ', sans verrous'})`);
 }
 
 const only = process.argv[2];

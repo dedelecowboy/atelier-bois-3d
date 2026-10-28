@@ -32,3 +32,6 @@ python3 tests/scie-format/test_exercices.py   # un seul fichier
 
 En headless, les pertes de contexte WebGL et les captures lentes ne sont pas des bugs utilisateur.
 Le parcours complet prend plusieurs minutes (rendu logiciel).
+
+- `risques/` : module « Risques généraux » (sans machine : la salle entière). `jeux.py` : les quatre scénarios joués au panneau « Actions » (sans faute, et avec fautes) ; `test_exercices.py` : dangers (12 sur 12 avec la bonne mesure, fausse alerte, mauvaise mesure), EPI (4 tenues, gants à la toupie = faute grave), consignation (dans l'ordre ; intervention machine en marche ou après le seul arrêt d'urgence refusée), départ de feu (bilan conforme ; feu entre soi et la sortie, porte enfumée, retour pour le sac) ; `test_parcours.py` : repérage au clic (armoire électrique), parcours 94 / 100, 56 interactions (4 scénarios de 15 points), faute grave → note Moodle 69 et « failed », reprise ; `test_affichage.py`, `test_paquetage.py` comme les machines. `window.__risques` donne l'état, les données et la scène aux tests.
+- `paquet/` : 9 éléments (atelier, « 0. Risques généraux », 7 machines), verrous « risques généraux » avant la scie radiale et la scie à format, « Ouvrir le module » depuis l'atelier.

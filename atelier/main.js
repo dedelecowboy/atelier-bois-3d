@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { STATIONS, FAMILLES, FLOW } from './stations.js';
+import { STATIONS, FAMILLES, FLOW, RISQUES } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
@@ -159,6 +159,22 @@ for(const s of STATIONS){
 /* liste des postes (colonne de gauche) */
 const itemHTML=s=>`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
 const list=$('postes');
+/* « 0. Risques généraux » en tête de liste : fiche sans caméra (le module porte sur tout l'atelier) ; état lu comme les machines (pkgEtat) */
+function riskHTML(){ const s=RISQUES; return `<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.ref} · ${ PKG ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validé':'non validé'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire en premier</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`; }
+{ const s=RISQUES, li=document.createElement('li'), b=document.createElement('button'); b.type='button'; b.dataset.id=s.id; b.style.setProperty('--fam',FAMILLES[s.famille].col);
+  b.innerHTML=riskHTML();
+  b.onclick=()=>{ if(editing) return; select(null); for(const t of STATIONS) t.item.setAttribute('aria-pressed','false'); b.setAttribute('aria-pressed','true'); riskCard(); };
+  li.appendChild(b); list.appendChild(li); s.item=b; }
+function riskCard(){ const s=RISQUES, c=$('card'), f=FAMILLES[s.famille];
+  c.style.setProperty('--fam',f.col);
+  c.innerHTML=`<div class="card-head"><span class="num">${s.n}</span><div><p class="kick">${f.nom} · ${s.ref}</p><h2>${s.nom}</h2></div>
+      <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>
+    <p class="role">${s.role}</p>
+    ${ PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validé':'Non validé', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}${PKG.titles?.[s.id]?'<button type="button" class="go" id="cardGo">Ouvrir le module</button>':''}`
+      : s.url ? `<a class="go" href="${s.url}" target="_blank" rel="noopener">Ouvrir le module</a>` : '<p class="note">Module « Risques généraux » : dans le paquetage Moodle (élément 0).</p>' }`;
+  c.hidden=false; const close=()=>{ c.hidden=true; s.item.setAttribute('aria-pressed','false'); };
+  $('cardX').onclick=close;
+  const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id],{ before:()=>atApi?.close() })) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); }; }
 for(const s of STATIONS){
   const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.dataset.id=s.id; b.style.setProperty('--fam',FAMILLES[s.famille].col);
   b.innerHTML=itemHTML(s);
@@ -181,7 +197,7 @@ function applyLocks(){
 }
 /* paquetage : Moodle met son sommaire à jour un peu après le retour à l'atelier (statut et note de la machine qu'on
    vient de quitter) : on relit les états quand il change, et à 1,5 s puis 4 s par sécurité */
-if(PKG){ let tm=0; const pkgRefresh=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ for(const s of STATIONS) if(s.item) s.item.innerHTML=itemHTML(s); applyLocks(); },250); };
+if(PKG){ let tm=0; const pkgRefresh=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ for(const s of STATIONS) if(s.item) s.item.innerHTML=itemHTML(s); if(RISQUES.item) RISQUES.item.innerHTML=riskHTML(); applyLocks(); },250); };
   try{ if(window.top!==window) new MutationObserver(pkgRefresh).observe(window.top.document.body,{ subtree:true, childList:true, attributes:true, attributeFilter:['src','alt','title','class'] }); }catch(e){}
   setTimeout(pkgRefresh,1500); setTimeout(pkgRefresh,4000); }
 const setVersion=v=>{ eleve=v; $('eleve').setAttribute('aria-pressed',String(v)); $('vWeb').setAttribute('aria-pressed',String(!v)); applyLocks(); };
@@ -199,7 +215,7 @@ function hover(s){ if(s===hov) return; if(hov && hov!==sel) tint(hov,false); hov
   canvas.style.cursor= s? 'pointer' : ''; }
 
 function renderCard(s){
-  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev= PKG?.prereq?.[s.id] ? STATIONS.find(t=>t.id===PKG.prereq[s.id]) : ORDER[ORDER.indexOf(s)-1];
+  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev= PKG?.prereq?.[s.id] ? (STATIONS.find(t=>t.id===PKG.prereq[s.id]) || (PKG.prereq[s.id]===RISQUES.id && RISQUES)) : ORDER[ORDER.indexOf(s)-1];
   c.style.setProperty('--fam',f.col);
   c.innerHTML=`<div class="card-head"><span class="num">${s.n}</span><div><p class="kick">${f.nom} · ${s.ref}</p><h2>${s.nom}</h2></div>
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>
@@ -217,6 +233,7 @@ function renderCard(s){
 function select(s){
   if(sel && sel!==hov) tint(sel,false); sel=s;
   for(const t of STATIONS){ t.lbl.classList.toggle('sel',t===s); t.item.setAttribute('aria-pressed',String(t===s)); }
+  RISQUES.item?.setAttribute('aria-pressed','false');
   const op= s? 0.22 : 1; for(const m of DECOR_MATS.concat(hall.drops.map(d=>d.material))){ m.opacity=op; m.depthWrite=op===1; }
   for(const d of decors) d.castShadow=!s; renderer.shadowMap.needsUpdate=true;
   if(editing) return;

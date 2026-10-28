@@ -34,7 +34,9 @@ async def main():
         print('   capture', await pg.shot('atelier_raboteuse_1400.png'))
         await pg.eval("()=>{ document.getElementById('home').click(); document.getElementById('eleve').click(); document.getElementById('progPlus').click(); document.getElementById('progPlus').click(); }")
         await pg.page.wait_for_timeout(1200)
-        lk = await pg.eval("()=>[...document.querySelectorAll('#postes button')].map(b=>b.dataset.id+':'+b.dataset.locked+':'+b.dataset.done)")
+        first = await pg.eval("()=>document.querySelector('#postes button').dataset.id")
+        check(first == 'risques', 'liste des postes : « 0 Risques généraux » en tête')
+        lk = await pg.eval("()=>[...document.querySelectorAll('#postes button:not([data-id=risques])')].map(b=>b.dataset.id+':'+b.dataset.locked+':'+b.dataset.done)")
         check(lk[:3] == ['scie-radiale:false:true', 'deligneuse:false:true', 'degauchisseuse:false:false'] and lk[3].endswith(':true:false'),
               'aperçu élève : 2 validées, la 3e ouverte, la suite verrouillée')
         await pg.eval("()=>document.querySelector('#postes [data-id=toupie]').click()"); await pg.page.wait_for_timeout(1600)

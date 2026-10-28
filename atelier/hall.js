@@ -50,8 +50,9 @@ export function decorMachine(L){
   const inner=new THREE.Group(); inner.add(body); if(L.l>0&&L.h>0&&L.p>0) inner.scale.set(L.l/sz.x,L.h/sz.y,L.p/sz.z);
   const g=new THREE.Group(); g.add(inner); g.position.set(L.x,0,L.z); g.rotation.y=-L.rot*Math.PI/180; return g; }
 
-export function buildHall(scene){
-  const g=new THREE.Group(); scene.add(g);
+/* opt.safety (true par défaut) : consignes EPI et extincteurs simples ; le module « Risques généraux » pose les siens (repérables) */
+export function buildHall(scene, opt={}){
+  const g=new THREE.Group(); scene.add(g); const doors=[];
   const W=2*RX, Dp=2*RZ;
 
   /* sol : béton, dalles de 5 m */
@@ -72,17 +73,19 @@ export function buildHall(scene){
     put(w, box(L+0.2,H,0.2,WALL,0), 0,H/2,0); put(w, box(L+0.22,1.0,0.22,BASE,0), 0,0.5,0); }
   /* portes */
   const GLASS=new THREE.MeshStandardMaterial({ color:0xbfd6e4, roughness:.1, metalness:.1, transparent:true, opacity:.5 });
-  for(const [x,z,ry,low] of PORTES){ const d=new THREE.Group(); d.position.set(x,0,z); d.rotation.y=ry; g.add(d);
+  for(const [x,z,ry,low] of PORTES){ const d=new THREE.Group(); d.position.set(x,0,z); d.rotation.y=ry; g.add(d); doors.push(d);
     put(d, box(1.8,2.3,0.26,mat(0x1f9455,{roughness:.5}),0.01), 0,1.15,0);
     if(low) put(d, box(1.8,0.9,0.27,mat(low,{roughness:.5}),0.01), 0,0.55,0);
     for(const sx of [-0.45,0.45]) put(d, box(0.5,0.8,0.28,GLASS,0), sx,1.6,0); }
   /* consignes EPI et extincteurs contre le mur du haut du plan */
+  if(opt.safety!==false){
   const sign=(x,draw)=>{ const t=canvasTex(256,320,(c,w)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,320); c.fillStyle='#1f5fae'; c.beginPath(); c.arc(w/2,130,104,0,7); c.fill(); c.fillStyle='#fff'; draw(c,w); });
     const m=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.52), new THREE.MeshBasicMaterial({ map:t, toneMapped:false })); m.position.set(x,2.0,-RZ+0.115); g.add(m); };
   sign(-3.9,(c,w)=>{ c.fillRect(w/2-80,112,62,40); c.fillRect(w/2+18,112,62,40); c.fillRect(w/2-20,118,40,12); });
   sign(-3.4,(c,w)=>{ c.lineWidth=16; c.strokeStyle='#fff'; c.beginPath(); c.arc(w/2,140,62,Math.PI,0); c.stroke(); c.fillRect(w/2-80,128,36,54); c.fillRect(w/2+44,128,36,54); });
   sign(-2.9,(c,w)=>{ c.beginPath(); c.moveTo(w/2-70,170); c.lineTo(w/2-70,96); c.lineTo(w/2-10,96); c.lineTo(w/2-10,140); c.lineTo(w/2+80,150); c.lineTo(w/2+80,176); c.closePath(); c.fill(); });
   for(const [x,z] of [[-10.7,-2.6],[4.2,-10.6],[10.7,2.6]]){ put(g, cyl(0.085,0.55,mat(0xc4261c,{roughness:.4}),18), x,0.62,z); put(g, cyl(0.03,0.08,D.dark,10), x,0.94,z); }
+  }
 
   /* aspiration : collecteurs au plafond le long du mur du haut et du mur de gauche */
   const DUCT=new THREE.MeshStandardMaterial({ color:0xb9c0c6, metalness:.75, roughness:.32 });
@@ -92,7 +95,7 @@ export function buildHall(scene){
   for(let x=-RX+1;x<RX-1;x+=1.5) add(g, cyl(0.182,0.05,DUCT,24,'x'), x,dy,dz);
 
   const drops=[];
-  return { group:g, drops,
+  return { group:g, drops, doors,
     /* descente d'aspiration au-dessus d'une machine */
     drop(x,z,yTop){ const r=0.075, y1=Math.max(yTop+0.3,2.0), yc=H+0.4;   // descente verticale jusqu'au réseau du plafond (non dessiné)
       const m=[add(g, cyl(r,yc-y1,DROP,16), x,(yc+y1)/2,z), add(g, cyl(r*0.9,0.45,HOSE,14), x,y1-0.22,z)]; drops.push(...m); return m; } };

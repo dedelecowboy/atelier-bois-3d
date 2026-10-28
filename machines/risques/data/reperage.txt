@@ -1,0 +1,26 @@
+# Repérage des équipements (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par équipement :   code | vue | nom demandé
+# - code : le code de l'équipement, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : la vue de l'atelier montrée pour cette question :
+#     ensemble, plan, portes, électricité, secours, produits, établis, scie à format (les boutons en haut de l'écran).
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ». Par défaut, le nom de l'équipement en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'équipements.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+issue            | portes        | une issue de secours
+baes             | portes        | un bloc d'éclairage de sécurité (au-dessus d'une issue)
+extincteur_eau   | portes        | un extincteur à eau pulvérisée avec additif
+alarme           | portes        | un déclencheur manuel d'alarme incendie
+plan_evac        | portes        | le plan d'évacuation
+consignes_epi    | portes        | les panneaux d'obligation de port des EPI
+armoire_elec     | électricité   | l'armoire électrique
+arret_general    | électricité   | l'arrêt d'urgence général de l'atelier
+extincteur_co2   | électricité   | l'extincteur à CO2
+sectionneur      | scie à format | le sectionneur cadenassable de la scie à format
+aspiration       | ensemble      | le réseau d'aspiration (une descente vers une machine)
+trousse          | secours       | la trousse de premiers secours
+lave_oeil        | secours       | le lave-œil
+armoire_produits | produits           | l'armoire de sécurité des produits inflammables
+poubelle_metal   | établis            | la poubelle métallique pour les chiffons souillés
