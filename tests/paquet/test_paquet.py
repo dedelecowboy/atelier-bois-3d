@@ -161,7 +161,7 @@ async def main():
         await pg.click('text=1. Scie radiale'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('scie-radiale')"); await pg.wait_for_timeout(300); f = await frame_ready()
         ev = await f.evaluate("()=>({ dis:document.getElementById('chEval').disabled, t:document.getElementById('chEvalS').textContent })")
         check(ev['dis'] and 'Risques généraux' in ev['t'], 'scie radiale ouverte par le sommaire : évaluation verrouillée tant que « Risques généraux » n\'est pas réussi')
-        await pg.evaluate("const im=[...document.querySelectorAll('#scorm_toc p')].find(p=>p.textContent.includes('0. Risques généraux')).querySelector('img'); im.alt='Réussi'; im.setAttribute('src','pix/passed.png')")
+        await pg.evaluate("setSt('0. Risques généraux','fa-check','Réussi',95)")
         await pg.click('text=Atelier'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('atelier')")
         await pg.click('text=1. Scie radiale'); await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('scie-radiale')"); await pg.wait_for_timeout(300); f = await frame_ready()
         check(not await f.evaluate("document.getElementById('chEval').disabled"), 'risques généraux réussis : évaluation de la scie radiale ouverte')
@@ -183,6 +183,12 @@ async def main():
         st = await f.evaluate("()=>[...document.querySelectorAll('#postes button')].map(b=>b.dataset.id+':'+(b.querySelector('.st')?.textContent||'')+':'+b.dataset.locked).join(' ')")
         check('deligneuse:validée · 88:false' in st and 'degauchisseuse:à faire:false' in st, 'sommaire mis à jour par Moodle pendant que l\'atelier est ouvert : états relus')
         real = [e for e in errs if 'context' not in e.lower()]
+        # « Ouvrir la machine » sur une machine déjà notée : dans le sommaire, son lien porte aussi « (Score : 100) »
+        await f.evaluate("()=>document.querySelector('#postes [data-id=scie-radiale]').click()"); await pg.wait_for_timeout(1300)
+        await f.evaluate("()=>document.getElementById('cardGo').click()")
+        await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('scie-radiale')", timeout=8000)
+        check(True, '« Ouvrir la machine » sur une machine notée (lien « 1. Scie radiale (Score : 100) ») : la machine s\'ouvre')
+
         check(not real, 'aucune erreur JavaScript' + (' : ' + '; '.join(real) if real else ''))
         await br.close()
 
