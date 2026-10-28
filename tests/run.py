@@ -18,7 +18,9 @@ def main():
     machines = sys.argv[1:] or sorted(d for d in os.listdir(os.path.join(ROOT, 'tests')) if os.path.isdir(os.path.join(ROOT, 'tests', d)) and glob.glob(os.path.join(ROOT, 'tests', d, 'test_*.py')))
     bad = []
     for mac in machines:
-        if mac == 'paquet':   # paquetage unique : pas de page dist/paquet.html, le test lit les zips
+        if mac == 'attestations':   # outil des attestations : page à part, testée par son propre script
+            if not os.path.exists(os.path.join(ROOT, 'dist', 'Attestations_atelier_bois_3D.html')): sys.exit('dist/Attestations_atelier_bois_3D.html absent : lancez « npm run build ».')
+        elif mac == 'paquet':   # paquetage unique : pas de page dist/paquet.html, le test lit les zips
             if not os.path.exists(os.path.join(ROOT, 'dist', 'Atelier_bois_3D_SCORM12.zip')): sys.exit('dist/Atelier_bois_3D_SCORM12.zip absent : lancez « npm run build ».')
         else:
             if not os.path.exists(os.path.join(ROOT, 'dist', mac + '.html')): sys.exit(f'dist/{mac}.html absent : lancez « npm run build ».')

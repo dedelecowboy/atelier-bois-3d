@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attestations Atelier bois 3D</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/*FONTS*/
+/* Outil de bureau : une colonne de travail (réglages, rapport, tableau) puis l'aperçu des attestations, imprimées 2 par feuille A4.
+   Couleurs du logo du lycée : vert-jaune et bleu-vert. */
+:root{
+  --bg:#f3f5f1; --panel:#ffffff; --ink:#1d2a28; --muted:#5d6b67; --line:#d6ddd6;
+  --teal:#13958c; --lime:#97b300; --ok:#1f8a4c; --ko:#c0392b; --chip:#e7ece6;
+  --f-script:'Caveat',cursive; --f-body:'Barlow',system-ui,sans-serif; --f-label:'Barlow Condensed','Arial Narrow',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141a19; --panel:#1d2523; --ink:#e6ece8; --muted:#9aa8a3; --line:#33403d; --teal:#3cc2b8; --lime:#b9d43a; --ok:#4cc27e; --ko:#ef6b5e; --chip:#26302e; color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#141a19; --panel:#1d2523; --ink:#e6ece8; --muted:#9aa8a3; --line:#33403d; --teal:#3cc2b8; --lime:#b9d43a; --ok:#4cc27e; --ko:#ef6b5e; --chip:#26302e; color-scheme:dark }
+*{box-sizing:border-box} [hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body)}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px}
+header.top img{height:46px;width:auto}
+header.top h1{margin:0;font:700 2.6rem/1 var(--f-script);color:var(--teal)}
+header.top p{margin:0;color:var(--muted);max-width:62ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.panel h2{margin:0;font:600 .95rem var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end}
+label.f{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
+label.f input,label.f select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 9px;min-width:0}
+label.f input[type=text]{width:16rem;max-width:100%}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.drop.over{border-color:var(--teal);background:color-mix(in srgb,var(--teal) 8%,transparent)}
+.drop b{font-weight:600}
+.src{font-size:.85rem;color:var(--muted)}
+.src.ex{color:var(--lime);font-weight:600}
+button{font:600 .95rem var(--f-body);border-radius:7px;border:1px solid var(--teal);background:var(--teal);color:#fff;padding:8px 16px;cursor:pointer}
+button.ghost{background:transparent;color:var(--teal)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid color-mix(in srgb,var(--lime) 70%,transparent);outline-offset:2px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{font:600 .82rem var(--f-label);letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+th:first-child,td:first-child{text-align:left}
+td.n{font-weight:600}
+.cell{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:.88rem;background:var(--chip);color:var(--muted)}
+.cell.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);font-weight:600}
+.cell.ko{background:color-mix(in srgb,var(--ko) 14%,transparent);color:var(--ko);font-weight:600}
+.cell input{margin:0;accent-color:var(--ok)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.85rem;color:var(--muted)}
+.msg{color:var(--ko);font-weight:500}
+.count{font-weight:600;color:var(--ink)}
+.howto{margin:0;padding-left:1.2em;color:var(--muted);display:grid;gap:3px}
+
+/* ---------- Attestation (papier : couleurs fixes, A5 paysage 210 × 148 mm) ---------- */
+#preview{display:grid;gap:18px;justify-items:center;min-width:0;max-width:100%;overflow-x:auto}
+.sheet{display:grid;gap:0}
+.att{--pt:#13958c;--pl:#97b300;--pi:#1d2a28;--pm:#64716d;
+  width:210mm;height:148mm;flex:none;background:#fff;color:var(--pi);position:relative;overflow:hidden;
+  padding:9mm 11mm 7mm;display:grid;grid-template-rows:auto auto 1fr auto auto;gap:2mm;
+  border:1.6mm solid var(--pt);box-shadow:0 2px 10px rgba(0,0,0,.12);font-family:var(--f-body)}
+.att::before{content:"";position:absolute;inset:2.2mm;border:.35mm solid var(--pl);pointer-events:none}
+.att .hd{display:flex;justify-content:space-between;align-items:flex-start}
+.att .hd img{height:13mm;width:auto}
+.att .hd .tag{font:600 3.4mm/1.25 var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--pm);text-align:right}
+.att .ttl{position:relative;z-index:1}
+.att .ttl h3{margin:0;font:700 17mm/0.9 var(--f-script);color:var(--pt)}
+.att .ttl .m{font:600 7mm/1.1 var(--f-body);color:var(--pi);margin-top:1mm}
+.att .ttl .r{font:500 3.6mm var(--f-label);letter-spacing:.06em;color:var(--pm);text-transform:uppercase}
+.att .img{position:absolute;right:9mm;top:20mm;width:96mm;height:58mm;display:flex;align-items:center;justify-content:flex-end}
+.att .img img{max-width:100%;max-height:100%;object-fit:contain;opacity:.95}
+.att .who{align-self:end;position:relative;z-index:1}
+.att .who .lb{font:600 3.2mm var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--pm)}
+.att .who .nm{font:700 8.5mm/1.1 var(--f-body);color:var(--pi)}
+.att .who .cl{font:500 3.8mm var(--f-body);color:var(--pm)}
+.att .boxes{display:grid;grid-template-columns:1fr 1fr;gap:5mm;position:relative;z-index:1}
+.att fieldset{margin:0;border:.35mm solid var(--pt);border-radius:2.5mm;padding:1.5mm 4mm 3mm;display:grid;gap:1.2mm;min-height:34mm;background:rgba(255,255,255,.92)}
+.att legend{font:700 6mm/1 var(--f-script);color:var(--pt);padding:0 1.5mm}
+.att .kv{display:grid;grid-template-columns:27mm 1fr;font-size:3.6mm;align-items:baseline}
+.att .kv span{color:var(--pm)}
+.att .kv b{font-weight:600}
+.att .kv i{border-bottom:.25mm dotted #9aa5a1;height:3.8mm;font-style:normal}
+.att .sig{font-size:3.3mm;color:var(--pm);margin-top:auto}
+.att .ft{font:500 2.9mm var(--f-label);letter-spacing:.04em;color:var(--pm);display:flex;justify-content:space-between;gap:4mm;position:relative;z-index:1}
+.att .ft b{color:var(--pl);font-weight:600}
+.att.ex::after{content:"EXEMPLE";position:absolute;left:50%;top:46%;transform:translate(-50%,-50%) rotate(-14deg);font:700 24mm var(--f-label);color:rgba(192,57,43,.13);letter-spacing:.2em;pointer-events:none;z-index:2}
+
+@media (max-width:820px){ .att{transform-origin:top center} }
+@media print{
+  @page{size:A4 portrait;margin:0}
+  body{background:#fff}
+  .wrap > :not(#preview){display:none!important}
+  .wrap{padding:0;max-width:none;display:block}
+  #preview{display:block}
+  #preview > .note{display:none}
+  .sheet{width:210mm;height:297mm;page-break-after:always;break-after:page;display:grid;grid-template-rows:148.5mm 148.5mm}
+  .sheet:last-child{page-break-after:auto;break-after:auto}
+  .att{box-shadow:none;height:148.5mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .att.ex::after{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img id="logoTop" alt="Lycée André Malraux, Remiremont">
+    <div>
+      <h1>Attestations machines</h1>
+      <p>Une attestation pour chaque machine validée dans l'activité Moodle « Atelier bois 3D » : note de 70 / 100 ou plus (une faute grave ramène la note Moodle à 69).</p>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="h1r">
+    <h2 id="h1r">1. Le rapport Moodle</h2>
+    <ol class="howto">
+      <li>Dans l'activité, onglet <b>Rapports</b>, rapport de base, puis « Télécharger au format Excel » (avec ou sans objectifs).</li>
+      <li>Déposez le fichier ici. Rien ne quitte cet ordinateur : le fichier est lu dans le navigateur.</li>
+    </ol>
+    <div class="drop" id="drop">
+      <div><b>Déposez le rapport (.xlsx, .ods ou .csv)</b><div class="src ex" id="src">Exemple chargé (élèves fictifs) : scie radiale validée à 96 / 100.</div></div>
+      <label><input type="file" id="file" accept=".xlsx,.xls,.ods,.csv" hidden><button type="button" class="ghost" id="pick">Choisir le fichier…</button></label>
+    </div>
+    <p class="msg" id="msg" hidden></p>
+  </section>
+
+  <section class="panel" aria-labelledby="h2r">
+    <h2 id="h2r">2. Ce qui figure sur l'attestation</h2>
+    <div class="row">
+      <label class="f">Niveau
+        <select id="niveau"><option>Bac pro TMA</option><option>Bac pro TFBMA</option><option>CAP menuisier fabricant</option><option>BTS DRB</option><option>Seconde métiers du bois</option></select></label>
+      <label class="f">Classe<input type="text" id="classe" placeholder="ex. 2MB" value=""></label>
+      <label class="f">Date de validation
+        <select id="dmode"><option value="acces">Dernier accès à l'activité</option><option value="fixe">Date choisie</option></select></label>
+      <label class="f" id="dfixW" hidden>Date<input type="date" id="dfix"></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h3r">
+    <h2 id="h3r">3. Machines validées</h2>
+    <div class="legend"><span><span class="cell ok">96</span> validée (cochée : attestation imprimée)</span><span><span class="cell ko">62</span> non validée</span><span><span class="cell">—</span> pas encore passée</span></div>
+    <div class="tbl"><table id="tbl"></table></div>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <span><span class="count" id="nAtt">0</span> attestation(s), <span id="nSheet">0</span> feuille(s) A4</span>
+      <span class="row"><button type="button" class="ghost" id="all">Tout cocher</button><button type="button" id="print">Imprimer les attestations</button></span>
+    </div>
+  </section>
+
+  <section id="preview" aria-label="Aperçu des attestations"></section>
+</div>
+
+<script>
+const IMG = /*IMAGES*/{};
+const LOGO = '/*LOGO*/';
+const MACH = [
+  { id:'scie-radiale', key:/radiale/i, nom:'Scie radiale', ref:'KANAK 900 R' },
+  { id:'deligneuse', key:/d[ée]lign/i, nom:'Déligneuse multilames', ref:'KANAK 300 M' },
+  { id:'degauchisseuse', key:/d[ée]gau/i, nom:'Dégauchisseuse', ref:'KANAK 520 D' },
+  { id:'raboteuse', key:/rabot/i, nom:'Raboteuse', ref:'KANAK 630 E' },
+  { id:'toupie', key:/toupie/i, nom:'Toupie', ref:'KANAK 130 T' },
+  { id:'tenonneuse', key:/tenon/i, nom:'Tenonneuse', ref:'KANAK 160 TN' },
+  { id:'scie-format', key:/format/i, nom:'Scie à format', ref:'KANAK 550' },
+];
+const SEUIL = 70;
+const $ = id => document.getElementById(id);
+const MOIS = {janvier:1,'février':2,fevrier:2,mars:3,avril:4,mai:5,juin:6,juillet:7,'août':8,aout:8,septembre:9,octobre:10,novembre:11,'décembre':12,decembre:12};
+let data = { rows:[], example:true }, pick = {};
+
+/* Exemple : format du rapport de base exporté le 28/10/2026 (noms remplacés) */
+const EXEMPLE = [
+  ['Nom','Adresse de courriel','Tentative','Démarré le','Dernier accès le','Résultat','Atelier','1. Scie radiale','2. Déligneuse multilames','3. Dégauchisseuse','4. Raboteuse','5. Toupie','6. Tenonneuse','7. Scie à format','RADIALE'],
+  ['ÉLÈVE EXEMPLE 1','eleve1@exemple.fr',1,'27 octobre 2026, 20:25','28 octobre 2026, 10:22',1,'Incomplet',96,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
+  ['ÉLÈVE EXEMPLE 2','eleve2@exemple.fr','-','-','-','-','Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
+];
+
+const empty = v => v === null || v === undefined || String(v).trim() === '';
+const num = v => { if (typeof v === 'number') return v; const m = String(v).trim().replace(',', '.').match(/^(\d+(?:\.\d+)?)(?:\s*\/\s*100)?$/); return m ? +m[1] : null; };
+function frDate(s){ // « 28 octobre 2026, 10:22 » → 28/10/2026
+  if (empty(s) || s === '-') return '';
+  const m = String(s).toLowerCase().match(/(\d{1,2})\s+([a-zéèûô]+)\s+(\d{4})/);
+  if (m && MOIS[m[2]]) return `${m[1].padStart(2,'0')}/${String(MOIS[m[2]]).padStart(2,'0')}/${m[3]}`;
+  const d = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return d ? `${d[1].padStart(2,'0')}/${d[2].padStart(2,'0')}/${d[3]}` : '';
+}
+
+/* Rapport de base de Moodle : une ligne par élève (et par tentative), une colonne par élément après « Résultat ».
+   Moodle n'écrit pas les cellules vides des objectifs : on lit les cellules remplies dans l'ordre des éléments. */
+function parse(aoa){
+  const h = aoa.findIndex(r => r && r.some(c => String(c ?? '').trim() === 'Nom'));
+  if (h < 0) throw new Error("ce fichier n'est pas le rapport de base de l'activité (colonne « Nom » introuvable). Le « Détail du parcours » d'un élève ne suffit pas : il ne porte pas son nom.");
+  const H = aoa[h].map(c => String(c ?? '').trim());
+  const iNom = H.indexOf('Nom'), iAcc = H.findIndex(c => /^Dernier acc/i.test(c)), iRes = H.findIndex(c => /^R[ée]sultat/i.test(c));
+  if (iRes < 0) throw new Error("colonne « Résultat » introuvable : exportez le rapport de base de l'activité.");
+  const titles = []; for (let i = iRes + 1; i < H.length && (/^\d+\.\s/.test(H[i]) || /^atelier$/i.test(H[i])); i++) titles.push(H[i]);
+  if (!titles.some(t => MACH.some(m => m.key.test(t)))) throw new Error("aucune machine reconnue dans les colonnes du rapport.");
+  const rows = new Map();
+  for (const r of aoa.slice(h + 1)) {
+    if (!r || empty(r[iNom])) continue;
+    const tok = r.slice(iRes + 1).filter(v => !empty(v)); let k = 0; const res = {};
+    titles.forEach((t, j) => {
+      let v = tok[k++]; const left = titles.length - j - 1;
+      // objectifs remplis (Réussi, 96…) : sautés tant qu'il reste plus de cellules que d'éléments
+      while (num(v) !== null && k < tok.length && tok.length - k > left && (num(tok[k]) !== null || /^(passed|failed|r[ée]ussi|[ée]chec|completed|termin)/i.test(String(tok[k])))) k++;
+      const m = MACH.find(m => m.key.test(t)); if (m) res[m.id] = v;
+    });
+    const nom = String(r[iNom]).trim(), date = frDate(iAcc >= 0 ? r[iAcc] : '');
+    const prev = rows.get(nom); // plusieurs tentatives : on garde la meilleure note de chaque machine
+    if (prev) { for (const id in res) if ((num(res[id]) ?? -1) > (num(prev.res[id]) ?? -1)) prev.res[id] = res[id]; if (date) prev.date = date; }
+    else rows.set(nom, { nom, date, res });
+  }
+  return [...rows.values()];
+}
+
+function load(aoa, label, example){
+  try { data = { rows: parse(aoa), example }; pick = {};
+    data.rows.forEach((r, i) => MACH.forEach(m => { if ((num(r.res[m.id]) ?? -1) >= SEUIL) pick[i + '|' + m.id] = true; }));
+    $('msg').hidden = true; $('src').textContent = label; $('src').classList.toggle('ex', !!example); render();
+  } catch (e) { $('msg').textContent = 'Lecture impossible : ' + e.message; $('msg').hidden = false; }
+}
+function readFile(f){
+  const rd = new FileReader();
+  rd.onload = () => { try { const wb = XLSX.read(rd.result, { type:'array' }); const ws = wb.Sheets[wb.SheetNames[0]];
+      load(XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null }), `Rapport lu : ${f.name}`, false);
+    } catch (e) { $('msg').textContent = `Lecture impossible : ${f.name} n'est pas un tableur lisible.`; $('msg').hidden = false; } };
+  rd.readAsArrayBuffer(f);
+}
+
+function cellHTML(r, i, m){
+  const v = r.res[m.id], n = num(v);
+  if (n === null) return `<span class="cell" title="${empty(v) ? '' : String(v)}">—</span>`;
+  if (n < SEUIL) return `<span class="cell ko" title="Non validée">${n}</span>`;
+  const k = i + '|' + m.id;
+  return `<label class="cell ok"><input type="checkbox" data-k="${k}" ${pick[k] ? 'checked' : ''} aria-label="Attestation ${m.nom} pour ${r.nom}">${n}</label>`;
+}
+function render(){
+  $('tbl').innerHTML = `<thead><tr><th>Élève</th>${MACH.map(m => `<th>${m.nom.replace(' multilames','')}</th>`).join('')}<th>Dernier accès</th></tr></thead><tbody>`
+    + data.rows.map((r, i) => `<tr><td class="n">${esc(r.nom)}</td>${MACH.map(m => `<td>${cellHTML(r, i, m)}</td>`).join('')}<td>${r.date || '—'}</td></tr>`).join('') + '</tbody>';
+  $('tbl').querySelectorAll('input[data-k]').forEach(c => c.onchange = () => { pick[c.dataset.k] = c.checked; preview(); });
+  preview();
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function dateOf(r){
+  if ($('dmode').value === 'fixe' && $('dfix').value) { const [y, m, d] = $('dfix').value.split('-'); return `${d}/${m}/${y}`; }
+  return r.date || '';
+}
+function att(r, m){
+  const n = num(r.res[m.id]), cl = $('classe').value.trim();
+  return `<article class="att${data.example ? ' ex' : ''}">
+  <div class="hd"><img src="${LOGO}" alt="Lycée André Malraux"><div class="tag">Atelier bois 3D<br>Simulateurs de machines</div></div>
+  <div class="ttl"><h3>Attestation</h3><div class="m">${m.nom}</div><div class="r">Simulateur ${m.ref}</div></div>
+  <div class="img">${IMG[m.id] ? `<img src="${IMG[m.id]}" alt="">` : ''}</div>
+  <div class="who"><div class="lb">Délivrée à</div><div class="nm">${esc(r.nom)}</div>${cl ? `<div class="cl">Classe ${esc(cl)}</div>` : ''}</div>
+  <div class="boxes">
+    <fieldset><legend>Épreuve sur simulateur</legend>
+      <div class="kv"><span>Validée le</span><b>${dateOf(r) || '<i></i>'}</b></div>
+      <div class="kv"><span>Niveau</span><b>${esc($('niveau').value)}</b></div>
+      <div class="kv"><span>Note obtenue</span><b>${n} / 100</b></div>
+      <div class="sig">Signature de l'élève :</div></fieldset>
+    <fieldset><legend>Épreuve pratique à l'atelier</legend>
+      <div class="kv"><span>Réussie le</span><i></i></div>
+      <div class="kv"><span>Appréciation</span><i></i></div>
+      <div class="kv"><span></span><i></i></div>
+      <div class="sig">Nom et signature de l'enseignant :</div></fieldset>
+  </div>
+  <div class="ft"><span>Repérage des organes · QCM sécurité · 3 situations de travail notées</span><span><b>Validée</b> : 70 / 100 sans faute grave</span></div>
+</article>`;
+}
+function preview(){
+  const list = []; data.rows.forEach((r, i) => MACH.forEach(m => { if (pick[i + '|' + m.id] && (num(r.res[m.id]) ?? -1) >= SEUIL) list.push(att(r, m)); }));
+  const sheets = []; for (let i = 0; i < list.length; i += 2) sheets.push(`<div class="sheet">${list[i]}${list[i + 1] || ''}</div>`);
+  $('nAtt').textContent = list.length; $('nSheet').textContent = sheets.length; $('print').disabled = !list.length;
+  $('preview').innerHTML = list.length ? `<p class="note src">Aperçu : chaque feuille A4 porte deux attestations (format A5), à découper au milieu.</p>${sheets.join('')}`
+    : '<p class="note src">Aucune machine validée cochée : rien à imprimer.</p>';
+  fit();
+}
+function fit(){ // aperçu réduit sur petit écran (l'impression garde 210 × 148 mm)
+  const w = $('preview').clientWidth, mm = 210 * 96 / 25.4, s = Math.min(1, w / mm);
+  document.querySelectorAll('#preview .sheet').forEach(sh => { sh.style.zoom = s < 1 ? s : ''; });
+}
+
+$('logoTop').src = LOGO;
+$('pick').onclick = () => $('file').click();
+$('file').onchange = e => e.target.files[0] && readFile(e.target.files[0]);
+const dz = $('drop');
+['dragenter','dragover'].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.remove('over'); }));
+dz.addEventListener('drop', e => e.dataTransfer.files[0] && readFile(e.dataTransfer.files[0]));
+['niveau','classe','dfix'].forEach(id => $(id).addEventListener('input', preview));
+$('dmode').onchange = () => { $('dfixW').hidden = $('dmode').value !== 'fixe'; preview(); };
+$('all').onclick = () => { data.rows.forEach((r, i) => MACH.forEach(m => { if ((num(r.res[m.id]) ?? -1) >= SEUIL) pick[i + '|' + m.id] = true; })); render(); };
+$('print').onclick = () => window.print();
+addEventListener('resize', fit);
+try { const s = JSON.parse(localStorage.getItem('attestations.reglages') || '{}'); if (s.niveau) $('niveau').value = s.niveau; if (s.classe) $('classe').value = s.classe; } catch (e) {}
+['niveau','classe'].forEach(id => $(id).addEventListener('change', () => { try { localStorage.setItem('attestations.reglages', JSON.stringify({ niveau:$('niveau').value, classe:$('classe').value })); } catch (e) {} }));
+load(EXEMPLE, 'Exemple chargé (élèves fictifs) : scie radiale validée à 96 / 100.', true);
+window.__att = { parse, load, data:() => data };
+</script>
+</body>
+</html>

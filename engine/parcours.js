@@ -61,15 +61,18 @@ export function createParcours(app, { reperage, qcm }, P){
     const repPts=Math.round(W_REP*sum(parc.rk)/REP.length), qcmPts=Math.round(W_QCM*sum(parc.qk)/QCM.length), scPts=parc.scens.reduce((a,s)=>a+(s?s.pts:0),0);
     const fautes=parc.scens.reduce((a,s)=>a+(s?s.dangers.length:0),0);
     parc.total=repPts+qcmPts+scPts; parc.passed=parc.total>=PASS && fautes===0; parc.done=true; parc.ph='fin';
-    scorm.set('cmi.core.score.min',0); scorm.set('cmi.core.score.max',100); scorm.set('cmi.core.score.raw',parc.total);
+    /* note envoyée à Moodle : plafonnée à PASS − 1 s'il y a une faute grave (décidé par l'enseignant le 28/10/2026) :
+       dans les rapports, note ≥ 70 = machine validée, sans exception (attestations). La vraie note reste dans le bilan. */
+    parc.note=fautes? Math.min(parc.total,PASS-1) : parc.total;
+    scorm.set('cmi.core.score.min',0); scorm.set('cmi.core.score.max',100); scorm.set('cmi.core.score.raw',parc.note);
     scorm.set('cmi.core.lesson_status',parc.passed?'passed':'failed');
     /* synthèse lisible dans les rapports : une ligne datée, et un objectif SCORM au nom de la machine */
     const now=new Date(), date=now.toLocaleDateString('fr-FR')+' '+now.toTimeString().slice(0,5);
-    const bilan=`${parc.passed?'VALIDÉE':'NON VALIDÉE'} ${parc.total}/100 le ${date} · Repérage ${sum(parc.rk)}/${REP.length} · QCM ${sum(parc.qk)}/${QCM.length} · `
+    const bilan=`${parc.passed?'VALIDÉE':'NON VALIDÉE'} ${parc.total}/100${parc.note!==parc.total?` (note Moodle ${parc.note}, faute grave)`:''} le ${date} · Repérage ${sum(parc.rk)}/${REP.length} · QCM ${sum(parc.qk)}/${QCM.length} · `
       +parc.scens.map((s,i)=>`S${i+1} ${s?s.pts:0}/${W_SCEN}`).join(' · ')+` · Fautes graves ${fautes}`;
     scorm.inter(`${CODE}_bilan`,'performance',txt(bilan).slice(0,250),parc.passed?'correct':'wrong');
     scorm.set('cmi.objectives.0.id',CODE); scorm.set('cmi.objectives.0.score.min',0); scorm.set('cmi.objectives.0.score.max',100);
-    scorm.set('cmi.objectives.0.score.raw',parc.total); scorm.set('cmi.objectives.0.status',parc.passed?'passed':'failed');
+    scorm.set('cmi.objectives.0.score.raw',parc.note); scorm.set('cmi.objectives.0.status',parc.passed?'passed':'failed');
     try{ localStorage.setItem('atelier.bilan.'+app.config.id, JSON.stringify({ total:parc.total, passed:parc.passed, date })); }catch(e){}
     scorm.save(); render(); }
 
@@ -103,7 +106,7 @@ export function createParcours(app, { reperage, qcm }, P){
       el.innerHTML=`<p class="pk">Scénario ${parc.si+1} / ${SCENS.length} · ${SCENS[parc.si].t}</p><p class="pk">Fautes graves relevées : <b>${parc.dangers.length}</b></p>${parc.dangers.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<button type="button" class="toggle" id="scenEnd" ${last?'':'disabled'} aria-pressed="${last}">${parc.si<SCENS.length-1?'Valider et passer au scénario suivant':'Terminer et envoyer le résultat'}</button>${last?'':'<p class="pk">Disponible à l\'étape « Contrôle ».</p>'}`; $('scenEnd').onclick=finishScen; }
     else if(parc.ph==='fin'){ const row=(l,v)=>`<tr><td>${l}</td><td>${v}</td></tr>`;
       const repPts=Math.round(W_REP*rs/REP.length), qcmPts=Math.round(W_QCM*qs/QCM.length), all=parc.scens.flatMap(s=>s?s.dangers:[]);
-      el.innerHTML=`<h3 class="verdict" data-ok="${parc.passed}">${parc.passed?'Module réussi':'Module non validé'} · ${parc.total} / 100</h3><table class="res">${row('Repérage ('+rs+'/'+REP.length+')',repPts+' / '+W_REP)}${row((P.qcmTitle||'QCM sécurité')+' ('+qs+'/'+QCM.length+')',qcmPts+' / '+W_QCM)}${SCENS.map((S,i)=>row('Scénario '+(i+1)+' : '+S.t,((parc.scens[i]||{}).pts??0)+' / '+W_SCEN)).join('')}${row('Fautes graves',String(all.length))}</table>
+      el.innerHTML=`<h3 class="verdict" data-ok="${parc.passed}">${parc.passed?'Module réussi':'Module non validé'} · ${parc.total} / 100</h3>${parc.note!=null&&parc.note!==parc.total?`<p>Faute grave : la note enregistrée dans Moodle est ramenée à ${parc.note} / 100.</p>`:''}<table class="res">${row('Repérage ('+rs+'/'+REP.length+')',repPts+' / '+W_REP)}${row((P.qcmTitle||'QCM sécurité')+' ('+qs+'/'+QCM.length+')',qcmPts+' / '+W_QCM)}${SCENS.map((S,i)=>row('Scénario '+(i+1)+' : '+S.t,((parc.scens[i]||{}).pts??0)+' / '+W_SCEN)).join('')}${row('Fautes graves',String(all.length))}</table>
         ${SCENS.map((S,i)=>{ const s=parc.scens[i]; return s?`<details class="scdet"><summary>Détail scénario ${i+1}</summary><table class="res">${s.crit.map(c=>row((c[2]?'✓ ':'✗ ')+c[0],c[1])).join('')}</table></details>`:''; }).join('')}
         ${all.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<p class="pk">${scorm.ok||scorm.api?'Résultat enregistré dans Moodle.':'Mode autonome : aucun Moodle détecté, le résultat n\'est pas enregistré.'} Seuil de réussite : ${PASS} / 100 sans faute grave.</p>`; }
   }

@@ -2,6 +2,7 @@
    Usage : npm run build            → toutes les machines et la page atelier
            npm run build scie-format → une seule machine
            npm run build atelier    → la page atelier seule (dist/atelier.html)
+           npm run build attestations → l'outil des attestations seul (dist/Attestations_atelier_bois_3D.html)
    Fabrication complète : aussi le paquetage unique « Atelier bois 3D » (avec et sans verrous), voir buildPackage.
    Pour chaque machine, dans dist/ :
    - <id>.html : page autonome (three.js chargé depuis cdn.jsdelivr.net), à publier comme artifact
@@ -191,8 +192,25 @@ ${res.join('\n')}
 }
 
 const only = process.argv[2];
-const ids = only ? (only === 'atelier' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
+
+/* Outil des attestations (pour l'enseignant, ouvert dans son navigateur : l'impression ne marche pas dans un artifact) :
+   attestations/attestations.html + images des machines (attestations/img, tools/capture_machines.py), logo du lycée et polices (attestations/fonts),
+   en un seul fichier → dist/Attestations_atelier_bois_3D.html */
+function buildAttestations(){
+  const dir = path.join(ROOT, 'attestations');
+  const logo = read(path.join(ROOT, 'engine', 'engine.css')).match(/url\((data:image\/webp;base64,[^)]+)\)/)?.[1] || '';
+  const img = {}; for (const f of fs.readdirSync(path.join(dir, 'img')).filter(f => f.endsWith('.webp')))
+    img[f.replace('.webp', '')] = 'data:image/webp;base64,' + fs.readFileSync(path.join(dir, 'img', f)).toString('base64');
+  const page = read(path.join(dir, 'attestations.html')).replace('/*IMAGES*/{}', JSON.stringify(img)).replace('/*LOGO*/', logo)
+    .replace('/*FONTS*/', fs.readdirSync(path.join(dir, 'fonts')).map(f => { const [, fam, w] = f.match(/^(.+)-latin-(\d+)-normal\.woff2$/);
+      const name = fam.split('-').map(x => x[0].toUpperCase() + x.slice(1)).join(' ');
+      return `@font-face{font-family:'${name}';font-weight:${w};font-style:normal;font-display:block;src:url(data:font/woff2;base64,${fs.readFileSync(path.join(dir, 'fonts', f)).toString('base64')}) format('woff2')}`; }).join('\n'));
+  fs.writeFileSync(path.join(DIST, 'Attestations_atelier_bois_3D.html'), page);
+  console.log('attestations → dist/Attestations_atelier_bois_3D.html');
+}
+const ids = only ? (only === 'atelier' || only === 'attestations' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
 if (!fs.existsSync(THREE_DIR)) { console.error('three.js manquant : lancez d\'abord « npm install ».'); process.exit(1); }
 try { for (const id of ids) await buildMachine(id); if (!only || only === 'atelier') await buildAtelier();
+  if (!only || only === 'attestations') buildAttestations();
   if (!only) { buildPackage(true); buildPackage(false); } }
 catch (e) { console.error('\nERREUR : ' + e.message + '\n'); process.exit(1); }
