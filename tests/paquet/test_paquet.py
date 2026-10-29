@@ -107,6 +107,8 @@ async def main():
         await f.evaluate("()=>{ document.getElementById('ui-ex').click(); document.querySelector('[data-mode]:not([data-mode=libre])')?.click(); }"); await pg.wait_for_timeout(400)
         n1 = await pg.evaluate("Object.keys(__S['ITEM_RABOTEUSE']||{}).length")
         check(n1 == n0, f'entraînement : rien d\'enregistré dans Moodle ({n0} valeurs avant et après)')
+        # fiches de la raboteuse lues (lecture obligatoire avant l'évaluation, 29/10/2026)
+        await f.evaluate("async ()=>{ const s=ms=>new Promise(r=>setTimeout(r,ms)); for(let k=0;k<20;k++){ const b=document.querySelector('#fichesBox [data-flu]:not([disabled])'); if(!b) break; b.closest('details').open=true; await s(20); document.querySelector(`#fichesBox [data-flu=\"${b.dataset.flu}\"]`).click(); await s(20); } }")
         await f.evaluate("()=>document.getElementById('modeSwitch').click()"); await pg.wait_for_timeout(500)
         ev = await f.evaluate("()=>({ ui:document.getElementById('app').dataset.ui, rep:!document.getElementById('repBar').hidden, sw:document.getElementById('modeSwitch').textContent })")
         check(ev['ui'] == 'parcours' and ev['rep'] and ev['sw'] == "S'entraîner", 'évaluation : parcours au repérage, bouton « S\'entraîner »')
