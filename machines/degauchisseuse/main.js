@@ -134,8 +134,10 @@ document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.o
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
-  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
-     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
+  /* bruit (engine/audio.js) : pour l'instant le son de l'aspiration seul (commun à toutes les machines) ; le son de la machine,
+     le sonomètre et le casque (niveaux, etat) seront ajoutés quand l'enseignant aura validé le rendu de la toupie :
+     bruit:{ aspiration, niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } } */
+  bruit:{ aspiration:()=>st.asp },
   update, alerts:()=>{ const a=computeAlerts(); if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=cut.lastMsg.startsWith('Arrachements')?'warn':'info'; } return a; },
   steps:STEPS,
   loadMode(m){ stopPass(); st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },

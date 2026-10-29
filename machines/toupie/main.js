@@ -259,7 +259,7 @@ app.start({
   tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5&&(!st.entr.placed||st.entr.on)); const s0=model.spin; model.tick(dt);
     const b=!!butePiece(); if(b&&!wasBute) app.bruit?.bang('coup'); wasBute=b;   // la pièce bute contre le demi-guide de sortie
     if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
-  bruit:{ niveaux:BRUIT, etat:bruitEtat },
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, etat:bruitEtat },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
 /* poignée pour les tests et pour la future page « atelier » : importPiece(pieceJSON d'une autre machine) pose la pièce à l'entrée */

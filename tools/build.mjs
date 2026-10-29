@@ -238,9 +238,17 @@ function buildAttestations(){
   fs.writeFileSync(path.join(DIST, 'Attestations_atelier_bois_3D.html'), page);
   console.log('attestations → dist/Attestations_atelier_bois_3D.html');
 }
-const ids = only ? (only === 'atelier' || only === 'attestations' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
+/* Banc d'écoute du bruit (pour l'enseignant) : engine/banc-son.js → dist/Ecoute_bruit.html, une page seule hors ligne */
+async function buildBanc(){
+  const js = (await esbuild.build({ entryPoints: [path.join(ROOT, 'engine', 'banc-son.js')], bundle: true, format: 'esm', write: false, minify: true,
+    charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+  fs.writeFileSync(path.join(DIST, 'Ecoute_bruit.html'), `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Écoute du bruit – toupie</title>\n</head>\n<body>\n<script type="module">\n${js}</script>\n</body>\n</html>\n`);
+  console.log('banc d\'écoute → dist/Ecoute_bruit.html');
+}
+const ids = only ? (only === 'atelier' || only === 'attestations' || only === 'banc' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));
 if (!fs.existsSync(THREE_DIR)) { console.error('three.js manquant : lancez d\'abord « npm install ».'); process.exit(1); }
 try { for (const id of ids) await buildMachine(id); if (!only || only === 'atelier') await buildAtelier();
   if (!only || only === 'attestations') buildAttestations();
+  if (!only || only === 'banc') await buildBanc();
   if (!only) { buildPackage(true); buildPackage(false); await buildTraining(); } }
 catch (e) { console.error('\nERREUR : ' + e.message + '\n'); process.exit(1); }
