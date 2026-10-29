@@ -5,6 +5,8 @@
    « Copier les réglages » donne un texte à coller dans la discussion, reporté dans synth.js (SONS), toupie/constants.js (BRUIT) et audio.js (ASP).
    Réglages en cours gardés dans le navigateur (localStorage atelier.son.reglages). */
 import { createSynth, SONS } from './synth.js';
+import sonAsp from './sons/aspiration.mp3';
+import sonAspArret from './sons/aspiration-arret.mp3';
 import { niveau, oreille, ASP, ATT, zone } from './audio.js';
 import { BRUIT, BRUIT_DURETE, FEED } from '../machines/toupie/constants.js';
 
@@ -50,7 +52,9 @@ document.body.innerHTML=`<main class="banc">
   <section><h2>Coupe en continu</h2><label><input type="checkbox" id="sansfin"> Pièce sans fin : la passe choisie dure tant que la case est cochée (pour régler la coupe)</label></section>
   <section class="edit"><h2>Éditeur des sons</h2>
     <p class="sub">Réglez à l'oreille pendant l'écoute. Quand c'est bon, « Copier les réglages » et collez le texte dans la discussion avec Claude.</p>
-    <h3>Aspiration (toutes les machines)</h3><div id="ed-aspiration"></div>
+    <h3>Aspiration (toutes les machines)</h3>
+    <label><input type="checkbox" id="aspRec" checked> Aspiration enregistrée (décochez pour régler l'aspiration synthétisée avec les curseurs ; le niveau sert aux deux)</label>
+    <div id="ed-aspiration"></div>
     <h3>Coupe de la toupie (« rugissement »)</h3><div id="ed-coupe"></div>
     <h3>Moteur à vide (son validé : seulement le niveau)</h3><div id="ed-moteur"></div>
     <div class="ed-act"><button id="reset">Revenir aux réglages actuels</button><button id="copy" class="main">Copier les réglages</button><span id="copied"></span></div>
@@ -100,6 +104,7 @@ $('reset').onclick=()=>{ REG=clone(DEF); SY.regler(REG.sons); saveReg(); renderE
 $('copy').onclick=async()=>{ const t=texte(), ta=$('regTxt'); ta.value=t; ta.hidden=false;
   try{ await navigator.clipboard.writeText(t); $('copied').textContent='Copié : collez-le dans la discussion.'; }
   catch(e){ ta.focus(); ta.select(); $('copied').textContent='Sélectionnez le texte ci-dessous et copiez-le (Ctrl + C).'; } };
+$('aspRec').onchange=()=>{ SY.aspUse=$('aspRec').checked; };
 $('sansfin').onchange=()=>{ if(!$('sansfin').checked&&S.passe) S.t0=performance.now()/1000-4.25; };
 renderEd();
 
@@ -110,7 +115,7 @@ function paint(){
   document.querySelectorAll('[data-rpm]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.rpm===S.rpm)));
   document.querySelectorAll('[data-passe]').forEach(b=>b.setAttribute('aria-pressed',String(S.passe&&b.dataset.passe===S.passe.k)));
 }
-$('son').onclick=()=>{ try{ if(!S.son){ SY.start(); SY.ctx.resume?.(); } else SY.mute(); S.son=!S.son; }catch(e){ alert('Son indisponible dans ce navigateur.'); } paint(); };
+$('son').onclick=()=>{ try{ if(!S.son){ if(!SY.ready){ SY.start(); SY.chargerAspiration({ boucle:sonAsp, arret:sonAspArret }).catch(()=>{}); } SY.ctx.resume?.(); } else SY.mute(); S.son=!S.son; }catch(e){ alert('Son indisponible dans ce navigateur.'); } paint(); };
 $('vol').oninput=e=>{ S.vol=+e.target.value; };
 $('casque').onclick=()=>{ S.casque=!S.casque; paint(); };
 $('motor').onclick=()=>{ S.motor=!S.motor; if(!S.motor) S.passe=null; paint(); };
@@ -131,7 +136,7 @@ function frame(){ requestAnimationFrame(frame);
   const e={ on:S.motor, rpm:S.rpm, spin:S.spin, cut, charge:ch, dents:2, asp:S.aspSp }, n=niveau({ ...BRUIT, vide:REG.niveaux.vide, coupe:REG.niveaux.coupe, asp:REG.niveaux.aspiration },e);
   const amp=L=>L==null?0:Math.pow(10,(L-100)/20);
   if(cut>0.05&&!wasCut) SY.bang('attaque'); wasCut=cut>0.05;
-  if(S.son) SY.set({ f0:S.spin*S.rpm/60, Z:2, spin:S.spin, on:S.motor, mot:amp(n.moteur), cut, cutAmp:amp(n.coupe), charge:ch, asp:S.aspSp, aspAmp:amp(REG.niveaux.aspiration)*0.9, casque:S.casque, vol:S.vol });
+  if(S.son) SY.set({ f0:S.spin*S.rpm/60, Z:2, spin:S.spin, on:S.motor, mot:amp(n.moteur), cut, cutAmp:amp(n.coupe), charge:ch, asp:S.aspSp, aspOn:S.asp, aspAmp:amp(REG.niveaux.aspiration)*0.9, casque:S.casque, vol:S.vol });
   const O=oreille(n.total,S.casque);
   $('lv').textContent=Math.round(n.total); $('lv').dataset.z=zone(n.total); $('ear').textContent=Math.round(O); $('ear').dataset.z=zone(O);
   $('det').textContent=`${S.casque?`casque −${ATT} dB · `:''}${S.passe?`${S.passe.t} · charge ${ch.toFixed(1)}`:S.motor?'à vide':'machine arrêtée'}${S.asp?' · aspiration en marche':''}`;

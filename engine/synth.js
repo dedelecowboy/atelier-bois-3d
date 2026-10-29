@@ -107,7 +107,9 @@ export function createSynth(reglages=SONS){
     if(E) jouerEch(E, p, cut, ch);
     const as=Math.max(0,Math.min(1,p.asp||0));
     const a=R.aspiration, fr=Math.max(1, a.vitesse/60*as);                // ventilateur (tr/min réglables), 7 pales
-    T(A.aspBus.gain, (p.aspAmp||0), 0.1); T(A.aspLow.frequency, 200+400*as, 0.1);
+    const aspRec=A.aspE&&S.aspUse!==false;
+    T(A.aspBus.gain, aspRec? 0 : (p.aspAmp||0), 0.1);
+    if(A.aspE) jouerAsp(A.aspE, aspRec? p : {...p, aspOn:false}, aspRec? as : 0); T(A.aspLow.frequency, 200+400*as, 0.1);
     T(A.fanR.frequency, fr, 0.1); T(A.fanRG.gain, a.ronron*as, 0.1);
     T(A.fan.frequency, fr*7, 0.1); T(A.fanG.gain, a.pales*as, 0.1);
     T(A.fan2.frequency, fr*14, 0.1); T(A.fan2G.gain, a.pales*0.19*as, 0.1);
@@ -123,16 +125,31 @@ export function createSynth(reglages=SONS){
      vide et coupe tournent en boucle ; demarrage est joué à la mise en marche puis fondu dans « vide » ; arret au freinage.
      Le volume suit les mêmes niveaux (dB(A)) que le son synthétisé ; « vide » ralentit avec le régime réel (plus grave au freinage). */
   const K_ECH=2.8;                                                     // enregistrements normalisés à −20 dBFS : même volume à l'écoute que la synthèse
-  S.chargerEchantillons=async function(ech){ if(!A||!ech) return; const ctx=A.ctx, out={};
+  async function decAll(o){ const ctx=A.ctx, out={};
     const dec=async url=>{ const b64=url.split(',')[1], bin=atob(b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
       const buf=await new Promise((ok,ko)=>{ const r=ctx.decodeAudioData(u.buffer,ok,ko); if(r&&r.then) r.then(ok,ko); });
       /* bornes de la boucle : sans le silence ajouté par le codage MP3 au début et à la fin */
       const d=buf.getChannelData(0); let a=0, z=d.length-1; while(a<z&&Math.abs(d[a])<1e-4) a++; while(z>a&&Math.abs(d[z])<1e-4) z--;
       return { buf, a:a/buf.sampleRate, z:(z+1)/buf.sampleRate }; };
-    for(const k of ['demarrage','vide','coupe','arret']) if(ech[k]) out[k]=await dec(ech[k]);
+    for(const k of Object.keys(o)) if(o[k]) out[k]=await dec(o[k]);
+    return out; }
+  S.chargerEchantillons=async function(ech){ if(!A||!ech) return; const ctx=A.ctx, out=await decAll(ech);
     const loopV=(e)=>{ const s=ctx.createBufferSource(); s.buffer=e.buf; s.loop=true; s.loopStart=e.a; s.loopEnd=e.z; const g=ctx.createGain(); g.gain.value=0; s.connect(g); g.connect(A.hushIn); s.start(0, e.a); return { s, g }; };
     A.ech={ d:out, vide:out.vide&&loopV(out.vide), coupe:out.coupe&&loopV(out.coupe), on:false, t0:-1, one:null }; };
   S.echantillons=()=>!!(A&&A.ech);
+  /* aspiration enregistrée (commune à toutes les machines) : { boucle, arret } ; la boucle suit le régime du ventilateur
+     (plus lente et plus faible au démarrage), « arret » est joué quand on coupe l'aspiration (ralentissement enregistré). */
+  S.chargerAspiration=async function(e){ if(!A||!e) return; const d=await decAll(e);
+    const s=A.ctx.createBufferSource(); s.buffer=d.boucle.buf; s.loop=true; s.loopStart=d.boucle.a; s.loopEnd=d.boucle.z;
+    const g=A.ctx.createGain(); g.gain.value=0; s.connect(g); g.connect(A.hushIn); s.start(0, d.boucle.a);
+    A.aspE={ d, s, g, on:false, one:null }; };
+  S.aspirationEnregistree=()=>!!(A&&A.aspE);
+  function jouerAsp(E, p, as){ const now=A.ctx.currentTime, on=!!p.aspOn, full=(p.aspAmp||0)*K_ECH;
+    if(on&&E.one){ try{ E.one.g.gain.setTargetAtTime(0,now,0.1); E.one.s.stop(now+0.6); }catch(e){} E.one=null; }
+    if(!on&&E.on&&as>0.5&&E.d.arret) E.one=unCoup(E.d.arret, full);
+    E.on=on;
+    T(E.g.gain, on? full*Math.pow(as,1.25) : 0, on? 0.1 : 0.15);
+    T(E.s.playbackRate, 0.55+0.45*as, 0.1); }
   function unCoup(e, gain){ const ctx=A.ctx, s=ctx.createBufferSource(); s.buffer=e.buf; const g=ctx.createGain(); g.gain.value=gain; s.connect(g); g.connect(A.hushIn); s.start(0, e.a); return { s, g }; }
   function jouerEch(E, p, cut, ch){ const ctx=A.ctx, now=ctx.currentTime, on=!!p.on, sp=Math.max(0,Math.min(1,p.spin||0)), lv=(p.mot||0)*K_ECH;
     const stopOne=()=>{ if(E.one){ const o=E.one; try{ o.g.gain.setTargetAtTime(0,now,0.08); o.s.stop(now+0.5); }catch(e){} E.one=null; } };

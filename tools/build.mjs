@@ -241,7 +241,7 @@ function buildAttestations(){
 /* Banc d'écoute du bruit (pour l'enseignant) : engine/banc-son.js → dist/Ecoute_bruit.html, une page seule hors ligne */
 async function buildBanc(){
   const js = (await esbuild.build({ entryPoints: [path.join(ROOT, 'engine', 'banc-son.js')], bundle: true, format: 'esm', write: false, minify: true,
-    charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+    loader: { '.mp3': 'dataurl' }, charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
   fs.writeFileSync(path.join(DIST, 'Ecoute_bruit.html'), `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Écoute du bruit – toupie</title>\n</head>\n<body>\n<script type="module">\n${js}</script>\n</body>\n</html>\n`);
   console.log('banc d\'écoute → dist/Ecoute_bruit.html');
 }

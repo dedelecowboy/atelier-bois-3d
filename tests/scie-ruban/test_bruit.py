@@ -9,7 +9,7 @@ from jeux import BASE
 async def main():
     async with Page('scie-ruban') as pg:
         html = open(os.path.join(os.path.dirname(__file__), '..', '..', 'dist', 'scie-ruban.html'), encoding='utf-8').read()
-        check(html.count('data:audio/mpeg;base64,') == 4, f'4 enregistrements intégrés à la page ({len(html)//1024} Ko au total)')
+        check(html.count('data:audio/mpeg;base64,') == 6, f'6 enregistrements intégrés (4 de la scie, 2 de l\'aspiration) à la page ({len(html)//1024} Ko au total)')
         await pg.eval("()=>document.getElementById('ui-ex').click()")
         r = await pg.eval(js(BASE + r"""
           const Bz=window.__atelier.bruit, calc=()=>Bz.calc(); const out={ sono:!!$('sono') };

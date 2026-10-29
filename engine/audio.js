@@ -30,6 +30,9 @@ const K_CHARGE = 6;                                   // charge ×10 : +6 dB
 const L_MAX = 108;                                    // plafond (pas de valeur absurde)
 const STORE = 'atelier.son';
 import { createSynth } from './synth.js';
+/* aspiration enregistrée (fournie par l'enseignant le 29/10/2026, tools/sons.py aspiration) : commune à toutes les machines */
+import sonAsp from './sons/aspiration.mp3';
+import sonAspArret from './sons/aspiration-arret.mp3';
 
 const lg = x=>Math.log10(Math.max(1e-6, x));
 const sum = (...L)=>10*lg(L.reduce((s,l)=>s+(l==null? 0 : Math.pow(10,l/10)), 0));
@@ -109,10 +112,11 @@ export function createBruit(app, hook){
     const e=c.e, cut=Math.max(0,Math.min(1,e.cut||0));
     if(cut>0.05&&!wasCut) SY.bang('attaque'); wasCut=cut>0.05;   // l'outil mord dans le bois
     SY.set({ motFull:amp(niveau(N0,{...e, spin:1, cut:0, asp:0}).moteur), f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(c.moteur), cut, cutAmp:amp(c.coupe),
-      charge:e.charge, asp:aspSp, aspAmp:amp(ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
+      charge:e.charge, asp:aspSp, aspOn:aspOn(), aspAmp:amp(N0.asp??ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
   function bang(type){ if(A&&B.on) SY.bang(type); }
   async function setOn(on){
-    if(on){ try{ if(!A){ A=SY.start(); if(hook.echantillons) SY.chargerEchantillons(hook.echantillons).catch(err=>{ B.err='enregistrements : '+(err&&err.message||err); }); } if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
+    if(on){ try{ if(!A){ A=SY.start(); if(hook.echantillons) SY.chargerEchantillons(hook.echantillons).catch(err=>{ B.err='enregistrements : '+(err&&err.message||err); });
+        if(hook.aspiration) SY.chargerAspiration({ boucle:sonAsp, arret:sonAspArret }).catch(err=>{ B.err='aspiration : '+(err&&err.message||err); }); } if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
       catch(e){ B.on=false; B.err=String(e&&e.message||e); app.toast(N? 'Son indisponible dans ce navigateur : le sonomètre reste affiché.' : 'Son indisponible dans ce navigateur.'); } }
     else { B.on=false; SY.mute(); }
     pref.on=on; save(); paint(); }
@@ -134,7 +138,7 @@ export function createBruit(app, hook){
     const r=[Math.round(B.shown),B.casque,B.on].join(); if(r!==lastR){ lastR=r; paint(); }
     audioTick(c); }
   paint();
-  const R = { tick, bang, alerte, calc, setOn, get enregistrements(){ return SY.echantillons(); }, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
+  const R = { tick, bang, alerte, calc, setOn, get enregistrements(){ return SY.echantillons(); }, get aspEnregistree(){ return SY.aspirationEnregistree(); }, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
     get on(){ return B.on; }, get shown(){ return B.shown; }, get err(){ return B.err; }, get ctx(){ return A&&A.ctx; }, niveaux:N0 };
   return R;
 }

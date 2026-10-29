@@ -4,10 +4,13 @@ Essai sur la scie à ruban (29/10/2026), enregistrements fournis par l'enseignan
   start.mp3 = « freesound_community-bandsawstart-105351 » (démarrage, régime établi, arrêt) ;
   coupe.mp3 = « audiopapkin-cutting-wood-on-a-band-saw-320670 » (à vide puis coupes) ;
 licence et source à vérifier par l'enseignant (noms de fichiers de type Pixabay / Freesound).
-Usage : python3 tools/sons.py <dossier des enregistrements> machines/scie-ruban/sons
+Aspiration (commune à toutes les machines, fournie le 29/10/2026) : asp.mp3 = « audiopapkin-mobile-extraction-in-the-carpentry-workshop-320669 »
+(régime établi puis arrêt et ralentissement de 15 s) → engine/sons/aspiration.mp3 (boucle) et aspiration-arret.mp3.
+Usage : python3 tools/sons.py ruban <dossier des enregistrements> machines/scie-ruban/sons
+        python3 tools/sons.py aspiration <dossier des enregistrements> engine/sons
 Les instants (secondes) des extraits sont propres à ces enregistrements : à adapter pour une autre machine."""
 import subprocess, numpy as np, sys, os
-S=sys.argv[1]; OUT=sys.argv[2]; SR=44100
+RECETTE, S, OUT = sys.argv[1], sys.argv[2], sys.argv[3]; SR=44100
 def load(f):
     raw=subprocess.run(['ffmpeg','-v','error','-i',f,'-ac','1','-ar',str(SR),'-f','f32le','-'],capture_output=True,check=True).stdout
     return np.frombuffer(raw,np.float32).copy()
@@ -25,16 +28,24 @@ def hp(x,f=40):   # coupe-bas léger (souffle, manipulation du téléphone)
     return y
 def fade(x,i=0.01,o=0.05):
     ni,no=int(i*SR),int(o*SR); x[:ni]*=np.linspace(0,1,ni); x[-no:]*=np.linspace(1,0,no); return x
-def save(x,name):
+def save(x,name,kbps=56):
     x=np.clip(x,-0.98,0.98).astype(np.float32)
     p=os.path.join(OUT,name+'.mp3')
-    subprocess.run(['ffmpeg','-v','error','-y','-f','f32le','-ar',str(SR),'-ac','1','-i','-','-c:a','libmp3lame','-b:a','56k',p],input=x.tobytes(),check=True)
+    subprocess.run(['ffmpeg','-v','error','-y','-f','f32le','-ar',str(SR),'-ac','1','-i','-','-c:a','libmp3lame','-b:a',f'{kbps}k',p],input=x.tobytes(),check=True)
     print(name, f'{len(x)/SR:.2f} s', os.path.getsize(p),'octets')
-st=hp(load(os.path.join(S,'start.mp3'))); co=hp(load(os.path.join(S,'coupe.mp3')))
-g_idle=10**(-20/20)/rms(seg(co,0.5,3.9))       # même gain pour les extraits d'un même enregistrement
-vide=loop(seg(co,0.5,3.9)*g_idle)
-coupe=loop(norm(seg(co,5.0,11.2)))
-g_st=10**(-20/20)/rms(seg(st,2.0,4.5))          # le régime établi du démarrage au niveau de « vide »
-dem=fade(seg(st,0.0,3.0)*g_st,0.005,0.4)
-arr=fade(seg(st,4.6,7.5)*g_st,0.3,0.3)
-for x,n in [(dem,'demarrage'),(vide,'vide'),(coupe,'coupe'),(arr,'arret')]: save(x,n)
+def ruban():
+    st=hp(load(os.path.join(S,'start.mp3'))); co=hp(load(os.path.join(S,'coupe.mp3')))
+    g_idle=10**(-20/20)/rms(seg(co,0.5,3.9))       # même gain pour les extraits d'un même enregistrement
+    vide=loop(seg(co,0.5,3.9)*g_idle)
+    coupe=loop(norm(seg(co,5.0,11.2)))
+    g_st=10**(-20/20)/rms(seg(st,2.0,4.5))          # le régime établi du démarrage au niveau de « vide »
+    dem=fade(seg(st,0.0,3.0)*g_st,0.005,0.4)
+    arr=fade(seg(st,4.6,7.5)*g_st,0.3,0.3)
+    for x,n in [(dem,'demarrage'),(vide,'vide'),(coupe,'coupe'),(arr,'arret')]: save(x,n)
+
+def aspiration():
+    x=hp(load(os.path.join(S,'asp.mp3')))
+    g=10**(-20/20)/rms(seg(x,2.0,11.0))           # régime établi à −20 dBFS, l'arrêt avec le même gain
+    save(loop(seg(x,2.0,11.0)*g,0.5),'aspiration',40)            # 40 kbit/s : ce son est dans chaque page
+    save(fade(seg(x,11.6,19.0)*g,0.2,1.5),'aspiration-arret',40)
+{'ruban':ruban,'aspiration':aspiration}[RECETTE]()

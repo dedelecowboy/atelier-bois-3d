@@ -126,10 +126,11 @@ async def main():
     async with Page('raboteuse') as pg:
         r = await pg.eval(js(r"""
           const Bz=window.__atelier.bruit; const out={ has:!!Bz, sono:!!$('sono'), btn:!$('snd').hidden };
-          $('sndBtn').click(); await sleep(300); $('asp').click(); await sleep(1500); out.on=Bz.on; out.asp=Bz.asp; out.alert=Bz.alerte();
+          $('sndBtn').click(); await sleep(300); $('asp').click(); { let n=0; while((Bz.asp<0.6||!Bz.aspEnregistree)&&n<100){ await sleep(100); n++; } }
+          out.on=Bz.on; out.asp=Bz.asp; out.alert=Bz.alerte(); out.rec=Bz.aspEnregistree;
           return out;"""))
         check(r['has'] and r['btn'] and not r['sono'], 'raboteuse : bouton du son, pas de sonomètre')
-        check(r['on'] and r['asp'] > 0.5 and r['alert'] is None, f'raboteuse : aspiration entendue (ventilateur {r["asp"]:.2f}), pas d\'alerte bruit')
+        check(r['on'] and r['asp'] > 0.5 and r['rec'] and r['alert'] is None, f'raboteuse : aspiration enregistrée décodée et jouée (ventilateur {r["asp"]:.2f}), pas d\'alerte bruit')
         check(not pg.errors, 'raboteuse : aucune erreur ' + '; '.join(pg.errors))
 
     # banc d'écoute
