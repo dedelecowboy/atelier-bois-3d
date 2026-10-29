@@ -17,6 +17,10 @@ const $ = id=>document.getElementById(id);
 const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
 /* dans le paquetage Moodle : pas de modification de l'implantation ni d'aperçu, bilans des machines lus dans le navigateur */
 const PKG = pkg();
+/* dossier d'entraînement hors ligne (dist/Atelier_bois_3D_entrainement.zip) : l'atelier est la page d'accueil, chaque
+   module est dans <id>/index.html, ouvert dans le même onglet ; pas de progression, tout est ouvert */
+const LOCAL = !!window.ATELIER_LOCAL;
+const goLink=(s,txt)=> LOCAL ? `<a class="go" href="${s.id}/index.html">${txt}</a>` : `<a class="go" href="${s.url}" target="_blank" rel="noopener">${txt}</a>`;
 const bilan=id=>{ try{ return JSON.parse(localStorage.getItem('atelier.bilan.'+id)||'null'); }catch(e){ return null; } };
 /* verrous du paquetage : la vérité est le sommaire de Moodle (élément sans lien = prérequis non rempli, statut de son
    icône) ; à défaut (sommaire illisible), le bilan enregistré dans ce navigateur à la fin de chaque évaluation */
@@ -171,7 +175,7 @@ function riskCard(){ const s=RISQUES, c=$('card'), f=FAMILLES[s.famille];
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>
     <p class="role">${s.role}</p>
     ${ PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validé':'Non validé', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}${PKG.titles?.[s.id]?'<button type="button" class="go" id="cardGo">Ouvrir le module</button>':''}`
-      : s.url ? `<a class="go" href="${s.url}" target="_blank" rel="noopener">Ouvrir le module</a>` : '<p class="note">Module « Risques généraux » : dans le paquetage Moodle (élément 0).</p>' }`;
+      : (s.url||LOCAL) ? goLink(s,'Ouvrir le module') : '<p class="note">Module « Risques généraux » : dans le paquetage Moodle (élément 0).</p>' }`;
   c.hidden=false; const close=()=>{ c.hidden=true; s.item.setAttribute('aria-pressed','false'); };
   $('cardX').onclick=close;
   const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id],{ before:()=>atApi?.close() })) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); }; }
@@ -224,7 +228,7 @@ function renderCard(s){
     ${ s.etat==='avenir' ? '<p class="note">Ce module n\'est pas encore construit.</p>'
       : L ? `<p class="note lockmsg">${lockSvg}Verrouillée : valider d'abord le module « ${prev?.nom||''} ».</p>`
       : PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validée':'Non validée', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}<button type="button" class="go" id="cardGo">Ouvrir la machine</button>`
-      : `<a class="go" href="${s.url}" target="_blank" rel="noopener">Ouvrir le simulateur</a>` }
+      : goLink(s,'Ouvrir le simulateur') }
     <button type="button" class="toggle back" id="cardBack">Vue d'ensemble</button>`;
   c.hidden=false;
   $('cardX').onclick=()=>select(null); $('cardBack').onclick=()=>select(null);
@@ -418,7 +422,7 @@ function frame(){ requestAnimationFrame(frame);
   catch(err){ console.error(err); } }
 canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); $('lost').hidden=false; });
 $('relaunch').onclick=()=>location.reload();
-if(PKG){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
+if(PKG||LOCAL){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
 applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
 window.__atelier={ STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
 window.__ready=true;

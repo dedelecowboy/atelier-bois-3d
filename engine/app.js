@@ -92,6 +92,7 @@ export function createApp(config, raw){
         $('chTrain').onclick=()=>{ train(true); if(app.fiches.need()) app.showFiches?.(); }; $('chEval').onclick=()=>train(false);
         sw.onclick=()=>{ refreshChoice(); if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); if(app.fiches.need()) app.showFiches?.(); return; } train(sw.dataset.train!=='true'); };
         parc.setActive(false); $('choice').hidden=false; }
+      if(window.ATELIER_LOCAL){ const b=$('toAtelier'); b.hidden=false; b.title='Revenir à l\'atelier'; b.onclick=()=>{ location.href='../index.html'; }; }   // dossier d'entraînement hors ligne
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
       stage.run(hooks.tick||(()=>{}));

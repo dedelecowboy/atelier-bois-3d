@@ -3,7 +3,8 @@
            npm run build scie-format → une seule machine
            npm run build atelier    → la page atelier seule (dist/atelier.html)
            npm run build attestations → l'outil des attestations seul (dist/Attestations_atelier_bois_3D.html)
-   Fabrication complète : aussi le paquetage unique « Atelier bois 3D » (avec et sans verrous), voir buildPackage.
+   Fabrication complète : aussi le paquetage unique « Atelier bois 3D » (avec et sans verrous), voir buildPackage,
+   et le dossier d'entraînement hors ligne (atelier en page d'accueil, sans progression), voir buildTraining.
    Pour chaque machine, dans dist/ :
    - <id>.html : page autonome (three.js chargé depuis cdn.jsdelivr.net), à publier comme artifact
                  ou à ouvrir dans un navigateur ;
@@ -203,6 +204,23 @@ ${res.join('\n')}
   console.log(`paquetage unique → dist/${zip} (atelier + ${ids.length} éléments${lock ? ', verrous : risques généraux puis chaîne de débit' : ', sans verrous'})`);
 }
 
+/* ---------- dossier d'entraînement hors ligne « Atelier bois 3D – Entraînement » (demandé par l'enseignant le 29/10/2026) ----------
+   Sans Moodle et sans progression : index.html = l'atelier 3D (page d'accueil), <id>/index.html = chaque module, ouvert dans
+   le même onglet (« Ouvrir le simulateur » / « ← Atelier »). three.js est intégré à chaque page (pas d'importmap ni de fichier
+   à charger) : les pages s'ouvrent aussi depuis le disque (file://), sur clé USB, sans internet (polices de secours). */
+async function buildTraining(){
+  const bundle = async entry => (await esbuild.build({ entryPoints: [entry], bundle: true, format: 'esm', write: false, minify: true,
+    loader: { '.txt': 'text' }, charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+  const doc = (title, body, js) => `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<script>window.ATELIER_LOCAL=true;</script>\n<title>${esc(title)}</title>\n${FONTS}\n</head>\n<body>\n${body}\n<script type="module">\n${js}</script>\n</body>\n</html>\n`;
+  const files = { 'index.html': strToU8(doc('Atelier bois 3D – Entraînement', `<style>\n${BUILT.atelier.css}</style>\n${BUILT.atelier.shell}`, await bundle(path.join(ROOT, 'atelier', 'main.js')))) };
+  const ids = PKG_ORDER.filter(id => BUILT[id]);
+  for (const id of ids) { const B = BUILT[id];
+    files[`${id}/index.html`] = strToU8(doc(B.config.pageTitle || B.config.title, `<style>\n${B.css}</style>\n${B.shell}`, await bundle(path.join(ROOT, 'machines', id, 'main.js')))); }
+  files['LISEZ-MOI.txt'] = strToU8(`Atelier bois 3D – version d'entraînement (sans note, sans Moodle)\r\n\r\nDézippez le dossier, puis ouvrez index.html dans Chrome, Edge ou Firefox : l'atelier 3D s'affiche.\r\nCliquez une machine, puis « Ouvrir le simulateur ». Le bouton « ← Atelier » ramène à l'atelier.\r\nRien n'est enregistré ni noté ; les fiches lues sont seulement gardées dans ce navigateur.\r\n\r\nLycée André Malraux – Remiremont\r\n`);
+  fs.writeFileSync(path.join(DIST, 'Atelier_bois_3D_entrainement.zip'), zipSync(files, { level: 9, mtime: new Date('2026-01-01') }));
+  console.log(`entraînement hors ligne → dist/Atelier_bois_3D_entrainement.zip (atelier + ${ids.length} modules, three.js intégré)`);
+}
+
 const only = process.argv[2];
 
 /* Outil des attestations (pour l'enseignant, ouvert dans son navigateur : l'impression ne marche pas dans un artifact) :
@@ -224,5 +242,5 @@ const ids = only ? (only === 'atelier' || only === 'attestations' ? [] : [only])
 if (!fs.existsSync(THREE_DIR)) { console.error('three.js manquant : lancez d\'abord « npm install ».'); process.exit(1); }
 try { for (const id of ids) await buildMachine(id); if (!only || only === 'atelier') await buildAtelier();
   if (!only || only === 'attestations') buildAttestations();
-  if (!only) { buildPackage(true); buildPackage(false); } }
+  if (!only) { buildPackage(true); buildPackage(false); await buildTraining(); } }
 catch (e) { console.error('\nERREUR : ' + e.message + '\n'); process.exit(1); }

@@ -44,6 +44,13 @@ Neuf modules machines sur le même moteur, même découpage de fichiers : `scie-
 - À faire après le premier essai dans Moodle : l'enseignant exporte les rapports (de base, interactions, objectifs) en Excel ; on construit le classeur « bilan » (élève × machine : validée, note, date, fautes graves) sur le format réel de l'export. Points à vérifier pendant l'essai : clic du sommaire depuis le contenu (selon l'affichage du sommaire choisi dans l'activité), maximum de la note en « Objets d'apprentissage » (sans doute 8, atelier compris, alors que 7 machines au plus peuvent être réussies), verrous.
 - Test : `tests/paquet/test_paquet.py` (manifestes des deux zips ; faux lecteur Moodle : sommaire, cadre, API par élément ; « ← Atelier », « Ouvrir la machine », fermeture de session, bilan relu par l'atelier).
 
+## Dossier d'entraînement hors ligne (demandé par l'enseignant le 29/10/2026)
+
+- « Une version html sans progression, juste pour l'entraînement, avec des liens fonctionnels partout et l'atelier 3D comme HOME » : `buildTraining` (tools/build.mjs, fabrication complète) → `dist/Atelier_bois_3D_entrainement.zip` (≈ 3 Mo) : `index.html` = page atelier, `<id>/index.html` = les 10 modules (risques généraux compris, ordre `PKG_ORDER`), `LISEZ-MOI.txt`. Ni SCORM ni Moodle : `window.ATELIER_LOCAL=true` au lieu de `PARCOURS` / `ATELIER_PKG`.
+- three.js INTÉGRÉ à chaque page (esbuild sans `external`, minifié ; pas d'importmap ni de `lib/`) : un module ES chargé depuis le disque est bloqué par le navigateur en `file://`, une page sans fichier à charger s'ouvre partout (clé USB, postes de l'atelier, sans internet ; polices Google de secours hors ligne).
+- Atelier (`LOCAL` dans atelier/main.js, `goLink`) : « Ouvrir le simulateur » / « Ouvrir le module » → `<id>/index.html` dans le même onglet ; bascule Entraînement / Moodle et « Modifier l'implantation » cachées. Machine (engine/app.js) : bouton « ← Atelier » → `../index.html`. Fiches : lecture gardée dans le navigateur, rien n'est bloqué.
+- Test : `tests/paquet/test_entrainement.py` (zip dézippé ouvert en file://, aller-retour atelier ↔ scie radiale, mortaiseuse, risques généraux, aucune erreur).
+
 ## Fiches de la machine à lecture obligatoire (demandé par l'enseignant le 29/10/2026)
 
 - Choix de l'enseignant (29/10/2026) : lecture obligatoire qui BLOQUE l'évaluation (l'entraînement reste libre), trace de la date de lecture dans Moodle, même règle pour les fiches des risques généraux.

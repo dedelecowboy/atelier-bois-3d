@@ -39,7 +39,7 @@ export function createFiches(app, parc){
 
   function html(o){ const n=count(), pc=F.length? Math.round(100*n/F.length) : 0;
     return `<div class="fiches-prog" data-all="${all()}"><b>Fiches lues : ${n} / ${F.length}</b><span class="fbar"><i style="width:${pc}%"></i></span>`
-      + `<span class="fiches-msg">${all()? (o.doneMsg||'Toutes les fiches sont lues.') : (o.todoMsg||'Lisez chaque fiche jusqu\'au bout, puis « J\'ai lu cette fiche ». Obligatoire avant l\'évaluation.')}</span></div>`
+      + `<span class="fiches-msg">${all()? (o.doneMsg||'Toutes les fiches sont lues.') : (o.todoMsg||'Lisez chaque fiche jusqu\'au bout, puis « J\'ai lu cette fiche ». Obligatoire avant l\'évaluation dans Moodle.')}</span></div>`
       + F.map((f,i)=>{ const lu=isRead(i);
         return `<details class="fiche" data-i="${i}" data-lu="${lu}"${i===open?' open':''}><summary><span class="fnum">${lu?'✓':i+1}</span><span class="ft">${esc(f.t)}</span></summary>`
           + f.blocks.map(b=>b.p?`<p>${esc(b.p)}</p>`:b.ul?`<ul>${b.ul.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p class="src">${esc(b.src)}</p>`).join('')
