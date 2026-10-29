@@ -11,6 +11,7 @@ import { buildModel as toupie } from '../machines/toupie/model.js';
 import { buildModel as tenon } from '../machines/tenonneuse/model.js';
 import { buildModel as format } from '../machines/scie-format/model.js';
 import { buildModel as ruban } from '../machines/scie-ruban/model.js';
+import { buildModel as mortaise } from '../machines/mortaiseuse/model.js';
 import * as R from '../machines/scie-radiale/state.js';
 import * as D from '../machines/deligneuse/state.js';
 import * as G from '../machines/degauchisseuse/state.js';
@@ -44,6 +45,9 @@ export const STATIONS = [
     role:'Chantournage des pièces cintrées, refente au guide parallèle ; changement et réglage de la lame.',
     url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:true, fx:0.05, rack:false, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
       guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
+  { id:'mortaiseuse', n:9, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'essai', famille:'usinage',
+    role:'Mortaises au bédane oscillant : à la cote, en série à la butée, assorties aux tenons de la tenonneuse.',
+    url:'', build:mortaise, rest:m=>m.update(null) },
 ];
 
 /* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;

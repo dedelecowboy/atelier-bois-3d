@@ -148,10 +148,10 @@ async function buildAtelier(){
    SCORM ; le carnet de notes n'a qu'une colonne (méthode conseillée : « Objets d'apprentissage » = machines validées).
    Deux versions : avec verrous (prérequis : la machine précédente de la chaîne de débit réussie) et sans verrous. */
 const BUILT = {};
-const PKG_ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format', 'scie-ruban'];
-const PKG_PREREQ = { 'scie-radiale': 'risques', 'scie-format': 'risques', 'scie-ruban': 'risques', deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', tenonneuse: 'toupie' };
+const PKG_ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format', 'scie-ruban', 'mortaiseuse'];
+const PKG_PREREQ = { 'scie-radiale': 'risques', 'scie-format': 'risques', 'scie-ruban': 'risques', mortaiseuse: 'risques', deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', tenonneuse: 'toupie' };
 const PKG_ATELIER = 'Atelier';
-/* numérotation : « 0. Risques généraux », puis les machines de 1 à 7 (titres inchangés depuis le premier essai Moodle), « 8. Scie à ruban » (hors chaîne de débit, comme la scie à format) */
+/* numérotation : « 0. Risques généraux », puis les machines de 1 à 7 (titres inchangés depuis le premier essai Moodle), « 8. Scie à ruban » et « 9. Mortaiseuse » (hors chaîne de débit, comme la scie à format) */
 const pkgTitle = (id, i) => `${BUILT.risques ? i : i + 1}. ${BUILT[id].config.title}`;
 const itemId = id => 'ITEM_' + BUILT[id].config.scorm.code;
 function buildPackage(lock){

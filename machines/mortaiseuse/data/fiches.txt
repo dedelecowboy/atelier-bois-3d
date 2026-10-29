@@ -1,0 +1,82 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la mortaiseuse ? | bedane, table, piece
+La mortaiseuse usine des mortaises : des trous rectangulaires qui reçoivent les tenons faits à la tenonneuse. Tenon et mortaise forment l'assemblage le plus courant des cadres, des portes et des meubles.
+- Mortaises borgnes (non débouchantes) dans le chant des montants.
+- Mortaises débouchantes, qui traversent la pièce.
+- Mortaises en série, à la même place sur plusieurs pièces, grâce aux butées et aux taquets.
+Il existe des mortaiseuses à mèche, à chaîne et à bédane. Celle de l'atelier est une mortaiseuse à bédane horizontal.
+> Cours « La mortaiseuse à bédane horizontal » du lycée.
+
+## La pièce avant et après | piece, guide, butee_g
+Avant : une pièce corroyée (dégauchie puis rabotée), aux bonnes dimensions, avec ses repères : SR1 (la boucle) et SR2 (le V).
+Après : la même pièce avec une ou plusieurs mortaises, à la cote.
+- Épaisseur : celle du bédane.
+- Arasement : distance de SR1 à la mortaise.
+- Distance : du bout de la pièce au début de la mortaise.
+- Longueur et profondeur : celles du tenon à recevoir (profondeur = longueur du tenon + 1 à 2 mm de jeu).
+> Fiches « Arasement », « Distance de la mortaise », « Profondeur mortaise » de l'atelier.
+
+## Les organes principaux | bedane, tete, table, verin_v, verin_h, guide, butee_g, butee_d, capot, aspiration, pupitre
+- Tête de mortaisage, derrière le guide : elle avance vers l'opérateur et fait osciller le bédane.
+- Bédane : l'outil, une lame plate à dents. Son épaisseur fait l'épaisseur de la mortaise.
+- Table mobile : elle va et vient d'un taquet à l'autre.
+- Guide et butées gauche et droite : ils placent la pièce. Cale de référence rouge : le zéro.
+- Quatre vérins hydrauliques (deux verticaux, deux horizontaux) : ils serrent la pièce.
+- Capot de protection, captage des copeaux (hotte jaune), tableau de commande, interrupteur général cadenassable.
+> Cours « La mortaiseuse à bédane horizontal » du lycée ; catalogue du constructeur.
+
+## Un bédane qui oscille, une référence à 71 | bedane, vernier, taquets_prof
+Le bédane ne tourne pas : il oscille de gauche à droite, comme un balancier, pendant que la tête l'avance dans le bois. Ses dents tranchent les fibres au bout de la mortaise, coupent dans le fil au fond.
+- Oscillation à fond : 50 mm de mortaise en une seule plongée. Moins de 50 mm : on réduit l'oscillation (vernier). Plus de 50 mm : plusieurs plongées côte à côte, réglées par les taquets de la table.
+- Référence 0 = 71 mm : quand le curseur de la règle de profondeur est à 71, le bédane touche la pièce. Taquet d'arrêt = profondeur + 71.
+- Le taquet de départ se place AVANT 71 : le bédane prend sa vitesse avant d'entrer dans le bois. Sinon il force et fait des éclats.
+> Fiche « Profondeur mortaise » de l'atelier ; cours du lycée (géométrie et formation de la mortaise).
+
+## Les réglages, dans l'ordre | bedane, vernier, taquets_prof, reglage_haut, regle_table, verin_v, verin_h
+Tous les réglages se font bédane arrêté, dans cet ordre :
+- Épaisseur : le bédane adapté est-il monté ? Sinon, on le change (machine consignée) ou on appelle le professeur.
+- Longueur : 50 mm, rien à faire ; moins, l'oscillation ; plus, les taquets de la table.
+- Profondeur : taquets de côté, derrière le bâti à gauche (clé Allen de 3) : départ avant 71, arrêt à profondeur + 71.
+- Arasement : capot ouvert, écrou de la hauteur du bédane à la clé de 27, capot refermé.
+- Distance : taquets de la table (clé Allen de 3) : 1er sur 0, 2e à la distance.
+- Débouchante ou non : sélecteur du tableau de commande.
+- Vérins : les 4 sur la pièce, aucun devant le bédane.
+- Manuel ou automatique, puis une pièce d'essai, puis appeler l'enseignant.
+> Fiche « La procédure » de l'atelier.
+
+## Le mode opératoire | sectionneur, arret_urgence, marche, btn_verins, sel_auto, sel_bedane, btn_depression
+1. Mettre la machine sous tension (interrupteur général), déverrouiller l'arrêt d'urgence en le tournant.
+2. Bouton vert : mise en route de la machine.
+3. Poser la pièce : SR1 sur la table, SR2 contre le guide, le bout contre la butée.
+4. Serrer : les deux boutons blancs en même temps, avec les deux mains.
+5. Mode automatique, puis tourner le sélecteur du bédane : le cycle se fait seul (plongées et va-et-vient de la table).
+6. Attendre la fin du cycle et l'arrêt du bédane, desserrer (bouton noir), retirer la pièce.
+> Fiche « La mise en marche » de l'atelier.
+
+## Les principaux risques | bedane, verin_v, verin_h, porte_outil
+- Rejet de la pièce : pièce mal serrée, vérin hors de la pièce.
+- Écrasement de la main : main sous un patin pendant le serrage (d'où la commande à deux mains).
+- Contact avec l'outil : main sur la table pendant le cycle, intervention sur le bédane sans consignation.
+- Outil mal serré ou abîmé : il casse et des morceaux sont projetés.
+- Bruit (casque anti-bruit), poussières de bois cancérogènes (aspiration), copeaux.
+> Fiche « Sécurité » et cours du lycée ; INRS ED 6122 (risques mécaniques), ED 974 (poussières de bois).
+
+## Les règles d'or | arret_urgence, sectionneur, capot, aspiration
+- Prévenir le professeur avant d'utiliser la machine ; un problème, un danger : arrêter la machine et prévenir.
+- EPI : chaussures de sécurité, bleu de travail, casque anti-bruit, cheveux attachés.
+- Poste de travail dégagé, aspiration en marche, outil vérifié avant le travail.
+- Les mains restent sur le pupitre pendant le serrage et le cycle.
+- Changer le bédane seulement machine consignée : interrupteur sur 0, cadenas, essai de démarrage.
+- Après le travail : attendre l'arrêt complet, mettre hors tension, nettoyer la machine et ses environs à l'aspirateur.
+> Fiche « Sécurité » de l'atelier ; INRS ED 6109 (consignations et déconsignations).

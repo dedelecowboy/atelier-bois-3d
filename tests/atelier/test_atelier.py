@@ -1,4 +1,4 @@
-"""Page atelier : démarrage sans erreur, les 8 machines construites et les postes à venir, sélection d'un poste,
+"""Page atelier : démarrage sans erreur, les 9 machines construites et les postes à venir, sélection d'un poste,
 aperçu élève (verrouillage), disposition ordinateur (1400 px) et téléphone (412 px). Captures dans tests/out/."""
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -19,7 +19,7 @@ async def main():
         await pg.page.wait_for_timeout(1500)
         info = await pg.eval(INFO)
         built = [s for s in info if s['built']]
-        check(len(built) == 8, f'8 machines construites ({", ".join(s["id"] for s in built)})')
+        check(len(built) == 9, f'9 machines construites ({", ".join(s["id"] for s in built)})')
         for s in built:
             check(s['meshes'] > 10 and all(v == v and v > 0.3 for v in s['size']), f'{s["id"]} : taille {s["size"]} m au poste {s["center"]}')
         for s in info:
@@ -46,7 +46,7 @@ async def main():
         print('Modifier l\'implantation')
         await pg.eval("()=>{ document.getElementById('vWeb').click(); document.getElementById('editBtn').click(); }"); await pg.page.wait_for_timeout(1500)
         ed = await pg.eval("()=>({ hidden:document.getElementById('edit').hidden, pins:[...document.querySelectorAll('.dlbl')].filter(e=>!e.hidden).length })")
-        check(not ed['hidden'] and ed['pins'] >= 13, f'panneau de modification ouvert, {ed["pins"]} machines sans module nommées')
+        check(not ed['hidden'] and ed['pins'] >= 12, f'panneau de modification ouvert, {ed["pins"]} machines sans module nommées')
         await pg.eval("()=>document.querySelector('#postes [data-id=raboteuse]').click()"); await pg.page.wait_for_timeout(300)
         p0 = await pg.eval("()=>{ const s=window.__atelier.STATIONS.find(s=>s.id==='raboteuse'); return { x:s.slot.x, z:s.slot.z, rot:s.slot.rot, gy:s.group.rotation.y, cx:s.center.x }; }")
         await pg.eval("()=>document.querySelector('#edit [data-r=\"90\"]').click()"); await pg.page.wait_for_timeout(300)

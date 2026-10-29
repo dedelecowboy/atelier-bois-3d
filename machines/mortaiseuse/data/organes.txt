@@ -1,0 +1,103 @@
+# Nomenclature de la mortaiseuse KANAK 130 MB (mortaiseuse à bédane oscillant horizontal)
+# (repères du cours « La mortaiseuse à bédane horizontal » du lycée entre parenthèses : organes extérieurs et tableau de commande)
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+
+[bati] 01 Bâti
+Bâti en acier, lourd et stable, qui porte la table, la tête de mortaisage et ses glissières. Pompe de graissage manuelle des glissières en façade. (Cours : 7)
+
+[table] 02 Table
+Table de travail en fonte rectifiée, sur laquelle on pose la pièce, SR1 (le parement) dessous. Elle se déplace en longueur (course de 400 mm) entre les taquets de sa règle : c'est le va-et-vient qui fait la longueur et la position des mortaises. (Cours : 4)
+
+[regle_table] 03 Règle et taquets de la table
+Règle graduée sous le bord avant de la table, avec 4 taquets réglables à la clé Allen de 3. Le 1er taquet se place sur 0 (origine) ; le 2e à la distance de la mortaise ; les suivants pour une 2e plongée (mortaise de plus de 50 mm) ou une 2e mortaise.
+
+[guide] 04 Guide et rallonges
+Guide fixe contre lequel les vérins horizontaux plaquent la face arrière de la pièce : c'est le chant usiné par le bédane (SR2 contre le guide). Il est prolongé de chaque côté par une rallonge qui porte les butées. Une fenêtre laisse passer le bédane, avec un support perforé pour le pare-éclat. (Cours : 8)
+
+[butee_g] 05 Butée gauche
+Butée relevable sur la rallonge de gauche : on pousse le bout de la pièce contre elle avant de serrer. La distance de la mortaise se mesure depuis ce bout. On ne l'abaisse que si elle sert. (Cours : 5)
+
+[butee_d] 06 Butée droite
+Butée relevable sur la rallonge de droite, pour mortaiser l'autre bout de la pièce sans la retourner (SR1 reste sur la table, SR2 contre le guide) : la distance se mesure alors depuis le bout droit. (Cours : 6)
+
+[cale] 07 Cale de référence
+Cale rouge posée sur la table à gauche, devant la butée : elle donne le zéro de la règle des taquets avec la butée gauche. Elle ne se déplace pas.
+
+[portique] 08 Portique des vérins verticaux
+Cadre noir porté par la table, au-dessus de la pièce : les deux vérins verticaux coulissent sur sa poutre. Flexibles hydrauliques des vérins.
+
+[verin_v] 09 Vérins de serrage verticaux
+Deux vérins hydrauliques qui plaquent la pièce sur la table. Leurs patins se placent sur la pièce, jamais au droit de la mortaise (le bédane et sa tête les heurteraient). (Cours : 2)
+
+[verin_h] 10 Vérins de serrage horizontaux
+Deux vérins hydrauliques qui plaquent la pièce contre le guide, depuis le côté opérateur. Les 4 vérins doivent appuyer sur la pièce : sinon elle pivote et est rejetée. (Cours : 3)
+
+[tete] 11 Tête de mortaisage
+Tête qui avance vers l'opérateur (profondeur, course de 150 mm) sur des glissières, entre les taquets de profondeur. Elle porte le moteur de 2,2 kW et le mécanisme d'oscillation du bédane.
+
+[porte_outil] 12 Porte-bédane et vis de serrage
+Pièce de la tête qui oscille et tient le bédane par sa queue, serré par une vis. Un bédane mal serré se desserre en oscillant, il casse ou est projeté : on le serre machine consignée, capot ouvert.
+
+[bedane] 13 Bédane (outil)
+Outil de la mortaiseuse : lame plate à dents de coupe sur le bout et sur les rives. Son épaisseur est l'épaisseur de la mortaise (6, 8, 10, 12 ou 16 mm). Il oscille de droite à gauche pendant qu'il avance dans le bois : 50 mm de long en une plongée, oscillation à fond. Toujours vérifier ses dents avant de le monter. (Cours : 10)
+
+[vernier] 14 Vernier d'oscillation
+Réglage de l'angle d'oscillation du bédane : il donne la longueur usinée en une plongée, de 20 mm (sans oscillation) à 50 mm (oscillation à fond). Pour une mortaise de moins de 50 mm. Bédane arrêté.
+
+[reglage_haut] 15 Réglage de la hauteur (arasement)
+Écrou de 27 et compteur sur le dessus de la tête, sous le capot : il monte ou descend le bédane. La hauteur du bas du bédane au-dessus de la table est l'arasement, mesuré depuis SR1. Capot ouvert, clé de 27, puis capot refermé.
+
+[taquets_prof] 16 Règle et taquets de profondeur
+Derrière le bâti, à gauche : une règle, 3 rails et 2 taquets (clé Allen de 3). Rail 1 : taquet de départ, AVANT 71 mm pour que le bédane prenne sa vitesse ; rail 2 : taquet d'arrêt à profondeur + 71 mm (référence 0 = 71 mm : le bédane touche la pièce). Rail 3 peu utilisé.
+
+[capot] 17 Capot de protection
+Capot insonorisé qui ferme la zone de la tête et du bédane. Il ne s'ouvre que bédane arrêté ; capot ouvert, le bédane ne démarre pas. On l'ouvre pour régler l'arasement et changer le bédane.
+
+[aspiration] 18 Captage des copeaux
+Hotte jaune à côté du bédane, raccordée à l'aspiration (Ø 80 mm), et soufflerie qui chasse les copeaux de la mortaise. À mettre en marche avant d'usiner : poussières de bois cancérogènes. (Cours : 9)
+
+[pupitre] 19 Tableau de commande
+Boîtier bleu : arrêt d'urgence, sélecteur mortaise non débouchante / débouchante, mise en route du bédane, déplacement de la table, boutons des vérins, automatique / manuel, mise en route de la machine. (Cours : 1)
+
+[arret_urgence] 20 Bouton d'arrêt d'urgence
+Coup de poing rouge sur fond jaune : il arrête tout. On le déverrouille en le tournant, puis on remet en route au bouton vert. (Pupitre : 1)
+
+[sel_bedane] 21 Sélecteur de mise en route du bédane
+En mode automatique, il lance le cycle : plongées du bédane et va-et-vient de la table d'un taquet à l'autre. En manuel, il met seulement le bédane en oscillation. (Pupitre : 4)
+
+[sel_auto] 22 Sélecteur automatique / manuel
+Automatique : la machine lit les taquets et fait tout le cycle. Manuel : l'opérateur commande chaque plongée et chaque déplacement de la table. (Pupitre : 7 et 8)
+
+[btn_verins] 23 Boutons de mise en pression des vérins
+Deux boutons blancs, à appuyer en même temps, avec les deux mains : la commande à deux mains garde les mains loin des patins pendant le serrage (risque d'écrasement). (Pupitre : 6 et 11)
+
+[btn_depression] 24 Bouton de dépression des vérins
+Bouton noir : il desserre les vérins à la fin du cycle, avant de toucher la pièce. (Pupitre : 10)
+
+[marche] 25 Bouton de mise en route de la machine
+Bouton vert : il met la machine en route (groupe hydraulique), après la mise sous tension et le déverrouillage de l'arrêt d'urgence. Machine consignée, rien ne démarre : c'est l'essai de démarrage. (Pupitre : 9)
+
+[sectionneur] 26 Interrupteur général cadenassable
+Sur l'armoire électrique : mise sous tension de la machine. Pour intervenir sur le bédane : sur 0, cadenas posé, clé gardée par celui qui intervient (consignation). (Cours : 11)
+
+[armoire] 27 Armoire électrique
+Armoire des appareils électriques de la machine, avec l'interrupteur général. Ne s'ouvre que par une personne habilitée.
+
+[hydraulique] 28 Groupe hydraulique
+Moteur de 0,75 kW et pompe qui font tous les mouvements (table, tête) et le serrage des vérins.
+
+[ratelier] 29 Râtelier des bédanes
+Rangement des bédanes : chacun a son épaisseur gravée. Un bédane aux dents ébréchées ne se monte pas : prévenez le professeur.
+
+[cle] 30 Clé du porte-bédane
+Clé adaptée (à tube, en Y) qui sert à serrer et desserrer la vis du porte-bédane. Elle se range à sa place, jamais sur la machine.
+
+[piece] 31 Pièce de bois
+Pièce corroyée à mortaiser : SR1 (la boucle) sur la table, SR2 (le V) contre le guide, le bout contre la butée.

@@ -12,4 +12,5 @@ export const PORTES = [[-5.47,-10.8,0,null],[2.08,-10.8,0,0xc4362c],[-10.93,-5.5
 export const MODULE_SLOT = {
   'scie-radiale':'m25', 'deligneuse':'m21', 'degauchisseuse':'degau', 'raboteuse':'rabot',
   'toupie':'toupie', 'tenonneuse':'m8', 'scie-format':'scie', 'scie-ruban':'ruban',
+  'mortaiseuse':'m13',
 };

@@ -1,0 +1,62 @@
+/* Styles propres à la mortaiseuse : râtelier des bédanes, taquets de la table, vérins, schémas, mortaises, pièces débitées. */
+.tl{grid-template-columns:1fr auto}
+.tl-t{font-weight:500}
+.tl-t small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.tl-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.tl-g .toggle,.tl-b .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:6px 6px;text-align:left}
+.tl-g .toggle small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.tl-g .toggle[data-bad="true"] small{color:var(--danger)}
+.tl-g .toggle[data-mounted="true"]{box-shadow:inset 0 0 0 2px var(--fam-outil,#d9772b)}
+.tl-b{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px}
+.tl-i,.g-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);line-height:1.35}
+.set-i{margin:2px 0 6px}
+small.cap{font-weight:400;font-size:11px;color:var(--muted)}
+.fam .tl{grid-template-columns:1fr}
+.tq,.vr{grid-template-columns:1fr}
+.tq-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tq-i{display:grid;grid-template-columns:auto 1fr auto;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
+.tq-i b{display:inline-block;width:12px;height:12px;border-radius:2px}
+.tq-i .toggle{text-transform:none;letter-spacing:0;font-size:11px;padding:5px 4px}
+.tq-i input:disabled{opacity:.4}
+.bt{display:flex;gap:6px;flex-wrap:wrap}
+.bt .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
+.bu-l{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.settings .toggle:disabled{opacity:.45;cursor:not-allowed}
+.plan-svg,.coupe-svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.plan-svg text,.coupe-svg text{font-family:var(--f-mono);font-size:8.5px;fill:var(--muted)}
+.plan-svg text.c,.coupe-svg text.c{fill:var(--fg);font-size:9px;font-weight:600}
+.coupe-svg{margin-top:4px}
+/* pupitre */
+.pupitre .pup-s{border-radius:6px;font-size:13px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pupitre .pup-s[aria-pressed="true"]{background:#8a4a0e;border-color:#c76a14}
+.pupitre .on[aria-pressed="true"]{background:#111417;border-color:#3e9a5c;box-shadow:inset 0 0 0 2px #3e9a5c}
+.pupitre .on[aria-pressed="false"]{background:#2f7d4f;border-color:#3e9a5c}
+#press{background:#e9ecee;color:#111;border-color:#bfc5ca}
+#press[aria-pressed="true"]{background:#c8cdd1;box-shadow:inset 0 2px 5px rgb(0 0 0 / .35)}
+#depress{background:#1a1c1e}
+@media (min-width:901px){.app.has-pup .tag{bottom:150px}}
+@media (max-width:900px){ .app.has-pup .pupitre{grid-template-columns:repeat(4,minmax(0,1fr))} .app.has-pup .pupitre .pup-d{display:none} .app.has-pup{padding-bottom:150px} }
+/* pièce */
+.tools .toggle{text-transform:none;letter-spacing:0;font-size:12.5px}
+@media (min-width:901px){.dock .tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#dockSlot .settings{grid-auto-flow:row dense}
+#dockSlot .settings .srow{grid-column:1/-1}
+.pmes{margin:8px 0 0;font-size:13px;color:var(--muted);font-family:var(--f-mono)}
+.pmes b{color:var(--fg);font-weight:600}
+.dprof,.debit{margin-top:14px}
+.dprof h2 span,.debit h2 span{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-size:12px;color:var(--muted);margin-left:6px}
+.res.faces td:nth-child(2){font-family:var(--f-body);text-align:left;color:var(--muted)}
+.debit-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.debit-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.debit-list li[data-k="interdite"]{opacity:.75}
+.debit-list b{font-family:var(--f-mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.debit-list small{display:block;color:var(--muted);font-size:12px}
+.debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}
+.d-act{display:flex;flex-direction:column;gap:4px}
+.debit-empty{font-size:13px;color:var(--muted)}
+/* bouton de remise en place : en présentation seulement (en exercice, « Nouveau lot ») */
+.app:not([data-ui="pres"]) #resetPres{display:none}
+/* parcours évalué : le tableau des mortaises est caché (on le mesure à l'étape Contrôle) ; les pièces débitées restent visibles */
+.app[data-ui="parcours"] .dprof{display:none}
+.app[data-ui="parcours"][data-phase="scen"] .debit{display:block}
+@media (min-width:901px){.app[data-ui="ex"] .dock,.app[data-ui="parcours"] .dock{max-height:38vh}}

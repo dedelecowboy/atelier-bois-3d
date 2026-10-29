@@ -19,7 +19,8 @@ Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html
 | Raboteuse « KANAK 630 E » | en essai | `machines/raboteuse/` |
 | Toupie « KANAK 130 T » (lot 1 : travail au guide) | en essai | `machines/toupie/` |
 | Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
-| Scie à ruban | prévue | |
+| Scie à ruban « KANAK 800 RB » | en essai | `machines/scie-ruban/` |
+| Mortaiseuse à bédane oscillant « KANAK 130 MB » | en essai | `machines/mortaiseuse/` |
 
 ## Risques généraux de l'atelier (module sécurité, élément « 0 » du paquetage Moodle)
 
