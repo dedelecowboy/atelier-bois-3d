@@ -1,11 +1,11 @@
-"""Fiches de chaque machine (lecture obligatoire, 29/10/2026) : pour les 8 machines,
+"""Fiches de chaque machine (lecture obligatoire, 29/10/2026) : pour les 9 machines,
 page web = onglet « Fiches » ouvert au départ, 8 fiches, « Voir sur la machine » nomme des organes, lecture complète ;
 paquetage séparé = la lecture des fiches est la première étape du parcours. (Détail complet : tests/scie-radiale/test_fiches.py.)"""
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import Page, check, run
 
-MACHINES = ['scie-format', 'degauchisseuse', 'deligneuse', 'scie-radiale', 'raboteuse', 'toupie', 'tenonneuse', 'scie-ruban']
+MACHINES = ['scie-format', 'degauchisseuse', 'deligneuse', 'scie-radiale', 'raboteuse', 'toupie', 'tenonneuse', 'scie-ruban', 'mortaiseuse']
 ETAT = "()=>({ n:document.querySelectorAll('#fichesBox details.fiche').length, lues:document.querySelectorAll('#fichesBox details.fiche[data-lu=true]').length, lt:document.getElementById('app').dataset.lt, voir:document.querySelectorAll('#fichesBox [data-fshow]').length })"
 LIRE = "async ()=>{ const s=ms=>new Promise(r=>setTimeout(r,ms)); for(let k=0;k<20;k++){ const b=document.querySelector('#fichesBox [data-flu]:not([disabled])'); if(!b) break; b.closest('details').open=true; await s(20); document.querySelector(`#fichesBox [data-flu=\"${b.dataset.flu}\"]`).click(); await s(20); } }"
 

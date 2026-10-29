@@ -48,7 +48,9 @@ SIMPLE = BASE + r"""
  off('capot'); tq(1,60); log.push(state('distance')); next();
  take("Pièce d'essai"); msgs.push('vérin devant le bédane signalé:'+alerts().some(a=>a.includes('VÉRIN DEVANT LE BÉDANE')));
  ver('v1',150); green(); $('press').click(); msgs.push('non serrée effacée:'+!alerts().some(a=>a.includes('PIÈCE NON SERRÉE')));
- await cycle(); $('depress').click(); op('aside'); log.push(state('essai')); next();
+ await cycle(); $('depress').click(); op('peek'); const cam=__atelier.app.stage.camera.position;
+ msgs.push('mortaise montée vers l\'élève (« Voir les mortaises »):'+(TB().peek && Math.abs(TB().group.rotation.y-Math.PI)<0.01 && cam.z>0.5 && cam.z<1.0));
+ op('aside'); log.push(state('essai')); next();
  await usine('Montant'); log.push(state('montant')); next();
 """ + END
 

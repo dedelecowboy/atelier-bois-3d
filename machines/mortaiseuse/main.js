@@ -12,7 +12,7 @@ import { st, ctx, $, tool, taquets } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cyc, onTable, newPiece, startCycle, stopCycle, tickCycle, placeAll, aside, take, setKind, orient, build,
-  span, refEnd, plannedS0, curS0, tableX, depth, mortises, fromFace, nearEnd, tenonOf, fit, atLoad, H, D, fmt, dims, sr1, sr2, XR, FACE_NAME } from './piece.js';
+  span, refEnd, peekCam, plannedS0, curS0, tableX, depth, mortises, fromFace, nearEnd, tenonOf, fit, atLoad, H, D, fmt, dims, sr1, sr2, XR, FACE_NAME } from './piece.js';
 import { computeAlerts, cycleBlock, clampCheck, sweeps, moving, running, INTERV, MAINS } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria, USEFUL, onCycleEnd, onIntervention, lot, traverse } from './scenarios.js';
 
@@ -46,7 +46,7 @@ function drawPlan(){ const q=onTable(), t=tool();
   // butées
   for(const [x,on,n] of [[0,st.butG,'G'],[XR,st.butD,'D']]) g+=`<rect x="${X(x)-(n==='G'?4:0)}" y="${ZF-12}" width="4" height="${on?20:8}" fill="${on?'var(--fg)':'var(--muted)'}"/><text x="${X(x)+(n==='G'?-6:6)}" y="${ZF-14}" text-anchor="${n==='G'?'end':'start'}">butée ${n}${on?'':' (relevée)'}</text>`;
   if(q){ const [x0,x1]=span(q); g+=`<rect x="${X(x0)}" y="${Z(0)}" width="${X(x1)-X(x0)}" height="${Z(Dp)-Z(0)}" fill="#e2c294" stroke="#7a5428"/>`;
-    for(const m of mortises(q)){ const e=refEnd(q), uA= q.flip? q.L-(m.fromA+m.len) : m.fromA, a=x0+uA; g+=`<rect x="${X(a)}" y="${Z(0)}" width="${(m.len)*sx}" height="${Math.min(Dp,m.dep)*0.55}" fill="var(--bg)" stroke="#7a5428" stroke-dasharray="2 1"/>`; } }
+    for(const m of mortises(q)){ const e=refEnd(q), uA= q.flip? q.L-(m.fromA+m.len) : m.fromA, a=x0+uA; g+=`<rect x="${X(a)}" y="${Z(0)}" width="${(m.len)*sx}" height="${Math.min(Dp,m.dep)*0.55}" fill="#4e3e30" stroke="#2b2118"/>`; } }
   // courses prévues du bédane (hachurées) et profondeur
   const dep=Math.min(Dp,depth()); for(const s0 of sweeps(q)) g+=`<rect x="${X(s0)}" y="${Z(0)}" width="${st.osc*sx}" height="${Math.max(2,dep*0.55)}" fill="url(#hm)" stroke="#c76a14" stroke-width=".8"/>`;
   // vérins (patins vus de dessus) : verticaux sur le dessus près du guide, horizontaux contre la face avant
@@ -112,7 +112,7 @@ initFamilies(app, {
     guidage:()=>`taquets ${taquets().map(t=>mm(t.v)).join(' · ')} · butée ${st.butG&&st.butD?'G et D':st.butG?'gauche':st.butD?'droite':'—'}`,
     protection:()=>`${st.press?'en pression':'desserrés'} · V ${mm(st.ver.v1)} / ${mm(st.ver.v2)} · H ${mm(st.ver.h1)} / ${mm(st.ver.h2)}`,
     piece:()=>{ const q=onTable(); return q? dims(q) : 'aucune pièce sur la table'; } } });
-initSchema({ pinIn:'famBar', sub:'vue de dessus de la table et coupe au droit du bédane',
+const schema=initSchema({ pinIn:'famBar', sub:'vue de dessus de la table et coupe au droit du bédane',
   html:'<svg class="plan-svg" id="planSvg" viewBox="0 0 320 118" role="img" aria-label="Vue de dessus : guide, butées, pièce, vérins et courses du bédane"></svg><svg class="coupe-svg" id="coupeSvg" viewBox="0 0 300 120" role="img" aria-label="Coupe de la pièce au droit du bédane : arasement, épaisseur du bédane, profondeur"></svg>' });
 
 /* ---------- mise à jour complète ---------- */
@@ -238,6 +238,11 @@ const butGuard=()=>{ if(cyc.on){ say('Cycle en cours.'); return false; } return 
 $('butG').onclick=()=>{ if(!butGuard()) return; const q=onTable(); if(!st.butG && q && q.ref!=='G'){ const [x0,x1]=span(q); if(x0<-0.5&&x1>0.5) return say('La butée gauche tomberait sur la pièce : déplacez la pièce, ou laissez la butée relevée.'); } st.butG=!st.butG; F.msg=''; apply(); };
 $('butD').onclick=()=>{ if(!butGuard()) return; const q=onTable(); if(!st.butD && q && q.ref!=='D'){ const [x0,x1]=span(q); if(x0<XR-0.5&&x1>XR+0.5) return say('La butée droite tomberait sur la pièce : déplacez la pièce, ou laissez la butée relevée.'); } st.butD=!st.butD; F.msg=''; apply(); };
 
+/* « Voir les mortaises » : caméra rapprochée sur la première mortaise (ou sur la pièce, s'il n'y en a pas) */
+function peekView(q){ const m=mortises(q)[0];
+  if(!m){ const c=peekCam(q); stage.setCam(c.pos,c.tgt); return; }
+  q.mesh.updateMatrixWorld(true); const v=q.mesh.localToWorld(new stage.THREE.Vector3((m.fromA+m.len/2)/1000-q.L/2000,0,0)), d=0.26+m.len/1000;
+  stage.setCam([v.x+0.04, v.y+d*0.55, v.z+d], [v.x, v.y, v.z]); }
 /* ---------- manipulations de la pièce ---------- */
 function doOp(op){
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
@@ -245,7 +250,8 @@ function doOp(op){
   const q=onTable();
   if(!q) return say('Pas de pièce sur la table : « Reprendre » une pièce dans « Pièces débitées ».');
   if(st.press) return say('Desserrez d\'abord les vérins (bouton noir).');
-  if(op==='peek'){ q.peek=!q.peek; build(q); F.msg=''; app.ex.invalidate(); apply(); if(q.peek) info('Pièce soulevée devant la machine, la face mortaisée vers le haut. « Voir les mortaises » encore une fois pour la reposer contre la butée.'); return; }
+  if(op==='peek'){ q.peek=!q.peek; build(q); if(q.peek){ peekView(q); schema.pin(false); } else stage.setView('vop'); F.msg=''; app.ex.invalidate(); apply();
+    if(q.peek) info(mortises(q).length? 'Pièce soulevée et tournée vers vous : la face qui était contre le guide, avec ses mortaises. « Voir les mortaises » encore une fois pour la reposer contre la butée.' : 'Pièce soulevée et tournée vers vous : pas encore de mortaise sur la face qui était contre le guide.'); return; }
   if(q.peek){ q.peek=false; build(q); }
   if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='left'||op==='right'){ const R=op==='left'?'G':'D';

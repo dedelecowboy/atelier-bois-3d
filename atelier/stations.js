@@ -47,7 +47,7 @@ export const STATIONS = [
       guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
   { id:'mortaiseuse', n:9, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'essai', famille:'usinage',
     role:'Mortaises au bédane oscillant : à la cote, en série à la butée, assorties aux tenons de la tenonneuse.',
-    url:'', build:mortaise, rest:m=>m.update(null) },
+    url:'https://claude.ai/artifact/EwBc8rBaSxnTSVygBq9jJb', build:mortaise, rest:m=>m.update(null) },
 ];
 
 /* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;

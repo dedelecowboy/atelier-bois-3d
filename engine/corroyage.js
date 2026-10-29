@@ -334,4 +334,4 @@ function endsMesh(q0){
   mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece';
   return mesh; }
 /* intérieur d'une mortaise : bois coupé par le bédane, dans l'ombre (plus sombre que les faces rabotées) */
-function cavMat(q){ const key='cav|'+q.wood; return MATS[key]||(MATS[key]=new THREE.MeshStandardMaterial({map:woodTex(q.wood,'planed',0,null),color:0x8f7a64,roughness:0.95})); }
+function cavMat(q){ const key='cav|'+q.wood; return MATS[key]||(MATS[key]=new THREE.MeshStandardMaterial({map:woodTex(q.wood,'planed',0,null),color:0x4e3e30,roughness:1})); }

@@ -15,6 +15,9 @@ import { st, tool, taquets } from './state.js';
 
 const N = C.N, BIG = C.BIG;
 export const FACE_NAME = C.FACE_NAME;
+const PEEK_TILT=0.55, PEEK_Y=TABLE_Y+0.26, PEEK_Z=0.42;
+/* caméra pour regarder la pièce soulevée (« Voir les mortaises ») : recul selon la longueur */
+export const peekCam=q=>{ const d=0.35+q.L/1000*0.75; return { pos:[0, PEEK_Y+d*0.45, PEEK_Z+d], tgt:[0, PEEK_Y, PEEK_Z] }; };
 export const XR = Math.round((XBD-XBG)*1000);       // butée droite dans le repère de la table (mm)
 export const XCH = Math.round((XC0-XBG)*1000);      // course du bédane quand la table est en position de chargement (mm)
 let app=null, pieceRoot=null, partMeshes=null, uid=0;
@@ -132,10 +135,11 @@ export function fit(m, t, s1m='F1', s1t='F1'){ if(!m||!t) return { ok:false, why
 /* ---------- placement et maillage ---------- */
 const box3=new THREE.Box3(), LINE_KEEP=new THREE.LineBasicMaterial({color:0xd27a1c});
 export function place(q){ if(!q.group) return;
-  const inner=q.group.children[0]; inner.rotation.set(-q.k*Math.PI/2,0,0); q.group.rotation.set(q.peek?Math.PI/2:0,q.flip?Math.PI:0,0);
+  /* « Voir les mortaises » : la pièce est soulevée devant la machine et pivotée d'un demi-tour (comme dans les mains) :
+     la face qui était contre le guide vient face à l'opérateur, inclinée vers le haut ; SR1 reste dessous */
+  const inner=q.group.children[0]; inner.rotation.set(-q.k*Math.PI/2,0,0); q.group.rotation.set(q.peek?-PEEK_TILT:0,(q.flip?Math.PI:0)+(q.peek?Math.PI:0),0);
   q.group.position.set(0,0,0); q.group.updateMatrixWorld(true); const b=box3.setFromObject(q.mesh);
-  // « Voir les mortaises » : la pièce est soulevée devant la machine, la face qui était contre le guide vers le haut
-  if(q.peek){ q.group.position.set(-(b.min.x+b.max.x)/2, TABLE_Y+0.16-b.min.y, 0.40-(b.min.z+b.max.z)/2); if(q.line) q.line.visible=false; return; }
+  if(q.peek){ q.group.position.set(-(b.min.x+b.max.x)/2, PEEK_Y-(b.min.y+b.max.y)/2, PEEK_Z-(b.min.z+b.max.z)/2); if(q.line) q.line.visible=false; return; }
   if(q.line) q.line.visible=true;
   const x= q.ref==='D'? XBD+st.X-b.max.x : XBG+st.X-b.min.x;
   q.group.position.set(x, TABLE_Y-b.min.y, FENCE_Z-b.min.z); outline(q); }
@@ -186,7 +190,7 @@ function finish(){ const q=onTable(), last=cyc.log[cyc.log.length-1]; if(last) l
   else if(!cyc.cuts) m.push('Le bédane n\'a pas touché la pièce : vérifiez l\'arasement, la profondeur et les taquets.');
   else m.push(`${cyc.cuts} plongée${cyc.cuts>1?'s':''} dans la pièce.`);
   if(cyc.ec) m.push('Le bédane est parti du taquet de départ placé après 71 : il a attaqué le bois sans élan, les bords de la mortaise sont éclatés.');
-  if(!cyc.manual) m.push('Fin de cycle : la table est revenue au taquet 1, le bédane s\'est arrêté. Desserrez les vérins (bouton noir) avant de toucher la pièce.');
+  if(!cyc.manual) m.push('Fin de cycle : la table est revenue au taquet 1, le bédane s\'est arrêté. La mortaise est dans le chant contre le guide : desserrez les vérins (bouton noir), puis « Voir les mortaises » pour la contrôler.');
   cyc.msg=m.join(' '); cyc.seq++; refreshMeshes(); }
 
 /* ---------- manipulations (table en position de chargement, bédane arrêté, vérins desserrés) ---------- */

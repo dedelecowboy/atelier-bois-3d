@@ -6,7 +6,7 @@
    vers l'opérateur (+Z) dans la pièce ; l'oscillation est ralentie à l'affichage. */
 import * as THREE from 'three';
 import { M, MI, rbox, add, cyl, canvasTex, rulerTex } from '../../engine/kit.js';
-import { TABLE_Y, TABLE_W, TABLE_D, TABLE_Z0, FENCE_Z, XC0, XBG, XBD, BED_T, REF0 } from './constants.js';
+import { TABLE_Y, TABLE_W, TABLE_D, TABLE_Z0, FENCE_Z, XC0, XBG, XBD, BED_T, REF0, BEDANES } from './constants.js';
 import { st, tool } from './state.js';
 
 export function buildModel({ root, tagPart, partMeshes }){
@@ -20,7 +20,6 @@ export function buildModel({ root, tagPart, partMeshes }){
   const RED   = new THREE.MeshStandardMaterial({color:0xd8261c, roughness:0.45});
   const FOAM  = new THREE.MeshStandardMaterial({color:0x3a3d40, roughness:0.95});
   const CHROME= new THREE.MeshStandardMaterial({color:0xd7dde2, metalness:0.95, roughness:0.18});
-  const BEDM  = new THREE.MeshStandardMaterial({color:0x8d969e, metalness:0.9, roughness:0.3});
   const regPart=(g,code)=>{ partMeshes[code]=[]; g.traverse(o=>{ if(o.isMesh){ o.castShadow=o.receiveShadow=true; o.userData.part=code; partMeshes[code].push(o); } }); };
   const box=(p,w,h,d,mat,x,y,z,r=0.004)=>add(p,rbox(w,h,d,mat,r),x,y,z);
   const label=(parent,w,h,draw,pos,rot=[0,0,0])=>{ const t=canvasTex(1024,Math.max(16,Math.round(1024*h/w)),draw); const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false}));
@@ -41,7 +40,7 @@ export function buildModel({ root, tagPart, partMeshes }){
     g.font=`600 ${h*0.30}px "Barlow Condensed",sans-serif`; g.fillText('130 MB',w*0.08,h*0.92); },[-0.02,0.49,0.127]);
   label(bati,0.30,0.05,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='#e8f0fa'; g.font=`${h*0.55}px sans-serif`; g.fillText('Mortaiseuse à bédane oscillant',w*0.04,h*0.7); },[-0.02,0.37,0.127]);
   label(bati,0.22,0.12,(g,w,h)=>{ g.fillStyle='#d4d7da'; g.fillRect(0,0,w,h); g.fillStyle='#1b2228'; g.font='italic 700 96px "Barlow Condensed",sans-serif'; g.fillText('KANAK 130 MB',24,104);
-    g.font='38px sans-serif'; g.fillText('Mortaise 275 × 160 max · profondeur 130',24,190); g.fillText('table 1 000 × 310 · course 400 / 150',24,250); g.fillText('2,2 kW + groupe hydraulique 0,75 kW · 400 V',24,310); g.fillText('Air 6 à 8 bar · aspiration Ø 80',24,370); },[-0.421,0.55,-0.45],[0,-Math.PI/2,0]);
+    g.font='38px sans-serif'; g.fillText('Mortaise 275 × 160 max · profondeur 130',24,190); g.fillText('table 1 000 × 310 · course 400 / 150',24,250); g.fillText('2,2 kW + groupe hydraulique 0,75 kW · 400 V',24,310); g.fillText('Air 6 à 8 bar · aspiration Ø 80',24,370); },[-0.421,0.55,-0.10],[0,-Math.PI/2,0]);
   tagPart(bati,'bati');
   for(const m of partMeshes.bati) m.material=m.material.clone();
 
@@ -158,26 +157,37 @@ export function buildModel({ root, tagPart, partMeshes }){
   let cLast=null; const setCounter=v=>{ const n=Math.round(Math.max(0,v)*10), s=String(Math.floor(n/10)).padStart(4,'0')+String(n%10); if(s===cLast) return; cLast=s;
     const c=cTex.userData.canvas.getContext('2d'); c.fillStyle='#111'; c.fillRect(0,0,256,64); c.font='bold 44px monospace'; c.fillStyle='#f0f0f0'; c.fillText(s.slice(0,4).split('').join(' '),10,48); c.fillStyle='#e02818'; c.fillRect(196,6,54,52); c.fillStyle='#fff'; c.fillText(s[4],210,48); cTex.needsUpdate=true; };
   tagPart(regH,'reglage_haut');
+  /* bédane monobloc (d'après les photos fournies par l'enseignant) : pointe en fourche (deux éperons et un V),
+     dents en escalier sur un chant (évacuation des copeaux), col évasé, talon plus épais percé de 2 trous (Ø 15 et Ø 14), marquage gravé.
+     Repère local : pointe en z = 0, corps vers −Z, épaisseur E le long de +Y (de 0 à E), largeur de coupe le long de X. */
+  const BEDS=new THREE.MeshStandardMaterial({color:0xaeb6bd, metalness:0.45, roughness:0.38}), EDGE=new THREE.MeshStandardMaterial({color:0xdfe4e8, metalness:0.5, roughness:0.2});
+  function bedMesh(t){ const g=new THREE.Group(), E=t.E/1000, w=BED_T/2000, S=0.0195, Z1=-0.150, Z2=-0.168, Z3=-0.240, br=t.etat==='ebreche';
+    const s=new THREE.Shape(); s.moveTo(-w,Z1); s.lineTo(-w,0); s.lineTo(-w+0.004,-0.004); s.lineTo(0,-0.011);
+    if(br){ s.lineTo(w-0.005,-0.008); s.lineTo(w-0.003,-0.012); s.lineTo(w,-0.016); }      // éperon cassé
+    else { s.lineTo(w-0.004,-0.004); s.lineTo(w,0); s.lineTo(w,-0.007); }
+    for(let i=0;i<11;i++){ const z0=-0.015-i*0.0103; if(br&&i<2){ if(i===1) s.lineTo(w-0.0005,z0-0.002); continue; } s.lineTo(w+0.0009,z0); s.lineTo(w-0.0025,z0-0.0022); }
+    s.lineTo(w,-0.130); s.lineTo(w,Z1); s.quadraticCurveTo(w,Z2+0.004,S,Z2); s.lineTo(-S,Z2); s.quadraticCurveTo(-w,Z2+0.004,-w,Z1);
+    const bg=new THREE.ExtrudeGeometry(s,{depth:E,bevelEnabled:false,curveSegments:6}); bg.rotateX(Math.PI/2); bg.translate(0,E,0);
+    g.add(new THREE.Mesh(bg,[BEDS,EDGE]));
+    const Es=Math.max(0.014,E+0.002), k=new THREE.Shape(); k.moveTo(-S,Z2+0.002); k.lineTo(-S,Z3); k.lineTo(S,Z3); k.lineTo(S,Z2+0.002); k.lineTo(-S,Z2+0.002);
+    for(const [z,r] of [[-0.184,0.0075],[-0.214,0.007]]){ const h=new THREE.Path(); h.absarc(0,z,r,0,Math.PI*2,true); k.holes.push(h); }
+    const kg=new THREE.ExtrudeGeometry(k,{depth:Es-0.0012,bevelEnabled:true,bevelThickness:0.0006,bevelSize:0.0006,bevelSegments:1,curveSegments:16}); kg.rotateX(Math.PI/2); kg.translate(0,E/2+Es/2-0.0006,0);
+    g.add(new THREE.Mesh(kg,BEDS));
+    const tx=canvasTex(512,64,(c,W,H)=>{ c.clearRect(0,0,W,H); c.font='bold 40px monospace'; c.fillStyle='rgba(40,44,48,0.85)'; c.fillText(`${t.E}/20/150`,14,46); });
+    const lab=new THREE.Mesh(new THREE.PlaneGeometry(0.056,0.007).rotateX(-Math.PI/2).rotateY(-Math.PI/2),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false}));
+    lab.position.set(-0.003,E+0.0003,-0.085); g.add(lab);
+    return g; }
   // porte-bédane (oscille en X) et bédane
   const osc=new THREE.Group(); tete.add(osc);
   const holder=new THREE.Group(); osc.add(holder);
-  box(holder,0.05,0.07,0.06,STEELT,0,0.02,-0.20,0.005);
-  const bolt=new THREE.Group(); bolt.position.set(0,0.06,-0.19); holder.add(bolt);
+  box(holder,0.05,0.07,0.06,STEELT,0,0.02,-0.23,0.005);
+  const bolt=new THREE.Group(); bolt.position.set(0,0.06,-0.22); holder.add(bolt);
   bolt.add(new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.012,6),CHROME)); add(bolt, cyl(0.004,0.03,CHROME,8),0,-0.018,0);
   tagPart(holder,'porte_outil');
   const bedG=new THREE.Group(); osc.add(bedG);
   let bedKey='';
-  function buildBed(){ while(bedG.children.length){ const c=bedG.children.pop(); c.traverse(o=>o.geometry?.dispose()); } const t=tool(); if(!t){ regPart(bedG,'bedane'); return; }
-    const E=t.E/1000, T=BED_T/1000, L=0.16;
-    // corps du bédane : lame plate (épaisseur E verticale, largeur T le long de X), queue à deux trous dans le porte-outil
-    box(bedG,T,E,L,BEDM,0,E/2,-L/2,0.0008);
-    box(bedG,0.04,Math.max(0.004,E*0.7),0.05,BEDM,0,E/2,-L-0.02,0.001);
-    // dents : en pointe sur le bout et sur les deux rives (taille à 35° / 40°), une ou deux ébréchées si le bédane est abîmé
-    const dentG=new THREE.ConeGeometry(0.0035,0.008,4); dentG.rotateX(Math.PI/2);
-    for(let i=0;i<4;i++){ if(t.etat==='ebreche' && (i===1||i===2)) continue; const d=new THREE.Mesh(dentG,CHROME); d.position.set(-T/2+0.0025+i*(T-0.005)/3,E/2,0.003); d.scale.set(1,Math.max(0.6,E/0.008),1); bedG.add(d); }
-    for(const sx of [-1,1]) for(let i=0;i<6;i++){ const d=new THREE.Mesh(dentG,CHROME); d.rotation.y=sx*Math.PI/2.6; d.position.set(sx*(T/2+0.0015),E/2,-0.008-i*0.012); d.scale.set(1,Math.max(0.6,E/0.008),0.8); bedG.add(d); }
-    if(t.etat==='ebreche') box(bedG,0.006,E*0.9,0.004,new THREE.MeshStandardMaterial({color:0x4a3a2a,roughness:0.8}),-0.001,E/2,-0.001,0);
-    regPart(bedG,'bedane'); }
+  function buildBed(){ while(bedG.children.length){ const c=bedG.children.pop(); c.traverse(o=>{ o.geometry?.dispose(); if(o.material&&!Array.isArray(o.material)) o.material.map?.dispose(); }); } const t=tool(); if(!t){ regPart(bedG,'bedane'); return; }
+    bedG.add(bedMesh(t)); regPart(bedG,'bedane'); }
   tagPart(bedG,'bedane');
 
   /* ---------- Capot de protection insonorisé (relevable, interverrouillé) ---------- */
@@ -250,7 +260,10 @@ export function buildModel({ root, tagPart, partMeshes }){
   tagPart(gr,'bati');
   const rack=new THREE.Group(); root.add(rack);
   box(rack,0.012,0.10,0.30,GREYW,-0.427,0.66,-0.40,0.003);
-  for(let i=0;i<6;i++) box(rack,0.008,0.07,0.012,BEDM,-0.436,0.67,-0.52+i*0.045,0.001);
+  // bédanes accrochés pointe en bas, à plat contre le panneau (la place du bédane monté reste vide)
+  const rackBed=BEDANES.map((b,i)=>{ const m=bedMesh(b), Es=Math.max(0.014,b.E/1000+0.002);
+    m.setRotationFromMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(0,0,1),new THREE.Vector3(-1,0,0),new THREE.Vector3(0,-1,0)));
+    m.position.set(-0.4335-Math.max(0,Es/2-b.E/2000),0.475,-0.525+i*0.047); rack.add(m); add(rack, cyl(0.0045,0.03,CHROME,10,'x'),-0.44,0.475+0.184,-0.525+i*0.047); return {id:b.id,m}; });
   tagPart(rack,'ratelier');
   const cle=new THREE.Group(); root.add(cle);
   { const T=new THREE.MeshStandardMaterial({color:0x2c2f33,metalness:0.6,roughness:0.5}); const c=new THREE.Group(); c.position.set(-0.44,1.10,-0.62); cle.add(c);
@@ -273,7 +286,7 @@ export function buildModel({ root, tagPart, partMeshes }){
       const y=TABLE_Y+Math.min(0.022,Math.max(0.012,Hp/2));
       V.pad.position.set(0,y,zf); V.rod.scale.z=Math.max(0.01,z1-zf-0.016); V.rod.position.set(0,y,(z1+zf+0.016)/2); }
     // tête : hauteur = arasement (bas du bédane), avance = position lue sur la règle de profondeur
-    if(bedKey!==st.tool){ bedKey=st.tool; buildBed(); }
+    if(bedKey!==st.tool){ bedKey=st.tool; buildBed(); for(const r of rackBed) r.m.visible=r.id!==st.tool; }
     const zt=FENCE_Z+(st.R-REF0)/1000;
     tete.position.set(XC0+BED_T/2000,TABLE_Y+st.ar/1000,zt);
     bedG.visible=!!t;
