@@ -20,39 +20,39 @@ import * as B from '../machines/scie-ruban/state.js';
 const PI = Math.PI;
 
 export const STATIONS = [
-  { id:'scie-radiale', n:1, nom:'Scie radiale', ref:'KANAK 900 R', etat:'essai', famille:'debit',
+  { id:'scie-radiale', n:1, nom:'Scie radiale', ref:'KANAK 900 R', etat:'service', famille:'debit',
     role:'Tronçonnage des planches brutes à longueur et purge des défauts (fente, nœud, gerce).',
     url:'https://claude.ai/artifact/TFWwCULVDt3Bfo4vrDUPQS', build:radiale, rest:m=>m.update({ alpha:R.st.alpha, beta:R.st.beta, s:0, prot:R.st.prot, stopX:R.stopX(), stopOn:R.st.stopOn, zone:null, hand:{show:false} }) },
-  { id:'deligneuse', n:2, nom:'Déligneuse multilames', ref:'KANAK 300 M', etat:'essai', famille:'debit',
+  { id:'deligneuse', n:2, nom:'Déligneuse multilames', ref:'KANAK 300 M', etat:'service', famille:'debit',
     role:'Délignage : avivés à la largeur, suppression de la flache, multidélignage.',
     url:'https://claude.ai/artifact/2CfhFoe5awDPpfhjpwVfa7', build:deligneuse, rest:m=>{ m.setManchon(D.bladeZ()); m.update({ H:D.st.H, guideZ:D.guideZ(), guideUp:D.st.guideUp, under:()=>0, laser:false, bladeZs:D.bladeZ(), surf:()=>0, laserKey:'', amp:0 }); } },
-  { id:'degauchisseuse', n:3, nom:'Dégauchisseuse', ref:'KANAK 520 D', etat:'essai', famille:'corroyage',
+  { id:'degauchisseuse', n:3, nom:'Dégauchisseuse', ref:'KANAK 520 D', etat:'service', famille:'corroyage',
     role:'Dressage des surfaces de référence : SR1 sur le plat, SR2 sur le chant, d\'équerre.',
     url:'https://claude.ai/artifact/QJ3m6hcgjuP52HZeVi5vJH', build:degau, rest:m=>m.update({ y:0, zTip:G.guideZ() }) },
-  { id:'raboteuse', n:4, nom:'Raboteuse', ref:'KANAK 630 E', etat:'essai', famille:'corroyage',
+  { id:'raboteuse', n:4, nom:'Raboteuse', ref:'KANAK 630 E', etat:'service', famille:'corroyage',
     role:'Mise à largeur puis à épaisseur, parallèle aux surfaces de référence.',
     url:'https://claude.ai/artifact/SMTMfYfT2i61MrQyD78z36', build:rabot, rest:m=>m.update(()=>0) },
-  { id:'toupie', n:5, nom:'Toupie', ref:'KANAK 130 T', etat:'essai', famille:'usinage',
+  { id:'toupie', n:5, nom:'Toupie', ref:'KANAK 130 T', etat:'service', famille:'usinage',
     role:'Profils au guide : quarts de rond, feuillures, moulures.',
     url:'https://claude.ai/artifact/RD38t4edhpubi6Q28nYJj5', build:toupie, rest:m=>m.update(()=>0,()=>0,null) },
-  { id:'tenonneuse', n:6, nom:'Tenonneuse', ref:'KANAK 160 TN', etat:'essai', famille:'usinage',
+  { id:'tenonneuse', n:6, nom:'Tenonneuse', ref:'KANAK 160 TN', etat:'service', famille:'usinage',
     role:'Usinage des bouts : tenons, enfourchements, en série à la butée.',
     url:'https://claude.ai/artifact/YLwEUxq35PKaHPYjm13DnH', build:tenon, rest:m=>m.update(0) },
   { id:'scie-format', n:7, nom:'Scie à format', ref:'KANAK 550', etat:'service', famille:'panneaux',
     role:'Débit et mise au format des panneaux, délignage au sabot, coupes d\'onglet et biaises.',
     url:'https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E', build:format, rest:m=>m.update(), clip:[-1.6,3.4,-1.4,3.8] },
-  { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'essai', famille:'debit',
+  { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'service', famille:'debit',
     role:'Chantournage des pièces cintrées, refente au guide parallèle ; changement et réglage de la lame.',
     url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:true, fx:0.05, rack:false, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
       guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
-  { id:'mortaiseuse', n:9, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'essai', famille:'usinage',
+  { id:'mortaiseuse', n:9, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'service', famille:'usinage',
     role:'Mortaises au bédane oscillant : à la cote, en série à la butée, assorties aux tenons de la tenonneuse.',
     url:'https://claude.ai/artifact/EwBc8rBaSxnTSVygBq9jJb', build:mortaise, rest:m=>m.update(null) },
 ];
 
 /* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;
    dans le paquetage Moodle, il doit être réussi avant les machines (verrou). */
-export const RISQUES = { id:'risques', n:0, nom:'Risques généraux', ref:'Tout l\'atelier', etat:'essai', famille:'risques',
+export const RISQUES = { id:'risques', n:0, nom:'Risques généraux', ref:'Tout l\'atelier', etat:'service', famille:'risques',
   role:'Poussières, bruit, incendie, électricité, manutention, circulation, produits, EPI, règles de l\'atelier : à valider avant les machines.',
   url:'https://claude.ai/artifact/9fVgRR2Uk3tJ6o3D3Tp6za' };
 
