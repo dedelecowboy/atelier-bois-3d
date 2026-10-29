@@ -132,6 +132,8 @@ document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.o
 /* ---------- démarrage ---------- */
 window.__scie={ st, pieces:()=>pieces, sAll, cam:(p,t)=>{ stage.setCam(p,t); stage.shadowsDirty?.(); } };   // poignée pour les tests automatiques
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:computeAlerts, steps:STEPS,
   loadMode(m){ resetForMode(); LOADERS[m](); if(m==='planche') stage.setView('vop');
     for(const k of ['height','rip','stop']) $(k).value=st[{height:'h',rip:'r',stop:'stop'}[k]];

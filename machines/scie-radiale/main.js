@@ -194,6 +194,8 @@ function moveHead(dt){
 window.__radiale={ st, head, cut, pieces, measure };   // poignée pour les tests automatiques
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level='info'; } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cut.msgSeq; planKey=debitKey=''; if(m!=='libre') stage.setView('vop'); },

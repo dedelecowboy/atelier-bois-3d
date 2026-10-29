@@ -333,6 +333,8 @@ window.__ruban={ st, cut, pieces, pilot, measure, extent, advance:mm=>{ const ok
   back:mm=>{ back(mm); apply(); }, spin, setSpin:v=>model.setSpin(v), startGap:()=>cur()&&startGap(cur()) };   // poignée pour les tests automatiques
 let lastApply=0, lastSpinState='', lastTick;
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:()=>computeAlerts(spin()),
   steps:STEPS,
   loadMode(m){ LOADERS[m](); for(const k in rackInv) delete rackInv[k]; Object.assign(rackInv,RACK0); model.stopNow(); bladeKey=''; planKey=debitKey=guideKey=protKey=''; backing=false; if(m!=='libre') stage.setView(m==='lame'?'v34':'vop'); },

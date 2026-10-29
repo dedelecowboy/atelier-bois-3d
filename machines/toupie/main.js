@@ -7,7 +7,7 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { RPMS, RINGS, H_MIN, H_MAX, P_MIN, P_MAX, E_MAX, OPEN_MIN, OPEN_MAX, HV_MAX, DH_MAX, VARIATEUR, TABLE_Y } from './constants.js';
+import { RPMS, RINGS, H_MIN, H_MAX, P_MIN, P_MAX, E_MAX, OPEN_MIN, OPEN_MAX, HV_MAX, DH_MAX, VARIATEUR, TABLE_Y, FEED, BRUIT, BRUIT_DURETE } from './constants.js';
 import { st, ctx, $, tool, saillie } from './state.js';
 import { LIB, toolById, Rmax, Dmm, marking, profilePts, speedCheck, advisedRpm } from './tools.js';
 import { buildModel } from './model.js';
@@ -171,9 +171,9 @@ $('motor').onclick=()=>{
   if(st.cad||!st.main) return say('Machine hors tension ou consignée : retirez le cadenas et mettez l\'interrupteur général sur I.');
   if(st.lock) return say('Arbre verrouillé en rotation : le moteur ne démarre pas. Déverrouillez l\'arbre.');
   if(st.dir===0) return say('Inverseur sur 0 : choisissez le sens de rotation (↺ anti-horaire pour l\'avance de droite à gauche).');
-  const c=contacts(); if(c.length){ app.recordDangers([['danger',CHOC]]); return say(`Démarrage interrompu : l'outil touche ${c.join(' et ')}. ${CHOC}.`,'danger'); }
+  const c=contacts(); if(c.length){ app.recordDangers([['danger',CHOC]]); app.bruit?.bang('choc'); return say(`Démarrage interrompu : l'outil touche ${c.join(' et ')}. ${CHOC}.`,'danger'); }
   st.motor=true; F.msg=''; apply(); };
-$('au').onclick=()=>{ if(st.au){ st.au=false; F.msg=''; apply(); return; } st.au=true; st.motor=false; st.entr.on=false; info('Arrêt d\'urgence : moteur coupé et freiné. Réarmez le coup de poing quand tout est en ordre.'); };
+$('au').onclick=()=>{ if(st.au){ st.au=false; F.msg=''; apply(); return; } st.au=true; app.bruit?.bang('au'); st.motor=false; st.entr.on=false; info('Arrêt d\'urgence : moteur coupé et freiné. Réarmez le coup de poing quand tout est en ordre.'); };
 $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
 $('lock').onclick=()=>{ if(!guard(st.lock?'déverrouiller l\'arbre':'verrouiller l\'arbre')) return; st.lock=!st.lock; F.msg=''; apply(); };
 $('hlock').onclick=()=>{ st.hlock=!st.hlock; apply(); };
@@ -235,8 +235,17 @@ function doOp(op){
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 $('resetPres').onclick=()=>{ if(cut.inProgress) return say('Passe en cours : attendez la sortie de la pièce.'); app.ex.setMode(app.ex.mode); info('Pièce de départ remise à l\'entrée, machine arrêtée.'); };
 
+/* ---------- bruit (engine/audio.js) : régime réel de l'arbre, outil dans le bois, charge de la passe ---------- */
+function bruitEtat(){ const t=tool(), q=cut.mover, R=q&&q.res;
+  let c=0, charge=1;
+  if(cut.inProgress&&q&&R&&R.any&&q.state==='moving'){ const half=chordAtGuide()/2000+0.005;   // l'outil coupe sur la corde au plan du guide (m)
+    const ov=Math.min(q.x+q.L/1000,half)-Math.max(q.x,-half); c=Math.max(0,Math.min(1,ov/(2*half)));
+    const feed=st.entr.placed&&st.entr.on? st.entr.v : FEED;
+    charge=Math.max(0.15,R.depth/3)*(feed/6)*(BRUIT_DURETE[q.wood]||1.3); }   // passe forte, avance rapide, bois dur : plus fort, plus aigu
+  return { on:st.motor&&st.dir!==0, rpm:st.rpm, spin:model.spin, cut:c, charge, dents:t?.Z||2 }; }
+
 /* ---------- démarrage ---------- */
-let lastSeq=0;
+let lastSeq=0, wasBute=false;
 app.start({
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=/(bute|Arrachements|Entaille|n'a pas|avalant)/.test(cut.lastMsg)?'warn':'info'; } return computeAlerts(); },
   steps:STEPS,
@@ -247,7 +256,10 @@ app.start({
   onPick(hit){ const q=hit && pieces.find(x=>x.id===hit.object.userData.pieceId); if(!q) return false; const m=measure(q), fc=C.faces(q);
     if(!cut.inProgress && setSel(q.id)){ profKey=''; F.level='info'; F.msg=`Pièce en main : ${q.name.toLowerCase()} (contour orange).`; app.ex.invalidate(); apply(); }
     $('info').innerHTML=`<b>${q.name} · ${dims(q)} mm</b><span>Sur la table : ${FACE_NAME[fc.down].toLowerCase()}${fc.down===sr1(q)?' (SR1)':''} · contre le guide : ${FACE_NAME[fc.back].toLowerCase()}${fc.back===sr2(q)?' (SR2)':''} · repères : ${[m.s1?'SR1':'',m.s2?'SR2':''].filter(Boolean).join(', ')||'aucun'}</span>`; return true; },
-  tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5&&(!st.entr.placed||st.entr.on)); const s0=model.spin; model.tick(dt); if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
+  tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5&&(!st.entr.placed||st.entr.on)); const s0=model.spin; model.tick(dt);
+    const b=!!butePiece(); if(b&&!wasBute) app.bruit?.bang('coup'); wasBute=b;   // la pièce bute contre le demi-guide de sortie
+    if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
+  bruit:{ niveaux:BRUIT, etat:bruitEtat },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
 /* poignée pour les tests et pour la future page « atelier » : importPiece(pieceJSON d'une autre machine) pose la pièce à l'entrée */

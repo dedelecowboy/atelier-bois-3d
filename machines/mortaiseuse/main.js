@@ -265,6 +265,8 @@ $('resetPres').onclick=()=>{ if(cyc.on) return say('Cycle en cours : attendez la
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:()=>{ if(cyc.seq!==lastSeq){ lastSeq=cyc.seq; F.msg=cyc.msg; F.level=/(éclat|interrompu|pas touché)/.test(cyc.msg)?'warn':'info'; onCycleEnd(); } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cyc.seq; profKey=debitKey=planKey=''; pick=null; F.msg=''; renderLib(); if(m!=='libre') stage.setView(m==='bedane'?'vbed':'vop'); },

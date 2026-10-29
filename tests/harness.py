@@ -46,8 +46,8 @@ def js(body):
 
 class Page:
     """async with Page('scie-format', scorm=True) as pg: await pg.eval(js('…'))"""
-    def __init__(self, machine, scorm=False, suspend='', viewport=(1400, 820), touch=False, lues=True):
-        self.machine, self.scorm, self.suspend, self.viewport, self.touch, self.lues = machine, scorm, suspend, viewport, touch, lues
+    def __init__(self, machine, scorm=False, suspend='', viewport=(1400, 820), touch=False, lues=True, init=None):
+        self.machine, self.scorm, self.suspend, self.viewport, self.touch, self.lues, self.init = machine, scorm, suspend, viewport, touch, lues, init   # init : script joué avant la page (ex. AudioContext absent)
         self.errors, self.logs = [], []
     async def __aenter__(self):
         html = open(dist(self.machine), encoding='utf-8').read()
@@ -66,6 +66,7 @@ class Page:
             elif u.startswith('http://local/'): await r.fulfill(body=page_html, content_type='text/html')
             else: await r.abort()   # polices Google, etc. : sans objet hors ligne
         await self.page.route('**/*', route)
+        if self.init: await self.page.add_init_script(self.init)
         await self.page.goto('http://local/')
         try: await self.page.wait_for_function('window.__ready', timeout=30000)
         except Exception: raise AssertionError('la page ne démarre pas : ' + '; '.join(self.errors + self.logs))

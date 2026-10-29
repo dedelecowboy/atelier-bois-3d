@@ -134,6 +134,8 @@ document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.o
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:()=>{ const a=computeAlerts(); if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=cut.lastMsg.startsWith('Arrachements')?'warn':'info'; } return a; },
   steps:STEPS,
   loadMode(m){ stopPass(); st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },

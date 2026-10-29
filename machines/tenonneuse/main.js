@@ -274,6 +274,8 @@ $('resetPres').onclick=()=>{ if(cut.inProgress) return say('Chariot en mouvement
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js, essai sur la toupie) : à remplir quand l'enseignant aura validé le rendu de la toupie ;
+     bruit:{ niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } }, */
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=/(Éclats|envers|interrompue|incomplète|coincée)/.test(cut.lastMsg)?'warn':'info'; }
     const a=computeAlerts(); if(st.bl.hInf||st.bl.ep||st.bl.ht) a.push(['warn',`Réglage fait en descendant : le jeu de la vis n'est pas rattrapé, l'outil reste environ ${fmt(BL)} mm plus haut que le compteur. Réglez toujours les dérouleurs en montant : descendez sous la cote, puis remontez.`]); return a; },
   steps:STEPS,
