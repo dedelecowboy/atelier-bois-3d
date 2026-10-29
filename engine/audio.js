@@ -28,7 +28,7 @@ const K_RPM = 25;                                     // le bruit aérodynamique
 const K_CHARGE = 6;                                   // charge ×10 : +6 dB
 const L_MAX = 108;                                    // plafond (pas de valeur absurde)
 const STORE = 'atelier.son';
-import { createSynth, VARIANTES, VARIANTE_DEFAUT } from './synth.js';
+import { createSynth } from './synth.js';
 
 const lg = x=>Math.log10(Math.max(1e-6, x));
 const sum = (...L)=>10*lg(L.reduce((s,l)=>s+(l==null? 0 : Math.pow(10,l/10)), 0));
@@ -72,19 +72,12 @@ export function createBruit(app, hook){
   const snd = $('snd'); if(snd) snd.hidden=false;
   const sndBtn=$('sndBtn'), sndVol=$('sndVol');
   if(sndVol) sndVol.value=B.vol;
-  /* son de coupe à choisir à l'écoute (trois variantes, engine/synth.js) : petite liste à côté du volume, le temps que l'enseignant choisisse */
-  let sndVar=null;
-  if(N&&snd){ sndVar=document.createElement('select'); sndVar.id='sndVar'; sndVar.className='snd-var'; sndVar.hidden=true;
-    sndVar.title='Son de la coupe (essai : dites à Claude lequel est le plus juste)'; sndVar.setAttribute('aria-label',sndVar.title);
-    sndVar.innerHTML=Object.entries(VARIANTES).map(([k,t])=>`<option value="${k}" title="${t.replace(/"/g,'&quot;')}">Coupe ${k}</option>`).join('');
-    snd.appendChild(sndVar); }
 
   const pos = L=> `${Math.max(0,Math.min(100,(L-40)/(110-40)*100)).toFixed(1)}%`;   // échelle 40 à 110 dB(A)
   function paint(){
     if(sndBtn){ sndBtn.textContent= B.on? '🔊' : '🔇'; sndBtn.setAttribute('aria-pressed',String(B.on));
       sndBtn.title= B.on? 'Couper le son' : 'Activer le son (machines bruyantes : réglez le volume)'; sndBtn.setAttribute('aria-label',sndBtn.title); }
     if(sndVol) sndVol.hidden=!B.on;
-    if(sndVar){ sndVar.hidden=!B.on; sndVar.value=variante; }
     if(!N) return;
     const L=B.shown, O=oreille(L,B.casque), zL=zone(L), zO=zone(O);
     const v=$('sonoV'), o=$('sonoO');
@@ -111,12 +104,11 @@ export function createBruit(app, hook){
   /* ---------- son (Web Audio, engine/synth.js) ---------- */
   const SY=createSynth(); let A=null, wasCut=false;
   const amp = L=> L==null? 0 : Math.pow(10,(L-100)/20);     // niveau → gain relatif (100 dB(A) = 1)
-  let variante=VARIANTE_DEFAUT; try{ const v=localStorage.getItem(STORE+'.coupe'); if(v&&/^[ABC]$/.test(v)) variante=v; }catch(e){}
   function audioTick(c){ if(!A||!B.on) return;
     const e=c.e, cut=Math.max(0,Math.min(1,e.cut||0));
     if(cut>0.05&&!wasCut) SY.bang('attaque'); wasCut=cut>0.05;   // l'outil mord dans le bois
     SY.set({ f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(c.moteur), cut, cutAmp:amp(c.coupe),
-      charge:e.charge, asp:aspSp, aspAmp:amp(ASP)*0.9, casque:B.casque&&!!N, vol:B.vol, variante }); }
+      charge:e.charge, asp:aspSp, aspAmp:amp(ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
   function bang(type){ if(A&&B.on) SY.bang(type); }
   async function setOn(on){
     if(on){ try{ if(!A) A=SY.start(); if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
@@ -127,7 +119,6 @@ export function createBruit(app, hook){
   let first=null;
   if(sndBtn) sndBtn.onclick=()=>{ if(first){ document.removeEventListener('pointerdown',first,true); first=null; } setOn(!B.on); };
   if(sndVol) sndVol.addEventListener('input',e=>{ B.vol=+e.target.value; pref.vol=B.vol; save(); });
-  if(sndVar) sndVar.addEventListener('change',e=>{ R.variante=e.target.value; });
   if(N) $('casque').onclick=()=>{ B.casque=!B.casque; paint(); app.apply(); };
   /* son choisi lors d'une visite précédente : il démarre au premier clic dans la page (règle des navigateurs) */
   if(wantOn){ first=ev=>{ if(ev.target&&ev.target.closest&&ev.target.closest('#sndBtn')) return; document.removeEventListener('pointerdown',first,true); first=null; if(!B.on) setOn(true); };
@@ -142,8 +133,7 @@ export function createBruit(app, hook){
     const r=[Math.round(B.shown),B.casque,B.on].join(); if(r!==lastR){ lastR=r; paint(); }
     audioTick(c); }
   paint();
-  const R = { tick, bang, alerte, calc, setOn, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; },
-    get variante(){ return variante; }, set variante(v){ if(/^[ABC]$/.test(v)){ variante=v; try{ localStorage.setItem(STORE+'.coupe',v); }catch(e){} } }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
+  const R = { tick, bang, alerte, calc, setOn, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
     get on(){ return B.on; }, get shown(){ return B.shown; }, get err(){ return B.err; }, get ctx(){ return A&&A.ctx; }, niveaux:N0 };
   return R;
 }

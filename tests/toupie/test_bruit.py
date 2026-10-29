@@ -5,7 +5,7 @@
 - alerte « attention » (pas une faute) au-dessus de 85 dB(A) en marche sans casque, plus avec le casque ;
 - son activé : AudioContext créé au clic, aucune erreur ; sans AudioContext : message, sonomètre toujours là, aucune erreur ;
 - aspiration (commune à toutes les machines) : niveau propre, ventilateur qui monte et ralentit ; sur une autre machine (raboteuse) :
-  bouton du son et aspiration, pas de sonomètre ; trois sons de coupe au choix (liste « Coupe A / B / C », gardée) ;
+  bouton du son et aspiration, pas de sonomètre ;
 - banc d'écoute dist/Ecoute_bruit.html : se lance, son, moteur, passe, aucune erreur ;
 - captures ordinateur et téléphone avec le sonomètre visible."""
 import os, sys, asyncio
@@ -108,28 +108,27 @@ async def main():
         await pg.eval(js(BASE + NOISE + "on('asp'); on2('push'); await start(); $('pass').click(); await sleep(1800);"))
         print('   capture', await pg.shot('toupie_bruit_coupe_1400.png'))
 
-    # aspiration seule, puis avec le moteur ; variante du son de coupe
+    # aspiration seule, puis avec le moteur ; coupe avec le son (« rugissement »)
     async with Page('toupie') as pg:
         r = await pg.eval(js(BASE + NOISE + r"""
           const N=Bz().niveau({on:false,rpm:9000,spin:0,cut:0,asp:1}).total, mix=Bz().niveau({on:true,rpm:9000,spin:1,cut:0,asp:1}).total;
           on('asp'); { let n=0; while(Bz().asp<0.97&&n<150){ await sleep(100); n++; } } await settle(); const a={ sp:Bz().asp, total:calc().total };
           off('asp'); await sleep(200); const coast=Bz().asp;
-          $('sndBtn').click(); await sleep(300); const sel=$('sndVar'); const vis=!!sel&&!sel.hidden;
-          sel.value='B'; sel.dispatchEvent(new Event('change')); const v=Bz().variante, store=localStorage.getItem('atelier.son.coupe');
+          $('sndBtn').click(); await sleep(300); const noVar=!$('sndVar');
           on('asp'); await start(); $('pass').click(); await sleep(1500); await stop(); off('asp');
-          return { N, mix, a, coast, vis, v, store };"""))
+          return { N, mix, a, coast, noVar };"""))
         check(abs(r['N'] - 72) < 0.3 and r['mix'] > 84 and r['mix'] < 85, f'aspiration seule {r["N"]:.1f} dB(A) ; avec le moteur à vide {r["mix"]:.1f} dB(A)')
         check(r['a']['sp'] > 0.9 and abs(r['a']['total'] - 72) < 1.5, f'aspiration en marche : ventilateur à {r["a"]["sp"]:.2f}, sonomètre {r["a"]["total"]:.1f} dB(A)')
-        check(r['vis'] and r['v'] == 'B' and r['store'] == 'B', 'liste « Coupe A / B / C » visible son actif, choix gardé dans le navigateur')
-        check(not pg.errors, 'variante B en coupe : aucune erreur ' + '; '.join(pg.errors))
+        check(r['noVar'], 'son de coupe choisi (« rugissement ») : plus de liste de choix dans l\'en-tête')
+        check(not pg.errors, 'coupe avec le son et l\'aspiration : aucune erreur ' + '; '.join(pg.errors))
 
     # autre machine : le son de l'aspiration seulement (pas de sonomètre)
     async with Page('raboteuse') as pg:
         r = await pg.eval(js(r"""
-          const Bz=window.__atelier.bruit; const out={ has:!!Bz, sono:!!$('sono'), btn:!$('snd').hidden, var:!!$('sndVar') };
+          const Bz=window.__atelier.bruit; const out={ has:!!Bz, sono:!!$('sono'), btn:!$('snd').hidden };
           $('sndBtn').click(); await sleep(300); $('asp').click(); await sleep(1500); out.on=Bz.on; out.asp=Bz.asp; out.alert=Bz.alerte();
           return out;"""))
-        check(r['has'] and r['btn'] and not r['sono'] and not r['var'], 'raboteuse : bouton du son, pas de sonomètre ni de choix de coupe')
+        check(r['has'] and r['btn'] and not r['sono'], 'raboteuse : bouton du son, pas de sonomètre')
         check(r['on'] and r['asp'] > 0.5 and r['alert'] is None, f'raboteuse : aspiration entendue (ventilateur {r["asp"]:.2f}), pas d\'alerte bruit')
         check(not pg.errors, 'raboteuse : aucune erreur ' + '; '.join(pg.errors))
 
@@ -142,10 +141,10 @@ async def main():
         await pg.goto('file://' + os.path.join(ROOT, 'dist', 'Ecoute_bruit.html')); await pg.wait_for_timeout(500)
         r = await pg.evaluate("""async()=>{ const $=id=>document.getElementById(id), sl=ms=>new Promise(r=>setTimeout(r,ms));
           $('son').click(); $('asp').click(); $('motor').click(); await sl(2000);
-          for(const v of ['A','B','C']){ document.querySelector(`[data-var="${v}"]`).click(); document.querySelector('[data-passe="quart"]').click(); await sl(700); }
+          document.querySelector('[data-passe="quart"]').click(); await sl(1200);
           const lv=+$('lv').textContent; return { on:window.__banc.S.son, ctx:window.__banc.SY.ctx&&window.__banc.SY.ctx.state, lv }; }""")
         await b.close()
-        check(r['on'] and r['ctx'] in ('running', 'suspended') and r['lv'] > 90 and not errs, f'banc d\'écoute : son, moteur, aspiration, 3 variantes en coupe ({r["lv"]} dB(A)), aucune erreur ' + '; '.join(errs))
+        check(r['on'] and r['ctx'] in ('running', 'suspended') and r['lv'] > 90 and not errs, f'banc d\'écoute : son, moteur, aspiration, passe ({r["lv"]} dB(A)), aucune erreur ' + '; '.join(errs))
 
     # téléphone : sonomètre visible dans la vue 3D, pas de défilement horizontal
     async with Page('toupie', viewport=(412, 915), touch=True) as pg:

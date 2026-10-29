@@ -7,14 +7,10 @@
      spin   : régime réel / régime affiché (0 à 1) ;  on : moteur commandé ;  mot : gain du moteur à vide (amplitude relative) ;
      cut    : 0 à 1, outil dans le bois ;  cutAmp : gain de la coupe ;  charge : 1 = passe de référence ;
      asp    : régime du ventilateur d'aspiration (0 à 1) ;  aspAmp : gain de l'aspiration ;
-     casque : son étouffé ;  vol : 0 à 100 ;  variante : son de coupe 'A' | 'B' | 'C' (voir VARIANTES) } */
+     casque : son étouffé ;  vol : 0 à 100 } */
 
-export const VARIANTES = {
-  A:'Rugissement : le sifflement de l\'outil se durcit, le moteur peine, copeaux en souffle aigu',
-  B:'Râpe : impacts des dents dans le bois, plus « grrr », le moteur peine',
-  C:'Souffle : le bruit à vide plus fort et plus clair, peu d\'impacts',
-};
-export const VARIANTE_DEFAUT = 'A';
+/* Son de coupe : « rugissement », choisi par l'enseignant le 29/10/2026 parmi trois essais (A rugissement, B râpe, C souffle) :
+   le sifflement de l'outil se durcit, le moteur peine, copeaux en souffle aigu. Les essais B et C ont été retirés (moins de calcul). */
 
 export function createSynth(){
   let A=null;
@@ -52,40 +48,29 @@ export function createSynth(){
     const g3=gain(0); chain(o3, g3, mot);
     const wbp=filt('bandpass',800,0.7), wg=gain(0.9); chain(src(), wbp, wg, mot);
 
-    /* --- coupe : trois sons possibles (banc d'écoute), un seul actif --- */
+    /* --- coupe (« rugissement ») --- */
     const cutBus=gain(0); cutBus.connect(hush);
     const fluct=gain(1); fluct.connect(cutBus); chain(rough, gain(0.18), fluct.gain);      // ± 1,5 dB environ, lent
-    // A : outil « chargé » : passage des dents en dents de scie + harmoniques, copeaux en souffle aigu légèrement haché
-    const vA=gain(0); vA.connect(fluct);
+    // outil « chargé » : passage des dents en dents de scie + harmoniques, copeaux en souffle aigu légèrement haché
+    const vA=gain(1); vA.connect(fluct);
     const aT=osc('sawtooth',200), aT2=osc('triangle',400);
     chain(aT, filt('lowpass',1800,0.9), filt('peaking',900,1.2,6), gain(0.34), vA);
     chain(aT2, gain(0.16), vA);
     const aChipAM=gain(0.7), aP=pulse(200); chain(aP, gain(0.12), aChipAM.gain);
     chain(src(), filt('highpass',1800,0.7), filt('lowpass',5200,0.6), aChipAM, gain(0.55), vA);
     chain(src(), filt('bandpass',260,0.9), gain(0.35), vA);                                 // corps grave (pièce, table)
-    // B : râpe : bruit coloré multiplié par les impulsions des dents, résonance du bois
-    const vB=gain(0); vB.connect(fluct);
-    const bAM=gain(0.15), bP=pulse(200); chain(bP, gain(0.6), bAM.gain);
-    const bRes=filt('bandpass',1200,1.6);
-    chain(src(), bRes, bAM, gain(4.0), vB);
-    const bT=osc('sawtooth',200); chain(bT, filt('lowpass',1200,0.8), gain(0.18), vB);
-    chain(src(), filt('lowpass',320,0.7), gain(0.35), vB);
-    // C : souffle : le bruit à vide plus fort et plus clair (souffle de l'outil qui monte en fréquence), un peu de copeaux
-    const vC=gain(0); vC.connect(fluct);
-    const cW=filt('bandpass',1400,0.6); chain(src(), cW, gain(1.0), vC);
-    const cT=osc('triangle',200); chain(cT, gain(0.25), vC);
-    chain(src(), filt('highpass',2500,0.7), gain(0.25), vC);
 
-    /* --- aspiration (commune à toutes les machines) : souffle large, grave dominant, raie du ventilateur, ronflement --- */
+    /* --- aspiration (commune à toutes les machines) : un « ronron » régulier (demandé par l'enseignant le 29/10/2026 : moins de vent
+       aléatoire) : rotation du ventilateur (grave), passage des pales et son harmonique, un souffle régulier et discret --- */
     const aspBus=gain(0); aspBus.connect(hush);
-    const aspLow=filt('lowpass',900,0.6), aspPk=filt('peaking',380,1.0,5);
-    chain(src(nb,1), aspLow, aspPk, gain(1.0), aspBus);
-    const aspHi=filt('bandpass',2200,0.5); chain(src(wb,1), aspHi, gain(0.07), aspBus);   // sifflement d'air à la buse, faible
-    const fan=osc('sine',300), fanG=gain(0); chain(fan, fanG, aspBus);                       // raie du ventilateur (pales)
-    const hum=osc('sine',100), humG=gain(0); chain(hum, humG, aspBus);
+    const fanR=osc('sawtooth',48), fanRG=gain(0); chain(fanR, filt('lowpass',260,0.8), fanRG, aspBus);      // rotation du ventilateur : ronron grave
+    const fan=osc('triangle',340), fanG=gain(0); chain(fan, filt('lowpass',900,0.7), fanG, aspBus);       // passage des pales
+    const fan2=osc('sine',680), fan2G=gain(0); chain(fan2, fan2G, aspBus);
+    const hum=osc('sine',100), humG=gain(0); chain(hum, humG, aspBus);                                    // ronflement électrique
+    const aspLow=filt('lowpass',600,0.5); chain(src(wb,1), aspLow, gain(0.22), aspBus);                   // souffle régulier (bruit blanc filtré, sans dérive)
 
-    A={ ctx, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, vB, vC, aT, aT2, aP, bP, bT, bRes, cW, cT,
-      aspBus, aspLow, fan, fanG, humG, nb };
+    A={ ctx, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, aT, aT2, aP,
+      aspBus, aspLow, fanR, fanRG, fan, fanG, fan2, fan2G, humG, nb };
     return S;
   };
 
@@ -98,16 +83,16 @@ export function createSynth(){
     T(A.g3.gain, p.on? 0.08 : 0);
     T(A.wbp.frequency, 300+900*sp); T(A.wg.gain, 0.4+0.6*sp*sp);
     T(A.mot.gain, (p.mot||0)*0.9);
-    for(const o of [A.aT,A.aP,A.bP,A.bT,A.cT]) T(o.frequency, ft, 0.12);
+    for(const o of [A.aT,A.aP]) T(o.frequency, ft, 0.12);
     T(A.aT2.frequency, ft*2, 0.12);
-    const bright=Math.min(1, Math.log10(ch*3)/1.3);                 // passe forte, bois dur : plus aigu
-    T(A.bRes.frequency, 900+1300*bright); T(A.cW.frequency, 900+1600*bright);
-    const v=p.variante||VARIANTE_DEFAUT;
-    T(A.vA.gain, v==='A'?1:0, 0.03); T(A.vB.gain, v==='B'?1:0, 0.03); T(A.vC.gain, v==='C'?1:0, 0.03);
     T(A.cutBus.gain, (p.cutAmp||0)*cut, 0.05);
     const as=Math.max(0,Math.min(1,p.asp||0));
-    T(A.aspBus.gain, (p.aspAmp||0), 0.1); T(A.aspLow.frequency, 300+700*as, 0.1);
-    T(A.fan.frequency, Math.max(1, 2900/60*7*as), 0.1); T(A.fanG.gain, 0.05*as, 0.1); T(A.humG.gain, as>0.02? 0.04 : 0, 0.1);
+    const fr=Math.max(1, 2900/60*as);                                   // ventilateur à 2 900 tr/min, 7 pales
+    T(A.aspBus.gain, (p.aspAmp||0), 0.1); T(A.aspLow.frequency, 200+400*as, 0.1);
+    T(A.fanR.frequency, fr, 0.1); T(A.fanRG.gain, 0.55*as, 0.1);
+    T(A.fan.frequency, fr*7, 0.1); T(A.fanG.gain, 0.32*as, 0.1);
+    T(A.fan2.frequency, fr*14, 0.1); T(A.fan2G.gain, 0.06*as, 0.1);
+    T(A.humG.gain, as>0.02? 0.10 : 0, 0.1);
     /* casque : son étouffé (passe-bas) et plus faible ; à l'écoute, −16 dB seulement pour rester audible */
     T(A.muffle.frequency, p.casque? 650 : 16000, 0.08);
     T(A.master.gain, ((p.vol??60)/100)**2 * 0.9 * (p.casque? 0.16 : 1), 0.08);
