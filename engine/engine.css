@@ -251,3 +251,31 @@ input:disabled{opacity:.45}
   .pupitre .pup-au{order:1}
   .pupitre button{order:2;min-height:40px;padding:0 6px;font-size:13px;line-height:1.1}
 }
+/* fiches de la machine (engine/fiches.js) : onglet de la colonne de gauche en présentation, lecture obligatoire avant l'évaluation */
+.ltabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px 0 0;padding-bottom:6px}
+.ltab{flex:1;font:600 13px var(--f-body);padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);cursor:pointer}
+.ltab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#fichesN{font-weight:500;opacity:.85}
+.app[data-lt="fiches"] .lt-parts,.app[data-lt="fiches"] .left .note{display:none}
+@media (min-width:901px){ .app[data-ui="pres"][data-lt="fiches"]{grid-template-columns:380px minmax(0,1fr) 300px} }
+.fiches-box{display:flex;flex-direction:column;gap:6px}
+.fiches-prog{display:grid;gap:5px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:13px}
+.fiches-prog[data-all="true"]{border-color:var(--ok)}
+.fiches-prog .fbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.fiches-prog .fbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.fiches-prog[data-all="true"] .fbar i{background:var(--ok)}
+.fiches-msg{color:var(--muted);line-height:1.4}
+.fiche{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:6px 10px}
+.fiche summary{cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:16px;line-height:1.2;list-style:none}
+.fiche summary::-webkit-details-marker{display:none}
+.fiche .fnum{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--f-body);background:var(--line);color:var(--fg)}
+.fiche[data-lu="true"] .fnum{background:var(--ok);color:#fff}
+.fiche p{margin:6px 0;font-size:14px;line-height:1.45}
+.fiche ul{margin:4px 0 6px 1.1em;padding:0;font-size:14px;line-height:1.45}
+.fiche li{margin:3px 0}
+.fiche .src{font-size:12px;color:var(--muted);font-style:italic}
+.fiche-act{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;margin:8px 0 4px}
+.fiche-lu{margin-left:auto;background:var(--accent);border-color:var(--accent);color:#fff}
+.fiche-lu:disabled{background:var(--bg);border-color:var(--ok);color:var(--ok);opacity:1}
+.parc-card .fiches-box{margin-top:8px}
+@media (max-width:900px){ .app[data-ui="pres"] .left{display:flex} .app[data-ui="pres"]{grid-template-areas:"top" "stage" "left" "right";grid-template-rows:auto 58vh auto auto} }

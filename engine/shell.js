@@ -14,8 +14,10 @@ export function renderShell(c, frag){
     <div class="views">${views}<button id="fs" type="button" class="fs-btn" aria-pressed="false" title="Afficher en plein écran (Échap pour quitter)" aria-label="Plein écran">⛶</button></div>
   </header>
   <aside class="left" id="left">
-    <h2>Nomenclature</h2>
-    <ul class="parts" id="parts"></ul>
+    <div class="ltabs" id="ltabs" role="tablist" hidden><button type="button" role="tab" class="ltab" data-lt="fiches" id="lt-fiches">Fiches <span id="fichesN"></span></button><button type="button" role="tab" class="ltab" data-lt="parts" id="lt-parts">Nomenclature</button></div>
+    <section class="fiches-box" id="fichesBox" hidden aria-label="Fiches de la machine"></section>
+    <h2 class="lt-parts">Nomenclature</h2>
+    <ul class="parts lt-parts" id="parts"></ul>
     ${c.note?`<p class="note">${c.note}</p>`:''}
   </aside>
   <div class="stage">

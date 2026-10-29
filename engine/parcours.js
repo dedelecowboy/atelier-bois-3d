@@ -24,13 +24,15 @@ export function createParcours(app, { reperage, qcm }, P){
   let on = true;                                   // false : entraînement (paquetage unique), le parcours ne relève rien
   const act = ()=> PARC_ON && on;
   const REP = reperage, QCM = qcm, SCENS = P.scenarios;
-  const parc={ph:'rep', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
+  const parc={ph:'rep', lu:[], luD:'', ri:0, rk:[], qi:0, qk:[], qAns:null, si:0, scens:[], dangers:[], done:false, total:0, passed:false, cand:null, t0:Date.now()};
   let repFeedback='', repLock=false, repCfgKey=null, repQKey=null, parcKey='';
   const CODE=(app.config.scorm?.code||app.config.id||'M').toUpperCase();
   const txt=v=>String(v).replace(/±/g,'+/-').replace(/≤/g,'max').replace(/≥/g,'min').replace(/·/g,'|').replace(/[\u00a0\u202f]/g,' ').replace(/[^\p{L}\p{N}.,:;\/()×+%°'| -]/gu,' ').replace(/\s+/g,' ').trim();
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
-    state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed}; } });
+    state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed,lu,luD}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,passed,lu,luD}; } });
   const repName=r=>r.name||parts.PARTS[r.k].n.toLowerCase();
+  /* lecture des fiches avant le repérage (paquetage séparé ; dans le paquetage unique, « Passer l'évaluation » reste fermé tant qu'elles ne sont pas lues) */
+  const lec=()=>parc.ph==='rep' && !parc.rk.length && !!app.fiches?.need();
   const curRep=()=>REP[Math.min(parc.ri,REP.length-1)];
 
   /* --- repérage --- */
@@ -44,7 +46,7 @@ export function createParcours(app, { reperage, qcm }, P){
     setTimeout(()=>{ repLock=false; repFeedback=''; parts.select(null); parc.ri++; if(parc.ri>=REP.length){ parc.ph='qcm'; } scorm.save(); render(); }, ok?900:2200);
     render(); }
   /* au clic dans la 3D pendant le repérage : pièces et organes masqués par la transparence ignorés */
-  function pick(hits){ if(!act()||parc.ph!=='rep') return false;
+  function pick(hits){ if(!act()||parc.ph!=='rep'||lec()) return false;
     const h=hits.find(h=>h.object.userData.part && !(P.ignore||[]).includes(h.object.userData.part) && !parts.hiddenByXray(h.object.userData.part));
     if(h) repPick(h.object.userData.part); return true; }
 
@@ -90,16 +92,20 @@ export function createParcours(app, { reperage, qcm }, P){
     if(qk!==repQKey){ repQKey=qk; if(parts.xray!==wantX) parts.setXray(wantX,false); }
     if(ck!==repCfgKey){ const prev=repCfgKey; repCfgKey=ck; parts.setXray(wantX,false);
       if(cfg.view) stage.setView(cfg.view); else if(cfg.x) parts.setXray(true,true); else if(prev!==null) stage.setView(Object.keys(stage.VIEWS)[0]); }
-    { const bar=$('repBar'); bar.hidden=parc.ph!=='rep'; if(parc.ph==='rep'){
+    { const bar=$('repBar'); bar.hidden=parc.ph!=='rep'||lec(); if(parc.ph==='rep'&&!lec()){
         $('repQ').textContent=`${Math.min(parc.ri+1,REP.length)}/${REP.length} · Trouvez : ${repName(R)}`;
         const fb=$('repFb'); fb.textContent= repFeedback || (parc.cand? `${L.item[0].toUpperCase()+L.item.slice(1)} en surbrillance : validez, ou touchez-en un autre.` : wantX? 'Vue en transparence : l\'organe est à l\'intérieur de la machine.' : `Touchez l'${L.item} ${L.where} (zoomez si besoin).`);
         fb.dataset.ok= repFeedback? String(repFeedback.startsWith('Exact')) : '';
         $('repOk').disabled=!parc.cand||repLock; $('repNo').disabled=!parc.cand||repLock; $('repOk').onclick=repValidate; $('repNo').onclick=repCancel; } }
-    const steps=[['rep',L.rep],['qcm',P.qcmTitle||'QCM sécurité'],...SCENS.map((s,i)=>['s'+i,'Scénario '+(i+1)+' : '+s.t.toLowerCase()])];
-    const cur= parc.ph==='rep'?0 : parc.ph==='qcm'?1 : parc.ph==='fin'?99 : 2+parc.si;
+    const hasF=!!app.fiches?.list.length, o=hasF?1:0;
+    const steps=[...(hasF?[['lec','Fiches de la machine']]:[]),['rep',L.rep],['qcm',P.qcmTitle||'QCM sécurité'],...SCENS.map((s,i)=>['s'+i,'Scénario '+(i+1)+' : '+s.t.toLowerCase()])];
+    const cur= lec()?0 : parc.ph==='rep'?o : parc.ph==='qcm'?1+o : parc.ph==='fin'?99 : 2+o+parc.si;
     $('parcSteps').innerHTML=steps.map(([k,t],i)=>{ const state= i<cur?'done': i===cur?'cur':'lock';
       return `<li data-s="${state}"><span>${state==='done'?'✓':state==='lock'?'🔒':i+1}</span>${t}</li>`; }).join('');
     const rs=sum(parc.rk), qs=sum(parc.qk);
+    if(lec()){ const F=app.fiches;
+      el.innerHTML=`<p class="pk">Avant l'évaluation</p><h3>Lisez les fiches de la machine</h3><p>Ouvrez chaque fiche, lisez-la jusqu'au bout, puis touchez « J'ai lu cette fiche ». Le repérage des ${L.item}s commence quand les ${F.list.length} fiches sont lues.</p><div class="fiches-box" id="parcFiches"></div>`;
+      F.mount($('parcFiches'), { todoMsg:'Lecture obligatoire avant le repérage.', doneMsg:'Toutes les fiches sont lues.' }); return; }
     if(parc.ph==='rep'){
       el.innerHTML=`<p class="pk">${L.rep.split(' ')[0]} ${Math.min(parc.ri+1,REP.length)} / ${REP.length}</p><h3>Trouvez : ${repName(R)}</h3><p>Touchez (ou cliquez) l'${L.item} : il passe en surbrillance. Vérifiez, puis <b>Valider</b>. Faites tourner et zoomez si besoin. Une seule réponse validée par ${L.item}.${wantX?' '+L.inside:''}</p>${repFeedback?`<p class="fb" data-ok="${repFeedback.startsWith('Exact')}">${repFeedback}</p>`:''}<p class="pk">Bonnes réponses : ${rs} / ${parc.rk.length}</p>`; }
     else if(parc.ph==='qcm'){ const Q=QCM[parc.qi], ans=parc.qAns;
@@ -122,7 +128,7 @@ export function createParcours(app, { reperage, qcm }, P){
   function start(){ scorm.init(); if(parc.ph==='scen') parc.ph='scen-intro'; P.onStart?.(); app.setUI('parcours'); if(parc.ph==='rep') parts.select(null); render(); }
 
   /* pendant le repérage, la vue intérieure n'est pas libre (le bouton « Vue intérieure » est caché) */
-  const inRep=()=>act() && parc.ph==='rep';
+  const inRep=()=>act() && parc.ph==='rep' && !lec();
   /* paquetage unique : passage entraînement ↔ évaluation. Un scénario quitté est repris depuis son introduction
      (ses fautes graves sont conservées), comme à la reprise d'une session. */
   function setActive(v){ if(!PARC_ON || v===on) return; on=v;

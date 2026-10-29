@@ -15,7 +15,7 @@ import { buildModel } from './model.js';
 import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria } from './scenarios.js';
 
 const data = ctx.data = { dangers:parseDangers(dangersTxt), epi:parseEpi(epiTxt), fiches:parseFiches(fichesTxt) };
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches:fichesTxt });
 const { stage, parts } = app;
 const THREE = stage.THREE;
 const model = ctx.model = buildModel({ root:stage.root, tagPart:parts.tagPart });
@@ -55,9 +55,9 @@ function posteView(x,z,ry,dist=2.8,h=1.75,ty=1.1,side=0){ const V=stage.VIEWS.vp
 
 /* ---------- présentation : fiches risques ---------- */
 { const h=$('presSlot').querySelector('h2'); if(h) h.textContent='Fiches risques'; }
-$('fiches').innerHTML=data.fiches.map((f,i)=>`<details class="fiche"${i===0?' open':''}><summary>${esc(f.t)}</summary>${f.blocks.map(b=>b.p?`<p>${esc(b.p)}</p>`:b.ul?`<ul>${b.ul.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p class="src">${esc(b.src)}</p>`).join('')}${f.parts.length?`<button type="button" class="toggle mini" data-fiche="${i}">Voir dans l'atelier</button>`:''}</details>`).join('');
-document.querySelectorAll('[data-fiche]').forEach(b=>b.onclick=()=>{ const f=data.fiches[+b.dataset.fiche]; parts.select(null); parts.highlight(f.parts, 0xd27a1c); frame(f.parts);
-  $('info').innerHTML=`<b>${esc(f.t)}</b><span>${f.parts.map(k=>parts.PARTS[k]?.n).filter(Boolean).join(' · ')}</span>`; });
+/* fiches risques : le mécanisme commun (engine/fiches.js : lecture obligatoire avant l'évaluation, trace RISQUES_lecture)
+   les affiche dans #fiches (colonne de droite) ; « Voir dans l'atelier » cadre les équipements (app.fichesShow) */
+app.fichesShow=f=>frame(f.parts);
 /* nomenclature : l'équipement choisi dans la liste est cadré */
 $('parts').addEventListener('click',e=>{ const b=e.target.closest('button[data-k]'); if(b && parts.selected===b.dataset.k) frame([b.dataset.k]); });
 
@@ -162,7 +162,7 @@ function onPick(hit,hits){ const m=mode();
 /* ---------- démarrage ---------- */
 let lastApply=0;
 app.start({
-  update, alerts, renderExtra,
+  update, alerts, renderExtra, fiches:{ el:'fiches', voir:'Voir dans l\'atelier' },
   steps:buildSteps(),
   loadMode(m){ reset(m); F.msg=''; actKey=''; markKey=''; lastMode='';
     if(m==='consignation'){ st.c.on=true; syncMachine(); stage.setView('vmachine'); }

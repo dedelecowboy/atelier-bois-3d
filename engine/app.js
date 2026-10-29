@@ -21,20 +21,22 @@ import { createStage } from './stage.js';
 import { createParts } from './parts.js';
 import { createExercise } from './exercise.js';
 import { createParcours } from './parcours.js';
-import { parseOrganes, parseQcm, parseReperage, checkData } from './data.js';
+import { parseOrganes, parseQcm, parseReperage, parseFiches, checkData } from './data.js';
+import { createFiches } from './fiches.js';
 import { moodleNav, pkg, pkgLock } from './moodlenav.js';
 
 const $ = id=>document.getElementById(id);
 
 export function createApp(config, raw){
   const organes=parseOrganes(raw.organes), qcm=parseQcm(raw.qcm), reperage=parseReperage(raw.reperage, config.views);
+  const fiches=raw.fiches? parseFiches(raw.fiches) : [];   // fiches de la présentation (lecture obligatoire avant l'évaluation)
   checkData({organes, reperage});
   const stage=createStage(config.views, config.stage);
   const parts=createParts(stage, organes, config);
   const ex=createExercise(config.modes);
   let H=null, parc=null;
 
-  const app={ config, stage, parts, ex, data:{organes, qcm, reperage},
+  const app={ config, stage, parts, ex, data:{organes, qcm, reperage, fiches},
     toast:stage.toast,
     get parcours(){ return parc; },
     alerts:()=>H.alerts(),
@@ -55,6 +57,16 @@ export function createApp(config, raw){
       document.querySelectorAll('button[data-ui]').forEach(b=>b.onclick=()=>app.setUI(b.dataset.ui));
       ex.setMode(config.modes[0].id); app.setUI('pres');
       if(parc.PARC_ON) parc.start();
+      /* fiches de la machine : onglet « Fiches » de la colonne de gauche (ou le conteneur donné par hooks.fiches.el) ;
+         lues après la reprise de suspend_data (parc.start). L'onglet s'ouvre sur les fiches tant qu'elles ne sont pas toutes lues. */
+      app.fiches=createFiches(app, parc);
+      if(app.fiches.list.length){
+        if(hooks.fiches?.el) app.fiches.mount($(hooks.fiches.el), hooks.fiches);
+        else { const tabs=$('ltabs'), setLt=t=>{ $('app').dataset.lt=t; $('fichesBox').hidden=t!=='fiches';
+              tabs.querySelectorAll('.ltab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.lt===t))); stage.resize?.(); stage.dirty(); };
+          tabs.hidden=false; tabs.querySelectorAll('.ltab').forEach(b=>b.onclick=()=>setLt(b.dataset.lt));
+          app.fiches.mount($('fichesBox'), hooks.fiches||{}); setLt(app.fiches.need()?'fiches':'parts'); app.showFiches=()=>setLt('fiches'); }
+        if(parc.PARC_ON){ app.fiches.onChange(()=>parc.render()); parc.render(); } }
       /* paquetage « Atelier bois 3D » : retour à l'atelier par le sommaire de Moodle (la progression est enregistrée à la sortie) */
       /* paquetage unique : à l'entrée, l'élève choisit S'entraîner (présentation + exercices, rien d'enregistré)
          ou l'évaluation (parcours noté) ; un bouton de l'en-tête passe de l'un à l'autre */
@@ -65,12 +77,20 @@ export function createApp(config, raw){
         $('chTitle').textContent=config.title;
         if(P.done){ $('chEvalT').textContent='Voir mon résultat'; $('chEvalS').textContent=`Évaluation terminée : ${P.total} / 100, ${P.passed?'machine validée':'machine non validée'}.`; }
         else if(P.ph!=='rep' || P.rk.length){ $('chEvalT').textContent='Reprendre l\'évaluation'; }
-        /* version avec verrous : évaluation fermée tant que la machine précédente n'est pas réussie (l'entraînement reste ouvert) */
-        const lockBy=pkgLock(config.id);
-        if(lockBy && !P.done && P.ph==='rep' && !P.rk.length){ const n=(pkg().titles[lockBy]||lockBy).replace(/^\d+\.\s*/,'');
-          $('chEval').disabled=true; $('chEvalT').textContent='🔒 Évaluation verrouillée'; $('chEvalS').textContent=`Réussissez d'abord l'évaluation « ${n} ». Vous pouvez vous entraîner sur cette machine en attendant.`; }
-        $('chTrain').onclick=()=>train(true); $('chEval').onclick=()=>train(false);
-        sw.onclick=()=>{ if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); return; } train(sw.dataset.train!=='true'); };
+        /* évaluation fermée (l'entraînement reste ouvert) : version avec verrous, tant que l'élément précédent n'est pas réussi ;
+           et tant que les fiches de la machine ne sont pas toutes lues (lecture obligatoire, demandé par l'enseignant le 29/10/2026).
+           Une évaluation déjà commencée ou terminée n'est jamais bloquée. */
+        const def={ t:$('chEvalT').textContent, s:$('chEvalS').textContent };
+        const evalLock=()=>{ if(P.done || P.ph!=='rep' || P.rk.length) return null;
+          const lockBy=pkgLock(config.id);
+          if(lockBy){ const n=(pkg().titles[lockBy]||lockBy).replace(/^\d+\.\s*/,'');
+            return { t:'🔒 Évaluation verrouillée', s:`Réussissez d'abord l'évaluation « ${n} ». Vous pouvez vous entraîner sur cette machine en attendant.` }; }
+          if(app.fiches.need()) return { t:'🔒 Lisez d\'abord les fiches', s:`Fiches lues : ${app.fiches.count()} / ${app.fiches.list.length}. Choisissez « S'entraîner » : les fiches de la machine sont dans la présentation, onglet « Fiches ».` };
+          return null; };
+        const refreshChoice=()=>{ const L=evalLock(); $('chEval').disabled=!!L; $('chEvalT').textContent=L?L.t:def.t; $('chEvalS').textContent=L?L.s:def.s; };
+        refreshChoice(); app.fiches.onChange(refreshChoice);
+        $('chTrain').onclick=()=>{ train(true); if(app.fiches.need()) app.showFiches?.(); }; $('chEval').onclick=()=>train(false);
+        sw.onclick=()=>{ refreshChoice(); if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); if(app.fiches.need()) app.showFiches?.(); return; } train(sw.dataset.train!=='true'); };
         parc.setActive(false); $('choice').hidden=false; }
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
