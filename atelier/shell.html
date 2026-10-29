@@ -1,0 +1,34 @@
+<div class="at" id="at">
+  <header class="at-top">
+    <div class="at-brand"><span class="at-logo" aria-hidden="true"></span><div><h1>Atelier bois 3D</h1><p>Lycée André MALRAUX · Remiremont</p></div></div>
+    <div class="at-tools">
+      <button class="toggle" type="button" id="home" title="Revenir à la vue d'ensemble">Vue d'ensemble</button>
+      <button class="toggle" type="button" id="chaine" aria-pressed="true" title="Afficher la chaîne de débit peinte au sol">Chaîne de débit</button>
+      <span class="vseg" role="group" aria-label="Version"><button class="toggle" type="button" id="vWeb" aria-pressed="true" title="Entraînement en ligne : toutes les machines ouvertes, sans note">Entraînement</button><button class="toggle" type="button" id="eleve" aria-pressed="false" title="Aperçu de la version Moodle : les machines se déverrouillent une à une">Moodle</button></span>
+      <button class="toggle" type="button" id="editBtn" aria-pressed="false" title="Déplacer et tourner les machines dans la salle">Modifier l'implantation</button>
+      <button class="toggle fs-btn" type="button" id="fs" title="Plein écran" aria-label="Plein écran">⛶</button>
+    </div>
+  </header>
+  <aside class="at-side">
+    <h2>Postes</h2>
+    <ol class="postes" id="postes"></ol>
+    <div class="prog" id="prog" hidden>
+      <p>Modules validés <b id="progN"></b></p>
+      <div class="bar"><i id="progBar"></i></div>
+      <div class="row"><button class="toggle" type="button" id="progMinus" aria-label="Un module de moins">−</button><button class="toggle" type="button" id="progPlus" aria-label="Un module de plus">+</button></div>
+      <p class="hint">Simulation : dans Moodle, le déverrouillage se fait par les restrictions d'accès.</p>
+    </div>
+    <ul class="legend">
+      <li style="--fam:#c4261c">Sécurité</li><li style="--fam:#c76a14">Débit</li><li style="--fam:#2f7d6f">Corroyage</li><li style="--fam:#5a5fb0">Usinage</li><li style="--fam:#8a6a3a">Panneaux</li>
+    </ul>
+  </aside>
+  <div class="at-stage">
+    <canvas id="c" aria-label="Vue 3D de l'atelier bois : cliquez une machine"></canvas>
+    <div class="labels" id="labels"></div>
+    <div class="tip" id="tip" role="status" hidden></div>
+    <div class="card" id="card" hidden></div>
+    <div class="edit" id="edit" hidden></div>
+    <p class="help" id="help">Glisser pour tourner · molette ou pincement pour zoomer · clic sur une machine</p>
+    <div class="lost" id="lost" hidden><p>L'affichage 3D a été interrompu par la carte graphique.</p><button class="toggle" id="relaunch" type="button">Relancer l'affichage</button></div>
+  </div>
+</div>

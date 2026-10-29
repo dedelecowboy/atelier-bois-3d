@@ -1,0 +1,134 @@
+# QCM sécurité et technique de la scie à ruban (parcours évalué)
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# Sources : INRS ED 6316 « Scies à ruban à table » (2018), fiche OPPBTP « Scie à ruban » (C1 F 10 11, 2011),
+# fiche CFB TB 2 « Scie à ruban », cours « La scie à ruban » (Lycée André Malraux), fiche accident OPPBTP
+# « Blessé à la main par une scie à ruban » (L'Entrepreneur n° 220, avril 2007), document technique LEMAN 2026.
+
+Q: Quels sont les trois principaux dangers de la scie à ruban ?
++ Le contact avec la lame, le rejet d'une pièce mal tenue, la rupture de la lame
+- Le bruit, la poussière, l'électricité
+- Le rejet de la pièce, la chute du guide, le bruit
+= Cours du lycée : contact avec l'outil, rejet de la pièce mal tenue, rupture de la lame. Le bruit et la poussière existent aussi, mais ce ne sont pas les causes principales d'accident.
+
+Q: Où règle-t-on le guide-lame supérieur et son protecteur ?
+- Tout en haut, pour bien voir la lame
++ Juste au-dessus de la pièce, au plus près (quelques millimètres)
+- À mi-hauteur entre la table et le carter
+= Au plus près de la pièce, seule la partie de lame qui scie reste accessible, et la lame est mieux guidée (OPPBTP, INRS ED 6316).
+
+Q: Comment choisit-on la largeur de la lame pour chantourner ?
+- La plus large possible, quel que soit le tracé
++ Assez étroite pour suivre le plus petit rayon du tracé
+- La plus étroite possible, toujours
+= Une lame ne suit pas un rayon plus petit que son rayon mini : elle force, se tord et peut casser. On prend la lame la plus large qui suit le plus petit rayon du tracé.
+
+Q: Combien de dents doivent être en prise dans l'épaisseur du bois, au minimum ?
+- 1
++ 3
+- 10
+= Au moins 3 dents en prise : la coupe est régulière, sans à-coups. Le pas se choisit donc selon l'épaisseur de la pièce.
+
+Q: Sur quelle valeur règle-t-on l'indicateur de tension ?
++ Sur la largeur de la lame montée
+- Toujours au maximum
+- Sur l'épaisseur de la pièce à scier
+= L'indicateur est gradué en largeur de lame : une lame de 30 mm se tend sur 30. Trop tendue, elle casse ; pas assez, elle dérive et peut sortir des volants.
+
+Q: Où se placent les dents d'une lame large sur le volant ?
+- Au milieu du bandage
++ En dehors du bandage, devant lui
+- Au fond, contre le bord arrière de la jante
+= Lame large : dents en dehors du bandage, pour ne pas mater la voie. Lame à chantourner : au milieu du bandage. On règle avec le dévers en tournant le volant à la main.
+
+Q: Où règle-t-on les galets latéraux du guide-lame ?
+- Contre les dents, pour bien tenir la lame
++ À quelques dixièmes de millimètre de la lame, en arrière du fond de denture
+- À 2 mm de chaque côté de la lame
+= Sur les dents, les galets abîment la voie. Trop loin de la lame, ils ne la tiennent plus : la coupe dérive.
+
+Q: Que faut-il faire avant de changer la lame ?
+- Appuyer sur l'arrêt d'urgence
++ Arrêter, attendre l'arrêt complet, puis consigner : sectionneur sur 0 et cadenas
+- Ouvrir les portes dès que l'on a appuyé sur O
+= L'arrêt d'urgence seul ne suffit pas : quelqu'un peut redémarrer la machine. On consigne avec son cadenas, puis on porte des gants pour manipuler la lame.
+
+Q: Comment doivent être orientées les dents de la lame montée ?
++ Vers le bas, côté opérateur, sur le brin qui descend vers la table
+- Vers le haut, côté opérateur
+- Peu importe, la lame coupe dans les deux sens
+= La lame descend sur la table : les dents doivent attaquer le bois vers le bas. Montée à l'envers, elle ne coupe pas et chauffe.
+
+Q: Pendant la refente au guide parallèle, à la fin de la passe :
+- On pousse la pièce avec la main, doigts serrés
++ On pousse la fin de la pièce avec le poussoir
+- On tire la pièce vers soi pour la sortir
+= En fin de passe, la main approche de la lame : on la remplace par le poussoir (INRS ED 6316, OPPBTP). Ne jamais tirer la pièce vers soi.
+
+Q: Fiche accident OPPBTP : un menuisier déligne à la scie à ruban, protecteur bien réglé, la main à plat sur la pièce. Que s'est-il passé ?
+- La lame a cassé
++ En fin de passe, son pouce a heurté la lame : il aurait dû utiliser un poussoir
+- La pièce a été rejetée vers lui
+= Même avec un protecteur bien réglé, la fin de passe est dangereuse : poussoir obligatoire pour que la main ne s'approche jamais de la lame.
+
+Q: Pendant un chantournage, où sont les mains ?
+- Une main devant la lame, dans son axe, pour bien guider
++ Derrière la pointe des dents, de part et d'autre de la lame, jamais dans son axe
+- Sous la pièce
+= Mains de part et d'autre de la lame, en arrière, le plus loin possible ; jamais dans l'axe de la lame (cours du lycée, OPPBTP).
+
+Q: En chantournant, vous êtes sorti du trait. Que faites-vous ?
+- Vous reculez la pièce, lame en marche
++ Vous arrêtez la lame, attendez l'arrêt complet, puis reculez la pièce
+- Vous forcez pour revenir sur le trait
+= Reculer dans une courbe lame en marche peut faire sortir la lame des volants. Forcer la tord et peut la casser.
+
+Q: Une petite chute est restée contre la lame. Que faites-vous ?
+- Vous la retirez à la main, vite
++ Vous la dégagez avec le poussoir, ou vous attendez l'arrêt complet de la lame
+- Vous soufflez dessus
+= Jamais la main près de la lame en mouvement : poussoir, chute de bois ou balayette, ou arrêt complet (INRS ED 6316).
+
+Q: Comment scier un rondin (pièce ronde) à la scie à ruban ?
+- À la main, en le tenant fermement
++ Dans un gabarit (vé) ou un montage qui l'empêche de rouler
+- Contre le guide parallèle
+= Une pièce ronde roule sous l'effet de la lame : elle est happée et entraîne la main. On la tient dans un gabarit.
+
+Q: La lame donne des à-coups pendant le sciage. Que faites-vous ?
++ Vous arrêtez immédiatement : la lame risque de casser
+- Vous poussez plus fort pour finir la coupe
+- Vous continuez, c'est normal
+= Vibrations ou à-coups : arrêter tout de suite et changer la lame (cours du lycée).
+
+Q: La lame casse pendant le travail. Que faites-vous ?
+- Vous ouvrez tout de suite la porte pour voir
++ Vous restez à l'écart, arrêtez la machine, attendez l'arrêt complet des volants, consignez avant d'ouvrir
+- Vous retenez la lame à la main
+= Les volants continuent de tourner : ne rien ouvrir avant l'arrêt complet. Les portes et le protecteur retiennent les morceaux de lame.
+
+Q: Quelle est l'épaisseur maximale de lame pour des volants de 800 mm ?
+- 1,5 mm
++ 0,8 mm (1/1000 du diamètre)
+- 0,3 mm
+= Épaisseur = diamètre des volants / 1000 (INRS ED 6316). Une lame trop épaisse fatigue en passant sur les volants et casse.
+
+Q: Une pièce longue doit être refendue. Que prévoyez-vous ?
+- Un camarade qui tire la pièce à la sortie
++ Une servante en sortie de table
+- Rien, la table suffit
+= Une servante soutient la pièce à l'horizontale (OPPBTP). Personne ne tire la pièce à la sortie de la lame.
+
+Q: Que fait-on à la fin du travail ?
+- On laisse la lame tendue pour gagner du temps
++ On arrête, attend l'arrêt complet, détend la lame et le signale, nettoie à l'aspirateur
+- On souffle la machine à la soufflette
+= Détendre la lame (surtout avant un week-end) et le signaler par un écriteau ; nettoyer à l'aspirateur, jamais à la soufflette (INRS ED 6316, cours du lycée).

@@ -1,0 +1,30 @@
+# Repérage des organes (parcours évalué), dans l'ordre où ils sont demandés.
+#
+# Comment modifier ce fichier :
+# - Une ligne par organe :   code | vue | nom demandé
+# - code : le code de l'organe, celui écrit entre crochets dans organes.txt.
+# - vue (facultatif) : comment la machine est montrée pour cette question.
+#     transparence = capot, bâti et armoire translucides (organes intérieurs)
+#     intérieur    = vue d'ensemble de la tête (à combiner avec transparence)
+#     3/4, opérateur, bédane, table, profondeur, pupitre = les vues des boutons en haut de l'écran
+#   On peut combiner deux mots séparés par une virgule : « bédane, transparence ».
+# - nom demandé (facultatif) : texte affiché après « Trouvez : ».
+#   Par défaut, c'est le nom de l'organe écrit en minuscules.
+# - La note du repérage reste sur 20, quel que soit le nombre d'organes.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+capot            | 3/4                      | capot de protection
+table            | opérateur                | table
+verin_v          | opérateur                | vérin de serrage vertical
+verin_h          | table                    | vérin de serrage horizontal
+butee_g          | table                    | butée gauche
+guide            | table                    | guide
+regle_table      | opérateur                | règle et taquets de la table
+bedane           | bédane, transparence     | bédane
+reglage_haut     | bédane, transparence     | réglage de la hauteur du bédane (arasement)
+taquets_prof     | profondeur               | règle et taquets de profondeur
+aspiration       | 3/4                      | captage des copeaux
+arret_urgence    | pupitre                  | arrêt d'urgence
+btn_verins       | pupitre                  | bouton de mise en pression des vérins
+sel_bedane       | pupitre                  | sélecteur de mise en route du bédane
+sectionneur      | 3/4                      | interrupteur général cadenassable

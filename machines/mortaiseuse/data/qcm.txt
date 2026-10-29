@@ -1,0 +1,133 @@
+# QCM sécurité et technique de la mortaiseuse (parcours évalué), niveau bac pro / CAP
+# Sources : cours « La mortaiseuse à bédane horizontal » et fiches de l'atelier (sécurité, mise en marche, procédure, profondeur,
+# distance, arasement) ; INRS ED 6109 (consignation), ED 6122 (risques mécaniques), ED 974 (poussières de bois) ; voir sources.txt.
+#
+# Comment modifier ce fichier :
+# - Une question par bloc ; les blocs sont séparés par une ligne vide.
+# - Q:  la question
+# - +   la bonne réponse (une seule par question)
+# - -   une mauvaise réponse
+# - =   l'explication affichée après la réponse de l'élève
+# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
+# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+Q: À quoi sert la mortaiseuse ?
+- À usiner des tenons en bout de pièce
++ À usiner des mortaises, les trous rectangulaires qui reçoivent les tenons
+- À mettre les pièces à largeur
+= La mortaise est la moitié femelle de l'assemblage tenon-mortaise : elle reçoit le tenon fait à la tenonneuse.
+
+Q: Qu'est-ce qui donne l'épaisseur de la mortaise ?
++ L'épaisseur du bédane monté
+- La hauteur du bédane (arasement)
+- Le réglage de l'oscillation
+= L'épaisseur de la mortaise est celle du bédane : on choisit le bédane d'après l'épaisseur du tenon. Pas de bédane adapté : on appelle le professeur.
+
+Q: Que faire avant de changer le bédane ?
+- Appuyer sur l'arrêt d'urgence
+- Arrêter le bédane avec le sélecteur
++ Consigner la machine : interrupteur général sur 0, cadenas posé, essai de démarrage
+= L'arrêt d'urgence ou un sélecteur ne suffisent pas : quelqu'un pourrait remettre en marche. On sépare l'énergie, on condamne avec son cadenas, on vérifie par un essai de démarrage (INRS ED 6109).
+
+Q: Vous voulez une mortaise de 30 mm de profondeur. Où placez-vous le taquet d'arrêt (rail 2) ?
+- À 30 mm
+- À 71 mm
++ À 101 mm
+= Référence 0 = 71 mm : quand le curseur est à 71 mm, le bédane touche la pièce. Profondeur + 71 = 30 + 71 = 101 mm.
+
+Q: Où placez-vous le taquet de départ (rail 1) ?
++ Avant 71 mm, pour que le bédane prenne sa vitesse avant d'entrer dans le bois
+- Exactement sur 71 mm
+- Après 71 mm, pour gagner du temps
+= Placé après 71, le bédane part déjà dans le bois, sans élan : il force et éclate les bords de la mortaise.
+
+Q: Comment règle-t-on l'arasement ?
+- Avec les taquets de la table
++ En montant ou descendant le bédane : capot ouvert, écrou du réglage de hauteur à la clé de 27, puis capot refermé
+- Avec le vernier d'oscillation
+= L'arasement est la distance entre la face posée (SR1) et la mortaise : c'est la hauteur du bédane au-dessus de la table, lue au compteur.
+
+Q: Quelle face de la pièce pose-t-on sur la table ?
++ SR1, le parement (la boucle)
+- N'importe quelle face, si la pièce est bien serrée
+- La face la plus belle, vers le haut
+= L'arasement se règle depuis la table : SR1 sur la table, toujours. La tenonneuse fait de même : les parements du montant et de la traverse affleurent.
+
+Q: Pour une mortaise de 30 mm du bout, comment placez-vous les taquets de la table ?
+- 1er taquet à 30 mm, 2e taquet à 0
++ 1er taquet sur 0, 2e taquet à 30 mm
+- 1er taquet à 30 mm, 2e taquet à 80 mm
+= Le 1er taquet est l'origine (sur 0), le 2e la distance de la mortaise. Un 1er taquet pas sur 0 décale toutes les mortaises.
+
+Q: Vous voulez deux mortaises de 50 mm à 30 mm du bout, avec 70 mm entre elles. Où placez-vous le 3e taquet ?
+- À 100 mm
+- À 120 mm
++ À 150 mm
+= 3e taquet = distance + longueur de mortaise + espacement = 30 + 50 + 70 = 150 mm (fiche « Distance de la mortaise »).
+
+Q: Une mortaise de 40 mm de long se fait comment ?
++ En une plongée, en réduisant l'oscillation du bédane à 40 mm
+- En deux plongées avec les taquets de la table
+- Avec un bédane plus étroit
+= Oscillation à fond, le bédane fait 50 mm en une plongée. Moins de 50 mm : on réduit l'oscillation. Plus de 50 mm : plusieurs plongées, réglées par les taquets de la table.
+
+Q: Une mortaise de 60 mm avec une oscillation de 50 mm : où placer le taquet de la 2e plongée si la 1re est à 150 mm ?
+- À 200 mm
++ À 160 mm
+- À 210 mm
+= La 2e plongée commence à 150 + 60 − 50 = 160 mm et finit à 210 mm : les deux plongées se recouvrent et font une seule mortaise de 60 mm.
+
+Q: Pourquoi les deux boutons blancs des vérins doivent-ils être appuyés ensemble ?
+- Pour serrer plus fort
++ C'est une commande à deux mains : les mains sont sur le pupitre, loin des patins, pendant le serrage
+- Pour que les deux vérins verticaux descendent l'un après l'autre
+= Le serrage des vérins peut écraser les doigts. La commande à deux mains oblige à garder les deux mains loin de la zone dangereuse (INRS ED 6122).
+
+Q: Où placer les vérins avant de lancer le cycle ?
+- Le plus près possible du bédane, pour bien tenir la mortaise
++ Les 4 vérins sur la pièce, aucun devant le bédane
+- Seulement les vérins verticaux, les horizontaux ne servent qu'aux grosses pièces
+= Un vérin hors de la pièce la laisse pivoter : rejet. Un vérin au droit du bédane est heurté par l'outil, qui casse et projette des morceaux.
+
+Q: Quel est le principal danger d'une pièce mal serrée ?
+- La mortaise est un peu trop large
++ La pièce est arrachée et rejetée par le bédane
+- Le bédane s'use plus vite
+= Les dangers affichés au poste : rejet de la pièce, écrasement de la main, contact avec l'outil, outil mal serré.
+
+Q: Que fait le sélecteur « mortaise débouchante » ?
++ Il ne tient plus compte du taquet d'arrêt : le bédane va au bout de sa course et traverse la pièce
+- Il double la longueur de la mortaise
+- Il fait remonter le bédane après chaque plongée
+= Pour une mortaise non débouchante, le sélecteur reste sur « non débouchante » : c'est le taquet d'arrêt qui donne la profondeur.
+
+Q: Le cycle automatique est terminé. Que faites-vous avant de retirer la pièce ?
+- Je retire la pièce tout de suite, les vérins la lâchent
++ J'attends l'arrêt complet du bédane, je desserre les vérins (bouton noir), puis je retire la pièce
+- J'appuie sur l'arrêt d'urgence pour desserrer les vérins
+= On ne met jamais les mains sur la table tant que le bédane oscille. Le bouton noir desserre les vérins.
+
+Q: Pourquoi faire une pièce d'essai ?
+- Pour échauffer le bédane
++ Pour contrôler les réglages (épaisseur, arasement, distance, longueur, profondeur) avant de mortaiser les vraies pièces
+- Parce que la première mortaise est toujours ratée
+= La procédure de l'atelier finit par « mettre une pièce d'essai » puis « appeler l'enseignant » : on vérifie que le tenon entre avant d'usiner la série.
+
+Q: Quels EPI sont obligatoires à la mortaiseuse ?
++ Chaussures de sécurité, bleu de travail, casque anti-bruit, cheveux attachés
+- Gants épais et tablier
+- Seulement des lunettes de soudeur
+= EPI de la fiche machine de l'atelier. Pas de vêtements amples, d'écharpe ni de bijoux près de l'outil et des vérins.
+
+Q: Le bédane posé au râtelier a deux dents ébréchées. Que faites-vous ?
+- Je le monte, il coupera quand même
+- Je le monte et je réduis l'oscillation
++ Je ne le monte pas, je prends un bédane en bon état et je préviens le professeur
+= Un bédane abîmé force, chauffe, arrache le bois et peut casser. On vérifie toujours l'état de l'outil avant le travail (cours : avant le travail).
+
+Q: Pourquoi mettre l'aspiration en marche avant d'usiner ?
+- Pour refroidir le bédane
++ Parce que les poussières de bois sont cancérogènes et que les copeaux remplissent la mortaise
+- Parce que la machine ne démarre pas sans elle
+= Les poussières de bois sont classées cancérogènes (INRS ED 974) : on capte à la source et on nettoie à l'aspirateur, jamais à la soufflette.

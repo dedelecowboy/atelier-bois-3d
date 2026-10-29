@@ -7,6 +7,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE, TABLE_X0, TABLE_X1 } from './constants.js';
 import { st, head, parked, ctx, bladeX, stopX, $ } from './state.js';
 import { buildModel } from './model.js';
@@ -14,7 +15,7 @@ import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, meas
 import { computeAlerts, passBlock, protOk, zonePoly, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 /* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */

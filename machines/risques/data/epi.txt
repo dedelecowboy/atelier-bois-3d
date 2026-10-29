@@ -1,0 +1,41 @@
+# Scénario « Choisir ses EPI avant une tâche ».
+#
+# Pour chaque tâche, l'élève habille l'avatar (lui-même) avec les équipements de protection individuelle (EPI)
+# qu'il juge nécessaires, puis valide.
+#
+# Comment modifier ce fichier :
+# - EPI: code | nom affiché          : la liste des équipements proposés (le code relie l'EPI à l'avatar 3D : ne le changez pas).
+# - T: code | tâche                  : une tâche (le code place l'avatar dans l'atelier : ne le changez pas).
+#   + codes                          : EPI obligatoires pour cette tâche (séparés par des virgules).
+#   x codes                          : EPI INTERDITS pour cette tâche : les choisir est une faute grave.
+#   = explication                    : affichée après la validation.
+#   Les autres EPI de la liste ne sont ni exigés ni interdits pour cette tâche.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+EPI: chaussures | Chaussures de sécurité
+EPI: tenue | Vêtement de travail fermé et ajusté
+EPI: cheveux | Cheveux attachés
+EPI: bijoux | Bijoux et écharpe retirés
+EPI: lunettes | Lunettes de protection
+EPI: auditif | Protection auditive (casque ou bouchons)
+EPI: masque | Masque anti-poussières FFP2
+EPI: masque_a | Demi-masque à cartouches A (vapeurs de solvants)
+EPI: gants_manut | Gants de manutention
+EPI: gants_chim | Gants nitrile (produits chimiques)
+
+T: toupie | Profiler des baguettes de hêtre à la toupie
++ chaussures, tenue, cheveux, bijoux, lunettes, auditif
+x gants_manut, gants_chim
+= À la toupie : lunettes (copeaux projetés), protection auditive (bruit), tenue ajustée, cheveux attachés et sans bijoux. Jamais de gants près de l'outil en rotation : ils peuvent être happés. Le masque n'est pas exigé : l'aspiration capte les poussières à la source.
+
+T: poncage | Poncer des panneaux de chêne à la ponceuse orbitale raccordée à l'aspiration
++ chaussures, tenue, cheveux, bijoux, lunettes, auditif, masque
+= Le ponçage émet les poussières les plus fines : aspiration branchée ET masque FFP2. Lunettes et protection auditive pour la ponceuse.
+
+T: manutention | Décharger des panneaux de particules et les ranger au râtelier
++ chaussures, tenue, bijoux, gants_manut
+= Gants de manutention (chants coupants, échardes) et chaussures de sécurité (chute de panneau sur les pieds). Une bague peut accrocher et arracher un doigt. Les machines ne tournent pas : les gants sont autorisés.
+
+T: vernis | Vernir un meuble avec un vernis à solvant, dans la zone de finition ventilée
++ chaussures, tenue, lunettes, masque_a, gants_chim
+= Produit à solvant : gants nitrile, lunettes contre les projections et demi-masque à cartouches A. Un masque FFP2 arrête les poussières, pas les vapeurs de solvant. Toujours lire la fiche de données de sécurité du produit.

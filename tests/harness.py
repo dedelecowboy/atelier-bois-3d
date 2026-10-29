@@ -36,13 +36,18 @@ HELPERS = r"""
  const state=(tag)=>({tag, step:$('stepN').textContent+' '+$('stepT').textContent, checks:checks(), ok:!$('stepOk').hidden, alerts:alerts()});
  const results=()=>[...document.querySelectorAll('#stepRes tr')].map(r=>[...r.cells].map(c=>c.textContent));
 """
+# fiches de la machine (engine/fiches.js) : toutes marquées lues, sans trace Moodle ni message (tests/fiches/ teste la lecture elle-même)
+LUES = """()=>{ const A=window.__atelier, F=A&&A.app&&A.app.fiches; if(!F||!F.list.length) return;
+  const all=F.list.map((_,i)=>i); A.parc.lu=all; try{ localStorage.setItem('fiches.lues.'+A.app.config.id, JSON.stringify(all)); }catch(e){}
+  F.render(); A.app.parcours&&A.app.parcours.render(); const t=document.getElementById('lt-parts'); if(t&&!document.getElementById('ltabs').hidden) t.click(); }"""
+
 def js(body):
     return 'async () => {' + HELPERS + body + '}'
 
 class Page:
     """async with Page('scie-format', scorm=True) as pg: await pg.eval(js('…'))"""
-    def __init__(self, machine, scorm=False, suspend='', viewport=(1400, 820), touch=False):
-        self.machine, self.scorm, self.suspend, self.viewport, self.touch = machine, scorm, suspend, viewport, touch
+    def __init__(self, machine, scorm=False, suspend='', viewport=(1400, 820), touch=False, lues=True):
+        self.machine, self.scorm, self.suspend, self.viewport, self.touch, self.lues = machine, scorm, suspend, viewport, touch, lues
         self.errors, self.logs = [], []
     async def __aenter__(self):
         html = open(dist(self.machine), encoding='utf-8').read()
@@ -65,6 +70,7 @@ class Page:
         try: await self.page.wait_for_function('window.__ready', timeout=30000)
         except Exception: raise AssertionError('la page ne démarre pas : ' + '; '.join(self.errors + self.logs))
         await self.page.wait_for_timeout(800)
+        if self.lues: await self.page.evaluate(LUES)   # fiches de la machine marquées lues (sans trace) : les tests existants vont droit à l'évaluation
         return self
     async def eval(self, expr, *a): return await self.page.evaluate(expr, *a)
     async def shot(self, name):

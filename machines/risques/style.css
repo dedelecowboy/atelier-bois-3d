@@ -1,0 +1,28 @@
+/* Module « Risques généraux » : fiches (présentation) et panneau « Actions » (exercices, parcours). */
+.app:not([data-ui="pres"]) #dockSlot{display:none}
+.app .dock{grid-template-columns:minmax(0,1fr)}
+.fiches{display:flex;flex-direction:column;gap:6px}
+.fiche{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:6px 10px}
+.fiche summary{cursor:pointer;font-weight:600;font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;letter-spacing:.01em}
+.fiche p{margin:6px 0;font-size:.88rem;line-height:1.38}
+.fiche ul{margin:4px 0 6px 1.1em;padding:0;font-size:.86rem;line-height:1.38}
+.fiche li{margin:2px 0}
+.fiche .src{font-size:.74rem;color:var(--muted);font-style:italic}
+.fiche .mini{margin:4px 0 2px}
+.acts{display:flex;flex-direction:column;gap:8px}
+.acts .kpi{margin:0;font-size:.92rem}
+.acts .hint{margin:0;color:var(--muted);font-size:.88rem}
+.acts .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.acts .grp>span{flex:0 0 100%;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.acts .act{font-size:.86rem;text-align:left;white-space:normal;line-height:1.2}
+.acts .act[aria-pressed="true"]{outline:2px solid var(--ok,#2e9d4f)}
+.acts .ask p{margin:2px 0}
+.acts .opts{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.acts .epis{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.acts .row{display:flex;gap:8px}
+.acts .main{font-weight:600}
+.afb{margin:0;padding:8px 10px;border-radius:6px;font-size:.88rem;line-height:1.38;border-left:4px solid var(--muted);background:rgba(127,127,127,.08)}
+.afb[data-l="ok"]{border-color:var(--ok,#2e9d4f)}
+.afb[data-l="warn"]{border-color:var(--warn,#d9772b)}
+.afb[data-l="danger"]{border-color:var(--danger,#c4261c)}
+@media (max-width:900px){ .acts .epis{grid-template-columns:minmax(0,1fr)} }

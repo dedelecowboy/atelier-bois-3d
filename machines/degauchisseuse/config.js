@@ -30,6 +30,7 @@ export default {
   xray: { parts: [['bati',0.1],['table_entree',0.3],['table_sortie',0.3]], cam: { pos: [1.3,1.0,1.9], tgt: [0,0.55,0] } },
 
   scorm: {
+    code: 'DEGAU',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 520 D · Dégauchisseuse · Parcours évalué',
     zip: 'KANAK520D_degauchisseuse_SCORM12.zip',
     identifier: 'KANAK520D_DEGAUCHISSEUSE_PARCOURS',

@@ -6,6 +6,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { H_MIN, H_MAX, GRIP, PASS_MAX } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
@@ -15,7 +16,7 @@ import { initPieces, pieces, cut, entryPieces, exitPieces, stuckPieces, onMachin
 import { computeAlerts, passBlock, wavePitch, HANDS } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 /* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */

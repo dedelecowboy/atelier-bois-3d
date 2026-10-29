@@ -1,0 +1,72 @@
+# Équipements de l'atelier (nomenclature du module « Risques généraux »).
+#
+# Comment modifier ce fichier :
+# - Une ligne par équipement :   [code] repère Nom de l'équipement
+#   puis la description sur une ou plusieurs lignes (texte affiché quand on touche l'équipement).
+# - Le code entre crochets relie l'équipement au modèle 3D : ne le changez pas (sinon la fabrication s'arrête
+#   et indique la ligne à corriger). Le repère et le nom se modifient librement.
+# - Emplacements des équipements dans l'atelier : PROPOSÉS, à vérifier sur le plan d'évacuation affiché.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+
+[extincteur_eau] 01 Extincteur à eau pulvérisée avec additif
+Pour les feux de classe A (bois, copeaux, papier, tissus) et B (liquides : vernis, solvants). C'est l'extincteur de l'atelier : 6 litres, poignée à 1,10 m environ, signalé par un panneau rouge, toujours dégagé. Se placer à 2 – 3 m du feu, dos à une issue, et viser la base des flammes.
+
+[extincteur_co2] 02 Extincteur à dioxyde de carbone (CO2)
+Pour les feux de classe B (liquides) et les feux sur les installations électriques : il ne laisse pas de résidu. Placé près de l'armoire électrique. Peu efficace sur les braises de bois (classe A). Utilisation de près (0,5 à 1,5 m) ; le diffuseur devient très froid : le tenir par la poignée.
+
+[alarme] 03 Déclencheur manuel d'alarme incendie
+Boîtier rouge près des sorties : on appuie au centre (ou on brise la vitre) pour déclencher l'alarme d'évacuation du bâtiment.
+
+[issue] 04 Issue de secours
+Porte vers l'extérieur de l'atelier, signalée par un panneau vert. Jamais encombrée, jamais verrouillée pendant les cours. En cas d'alarme, on sort par l'issue la plus proche qui n'est pas enfumée.
+
+[baes] 05 Bloc d'éclairage de sécurité (BAES)
+Bloc lumineux vert au-dessus des issues : il indique la sortie et reste allumé en cas de coupure de courant pour guider l'évacuation.
+
+[plan_evac] 06 Plan d'évacuation
+Affiché près de la porte : il montre « vous êtes ici », les issues, les extincteurs, le cheminement d'évacuation et le point de rassemblement.
+
+[armoire_elec] 07 Armoire électrique
+Contient les disjoncteurs et les appareils de l'installation de l'atelier. Triangle jaune : danger électrique. Toujours fermée ; seule une personne habilitée peut l'ouvrir. Un élève ne l'ouvre jamais.
+
+[arret_general] 08 Arrêt d'urgence général
+Bouton coup de poing rouge sur fond jaune : il coupe l'alimentation de toutes les machines de l'atelier en cas de danger (accident, départ de feu). Ce n'est pas une consignation : quelqu'un peut le déverrouiller.
+
+[sectionneur] 09 Sectionneur cadenassable (scie à format)
+Interrupteur général de la machine, à deux positions : 1 (sous tension) et 0 (séparée du réseau). En position 0, on peut le condamner avec son cadenas personnel : c'est le cœur de la consignation avant toute intervention.
+
+[trousse] 10 Trousse de premiers secours
+Boîte blanche à croix verte : pansements, compresses, gants, couverture de survie. On prévient toujours le professeur, même pour une petite blessure.
+
+[lave_oeil] 11 Lave-œil
+Flacons d'eau stérile pour rincer immédiatement un œil touché par un produit ou une poussière, puis prévenir le professeur.
+
+[affiche_urgence] 12 Affiche des numéros d'urgence
+15 SAMU, 18 pompiers, 112 numéro d'urgence européen, 114 par SMS (personnes sourdes ou malentendantes), et le numéro de l'infirmerie du lycée.
+
+[armoire_produits] 13 Armoire de sécurité des produits
+Armoire jaune ventilée pour les produits inflammables (vernis, solvants, colles) : produits fermés et étiquetés, rangés après usage, loin des machines et des sources de chaleur.
+
+[poubelle_metal] 14 Poubelle métallique à couvercle
+Pour les chiffons imbibés d'huile, de vernis ou de solvant : ils peuvent s'échauffer et s'enflammer seuls. Couvercle toujours fermé, vidée chaque jour.
+
+[consignes_epi] 15 Panneaux d'obligation (EPI)
+Panneaux ronds bleus à l'entrée : port obligatoire des lunettes, des protections auditives, des chaussures de sécurité et du masque pour les travaux poussiéreux.
+
+[aspiration] 16 Réseau d'aspiration (descentes vers les machines)
+Capte les copeaux et les poussières à la source, sur chaque machine. On vérifie qu'il est en marche et on ouvre la trappe (le clapet) de sa machine avant d'usiner.
+
+[aspirateur] 17 Aspirateur industriel
+Pour nettoyer machines, établis et sol (machine arrêtée). Jamais de soufflette ni de balai : ils remettent les poussières de bois dans l'air.
+
+[allee] 18 Allées de circulation (marquage jaune)
+Bandes jaunes au sol : les allées restent toujours libres (pas de bois, de câble, de copeaux) pour circuler et évacuer.
+
+[ratelier] 19 Râtelier de stockage des bois
+Pour ranger les bois à plat, stables, hors des allées. On y prend et on y range les pièces longues à deux.
+
+[chariot] 20 Chariot porte-panneaux
+Aide à la manutention : on déplace les panneaux sur le chariot plutôt qu'à bout de bras.
+
+[eclairage] 21 Éclairage de l'atelier
+Un bon éclairage montre les obstacles et les zones de coupe : 120 lux au minimum dans un local de travail, 40 lux dans les voies de circulation (Code du travail).

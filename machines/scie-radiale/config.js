@@ -31,6 +31,7 @@ export default {
   xray: { parts: [['carter',0.14],['bras',0.16],['protecteur',0.25]], cam: { pos: [0.95,1.55,0.35], tgt: [0.0,1.25,-0.55] } },
 
   scorm: {
+    code: 'RADIALE',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 900 R · Scie radiale · Parcours évalué',
     zip: 'KANAK900R_scie_radiale_SCORM12.zip',
     identifier: 'KANAK900R_SCIE_RADIALE_PARCOURS',

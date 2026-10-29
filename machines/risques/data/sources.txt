@@ -1,0 +1,45 @@
+# Sources du module « Risques généraux de l'atelier bois » (vérifiées en ligne le 28/10/2026).
+# Ce fichier n'est pas lu par le simulateur : il garde les références exactes citées dans fiches.txt, qcm.txt,
+# dangers.txt et epi.txt. Mettre à jour la date de vérification après chaque relecture.
+
+## INRS (Institut national de recherche et de sécurité)
+INRS ED 974, « Poussières de bois. Prévenir les risques », 2e édition, février 2021 : cancérogène quel que soit le bois, VLEP 1 mg/m³, aspiration, pas de soufflette ni de balai, demi-masque P2 ou FFP2 au minimum.
+  https://www.inrs.fr/media.html?refINRS=ED%20974
+INRS ED 6192, « Poussières de bois. Protégeons-nous », 2015 (réimpr. 2018) : aspiration utilisée, nettoyage par aspiration, cancer naso-sinusien 20 ans après.
+INRS, dossier « Poussières de bois – ce qu'il faut retenir » : VLEP contraignante 1 mg/m³ (R4412-149), CIRC groupe 1, tableau 47 (régime général), tableau 36 (régime agricole).
+  https://www.inrs.fr/risques/poussieres-bois/ce-qu-il-faut-retenir.html
+INRS, « Prévenir les risques liés aux poussières de bois » et « Incendie et explosion dans les ateliers du bois ».
+  https://www.inrs.fr/metiers/metiers-du-bois/transformation-du-bois/poussiere/prevenir.html
+  https://www.inrs.fr/metiers/metiers-du-bois/transformation-du-bois/poussiere/incendie-explosion.html
+INRS ED 6021, « Incendie et explosion dans l'industrie du bois ».
+INRS ED 6054, « Les extincteurs d'incendie portatifs, mobiles et fixes », 3e édition, octobre 2023 : classes A B C D F, agents, distances d'attaque (eau 3 à 2 m, CO2 1,5 à 0,5 m), viser la base des flammes, poignée à 1,10 m, à moins de 5 m du danger.
+INRS ED 6109, « Consignations et déconsignations », novembre 2011 : séparation, condamnation, identification, vérification, déconsignation.
+INRS ED 6077, « Les équipements de protection individuelle (EPI). Règles d'utilisation », 2e édition, octobre 2013.
+INRS ED 6122, « Sécurité des machines. Prévention des risques mécaniques », 2e édition, septembre 2018 (happement, entraînement).
+INRS ED 6207, « Mémento du règlement CLP » ; page « Classification et étiquetage des produits chimiques » (9 pictogrammes, « Danger » / « Attention »).
+  https://www.inrs.fr/risques/classification-etiquetage-produits-chimiques/comprendre-systemes-etiquetage-produits-chimiques.html
+INRS ED 885, « La réglementation en matière de signalisation de santé et de sécurité au travail », 2015 (formes et couleurs des panneaux, arrêté du 4 novembre 1993).
+INRS ED 6458, « Les chutes de plain-pied » ; page « Chutes de plain-pied : mesures de prévention ».
+  https://www.inrs.fr/risques/chutes-de-plain-pied/mesures-de-prevention.html
+INRS, Travail & Sécurité n° 852, octobre 2023, dossier « Le port de charges » (norme NF X35-109 : 15 kg acceptable, 25 kg sous conditions).
+INRS ED 7000, « Formation des sauveteurs secouristes du travail. Référentiel technique », 2011 : protéger, examiner, faire alerter, secourir ; contenu du message d'alerte.
+INRS ED 4471, « TutoPrév' Accueil Métiers du bois », 1re édition, novembre 2021 (fourni par l'enseignant) : planches menuiserie, mesures de prévention.
+INRS, fiches RG 01 « Le bruit », RG 02 « Les poussières », RG 03 « Le risque électrique », RG 04 « Le risque d'incendie » (fournies par l'enseignant ; anciennes : les pictogrammes orange carrés et le « masque P2 » ont été remplacés par le règlement CLP et les pièces faciales FFP2).
+INRS, « Jeunes travailleurs : réglementation » (travaux interdits et réglementés, dérogations R4153-38 à R4153-45, manutention R4153-52).
+  https://www.inrs.fr/demarche/jeunes-travailleurs/reglementation.html
+
+## Code du travail (articles réglementaires)
+R4412-149 (valeurs limites, poussières de bois : 1 mg/m³ sur 8 h) ; R4431-2 (bruit : 80 / 85 / 87 dB(A), 135 / 137 / 140 dB(C)) ;
+R4434-7 (protecteurs auditifs : mis à disposition dès 80, portés dès 85 dB(A)) ; R4227-29 (un extincteur à eau pulvérisée de 6 L au moins pour 200 m²) ;
+R4223-4 (éclairement : 40 lux voies de circulation, 120 lux locaux de travail) ; R4541-9 (charges : 55 kg, 25 kg femmes) ;
+R4153-52 (jeunes : manutention de plus de 20 % du poids avec avis médical).
+  https://code.travail.gouv.fr/code-du-travail/r4431-2 (et les autres numéros de la même façon)
+
+## Autres
+Règlement de sécurité incendie des ERP, art. R33 (exercices d'évacuation des établissements d'enseignement : le premier dans le mois de la rentrée) ; rappelé par la note DGER/SDPFE/N2006-2126 du 27/11/2006.
+CCHST (Canada), « Machines à travailler le bois – Conseils de sécurité d'ordre général » : pas de gants ni de vêtements amples ou de bijoux près des pièces en mouvement ; pas d'air comprimé pour nettoyer ; arrêter sa machine pour parler.
+  https://www.cchst.ca/oshanswers/safety_haz/woodwork/gen_safe.pdf
+AEAI (Association des établissements cantonaux d'assurance incendie, Suisse), « Prévention incendie sur les chantiers – auto-inflammation » : chiffons imbibés dans des récipients métalliques fermés.
+Numéros d'urgence : 15, 17, 18, 112, 114 (SMS) ; message d'alerte (INRS ED 7000).
+Lycée André Malraux, fiche « Sécurité atelier » (2MB) : bruit, poussières, glissades, accès à l'atelier refusé sans les EPI.
+OPPBTP : outil en ligne « Poussières de bois – évaluez le risque d'exposition dans votre atelier » (mai 2022), pour l'enseignant.

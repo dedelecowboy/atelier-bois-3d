@@ -31,6 +31,7 @@ export default {
   xray: { parts: [['capot',0.12],['bati',0.15]], cam: { pos: [1.3,1.25,1.9], tgt: [0,0.75,0] } },
 
   scorm: {
+    code: 'DELIGNEUSE',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 300 M · Déligneuse multilames · Parcours évalué',
     zip: 'KANAK300M_deligneuse_SCORM12.zip',
     identifier: 'KANAK300M_DELIGNEUSE_PARCOURS',

@@ -1,0 +1,101 @@
+# Nomenclature de la scie à ruban KANAK 800 RB
+#
+# Comment modifier ce fichier :
+# - Chaque organe commence par une ligne :  [code] repère Nom de l'organe
+#   Le code entre crochets relie l'organe au modèle 3D : ne le changez pas.
+#   Le repère (01, 02…) et le nom peuvent être corrigés librement.
+# - Les lignes suivantes, jusqu'au prochain [code], forment la description affichée.
+# - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
+# - L'ordre des organes ici est l'ordre de la nomenclature à l'écran.
+# Sources : INRS ED 6316 « Scies à ruban à table » (2018), fiche OPPBTP « Scie à ruban » (C1 F 10 11, 2011),
+# fiche CFB TB 2 « Scie à ruban », cours « La scie à ruban » (Lycée André Malraux), affiche INRS « Scie à ruban à table ».
+
+[bati] 01 Bâti en col-de-cygne
+Bâti en tôle d'acier, à gauche de l'opérateur, en forme de col-de-cygne : il porte les deux volants, la table et le moteur. Il doit être rigide et sans vibration pendant le travail.
+
+[volant_sup] 02 Volant supérieur
+Volant de 800 mm, libre en rotation : il est entraîné par la lame. On le monte ou on le descend pour tendre la lame, et on l'incline (dévers) pour placer la lame sur sa jante.
+
+[volant_inf] 03 Volant inférieur
+Volant de 800 mm, plus lourd, entraîné par le moteur : c'est lui qui fait tourner la lame. Il porte une brosse qui nettoie son bandage.
+
+[bandage] 04 Bandages des volants
+Garniture en caoutchouc sur la jante des volants : elle ne mate pas la voie des dents, étouffe le bruit et absorbe les variations de tension. Elle doit être propre et en bon état. Une lame large a ses dents en dehors du bandage ; une lame à chantourner est placée au milieu.
+
+[lame] 05 Lame à ruban
+Ruban d'acier sans fin, soudé, denté, avoyé et affûté. Sa largeur (6 à 35 mm ici) dépend du travail : étroite pour le chantournage, large pour les sciages droits. Son épaisseur ne dépasse pas 1/1000 du diamètre des volants : 0,8 mm ici. Les dents descendent vers la table, côté opérateur.
+
+[porte_sup] 06 Porte du volant supérieur
+Protecteur mobile sur charnières, qui enferme le volant supérieur. Il est verrouillé : la machine ne démarre pas porte ouverte. On ne l'ouvre qu'à l'arrêt complet de la lame, machine consignée pour changer la lame.
+
+[porte_inf] 07 Porte du volant inférieur
+Protecteur mobile qui enferme le volant inférieur et la partie basse de la lame. Verrouillé comme la porte du haut.
+
+[carter_montant] 08 Protecteur du brin montant
+Carter fixe devant la colonne : il couvre le brin de la lame qui remonte vers le volant supérieur.
+
+[fenetre] 09 Fenêtre de contrôle
+Petite ouverture dans la porte du haut : elle permet de vérifier la position de la lame sur le volant sans ouvrir.
+
+[tension] 10 Volant de tension
+Volant à main sous le carter supérieur : il monte le volant supérieur pour tendre la lame. Un ressort absorbe les variations de tension pendant le sciage. On tend machine arrêtée, et on détend la lame en fin de travail.
+
+[indicateur] 11 Indicateur de tension
+Échelle graduée en largeur de lame (mm) : on règle la tension sur la largeur de la lame montée, mesurée du fond de la dent au dos. Une tension trop faible fait dériver la lame et peut la faire sortir des volants ; trop forte, elle la casse.
+
+[devers] 12 Réglage du dévers
+Manivelle à l'arrière du carter : elle incline le volant supérieur. En tournant le volant à la main, la lame se place sur le bandage : dents hors du bandage pour une lame large, lame au milieu pour une lame à chantourner.
+
+[guide_sup] 13 Guide-lame supérieur
+Deux galets latéraux, à quelques dixièmes de millimètre de la lame et en arrière du fond de denture, et un galet arrière, juste derrière le dos de la lame. Il maintient la lame droite au-dessus de la pièce. On le règle au plus près de la pièce.
+
+[protecteur] 14 Protecteur de la lame
+Protecteur réglable, solidaire du guide-lame supérieur : écran transparent devant la lame et carter télescopique qui couvre la lame jusqu'au carter du haut. Réglé à quelques millimètres au-dessus de la pièce, il ne laisse accessible que la partie de lame qui scie.
+
+[coulisseau] 15 Coulisseau et levier de hauteur
+Barre qui porte le guide-lame et le protecteur, avec un levier pour les monter et les descendre et une molette pour les bloquer. Sa descente est freinée : le guide ne tombe pas sur la table.
+
+[guide_inf] 16 Guide-lame inférieur
+Galets fixés sous la table, réglés comme le guide-lame supérieur : ils tiennent la lame sous la pièce.
+
+[table] 17 Table
+Table en fonte, plane, à 960 mm du sol : elle porte la pièce. Une fente permet de passer la lame pour la changer.
+
+[bloc_table] 18 Bloc de table
+Pièce d'usure en bois autour de la lame, à fleur de la table : la lame ne touche jamais la fonte. On le change quand il est usé (les petites chutes se coincent).
+
+[inclinaison] 19 Inclinaison de la table
+Secteurs sous la table et poignée de blocage : la table s'incline jusqu'à 45° pour les coupes biaises. On l'incline lame arrêtée, puis on la bloque ; on la remet à 0° après.
+
+[guide_par] 20 Guide parallèle
+Guide qui coulisse sur le rail avant de la table : la pièce glisse contre lui pour les sciages droits et la refente. On l'escamote pour le chantournage.
+
+[regle] 21 Règle du guide parallèle
+Règle graduée en millimètres sur le rail avant : elle donne la distance entre le trait de scie et le guide, donc l'épaisseur de la pièce sciée.
+
+[onglet] 22 Guide d'onglet
+Guide qui coulisse dans la rainure de la table, à gauche de la lame : il tient la pièce d'équerre ou à l'angle voulu pour les coupes en travers.
+
+[servante] 23 Servante
+Support à rouleau placé en sortie de table : il soutient les pièces longues pour qu'elles restent à plat.
+
+[poussoir] 24 Poussoir de fin de passe
+Poussoir en bois à poignée, toujours à portée de main : il pousse la fin de la pièce pour que la main ne passe jamais près de la lame. On s'en sert aussi pour dégager les petites chutes de la table.
+
+[moteur] 25 Moteur-frein
+Moteur de 5,5 kW, derrière le carter inférieur, qui entraîne le volant inférieur par courroie. Son frein arrête la lame en moins de 10 secondes après un ordre d'arrêt.
+
+[brosse] 26 Brosse du volant
+Brosse qui frotte le bandage du volant inférieur : la sciure ne colle pas et la lame reste bien en place.
+
+[commande] 27 Boîtier de commande
+Boutons I (marche) et O (arrêt, avec freinage automatique), à touches noyées. Après une coupure de courant, la machine ne redémarre pas toute seule.
+
+[arret] 28 Arrêt d'urgence
+Bouton coup de poing rouge sur fond jaune : il coupe la machine et la freine. On le déverrouille en le tournant, puis on redémarre avec I.
+
+[sectionneur] 29 Sectionneur cadenassable
+Interrupteur général sur le côté du bâti : sur 0, la machine est séparée du courant. Avec un cadenas personnel, la machine est consignée : personne ne peut la remettre en marche pendant qu'on change la lame.
+
+[aspiration] 30 Aspiration
+Buse sous la table, au plus près de la lame, et buse au bas du bâti : elles sont reliées à l'aspiration de l'atelier. On la met en marche avant de scier.

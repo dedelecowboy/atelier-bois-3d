@@ -1,0 +1,37 @@
+  <section class="fam" data-fam="machine" data-key="machine" data-title="Machine">
+    <div class="srow">
+      <button class="toggle" id="main" type="button" aria-pressed="true" title="Interrupteur général (armoire électrique) : I / 0">Interrupteur général</button>
+      <button class="toggle" id="cad" type="button" aria-pressed="false" title="Consigner : interrupteur général sur 0, puis cadenas">Consigner</button>
+      <button class="toggle" id="asp" type="button" aria-pressed="false">Aspiration</button>
+      <button class="toggle" id="capot" type="button" aria-pressed="false" title="Capot de protection de la tête (interverrouillé : bédane arrêté)">Capot fermé</button>
+      <button class="toggle" id="xray" type="button" aria-pressed="false">Vue intérieure</button>
+      <button class="toggle" id="resetPres" type="button" title="Remet la pièce de départ sur la table, machine arrêtée">Pièce de départ</button>
+    </div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="outil" data-title="Bédane">
+    <div class="ctl tl" role="group" aria-labelledby="l-bed"><span id="l-bed" class="tl-t">Bédane <small>râtelier : lisez l'épaisseur, regardez les dents</small></span><output id="o-bed"></output>
+      <div class="tl-g" id="bedLib"></div>
+      <div class="tl-b"><button class="toggle mini" type="button" id="tight" aria-pressed="true" title="Vis du porte-bédane (clé du porte-bédane) : machine consignée, capot ouvert">Vis serrée</button><button class="toggle mini" type="button" id="unmount">Démonter</button><button class="toggle mini" type="button" id="mount">Monter le bédane choisi</button><button class="toggle mini" type="button" id="quick" title="Consigne, ouvre le capot, démonte, monte le bédane choisi, serre, referme et déconsigne">Changer le bédane : procédure complète</button></div>
+      <p class="tl-i" id="bedInfo"></p></div>
+    <div class="ctl"><label for="osc">Oscillation : longueur en une plongée (mm) <small class="cap">vernier, bédane arrêté</small></label><input class="num" id="osc-n" type="number" min="20" max="50" step="1" aria-label="Longueur usinée en une plongée en mm"><input id="osc" type="range" min="20" max="50" step="1" value="50"></div>
+  </section>
+  <section class="fam" data-fam="outil" data-key="cotes" data-title="Profondeur et arasement">
+    <div class="ctl"><label for="dep-n">Profondeur : taquet de départ, rail 1 (mm) <small class="cap">avant 71</small></label><input class="num" id="dep-n" type="number" min="0" max="220" step="1" aria-label="Taquet de départ en mm"><input id="dep" type="range" min="0" max="220" step="1" value="50"></div>
+    <div class="ctl"><label for="arr-n">Profondeur : taquet d'arrêt, rail 2 (mm) <small class="cap">profondeur + 71</small></label><input class="num" id="arr-n" type="number" min="0" max="220" step="1" aria-label="Taquet d'arrêt en mm"><input id="arr" type="range" min="0" max="220" step="1" value="101"></div>
+    <div class="ctl"><label for="ar-n">Arasement : hauteur du bédane (mm) <small class="cap">capot ouvert, clé de 27</small></label><input class="num" id="ar-n" type="number" min="0" max="120" step="0.1" aria-label="Arasement en mm"><input id="ar" type="range" min="0" max="120" step="0.5" value="9"></div>
+    <p class="g-i set-i" id="cotInfo"></p>
+  </section>
+  <section class="fam" data-fam="guidage" data-key="guidage" data-title="Table et butées">
+    <div class="ctl tq" role="group" aria-labelledby="l-tq"><span id="l-tq" style="font-weight:500">Taquets de la table (mm) <small class="cap">clé Allen de 3, bédane arrêté</small></span>
+      <div class="tq-g" id="tqs"></div></div>
+    <div class="row bt"><button class="toggle mini" type="button" id="butG" aria-pressed="true">Butée gauche abaissée</button><button class="toggle mini" type="button" id="butD" aria-pressed="false">Butée droite relevée</button></div>
+    <p class="g-i" id="tqInfo"></p>
+  </section>
+  <section class="fam" data-fam="protection" data-key="protection" data-title="Vérins de serrage">
+    <div class="ctl vr" role="group" aria-labelledby="l-vr"><span id="l-vr" style="font-weight:500">Position des patins, depuis la butée gauche (mm) <small class="cap">vérins desserrés</small></span>
+      <label class="bu-l">Vérin vertical 1<input class="num" id="v1-n" type="number" min="0" max="1200" step="5"></label>
+      <label class="bu-l">Vérin vertical 2<input class="num" id="v2-n" type="number" min="0" max="1200" step="5"></label>
+      <label class="bu-l">Vérin horizontal 1<input class="num" id="h1-n" type="number" min="0" max="1200" step="5"></label>
+      <label class="bu-l">Vérin horizontal 2<input class="num" id="h2-n" type="number" min="0" max="1200" step="5"></label>
+      <p class="g-i" id="verInfo"></p></div>
+  </section>

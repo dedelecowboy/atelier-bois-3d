@@ -1,0 +1,75 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la scie à ruban ? | lame, volant_sup, volant_inf, table
+La scie à ruban scie avec une lame sans fin, un ruban d'acier denté qui tourne sur deux volants. Le trait est fin et la lame peut suivre une courbe.
+- Chantourner : découper des pièces courbes en suivant un tracé (consoles, gabarits).
+- Refendre : scier une pièce dans son épaisseur ou sa largeur, au guide parallèle.
+- Couper en travers au guide d'onglet ; pièces rondes dans un gabarit en vé.
+> Cours « La scie à ruban » du lycée ; INRS ED 6316.
+
+## La pièce avant et après | table, guide_par, regle
+Avant : une pièce de bois massif ou un panneau, avec le tracé de la forme (pour chantourner) ou à la largeur brute (pour refendre).
+Après : une pièce à la forme du tracé, coupée côté chute du trait, prête à être poncée ou toupillée ; ou deux lames de bois refendues à l'épaisseur voulue.
+- On scie à côté du trait, côté chute, sans entrer dans la pièce.
+- Plus la courbe est serrée, plus la lame doit être étroite.
+- Une pièce ronde ne se scie jamais à la main libre : elle roulerait.
+> Cours « La scie à ruban » du lycée.
+
+## Les organes principaux | volant_sup, volant_inf, bandage, lame, porte_sup, porte_inf, tension, guide_sup, guide_inf, protecteur, table
+- Volants supérieur et inférieur, garnis d'un bandage ; le volant inférieur est moteur.
+- Portes interverrouillées qui ferment les volants.
+- Tension de la lame (volant et indicateur) et réglage du dévers (inclinaison du volant supérieur).
+- Guide-lames supérieur et inférieur à galets ; protecteur télescopique avec le guide supérieur.
+- Table inclinable, guide parallèle, guide d'onglet, servante ; poussoir.
+- Moteur-frein, aspiration, commandes, arrêt d'urgence, sectionneur.
+> Cours « La scie à ruban » du lycée ; INRS ED 6316.
+
+## Choisir et monter la lame | lame, tension, devers, bandage, sectionneur, porte_sup
+- Largeur : selon le rayon de la courbe (lame de 6 : rayon 20 ; de 10 : rayon 40 ; de 20 : rayon 140 ; de 30 et plus : sciage droit).
+- Pas de la denture : au moins 3 dents dans l'épaisseur du bois.
+- Lame contrôlée : pas de crique (fissure), surtout à la soudure ; épaisseur pas trop forte pour le diamètre des volants.
+- Montage machine consignée, portes ouvertes ; dents vers le bas, vers l'opérateur.
+- Tension selon la largeur de la lame ; dévers réglé en tournant le volant à la main : lame large, dents hors du bandage.
+> INRS ED 6316 ; cours « La scie à ruban » du lycée.
+
+## Les réglages avant de travailler | guide_sup, guide_inf, protecteur, table, guide_par, aspiration
+Tous les réglages se font lame arrêtée.
+- Guide-lames haut et bas : galets latéraux presque au contact de la lame, en arrière des dents ; galet arrière juste derrière le dos de la lame.
+- Guide supérieur et protecteur à 3 à 10 mm au-dessus de la pièce.
+- Table à 0° (ou à l'angle voulu), guide parallèle à la cote pour refendre.
+- Servante pour les pièces longues ; aspiration en marche.
+> INRS ED 6316 ; OPPBTP C1 F 10 11.
+
+## Le mode opératoire | poussoir, guide_par, onglet, commande
+1. Démarrer, attendre la pleine vitesse.
+2. Chantourner : avancer la pièce régulièrement, en la faisant tourner pour suivre le tracé, mains de part et d'autre, jamais dans l'axe de la lame.
+3. Refendre : pièce contre le guide parallèle, fin de passe au poussoir.
+4. Ne pas reculer dans une courbe lame en marche : finir la coupe, ou arrêter la machine.
+5. Dégager les chutes près de la lame au poussoir ou lame arrêtée.
+> Cours « La scie à ruban » du lycée ; INRS ED 6316.
+
+## Les principaux risques | lame, protecteur, porte_sup
+- Coupure grave ou amputation des doigts : main dans l'axe de la lame, protecteur trop haut, pas de poussoir en fin de passe.
+- Rupture de la lame : lame fissurée, mal tendue, trop étroite pour la courbe ou trop épaisse ; lame qui déjante.
+- Pièce qui roule (pièce ronde sans gabarit) ou qui bascule (sur chant, trop haute).
+- Intervention sur la lame sans consignation.
+- Poussières de bois (cancérogènes), bruit.
+> INRS ED 6316 ; fiche accident OPPBTP (2007) ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | protecteur, poussoir, sectionneur, arret, aspiration
+- Protecteur à 10 mm au plus au-dessus de la pièce.
+- Mains jamais dans l'axe de la lame ; poussoir en fin de passe ; gabarit en vé pour les pièces rondes.
+- Lame adaptée au travail, contrôlée, bien tendue et guidée.
+- Changer ou régler la lame machine consignée ; en cas de rupture : arrêter, attendre l'arrêt complet, consigner.
+- Aspiration en marche ; lunettes, protections auditives, chaussures de sécurité ; pas de gants pendant la coupe, ni de manches flottantes.
+> INRS ED 6316 ; fiche « Sécurité atelier » 2MB du lycée.

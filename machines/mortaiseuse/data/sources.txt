@@ -1,0 +1,57 @@
+# Sources du module « Mortaiseuse » (non lu par le simulateur).
+# Vérifiées en ligne le 29/10/2026 quand une adresse est donnée ; les autres sont les documents fournis par l'enseignant.
+# Aucun document de l'INRS ni de l'OPPBTP propre à la mortaiseuse à bédane oscillant n'a été trouvé : les règles propres à la
+# machine viennent des documents de l'atelier ; les références générales ci-dessous les appuient.
+
+## Documents de l'atelier (fournis par l'enseignant)
+Cours « La mortaiseuse à bédane horizontal » (Bac pro bois, Lycée-CFA André Malraux, Remiremont), 8 pages : organes extérieurs
+  (repères 1 à 11) et du tableau de commande (1 à 11), l'outil (bédanes, forme des dents et angles 35° / 40° / 88,5°,
+  géométrie et formation de la mortaise : tranchage des fibres, coupe dans le fil, fibres relevées = éclats), procédure de
+  réglage, sécurité (EPI, accidents possibles, avant / pendant / après le travail), emplacement dans l'atelier.
+Fiche « Mortaiseuse bédane horizontal » (A4) : prévenir le professeur, poste dégagé, aspiration, nettoyage, EPI (casque
+  anti-bruit, bleu de travail, chaussures de sécurité, cheveux attachés), dangers (rejet de la pièce, écrasement de la main,
+  contact avec l'outil, outil mal serré), réglage de l'oscillation « indisponible pour le moment ».
+Fiches « La mise en marche », « La procédure », « Profondeur mortaise » (référence 0 = 71 mm, taquet de départ avant 71,
+  arrêt = profondeur + 71, clé Allen de 3), « Distance de la mortaise » (1er taquet sur 0, 2e à la distance, 3e = distance
+  + longueur + espacement), « Arasement » (capot ouvert, clé de 27, compteur), « Nomenclature ».
+Photo de la clé du porte-bédane (clé à tube en Y) ; réponses de l'enseignant du 29/10/2026 (sélecteur débouchante,
+  bédanes 6 / 8 / 10 / 12 / 16 mm, oscillation simulée, commande à deux mains des vérins, cycle automatique = plongées et
+  va-et-vient, poste le plus dans l'angle, fiches à lecture obligatoire).
+Catalogue du constructeur de la machine de l'atelier (deux éditions, fournies) : dimensions maxi de la pièce 275 × 160 mm,
+  table 1 000 × 310 mm, course longitudinale 400 mm, course transversale 150 mm, 4 vérins hydrauliques, réglage vertical
+  manuel de la tête avec visualisateur mécanique, vernier d'oscillation, moteur 2,2 kW, groupe hydraulique 0,75 kW, air
+  6 à 8 bar, bouche d'aspiration Ø 80 mm, soufflerie, capot insonorisé, pompe de graissage manuelle, 700 kg.
+  (La marque n'est jamais affichée dans le simulateur.)
+
+## INRS
+INRS ED 6122, « Sécurité des machines. Prévention des risques mécaniques », 2e édition, septembre 2018 : risques
+  d'écrasement et de cisaillement, protecteurs fixes et mobiles (interverrouillage), dispositifs de commande bilatérale
+  (commande à deux mains) qui tiennent l'opérateur à distance.
+  https://inrs.fr/dam/inrs/CataloguePapier/ED/TI-ED-6122.pdf
+INRS ED 6109, « Consignations et déconsignations », novembre 2011 : séparation, condamnation (cadenas), identification,
+  vérification (essai de démarrage), déconsignation. (Référence vérifiée pour le module « Risques généraux » le 28/10/2026.)
+INRS ED 974, « Poussières de bois. Prévenir les risques », 2e édition, février 2021 : poussières de bois cancérogènes,
+  captage à la source, pas de soufflette ni de balai.  https://www.inrs.fr/media.html?refINRS=ED%20974
+
+## Code du travail
+R4324-1 (éléments mobiles de transmission : protecteurs ou dispositifs empêchant l'accès aux zones dangereuses) ;
+R4324-2 (éléments mobiles concourant au travail : disposés, protégés, commandés ou équipés de telle sorte que les
+  opérateurs ne puissent atteindre la zone dangereuse).
+  https://code.travail.gouv.fr/code-du-travail/r4324-1 ; https://code.travail.gouv.fr/code-du-travail/r4324-2
+
+## Autres
+WorkSafe New Zealand, fiche « Mortisers » (sans date ; non mise à jour pour la loi actuelle) : pièce solidement bridée,
+  utiliser seulement les poignées prévues, consigner toutes les énergies avant entretien, nettoyage et réparation.
+  https://registers.worksafe.govt.nz/topic-and-industry/machinery/woodworking/mortisers
+OPPBTP, 18 fiches « Machines à bois » (décembre 2023) : la série contient une fiche « Mortaiseuse à chaîne » (autre machine),
+  mais pas de mortaiseuse à bédane ; à consulter par l'enseignant.
+  https://www.oppbtp.com/app/uploads/2023/12/OPPBTP_FA_Fiches-Machines-bois_Decembre-2023-.pdf
+CCHST (Canada), « Machines à travailler le bois – Conseils de sécurité d'ordre général » : pas de gants ni de vêtements
+  amples ou de bijoux près des pièces en mouvement (référence vérifiée pour le module « Risques généraux »).
+
+## Valeurs proposées par le simulateur, À VALIDER par l'enseignant
+Pièce de 300 mm au moins (quatre vérins loin du bédane) ; épaisseur 15 mm au moins ; joues de 5 mm au moins ; patin à
+moins de 25 mm de la course du bédane = « vérin devant le bédane » (faute grave) ; profondeur au moins la longueur du tenon
++ 1 mm pour l'assemblage (37 mm conseillés pour un tenon de 35) ; jeu en épaisseur 0 à 0,2 mm ; largeur de coupe des
+bédanes 20 mm ; oscillation de 20 à 50 mm ; butée droite qui mesure depuis le bout droit avec les mêmes taquets ;
+capot interverrouillé ; vitesses tête 60 mm/s et table 120 mm/s (animation 3 fois plus rapide).

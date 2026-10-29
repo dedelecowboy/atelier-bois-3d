@@ -31,6 +31,7 @@ export default {
   xray: { parts: [['bati',0.12],['capot',0.15]], cam: { pos: [0.9,1.35,1.75], tgt: [0,0.95,0] } },
 
   scorm: {
+    code: 'RABOTEUSE',          // préfixe des traces Moodle (interactions, objectif)
     title: 'KANAK 630 E · Raboteuse · Parcours évalué',
     zip: 'KANAK630E_raboteuse_SCORM12.zip',
     identifier: 'KANAK630E_RABOTEUSE_PARCOURS',

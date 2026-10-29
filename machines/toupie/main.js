@@ -6,6 +6,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { RPMS, RINGS, H_MIN, H_MAX, P_MIN, P_MAX, E_MAX, OPEN_MIN, OPEN_MAX, HV_MAX, DH_MAX, VARIATEUR, TABLE_Y } from './constants.js';
 import { st, ctx, $, tool, saillie } from './state.js';
 import { LIB, toolById, Rmax, Dmm, marking, profilePts, speedCheck, advisedRpm } from './tools.js';
@@ -17,7 +18,7 @@ import { ENT_ROLL_OFF, ENT_CLR, lamBand, LAM_D, closeLamelles, chordAtGuide, lam
 import { computeAlerts, passBlock, guideInfo, contacts, INTERV, CHOC, HANDS, prediction } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 /* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D : organes de chaque famille */

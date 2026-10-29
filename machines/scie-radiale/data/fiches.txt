@@ -1,0 +1,84 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la scie radiale ? | lame, bras, guide, butee
+La scie radiale coupe les planches en travers du fil : c'est le tronçonnage. C'est la première machine de la chaîne de débit des bois massifs, avant la déligneuse puis le corroyage (dégauchisseuse, raboteuse).
+- Tronçonner les plateaux bruts aux longueurs de la fiche de débit.
+- Purger les défauts : fentes en bout, nœuds, gerces.
+- Débiter en série des pièces de même longueur, à la butée.
+- Faire des coupes d'onglet (bras tourné) ou biaises (lame inclinée).
+La pièce reste immobile contre le guide : c'est la lame qui se déplace et traverse la pièce.
+> Cours « La scie radiale » du lycée ; fiche méthode « Débit des bois » (2MB).
+
+## La pièce avant et après | table, guide, regle_butee
+Avant : un plateau ou une planche brute de sciage, longue (2 à 3 m), aux bouts bruts souvent fendus et pas d'équerre, avec parfois de la flache et des défauts.
+Après : des pièces plus courtes, aux longueurs de la fiche de débit, coupées d'équerre (ou à l'angle voulu), sans fente ni défaut gênant.
+- Le premier trait affranchit le bout brut : on enlève la fente et on obtient un bout d'équerre, en perdant le moins de bois possible.
+- Les longueurs prévoient une surcote pour la mise à longueur finale.
+- Une pièce de moins de 350 mm ne passera pas en raboteuse : on la classe en chute.
+- La largeur et l'épaisseur ne changent pas : elles seront faites à la déligneuse et au corroyage.
+> Fiche méthode « Débit des bois » (2MB) ; cours « La scie radiale » du lycée.
+
+## Les organes principaux | colonne, bras, chariot, moteur, lame, carter, protecteur, poignee
+- Colonne : porte le bras ; elle monte ou descend pour régler la hauteur de la lame (manivelle).
+- Bras : la lame coulisse dedans sur son chariot ; il pivote de −45° à +45° pour les coupes d'onglet.
+- Groupe moteur et lame : lame carbure Ø 400 mm en bout d'arbre, 3 000 tr/min, moteur avec frein.
+- Carter fixe sur le dessus de la lame, protecteur avant réglable sur la pièce.
+- Poignée : la main droite tire la lame à travers la pièce, puis la ramène.
+- Guide en bois et table en bois : la lame les entaille, elle descend 5 mm dans la table.
+- Butée de longueur sur sa règle graduée, servante à rouleaux à l'entrée, table de sortie.
+> Cours « La scie radiale » du lycée ; catalogue constructeur.
+
+## La lame travaille en avalant | lame, poignee, ressort
+À la scie radiale, les dents de devant descendent dans le bois, dans le sens où l'on tire la lame : on dit que la lame travaille en avalant.
+- Avantage : la lame plaque la pièce contre la table et contre le guide.
+- Danger : la lame tend à s'emballer, à « monter » sur la pièce et à avancer brutalement vers l'opérateur.
+- On tire donc la lame doucement, en la retenant pendant toute la coupe, sans jamais lâcher la poignée.
+- À la fin de la coupe, on ramène la lame en arrière, derrière le guide, contre sa butée de fin de course. Le ressort de rappel aide, mais on accompagne toujours la tête.
+> Cours « La scie radiale » du lycée ; fiche CCHST « Scie radiale ».
+
+## Les réglages avant de travailler | rotation, inclinaison, manivelle, protecteur, butee, regle_butee, aspiration
+Tous les réglages se font lame arrêtée. Ensuite seulement, on démarre.
+- Angle du bras et inclinaison de la lame : réglés, puis bras et tête bloqués (un bras mal bloqué peut tourner pendant la coupe).
+- Hauteur de la lame : elle descend 5 mm sous la face posée de la pièce (dans la table en bois).
+- Protecteur avant : au plus près de la pièce, 1 à 10 mm au-dessus.
+- Butée de longueur : réglée à la longueur voulue, lue sur la règle graduée depuis le trait de scie. Faire une coupe d'essai et la mesurer.
+- Aspiration en marche avant de démarrer la lame.
+> Cours « La scie radiale » du lycée.
+
+## Le mode opératoire | guide, butee, servante, table_sortie, poignee, commande
+1. Poser la planche sur la table et la servante, la plaquer contre le guide. Une seule planche à la fois, jamais deux l'une sur l'autre.
+2. Affranchir le bout brut (première coupe d'équerre qui enlève la fente).
+3. Pousser la planche contre la butée pour les coupes suivantes, ou tracer et scier au trait pour purger un défaut.
+4. Main gauche à plat sur la planche, à gauche de la lame, hors de la zone rouge.
+5. Démarrer, attendre la pleine vitesse, tirer la lame doucement en la retenant.
+6. Ramener la lame en arrière, derrière le guide.
+7. Seulement alors, dégager la pièce coupée et les chutes.
+> Cours « La scie radiale » du lycée ; fiche méthode « Débit des bois » (2MB).
+
+## Les principaux risques | lame, table, protecteur, guide
+- Coupure grave ou amputation de la main : main dans la zone rouge (moins de 150 mm du trait) ou dans l'axe de la lame, ou main qui va chercher une pièce lame en avant.
+- Lame qui s'emballe vers l'opérateur : lame tirée trop vite ou poignée lâchée.
+- Rejet ou projection de la pièce ou d'une chute : pièce pas plaquée contre le guide, deux pièces superposées, table encombrée, pièce trop courte (moins de 300 mm).
+- Bras ou tête non bloqués : la lame part de travers pendant la coupe.
+- Poussières de bois (cancérogènes), bruit, manutention de longues planches.
+> Cours « La scie radiale » du lycée ; fiche CCHST « Scie radiale » ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | arret, protecteur, aspiration, table
+- Main de maintien toujours hors de la zone rouge, à gauche de la lame, jamais bras croisés.
+- Pièce plaquée contre le guide pendant toute la coupe.
+- Tirer doucement, retenir la lame, ne jamais lâcher la poignée.
+- Lame en arrière, derrière le guide, avant de toucher une pièce ou une chute.
+- Protecteur avant au plus près de la pièce ; réglages toujours lame arrêtée.
+- Lunettes, protections auditives, chaussures de sécurité ; pas de gants, de manches flottantes ni de bijoux.
+- En cas de problème : arrêt d'urgence, puis attendre l'arrêt complet de la lame.
+> Cours « La scie radiale » du lycée ; fiche « Sécurité atelier » 2MB du lycée.

@@ -19,7 +19,11 @@
    une pièce profilée ne repasse pas à la dégauchisseuse ni à la raboteuse (non géré).
 
    Bouts usinés (tenonneuse) : q.ends, absent tant qu'aucun bout n'est usiné (pieceJSON ne l'écrit alors pas : les pièces des
-   autres machines sont inchangées). Voir « bouts usinés » plus bas. */
+   autres machines sont inchangées). Voir « bouts usinés » plus bas.
+
+   Mortaises (mortaiseuse) : q.morts, absent tant qu'aucune mortaise n'est usinée (même règle : pieceJSON ne l'écrit pas sinon).
+   Chaque plongée du bédane enlève une boîte {u0, u1, v0, v1, w0, w1, ec} en coordonnées locales (mm ; ±1e6 = ouvert, mortaise
+   débouchante) ; plusieurs plongées côte à côte font une mortaise plus longue. Maillage : le même que les bouts usinés. */
 import * as THREE from 'three';
 import { canvasTex } from './kit.js';
 
@@ -39,7 +43,7 @@ export function makePiece(spec){
   if(spec.w1) return { L:spec.L, W0:spec.W0, T0:spec.T0, wood:spec.wood, sT:spec.sT||0, sW:spec.sW||0,
     w1:spec.w1.slice(), w2:spec.w2.slice(), v1:spec.v1.slice(), v2:spec.v2.slice(), k:spec.k||0, flip:!!spec.flip,
     face:JSON.parse(JSON.stringify(spec.face)), vmark:spec.vmark?{...spec.vmark}:null, cuts:JSON.parse(JSON.stringify(spec.cuts||[])),
-    ...(spec.ends? { ends:JSON.parse(JSON.stringify(spec.ends)) } : {}) };
+    ...(spec.ends? { ends:JSON.parse(JSON.stringify(spec.ends)) } : {}), ...(spec.morts&&spec.morts.length? { morts:JSON.parse(JSON.stringify(spec.morts)) } : {}) };
   let seed=spec.seed||7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
   const noise=a=>{ const ph=[rnd()*6,rnd()*6,rnd()*6]; return i=>{ const x=i/(N-1); return a*(0.5+0.25*Math.sin(x*9+ph[0])+0.15*Math.sin(x*23+ph[1])+0.1*Math.sin(x*41+ph[2])); }; };
   const r=spec.rough??0.6, b=spec.bow||0, nF1=noise(r), nF2=noise(r), nC1=noise(r), nC2=noise(r);
@@ -52,7 +56,7 @@ export function makePiece(spec){
     vmark:null, cuts:[] }; }
 /* ce qu'il faut garder pour passer la pièce à une autre machine */
 export function pieceJSON(q){ const {L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark}=q, cuts=q.cuts||[];
-  return JSON.parse(JSON.stringify({L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark,cuts, ...(hasEnds(q)? {ends:q.ends} : {})})); }
+  return JSON.parse(JSON.stringify({L,W0,T0,wood,sT,sW,w1,w2,v1,v2,k,flip,face,vmark,cuts, ...(hasEnds(q)? {ends:q.ends} : {}), ...(hasMorts(q)? {morts:q.morts} : {})})); }
 
 /* ---------- géométrie : faces, planéité, dimensions ---------- */
 export const prof=(q,f)=>({F1:q.w1,F2:q.w2,C1:q.v1,C2:q.v2}[f]);
@@ -157,7 +161,7 @@ export const EX=3;   // à l'affichage seulement, les écarts de forme (cintrage
 const exag=a=>{ const n=a.length-1; return a.map((x,i)=>{ const lin=a[0]+(a[n]-a[0])*i/n; return x+(EX-1)*(x-lin); }); };
 /* maillage de la pièce, centré sur son origine locale (u le long de x, w en y, v en z), sans orientation */
 export function pieceMesh(q0){
-  if(hasEnds(q0)) return endsMesh(q0);                      // bouts usinés (tenonneuse)
+  if(hasEnds(q0)||hasMorts(q0)) return endsMesh(q0);       // bouts usinés (tenonneuse), mortaises (mortaiseuse)
   if(q0.cuts&&q0.cuts.length) return profiledMesh(q0);     // pièce profilée (toupie) ; sinon, maillage d'origine
   const q={...q0, w1:exag(q0.w1), w2:exag(q0.w2), v1:exag(q0.v1), v2:exag(q0.v2)};
   const L=q0.L/1000, T=q0.T0/1000, W=q0.W0/1000, pos=[], uv=[], idx=[];
@@ -257,16 +261,20 @@ export function trimEnd(q,e,t){ if(!(t>0)) return; const L=q.L, L2=L-t, off=e===
   q.w1=rs(q.w1); q.w2=rs(q.w2); q.v1=rs(q.v1); q.v2=rs(q.v2);
   for(const c of q.cuts||[]){ const nd=[]; for(let i=0;i<N;i++){ const [k,r]=at(i); nd.push(c.d[k].map((x,j)=>x*(1-r)+c.d[k+1][j]*r)); } c.d=nd; }
   q.L=Math.round(L2*100)/100;
-  const R=q.ends&&q.ends[e]; if(R) R.cuts=R.cuts.map(c=>({...c, d0:Math.max(0,c.d0-t), d1:c.d1-t})).filter(c=>c.d1>0.05); }
-const BIG=1e6;
-/* bandes enlevées au point u (mm depuis le bout A) : strictement à l'intérieur de [d0, d1] */
+  const R=q.ends&&q.ends[e]; if(R) R.cuts=R.cuts.map(c=>({...c, d0:Math.max(0,c.d0-t), d1:c.d1-t})).filter(c=>c.d1>0.05);
+  if(hasMorts(q)) q.morts=q.morts.map(m=> e==='A'? {...m, u0:Math.max(0,m.u0-t), u1:m.u1-t} : {...m, u1:Math.min(L2,m.u1)}).filter(m=>m.u1-m.u0>0.05); }
+export const hasMorts=q=>!!q&&Array.isArray(q.morts)&&q.morts.length>0;
+export const BIG=1e6;
+/* matière enlevée au point u (mm depuis le bout A) : rectangles {v0, v1, w0, w1} de la section (bandes des bouts usinés,
+   strictement à l'intérieur de [d0, d1] ; boîtes des mortaises, strictement à l'intérieur de [u0, u1]) */
 function bandsAt(q,u){ const out=[];
   for(const e of ['A','B']){ const R=q.ends&&q.ends[e]; if(!R) continue; const d= e==='A'? u : q.L-u;
-    for(const c of R.cuts) if(d>c.d0+1e-7 && d<c.d1-1e-7) out.push({ax:c.ax, a:c.a, b:c.b, ec:!!R.ec}); }
+    for(const c of R.cuts) if(d>c.d0+1e-7 && d<c.d1-1e-7) out.push(c.ax==='v'? {v0:c.a, v1:c.b, w0:-BIG, w1:BIG, ec:!!R.ec} : {v0:-BIG, v1:BIG, w0:c.a, w1:c.b, ec:!!R.ec}); }
+  for(const m of q.morts||[]) if(u>m.u0+1e-7 && u<m.u1-1e-7) out.push({v0:m.v0, v1:m.v1, w0:m.w0, w1:m.w1, ec:!!m.ec, mort:true});
   return out; }
-const inBands=(B,v,w)=>B.find(b=>{ const x=b.ax==='v'?v:w; return x>b.a+1e-9 && x<b.b-1e-9; })||null;
-/* cellules (rectangles) délimitées par les bords des bandes */
-function cellsOf(B){ const br=ax=>[...new Set(B.filter(b=>b.ax===ax).flatMap(b=>[b.a,b.b]).filter(x=>Math.abs(x)<BIG/2))].sort((a,b)=>a-b);
+const inBands=(B,v,w)=>B.find(b=>v>b.v0+1e-9 && v<b.v1-1e-9 && w>b.w0+1e-9 && w<b.w1-1e-9)||null;
+/* cellules (rectangles) délimitées par les bords des rectangles enlevés */
+function cellsOf(B){ const br=ax=>[...new Set(B.flatMap(b=>ax==='v'?[b.v0,b.v1]:[b.w0,b.w1]).filter(x=>Math.abs(x)<BIG/2))].sort((a,b)=>a-b);
   const iv=xs=>{ const out=[]; let p=-BIG; for(const x of xs){ out.push([p,x]); p=x; } out.push([p,BIG]); return out; };
   const mid=([a,b])=> a<=-BIG/2&&b>=BIG/2? 0 : a<=-BIG/2? b-0.5 : b>=BIG/2? a+0.5 : (a+b)/2;
   const out=[]; for(const V of iv(br('v'))) for(const W of iv(br('w'))) out.push({V,W,cv:mid(V),cw:mid(W)}); return out; }
@@ -289,14 +297,15 @@ function endsMesh(q0){
   const L=q0.L, T=q0.T0/1000, W=q0.W0/1000, FI={F1:0,F2:1,C1:2,C2:3};
   const vmin=Math.min(...q0.v1), vmax=Math.max(...q0.v2), wmin=Math.min(...q0.w1), wmax=Math.max(...q0.w2);
   const X=u=>u/1000-L/2000, Y=w=>w/1000-T/2, Z=v=>v/1000-W/2;
-  const pos=[], nor=[], uv=[], groups=[[],[],[],[],[],[],[]];
+  const pos=[], nor=[], uv=[], groups=[[],[],[],[],[],[],[],[]];
   /* tranches : stations et bords des coupes */
   let br=[0,L]; for(let i=1;i<N-1;i++) br.push(i/(N-1)*L);
   for(const e of ['A','B']){ const R=q0.ends&&q0.ends[e]; if(R) for(const c of R.cuts) for(const d of [c.d0,c.d1]) br.push(e==='A'? d : L-d); }
+  for(const m of q0.morts||[]) br.push(m.u0,m.u1);
   br=[...new Set(br.map(x=>Math.round(Math.max(0,Math.min(L,x))*1e4)/1e4))].sort((a,b)=>a-b);
   const st=u=>Math.max(0,Math.min(N-1,Math.round(u/L*(N-1))));
   const slabs=[]; for(let s=0;s<br.length-1;s++){ const u0=br[s], u1=br[s+1]; if(u1-u0<1e-4) continue; const um=(u0+u1)/2; slabs.push({u0,u1,B:bandsAt(q0,um),S:sectionPoly(q0,st(um))}); }
-  const ALL=[{ax:'v',a:-BIG,b:BIG}];
+  const ALL=[{v0:-BIG,v1:BIG,w0:-BIG,w1:BIG}];
   const quad=(x0,x1,P,Q,n,mat,uvy)=>{ const base=pos.length/3;
     for(const [x,ux] of [[x0,0],[x1,1]]) for(const [p,k] of [[P,0],[Q,1]]){ pos.push(X(x),Y(p.w),Z(p.v)); nor.push(0,n[1],n[0]); uv.push(x/L,uvy(p)); }
     const a=base,b=base+1,c=base+2,d=base+3; groups[mat].push(a,c,b, b,c,d); };
@@ -307,7 +316,7 @@ function endsMesh(q0){
         const nn=[dw/l,-dv/l];
         const onLine=[...cell.V,...cell.W].some((c,k)=>Math.abs(c)<BIG/2 && (k<2? Math.abs(A.v-c)<1e-6&&Math.abs(Bq.v-c)<1e-6 : Math.abs(A.w-c)<1e-6&&Math.abs(Bq.w-c)<1e-6));
         if(onLine){ const mv=(A.v+Bq.v)/2+nn[0]*0.3, mw=(A.w+Bq.w)/2+nn[1]*0.3, band=inBands(sl.B,mv,mw); if(!band) continue;   // limite intérieure entre deux cellules gardées
-          quad(sl.u0,sl.u1,A,Bq,nn,band.ec?6:5,p=>Math.abs(nn[0])>0.5? (p.w-wmin)/(wmax-wmin) : (p.v-vmin)/(vmax-vmin)); continue; }
+          quad(sl.u0,sl.u1,A,Bq,nn,band.mort?7:band.ec?6:5,p=>Math.abs(nn[0])>0.5? (p.w-wmin)/(wmax-wmin) : (p.v-vmin)/(vmax-vmin)); continue; }
         const f=A.f===Bq.f?A.f:Bq.f, mat=(A.cut||Bq.cut)? (cutOf(q0,f)?.tear?6:5) : FI[f];
         quad(sl.u0,sl.u1,A,Bq,nn,mat,p=>across(f,p)); } } }
   /* faces en bout (bois de bout) : là où un côté de la limite garde la matière et pas l'autre */
@@ -321,6 +330,8 @@ function endsMesh(q0){
       const P=clipCell((kL?Lf:Rt).S,cell); if(P) cap(u,P,kL?1:-1); } }
   const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3)); geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
   const idx=[]; groups.forEach((g,m)=>{ if(g.length){ geo.addGroup(idx.length,g.length,m); for(const x of g) idx.push(x); } }); geo.setIndex(idx);
-  const mesh=new THREE.Mesh(geo,[faceMat(q0,'F1'),faceMat(q0,'F2'),faceMat(q0,'C1'),faceMat(q0,'C2'),endMat(q0),profMat(q0,false),profMat(q0,true)]);
+  const mesh=new THREE.Mesh(geo,[faceMat(q0,'F1'),faceMat(q0,'F2'),faceMat(q0,'C1'),faceMat(q0,'C2'),endMat(q0),profMat(q0,false),profMat(q0,true),cavMat(q0)]);
   mesh.castShadow=mesh.receiveShadow=true; mesh.userData.part='piece';
   return mesh; }
+/* intérieur d'une mortaise : bois coupé par le bédane, dans l'ombre (plus sombre que les faces rabotées) */
+function cavMat(q){ const key='cav|'+q.wood; return MATS[key]||(MATS[key]=new THREE.MeshStandardMaterial({map:woodTex(q.wood,'planed',0,null),color:0x4e3e30,roughness:1})); }
