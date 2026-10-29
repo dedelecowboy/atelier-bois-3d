@@ -6,6 +6,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { HEADS, HEAD_NAME, HEAD_SHORT, N_HEAD, LT, HINF, EP, DEC, HT, PT, BUT, PROT, ANG, AVANCES, C_HOME } from './constants.js';
 import { st, ctx, $, tool, anyRun, BL } from './state.js';
 import { libFor, toolById, marking, speedCheck, edgesOk } from './tools.js';
@@ -16,7 +17,7 @@ import { initPieces, pieces, cut, chariotPiece, atHome, startPass, tickPass, ret
 import { computeAlerts, passBlock, prediction, CHARGE, INTERV, spinning } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 ctx.app = app; ctx.model = model;

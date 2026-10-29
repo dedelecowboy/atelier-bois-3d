@@ -1,0 +1,79 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la tenonneuse ? | scie, der_sup, der_inf, toupie, chariot
+La tenonneuse usine les bouts des pièces corroyées : tenons, enfourchements, épaulements. Elle vient après le corroyage, pour les assemblages des cadres (montants et traverses).
+- La pièce est serrée sur un chariot qu'on pousse devant les outils.
+- La scie d'affranchissement met la pièce à longueur (longueur du tenon).
+- Les dérouleurs inférieur et supérieur font les joues du tenon.
+- L'unité de toupillage fait l'enfourchement ou un contre-profil.
+En une seule poussée du chariot, le bout est coupé et le tenon fait.
+> Cours « La tenonneuse » du lycée.
+
+## La pièce avant et après | chariot, table_chariot, guide, piece
+Avant : une traverse ou un montant corroyé, aux bouts encore bruts, repéré (SR1, SR2).
+Après : un tenon (ou un enfourchement) à chaque bout, aux cotes du dessin : épaisseur, position depuis SR1, longueur ; distance entre arasements juste.
+- SR1 reste toujours sur la table du chariot, aux deux bouts : le tenon est placé depuis SR1.
+- Le deuxième bout se fait « bout pour bout », contre la butée de longueur : la distance entre arasements est celle de la butée.
+- Une pièce trop courte (moins de 250 mm) ne se travaille pas à la tenonneuse.
+> Cours « La tenonneuse » du lycée.
+
+## Les organes principaux | chariot, presse, guide, butee, pare_eclat, scie, der_sup, der_inf, toupie, capot, protecteur
+- Chariot sur rail, avec sa table, sa presse pneumatique, son guide orientable et sa butée de longueur à taquets.
+- Pare-éclat en bois contre le guide.
+- Scie d'affranchissement, dérouleur supérieur, dérouleur inférieur, unité de toupillage.
+- Compteurs de réglage (longueur, hauteur et épaisseur, toupillage), certains sous le capot.
+- Capot relevable, protecteur avant, carters, filin de sécurité et boîtier, pupitre (marche de chaque outil, réarmement, arrêt d'urgence), sectionneur.
+> Cours « La tenonneuse » du lycée.
+
+## Le pare-éclat et le sens de coupe | pare_eclat, guide, der_sup, der_inf
+Tous les outils travaillent en opposition : ils plaquent la pièce contre le guide, et c'est de ce côté qu'ils sortent du bois, en risquant des éclats.
+- Le pare-éclat, pièce de bois contre le guide, soutient cette arête.
+- Il est usiné avec les réglages en cours : à chaque nouveau réglage, on le renouvelle et on le passe à vide (ou avec la pièce d'essai).
+- SR2 contre le guide au premier bout : c'est l'arête de référence qui est soutenue.
+> Cours « La tenonneuse » du lycée.
+
+## Les réglages avant de travailler | regl_scie, regl_inf, regl_ep, regl_dec, regl_tou_h, regl_tou_p, sectionneur, capot
+Tous les réglages se font outils arrêtés ; les outils se montent machine consignée.
+- Longueur du tenon : position de la scie (sous le capot).
+- Dérouleur inférieur : hauteur de la joue ; dérouleur supérieur : épaisseur du tenon.
+- Toujours régler les dérouleurs en montant : si l'on dépasse, redescendre sous la cote puis remonter.
+- Profondeur de passe de 20 mm au plus par dérouleur.
+- Vitesse de chaque outil jamais au-dessus de son n max ; outil monté dans le bon sens.
+- Protecteur avant à 10 mm au plus au-dessus de la pièce ; pare-éclat renouvelé.
+> Cours « La tenonneuse » du lycée.
+
+## Le mode opératoire | verrou_chariot, presse, butee, marche, chariot
+1. Chariot verrouillé en position de chargement ; poser la pièce SR1 sur la table, SR2 contre le guide.
+2. La mettre en butée, la serrer avec la presse.
+3. Démarrer les outils, attendre la pleine vitesse.
+4. Pousser le chariot d'une avance régulière, les deux mains sur la poignée.
+5. Ramener le chariot, attendre qu'il soit verrouillé, desserrer et retirer la pièce.
+6. Faire une pièce d'essai, la contrôler, puis usiner la série ; deuxième bout « bout pour bout ».
+> Cours « La tenonneuse » du lycée ; fiche « Tenonneuse : les points clés ».
+
+## Les principaux risques | scie, der_sup, der_inf, presse, filin
+- Coupure grave ou amputation : main sur la pièce près des outils, intervention sous le capot outils en rotation (chute coincée).
+- Éjection de la pièce : pièce non serrée, trop courte ou instable, avance trop rapide.
+- Rupture ou éjection d'un outil : vitesse au-delà de n max, outil à l'envers.
+- Écrasement en chargeant la pièce chariot avancé.
+- Bruit élevé, poussières de bois (cancérogènes).
+> Fiche « Tenonneuse : les points clés » ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | presse, capot, filin, arret_urgence, sectionneur
+- Pièce toujours serrée par la presse ; mains sur la poignée du chariot.
+- Charger et décharger chariot verrouillé en position de chargement.
+- Capot fermé, carters en place, protecteur au plus près de la pièce.
+- Outils montés machine consignée ; réglages outils arrêtés ; dérouleurs réglés en montant.
+- Jamais de pièce de moins de 250 mm ; aspiration en marche.
+- Protections auditives, lunettes, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> Fiche « Tenonneuse : les points clés » ; fiche « Sécurité atelier » 2MB du lycée.

@@ -6,6 +6,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { TABLE_Y, ZONE, NEAR, PROT_GAP, VC, DEV_MAX, DEV_STEP, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, RIM_W } from './constants.js';
 import { st, lame, voie, rmin, dents, rimPos, rimOk, wide, tensionOk, ctx, $ } from './state.js';
 import { BLADES, bladeById, rmin as rminOf, toothH } from './lame.js';
@@ -15,7 +16,7 @@ import { initPieces, pieces, cut, onTable, cur, extent, measure, label, fmt, fee
 import { computeAlerts, motorBlock, feedBlock, drift, remaining, broken, guideIssues, guidesOk, protOk } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria, ev, startGap } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 initFamilies(app, {

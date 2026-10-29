@@ -6,13 +6,14 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { st, ctx, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markRef, markFocus, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, protState, coverPose } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 /* réglages par famille (couleurs, alertes dans leur panneau) et lien avec la 3D */

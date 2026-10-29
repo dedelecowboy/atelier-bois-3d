@@ -5,6 +5,7 @@ import config from './config.js';
 import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
+import fiches from './data/fiches.txt';
 import { MAIN_KERF } from './constants.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
@@ -14,7 +15,7 @@ import { initPieces, A, pieces, cut, rebuildAll, renderDebit, setActive, scoreSt
 import { computeAlerts } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
-const app = createApp(config, { organes, qcm, reperage });
+const app = createApp(config, { organes, qcm, reperage, fiches });
 const { stage } = app;
 const model = buildModel({ root:stage.root, tagPart:app.parts.tagPart, partMeshes:app.parts.partMeshes });
 ctx.app = app; ctx.model = model;

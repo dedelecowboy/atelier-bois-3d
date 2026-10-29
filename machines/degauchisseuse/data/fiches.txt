@@ -1,0 +1,77 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la dégauchisseuse ? | arbre, table_entree, table_sortie, guide
+La dégauchisseuse dresse les faces de référence d'une pièce de bois massif : c'est le début du corroyage, après le débit (scie radiale, déligneuse) et avant la raboteuse.
+- SR1 : dresser une face, le plat, bien plane (on enlève le gauche, le cintre, le tuilage).
+- SR2 : dresser un chant, d'équerre à SR1, la pièce plaquée contre le guide.
+- Repérer les faces dressées au crayon : boucle de parement sur SR1, petit V à cheval sur l'arête SR1 / SR2.
+La dégauchisseuse ne met PAS à épaisseur : les faces opposées se font à la raboteuse, parallèles à SR1 et SR2.
+> Fiche « Dégauchisseuse » (J. Gutierrez) ; INRS A644 ; cours du lycée.
+
+## La pièce avant et après | piece, guide
+Avant : une pièce brute de sciage, déjà débitée à longueur et à largeur, souvent déformée (gauche, cintrée, voilée), aux faces grises, rugueuses, marquées par la scie.
+Après : deux faces dressées, lisses et claires : SR1 (le plat) et SR2 (le chant), d'équerre entre elles (90°), repérées au crayon.
+- Une pièce cintrée se dresse en plusieurs passes : on la pose sur son creux, jamais sur son bombé (elle bascule).
+- On enlève le moins de matière possible : l'épaisseur finale doit rester atteignable.
+> Fiche « Dégauchisseuse » (J. Gutierrez) ; cours du lycée.
+
+## Les organes principaux | table_entree, table_sortie, arbre, guide, protecteur, profondeur, carter, aspiration
+- Table d'entrée : abaissée de la profondeur de passe (réglage de profondeur).
+- Arbre porte-outils à 4 fers, entre les deux tables ; son cercle de coupe est au niveau de la table de sortie.
+- Table de sortie (de réception) : elle porte la face déjà dressée.
+- Guide de dégauchissage réglable en angle (90° pour SR2), carter derrière le guide.
+- Protecteur à pont type SUVAMATIC qui couvre l'arbre ; bec d'engagement orientable.
+- Moteur, transmission, aspiration sous l'arbre, boîtier de commande et arrêt d'urgence.
+> Fiche « Dégauchisseuse » (J. Gutierrez) ; documentation SUVA.
+
+## Le protecteur SUVAMATIC et le bec d'engagement | protecteur, guide, arbre
+Le protecteur couvre l'arbre sur toute sa longueur, posé sur la table contre le guide et rappelé par un ressort. Il ne se règle pas en hauteur : seul le bec d'engagement s'oriente.
+- Pour le plat (SR1) : bec VERTICAL. La pièce soulève la couverture, qui glisse sur elle.
+- Pour le chant (SR2) : bec HORIZONTAL. La pièce écarte la couverture du guide de son épaisseur ; elle la plaque contre le guide.
+- Le protecteur revient seul sur l'arbre après le passage de la pièce.
+Un bec mal orienté pour le travail en cours laisse l'arbre découvert : c'est une faute grave.
+> Documentation SUVA ; INRS A644.
+
+## Les réglages avant de travailler | profondeur, guide, reglage_guide, protecteur, aspiration
+Tous les réglages se font machine arrêtée.
+- Profondeur de passe : 2 mm au plus (souvent 1 à 1,5 mm).
+- Guide d'équerre (90°) contrôlé à l'équerre, et approché pour ne découvrir que la largeur utile de l'arbre.
+- Bec du protecteur orienté selon le travail : vertical (plat) ou horizontal (chant).
+- Aspiration en marche.
+- Sens du fil : depuis la face à dresser, les fibres doivent monter vers le bout qui passe en premier, sinon arrachements.
+> Fiche « Dégauchisseuse » (J. Gutierrez) ; cours du lycée.
+
+## Le mode opératoire | table_entree, table_sortie, guide, pupitre
+1. Choisir la face à dresser, poser la pièce sur son creux, dans le bon sens du fil.
+2. Démarrer, attendre la pleine vitesse.
+3. Pousser la pièce d'un mouvement régulier, mains à plat sur le dessus, jamais au-dessus de l'arbre ; le poids passe sur la table de sortie dès que possible.
+4. En fin de passe, ramener la pièce en la soulevant : jamais tirée en arrière sur l'arbre.
+5. Répéter jusqu'à ce que la face soit entièrement dressée, puis repérer SR1.
+6. Dresser SR2, SR1 bien plaquée contre le guide, bec horizontal, puis tracer le V.
+> Fiche « Dégauchisseuse » (J. Gutierrez) ; cours du lycée.
+
+## Les principaux risques | arbre, protecteur
+- Coupure grave ou amputation des doigts au contact de l'arbre : mains au-dessus de l'arbre, protecteur mal orienté ou relevé, pièce trop courte.
+- Rejet de la pièce : passe trop forte, pièce instable posée sur son bombé, pièce de moins de 320 mm.
+- Arrachements et éclats si l'on travaille à contre-fil.
+- Poussières de bois (cancérogènes), bruit.
+> INRS A644 ; fiche « Dégauchisseuse » (J. Gutierrez) ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | protecteur, arret, aspiration
+- Protecteur toujours en place, bec orienté selon le travail.
+- Jamais de pièce de moins de 320 mm ; jamais les mains au-dessus de l'arbre.
+- Passe de 2 mm au plus ; pièce posée sur son creux.
+- Ramener la pièce en la soulevant, jamais en la tirant sur l'arbre.
+- Réglages machine arrêtée ; aspiration en marche.
+- Lunettes, protections auditives, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> INRS A644 ; fiche « Sécurité atelier » 2MB du lycée.

@@ -1,0 +1,74 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la raboteuse ? | arbre, table, rouleau_entree, rouleaux_sortie
+La raboteuse met les pièces à largeur et à épaisseur : elle usine la face opposée à une face de référence, parallèle à elle. Elle vient après la dégauchisseuse : c'est la fin du corroyage.
+- Mise à largeur : la pièce sur chant, SR2 sur la table.
+- Mise à épaisseur : la pièce à plat, SR1 sur la table.
+- Usiner en série des pièces de même section.
+L'arbre est fixe au-dessus de la pièce ; c'est la table qui monte ou descend à la cote. La pièce avance seule, entraînée par les rouleaux.
+> Fiche OPPBTP « Raboteuse » ; cours « La raboteuse » du lycée.
+
+## La pièce avant et après | table, piece
+Avant : une pièce dégauchie, avec SR1 et SR2 dressées et repérées (boucle et V), les deux autres faces encore brutes.
+Après : une pièce corroyée à la section voulue (par exemple 70 × 27), quatre faces planes, opposées parallèles, d'équerre, contrôlée au pied à coulisse au 1/10 mm.
+- On met à largeur d'abord, puis à épaisseur : la pièce encore épaisse est plus stable sur chant.
+- La face posée doit être dégauchie : la raboteuse recopie sa forme, elle ne redresse pas une pièce cintrée.
+- Une pièce brute non dégauchie retourne à la dégauchisseuse.
+> Cours « La raboteuse » du lycée.
+
+## Les organes principaux | arbre, rouleau_entree, presseur_av, presseur_ar, rouleaux_sortie, linguets, table, galets, levage, capot
+- Table réglable en hauteur sur colonnes (levage), avec galets et rallonges d'entrée et de sortie.
+- Arbre porte-lames à 4 lames, sous le capot.
+- Linguets anti-recul à l'entrée, rouleau d'entrée strié (monobloc), presseur avant (brise-copeaux), presseur arrière, rouleaux de sortie.
+- Transmission d'avance par chaîne, variateur de vitesse d'avance.
+- Moteur, aspiration, pupitre avec afficheur de la cote, arrêt d'urgence, sectionneur.
+> Cours « La raboteuse » du lycée ; catalogue constructeur.
+
+## L'entraînement de la pièce | rouleau_entree, linguets, rouleaux_sortie
+Les lames tournent contre l'avance : la pièce est poussée vers la sortie par les rouleaux, et l'arbre tend à la renvoyer vers l'opérateur.
+- Le rouleau d'entrée est monobloc : plusieurs pièces de front doivent avoir la même hauteur (0,5 mm d'écart au plus), sinon la plus basse n'est pas tenue et peut être rejetée.
+- Les linguets anti-recul retiennent une pièce qui recule.
+- Une pièce trop courte (moins de 350 mm) reste coincée sous l'arbre entre les rouleaux.
+- On ne pousse jamais la pièce à la main dans la machine.
+> Fiche OPPBTP « Raboteuse » ; cours « La raboteuse » du lycée.
+
+## Les réglages avant de travailler | levage, pupitre, variateur, capot, aspiration
+- Cote : réglée sur la pièce la plus épaisse (ou la plus large) du lot ; passe de 5 mm au plus (moins sur une pièce large).
+- Vitesse d'avance adaptée au bois : plus lente en bois dur.
+- Sens du fil : depuis la face rabotée, les fibres doivent entrer dans la pièce vers le bout qui passe en premier ; sinon arrachements.
+- Capot fermé, aspiration en marche.
+> Cours « La raboteuse » du lycée.
+
+## Le mode opératoire | table, pupitre, marche, rallonge_entree, rallonge_sortie
+1. Mesurer la pièce, régler la cote.
+2. Démarrer l'aspiration, le moteur, puis l'avance.
+3. Poser la pièce face de référence sur la table, dans le bon sens du fil, et l'engager : les rouleaux la prennent.
+4. Recevoir la pièce à la sortie sans la tirer ; ramener la pièce par-dessus la machine.
+5. Descendre la cote passe après passe ; contrôler au pied à coulisse avant la dernière passe.
+6. En cas de pièce coincée : arrêter l'avance et le moteur, attendre l'arrêt de l'arbre, descendre la table, dégager.
+> Cours « La raboteuse » du lycée.
+
+## Les principaux risques | arbre, linguets, rouleau_entree
+- Rejet de la pièce vers l'opérateur : pièces de front de hauteurs différentes, passe trop forte, pièce instable.
+- Happement des doigts entre la pièce et la table d'entrée ou par les rouleaux.
+- Coupure grave en intervenant sous le capot arbre en rotation.
+- Bruit élevé, poussières de bois (cancérogènes), port de pièces lourdes.
+> Fiche OPPBTP « Raboteuse » ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | arret, capot, sectionneur, aspiration
+- Jamais de pièce de moins de 350 mm ; passe de 5 mm au plus.
+- Face posée dégauchie et stable ; pièces de front à la même hauteur.
+- Ne jamais pousser la pièce à la main, ne pas se placer dans l'axe de l'entrée.
+- Intervenir (pièce coincée, capot) machine arrêtée et arbre immobile.
+- Aspiration en marche ; protections auditives, lunettes, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> Fiche OPPBTP « Raboteuse » ; fiche « Sécurité atelier » 2MB du lycée.

@@ -1,0 +1,76 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la toupie ? | arbre, outil, guide_entree, guide_sortie
+La toupie usine des profils sur les pièces corroyées : moulures, quarts de rond, chanfreins, feuillures, rainures. Elle vient après le corroyage (dégauchisseuse, raboteuse).
+- Travail au guide : la pièce glisse contre le guide, l'outil enlève la matière sur sa rive.
+- Autres travaux (non simulés ici) : à l'arbre pour les pièces cintrées, tenonnage au chariot.
+L'outil tourne sur un arbre vertical, au milieu de la table ; la pièce avance de droite à gauche, contre le sens de coupe.
+> Cours « La toupie » du lycée ; INRS A646.
+
+## La pièce avant et après | guide_entree, guide_sortie, piece
+Avant : une pièce corroyée (quatre faces dressées, à la cote), repérée (SR1, SR2).
+Après : la même pièce avec un profil régulier sur toute sa rive (quart de rond, feuillure, doucine…), placé par rapport aux faces de référence, sans arrachement.
+- Une feuillure profonde se fait en plusieurs passes (10 mm au plus par passe).
+- Quand toute la rive est usinée, le demi-guide de sortie est avancé de la profondeur de passe pour soutenir la pièce.
+- Une pièce trop courte (moins de 300 mm) ne se travaille pas au guide.
+> Cours « La toupie » du lycée ; procédure de réglage de l'atelier.
+
+## Les organes principaux | table, arbre, outil, bagues, guide_entree, guide_sortie, lamelles, capot_guide, protecteur, pupitre
+- Table avec bagues de table autour de l'arbre ; rallonges.
+- Arbre vertical Ø 30, réglable en hauteur, outil serré dessus.
+- Guide en deux demi-guides (entrée et sortie) à lamelles, capot d'aspiration.
+- Protège-mains à presseurs (vertical et horizontal), poussoir.
+- Pupitre : afficheurs hauteur et vitesse, marche / arrêt, inverseur de sens, arrêt d'urgence ; verrou de l'arbre, sectionneur cadenassable.
+- Moteur-frein, poulies (vitesse) derrière la porte, entraîneur à rouleaux.
+> Cours « La toupie » du lycée ; INRS A646.
+
+## Le sens de rotation et la vitesse | outil, arbre, inverseur, porte
+L'outil tourne en opposition : ses dents vont à la rencontre de la pièce, qui avance de droite à gauche. Travailler en avalant (outil dans l'autre sens) à la main est interdit : la pièce serait arrachée.
+- L'outil est monté dans le bon sens (flèche gravée) et l'inverseur réglé en conséquence.
+- Vitesse de rotation : jamais plus que la vitesse maximale gravée sur l'outil (n max).
+- Vitesse de coupe Vc = π × D × n / 60 000, entre 40 et 70 m/s.
+- La vitesse se change par les poulies, arbre arrêté, porte ouverte.
+> Cours « La toupie » du lycée ; OPPBTP « Toupie : les points clés ».
+
+## Les réglages avant de travailler | outil, verrou, sectionneur, guide_entree, guide_sortie, lamelles, presseur_v, presseur_h, bagues
+L'outil se monte machine consignée (sectionneur sur 0 et cadenas), arbre verrouillé. Tous les réglages se font arbre arrêté.
+- Hauteur de l'arbre et saillie de l'outil (position du guide) selon le profil ; bloquer la hauteur.
+- Demi-guide de sortie aligné, ou avancé de la profondeur de passe si toute la rive est usinée.
+- Lamelles fermées au plus près de l'outil, une fois la hauteur et la saillie réglées.
+- Presseurs vertical et horizontal sur la pièce (quelques mm de pression) ; bague de table la plus petite possible.
+- Faire tourner l'outil à la main pour vérifier qu'il ne touche rien ; aspiration en marche.
+> Procédure de réglage de l'atelier ; cours « La toupie » du lycée.
+
+## Le mode opératoire | protecteur, poussoir, pupitre, marche
+1. Déconsigner, démarrer, attendre la pleine vitesse.
+2. Engager la pièce sous les presseurs, contre le guide, de droite à gauche, d'un mouvement régulier.
+3. Mains à plat, jamais devant l'outil ; finir la passe au poussoir.
+4. Faire une pièce d'essai, contrôler le profil, corriger si besoin (arbre arrêté).
+5. Usiner la série ; avec l'entraîneur, les rouleaux remplacent les presseurs et le poussoir.
+> Cours « La toupie » du lycée ; OPPBTP « Travailler en sécurité sur une toupie ».
+
+## Les principaux risques | outil, lamelles, protecteur, presseur_v
+- Coupure grave ou amputation des doigts au contact de l'outil : lumière du guide ouverte, presseurs absents, pas de poussoir, gants happés.
+- Rejet violent de la pièce : travail en avalant, passe trop forte, pièce trop courte ou instable, demi-guide de sortie mal réglé.
+- Rupture ou éjection de l'outil : vitesse au-delà de n max, outil mal serré ou monté à l'envers.
+- Bruit très élevé, poussières de bois (cancérogènes).
+> INRS A646 ; OPPBTP « Toupie : les points clés » ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | sectionneur, lamelles, protecteur, poussoir, arret
+- Outil monté machine consignée ; vitesse jamais au-dessus de n max.
+- Toujours en opposition : jamais en avalant à la main.
+- Lamelles fermées, presseurs sur la pièce, poussoir en fin de passe (ou entraîneur).
+- Pas de pièce de moins de 300 mm au guide ; passe de 10 mm au plus.
+- Réglages arbre arrêté ; aspiration en marche.
+- Protections auditives, lunettes, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> INRS A646 ; fiche « Sécurité atelier » 2MB du lycée.

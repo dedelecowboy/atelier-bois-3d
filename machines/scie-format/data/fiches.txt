@@ -1,0 +1,79 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la scie à format ? | lame, chariot, guide, cadre
+La scie à format débite et met aux dimensions les panneaux (mélaminé, contreplaqué, MDF) et les pièces de bois massif. C'est la machine de la mise au format, à côté de la chaîne de débit des bois massifs.
+- Tronçonner : couper en travers, la pièce posée sur le chariot contre la règle de tronçonnage.
+- Déligner : couper en long, au guide parallèle.
+- Délignage de rive : dresser une rive en flache au sabot (butée à griffes) sur le chariot.
+- Coupes d'onglet (règle orientée) et coupes biaises (lame inclinée).
+- Inciseur : éviter les éclats sur la face du dessous des panneaux mélaminés.
+> Cours « La scie à format » du lycée ; INRS (machines à bois).
+
+## La pièce avant et après | chariot, regle, guide, piece
+Avant : un panneau de grande dimension (par exemple 2 800 × 2 070 mm) ou une planche aux rives brutes, parfois en flache.
+Après : des pièces aux cotes de la fiche de débit, d'équerre, aux chants nets, sans éclat sur les faces visibles.
+- Le premier trait dresse une rive de référence ; les cotes se prennent ensuite depuis cette rive.
+- Une rive en flache ne va jamais contre le guide : on la dresse d'abord au sabot, à 10 mm au plus du fond de la flache.
+- Chaque coupe donne une pièce gardée et une chute : la pièce gardée est celle qu'on choisit, pas forcément la plus grande.
+> Cours « La scie à format » du lycée.
+
+## Les organes principaux | table, chariot, lame, couteau, protecteur, guide, cadre, regle, inciseur
+- Table fixe, rallonge et guide parallèle du côté droit de la lame.
+- Chariot à format (côté gauche) avec son cadre et la règle de tronçonnage graduée, sa butée de longueur.
+- Lame carbure Ø 400, couteau diviseur juste derrière la lame, protecteur suspendu au-dessus.
+- Inciseur : petite lame qui tourne en sens inverse, devant la lame principale.
+- Relevage et inclinaison de la lame (volants), moteur, aspiration, pupitre de commande.
+> Cours « La scie à format » du lycée.
+
+## Le couteau diviseur et le rejet | couteau, lame, guide, regle
+Les dents du haut de la lame remontent vers l'opérateur. Si le bois se referme ou se coince entre la lame et le guide, la lame peut projeter la pièce vers l'opérateur : c'est le rejet.
+- Le couteau diviseur, derrière la lame, garde le trait ouvert et empêche le bois de se refermer sur les dents.
+- Tronçonnage : la pièce est contre la règle du chariot, jamais en butée contre le guide parallèle. Si on se sert du guide comme repère, sa règle est en position courte (elle s'arrête avant la lame).
+- Délignage d'une pièce étroite (moins de 120 mm) : jamais contre la règle courte, on utilise le poussoir.
+- Après la coupe, on évacue la chute avant de ramener le chariot.
+> Cours « La scie à format » du lycée ; INRS (rejet).
+
+## Les réglages avant de travailler | lame, protecteur, guide, regle, inciseur, aspiration
+Tous les réglages se font lame arrêtée.
+- Hauteur de lame : la denture dépasse d'environ 10 mm au-dessus de la pièce (plus en coupe biaise : épaisseur divisée par cos de l'inclinaison).
+- Protecteur abaissé au plus près de la pièce.
+- Guide parallèle à la cote, règle en position longue pour déligner, courte si elle sert de butée au tronçonnage.
+- Règle de tronçonnage et sa butée à la cote ; à 0° (équerre) sauf coupe d'onglet.
+- Inciseur pour les panneaux mélaminés : aligné sur la lame, incision un peu plus large que le trait de lame, 1 à 2 mm de profondeur.
+- Aspiration en marche.
+> Cours « La scie à format » du lycée.
+
+## Le mode opératoire | chariot, regle, guide, pupitre, sabot
+1. Poser la pièce sur le chariot, contre la règle (tronçonnage), ou sur la table contre le guide (délignage).
+2. Démarrer l'inciseur si besoin, puis la lame ; attendre la pleine vitesse.
+3. Pousser le chariot (ou la pièce, avec le poussoir en fin de passe) d'un mouvement régulier, mains hors de l'axe de la lame.
+4. En fin de coupe : évacuer la chute, puis ramener le chariot. La pièce revient toujours côté chariot.
+5. Contrôler les cotes et l'équerrage à la fin.
+> Cours « La scie à format » du lycée.
+
+## Les principaux risques | lame, couteau, protecteur, guide
+- Coupure et amputation des doigts au contact de la lame : mains près de la lame, protecteur relevé, pas de poussoir.
+- Rejet de la pièce vers l'opérateur : pièce contre le guide au tronçonnage, couteau diviseur absent ou mal réglé, rive en flache contre le guide.
+- Projection de chutes et d'éclats.
+- Chute et coincement en manutention des grands panneaux.
+- Poussières de bois et de panneaux (cancérogènes), bruit.
+> Cours « La scie à format » du lycée ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | protecteur, couteau, pupitre, aspiration
+- Couteau diviseur toujours en place, protecteur au plus près de la pièce.
+- Jamais de pièce en butée contre le guide au tronçonnage (règle courte si besoin).
+- Poussoir pour les pièces étroites et la fin de passe.
+- Évacuer la chute avant de ramener le chariot ; ne jamais passer les mains au-dessus de la lame.
+- Réglages lame arrêtée ; aspiration en marche.
+- Lunettes, protections auditives, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> Cours « La scie à format » du lycée ; fiche « Sécurité atelier » 2MB du lycée.

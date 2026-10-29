@@ -1,0 +1,76 @@
+# Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
+# Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
+#
+# Comment modifier ce fichier :
+# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+#                             organes.txt : le bouton « Voir sur la machine » de la fiche les met en surbrillance.
+# - une ligne de texte      : un paragraphe.
+# - - texte                 : une puce (les puces qui se suivent forment une liste).
+# - > texte                 : la source (en petit, en bas de la fiche).
+# - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
+
+## À quoi sert la déligneuse ? | lames, tapis, guide, laser
+La déligneuse scie les planches en long, dans le sens du fil : c'est le délignage. Elle vient après la scie radiale dans la chaîne de débit, avant le corroyage (dégauchisseuse, raboteuse).
+- Déligner : enlever les rives en flache et obtenir des rives droites et parallèles.
+- Débiter une planche en plusieurs pièces de même largeur en une seule passe (multilames).
+- Avancer la pièce automatiquement : un tapis l'entraîne sous les lames, l'opérateur ne la pousse pas.
+> INRS ED 6019 ; cours « La déligneuse » du lycée.
+
+## La pièce avant et après | tapis, guide, laser, table_sortie
+Avant : une planche ou un plateau brut, à longueur, aux rives en flache, parfois coniques (plus larges à un bout).
+Après : des avivés aux rives droites et parallèles, sans flache, à la largeur voulue (avec une surcote pour le corroyage), et des délignures.
+- Le plateau se pose sur sa grande face (le plus grand découvert dessous), stable sur le tapis.
+- Il s'engage par le gros bout.
+- Une rive en flache ne va jamais contre le guide : on scie alors au laser, guide escamoté.
+> INRS ED 6019 ; cours « La déligneuse » du lycée.
+
+## Les organes principaux | tapis, lames, manchon, presseurs, linguets, guide, laser, capot, aspiration
+- Tapis d'entraînement : il porte et fait avancer la pièce ; vitesse réglable.
+- Arbre porte-lames au-dessus du tapis, lames Ø 300 sur des manchons préréglés (1, 2 ou 4 lames).
+- Rouleaux presseurs avant et arrière : ils plaquent la pièce sur le tapis.
+- Barrières anti-recul à l'entrée : linguets à dents et lamelles.
+- Guide réglable (escamotable sous la table) et laser qui montre le trait de la première lame.
+- Capot, rideau de sortie, aspiration, pupitre et ampèremètre.
+> INRS ED 6019 ; catalogue constructeur.
+
+## Les barrières anti-recul | linguets, lames, presseurs
+Sur cette machine, les lames tournent en opposition : les dents du bas vont vers l'opérateur, contre l'avance de la pièce. Si la pièce n'est plus tenue, elle peut être projetée vers l'entrée : c'est le rejet.
+- Les linguets à dents se soulèvent sur la pièce et la retiennent si elle recule.
+- Les rouleaux presseurs la plaquent sur le tapis pendant toute la passe : ils se règlent un peu plus bas que l'épaisseur de la pièce.
+- On ne se place jamais dans l'axe de l'entrée, on ne regarde pas dans l'ouverture pendant la passe.
+> INRS ED 6019.
+
+## Les réglages avant de travailler | manchon, guide, reglage_guide, reglage_presseurs, vitesse, aspiration
+Tous les réglages se font lames arrêtées.
+- Manchon des lames : changé lames arrêtées, porte fermée ensuite (porte interverrouillée).
+- Guide : largeur entre sa face et la première lame ; escamoté pour scier au laser.
+- Presseurs : 1 à 4 mm sous l'épaisseur de la pièce.
+- Vitesse d'avance adaptée au bois et au nombre de lames : la charge du moteur (ampèremètre) reste dans la zone verte.
+- Aspiration en marche.
+> INRS ED 6019 ; cours « La déligneuse » du lycée.
+
+## Le mode opératoire | pupitre, tapis, guide, table_sortie
+1. Démarrer l'aspiration, puis les lames, puis le tapis.
+2. Poser la pièce sur sa grande face, contre le guide (ou alignée sur le laser), gros bout devant.
+3. L'engager : le tapis l'entraîne seul. Les mains restent hors de l'ouverture d'entrée.
+4. Surveiller l'ampèremètre pendant la passe.
+5. Côté sortie, garder la pièce, évacuer les délignures ; dégager la sortie avant la passe suivante.
+6. En fin de travail : arrêter le tapis, puis les lames.
+> INRS ED 6019 ; cours « La déligneuse » du lycée.
+
+## Les principaux risques | lames, linguets, presseurs, arret
+- Rejet de la pièce ou d'une délignure vers l'opérateur : presseurs trop hauts, pièce instable, pièce trop courte (moins de 390 mm).
+- Coupure ou happement : main ou vêtement entraîné dans l'ouverture d'entrée.
+- Projection d'éclats et de nœuds.
+- Bruit très élevé, poussières de bois (cancérogènes), manutention de plateaux lourds.
+> INRS ED 6019 ; INRS ED 974 (poussières de bois).
+
+## Les règles d'or | linguets, presseurs, arret, aspiration
+- Jamais de pièce de moins de 390 mm ; pièce stable, sur sa grande face, gros bout devant.
+- Presseurs réglés sous l'épaisseur de la pièce ; barrières anti-recul en état.
+- Jamais de flache contre le guide.
+- Mains et vêtements hors de l'ouverture ; ne pas se placer dans l'axe de l'entrée.
+- Réglages lames arrêtées ; aspiration en marche.
+- Protections auditives, lunettes, chaussures de sécurité ; pas de gants ni de manches flottantes.
+> INRS ED 6019 ; fiche « Sécurité atelier » 2MB du lycée.
