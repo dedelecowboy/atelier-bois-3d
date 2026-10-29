@@ -6,7 +6,7 @@
 - son activé : AudioContext créé au clic, aucune erreur ; sans AudioContext : message, sonomètre toujours là, aucune erreur ;
 - aspiration (commune à toutes les machines) : niveau propre, ventilateur qui monte et ralentit ; sur une autre machine (raboteuse) :
   bouton du son et aspiration, pas de sonomètre ;
-- banc d'écoute dist/Ecoute_bruit.html : se lance, son, moteur, passe, aucune erreur ;
+- banc d'écoute dist/Ecoute_bruit.html : se lance, son, moteur, passe, éditeur des sons (curseurs entendus tout de suite, texte à copier, retour aux réglages actuels), aucune erreur ;
 - captures ordinateur et téléphone avec le sonomètre visible."""
 import os, sys, asyncio
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -143,7 +143,22 @@ async def main():
           $('son').click(); $('asp').click(); $('motor').click(); await sl(2000);
           document.querySelector('[data-passe="quart"]').click(); await sl(1200);
           const lv=+$('lv').textContent; return { on:window.__banc.S.son, ctx:window.__banc.SY.ctx&&window.__banc.SY.ctx.state, lv }; }""")
+        e = await pg.evaluate("""async()=>{ const $=id=>document.getElementById(id), sl=ms=>new Promise(r=>setTimeout(r,ms));
+          const cur=(g,k)=>document.querySelector(`.cur[data-g="${g}"][data-k="${k}"] input`);
+          const set=(g,k,v)=>{ const i=cur(g,k); i.value=v; i.dispatchEvent(new Event('input')); };
+          const n=document.querySelectorAll('.cur').length;
+          set('sons.aspiration','ronron',0.9); set('niveaux','aspiration',70); set('sons.coupe','copeaux',0.8);
+          const syn=window.__banc.SY.reglages, txt=window.__banc.texte(), store=localStorage.getItem('atelier.son.reglages');
+          $('sansfin').checked=true; $('sansfin').dispatchEvent(new Event('change')); document.querySelector('[data-passe="quart"]').click(); await sl(6000);
+          const still=!!window.__banc.S.passe;
+          $('copy').click(); await sl(200); const shown=!$('regTxt').hidden && $('regTxt').value.includes('"ronron":0.9');
+          $('reset').click(); await sl(100); const back=window.__banc.SY.reglages.aspiration.ronron;
+          return { n, syn:syn.aspiration.ronron, cop:syn.coupe.copeaux, txt, store:!!store, still, shown, back }; }""")
+        await pg.set_viewport_size({'width': 900, 'height': 1600}); await pg.screenshot(path=os.path.join(ROOT, 'tests', 'out', 'banc_editeur.png'), full_page=True)
         await b.close()
+        check(e['n'] == 13 and e['syn'] == 0.9 and e['cop'] == 0.8 and '"aspiration":70' in e['txt'] and e['store'],
+              f'éditeur : {e["n"]} curseurs, réglage entendu tout de suite (ronron 0,9, copeaux 0,8), texte à copier, gardé dans le navigateur')
+        check(e['still'] and e['shown'] and e['back'] == 0.55, 'éditeur : pièce sans fin, texte affiché, « Revenir aux réglages actuels »')
         check(r['on'] and r['ctx'] in ('running', 'suspended') and r['lv'] > 90 and not errs, f'banc d\'écoute : son, moteur, aspiration, passe ({r["lv"]} dB(A)), aucune erreur ' + '; '.join(errs))
 
     # téléphone : sonomètre visible dans la vue 3D, pas de défilement horizontal

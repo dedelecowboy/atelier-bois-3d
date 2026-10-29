@@ -12,9 +12,23 @@
 /* Son de coupe : « rugissement », choisi par l'enseignant le 29/10/2026 parmi trois essais (A rugissement, B râpe, C souffle) :
    le sifflement de l'outil se durcit, le moteur peine, copeaux en souffle aigu. Les essais B et C ont été retirés (moins de calcul). */
 
-export function createSynth(){
-  let A=null;
-  const S={ get ctx(){ return A&&A.ctx; }, get ready(){ return !!A; } };
+/* RÉGLAGES des sons (valeurs = sons validés par l'enseignant le 29/10/2026 ; modifiables dans l'éditeur du banc d'écoute,
+   « Copier les réglages » donne ce même objet à reporter ici). Volumes en proportion (0 = coupé). */
+export const SONS = {
+  aspiration:{ ronron:0.55, pales:0.32, souffle:0.22, electrique:0.10, vitesse:2900 },   // vitesse : tr/min du ventilateur (7 pales)
+  coupe:{ sifflement:1, copeaux:0.55, grave:0.35, peine:0.05, irregularite:0.18 },       // sifflement : ×1 = réglage d'origine ; peine : baisse du régime max (0,05 = 5 %)
+};
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+export function createSynth(reglages=SONS){
+  let A=null, R=clone(reglages);
+  const S={ get ctx(){ return A&&A.ctx; }, get ready(){ return !!A; }, get reglages(){ return clone(R); } };
+  /* changer les réglages pendant l'écoute */
+  S.regler=function(r){ for(const k of Object.keys(r||{})) R[k]={ ...(R[k]||{}), ...r[k] }; applyReg(); };
+  function applyReg(){ if(!A) return; const t=A.ctx.currentTime, c=R.coupe, a=R.aspiration;
+    const set=(g,v)=>{ try{ g.gain.setTargetAtTime(Math.max(0,v), t, 0.05); }catch(e){ g.gain.value=Math.max(0,v); } };
+    set(A.aTg,0.34*c.sifflement); set(A.aT2g,0.16*c.sifflement); set(A.chipG,c.copeaux); set(A.bodyG,c.grave); set(A.roughG,c.irregularite);
+    set(A.souffleG,a.souffle); }
 
   function noiseBuffer(ctx, sec=2){ const n=Math.floor(ctx.sampleRate*sec), b=ctx.createBuffer(1,n,ctx.sampleRate), d=b.getChannelData(0); let p=0;
     for(let i=0;i<n;i++){ const w=Math.random()*2-1; p=0.97*p+0.03*w; d[i]=0.6*w+2.5*p; } return b; }   // bruit blanc + un peu de bruit « brun » (moins strident)
@@ -50,15 +64,16 @@ export function createSynth(){
 
     /* --- coupe (« rugissement ») --- */
     const cutBus=gain(0); cutBus.connect(hush);
-    const fluct=gain(1); fluct.connect(cutBus); chain(rough, gain(0.18), fluct.gain);      // ± 1,5 dB environ, lent
+    const fluct=gain(1), roughG=gain(0.18); fluct.connect(cutBus); chain(rough, roughG, fluct.gain);      // ± 1,5 dB environ, lent
     // outil « chargé » : passage des dents en dents de scie + harmoniques, copeaux en souffle aigu légèrement haché
     const vA=gain(1); vA.connect(fluct);
     const aT=osc('sawtooth',200), aT2=osc('triangle',400);
-    chain(aT, filt('lowpass',1800,0.9), filt('peaking',900,1.2,6), gain(0.34), vA);
-    chain(aT2, gain(0.16), vA);
+    const aTg=gain(0.34), aT2g=gain(0.16), chipG=gain(0.55), bodyG=gain(0.35);
+    chain(aT, filt('lowpass',1800,0.9), filt('peaking',900,1.2,6), aTg, vA);
+    chain(aT2, aT2g, vA);
     const aChipAM=gain(0.7), aP=pulse(200); chain(aP, gain(0.12), aChipAM.gain);
-    chain(src(), filt('highpass',1800,0.7), filt('lowpass',5200,0.6), aChipAM, gain(0.55), vA);
-    chain(src(), filt('bandpass',260,0.9), gain(0.35), vA);                                 // corps grave (pièce, table)
+    chain(src(), filt('highpass',1800,0.7), filt('lowpass',5200,0.6), aChipAM, chipG, vA);
+    chain(src(), filt('bandpass',260,0.9), bodyG, vA);                                 // corps grave (pièce, table)
 
     /* --- aspiration (commune à toutes les machines) : un « ronron » régulier (demandé par l'enseignant le 29/10/2026 : moins de vent
        aléatoire) : rotation du ventilateur (grave), passage des pales et son harmonique, un souffle régulier et discret --- */
@@ -67,10 +82,11 @@ export function createSynth(){
     const fan=osc('triangle',340), fanG=gain(0); chain(fan, filt('lowpass',900,0.7), fanG, aspBus);       // passage des pales
     const fan2=osc('sine',680), fan2G=gain(0); chain(fan2, fan2G, aspBus);
     const hum=osc('sine',100), humG=gain(0); chain(hum, humG, aspBus);                                    // ronflement électrique
-    const aspLow=filt('lowpass',600,0.5); chain(src(wb,1), aspLow, gain(0.22), aspBus);                   // souffle régulier (bruit blanc filtré, sans dérive)
+    const aspLow=filt('lowpass',600,0.5), souffleG=gain(0.22); chain(src(wb,1), aspLow, souffleG, aspBus);                   // souffle régulier (bruit blanc filtré, sans dérive)
 
-    A={ ctx, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, aT, aT2, aP,
+    A={ ctx, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, aT, aT2, aP, aTg, aT2g, chipG, bodyG, roughG, souffleG,
       aspBus, aspLow, fanR, fanRG, fan, fanG, fan2, fan2G, humG, nb };
+    applyReg();
     return S;
   };
 
@@ -78,7 +94,7 @@ export function createSynth(){
   S.set=function(p){ if(!A) return;
     const Z=p.Z||2, sp=Math.max(0,Math.min(1,p.spin||0)), cut=Math.max(0,Math.min(1,p.cut||0)), ch=Math.max(0.2,Math.min(20,p.charge||1));
     /* le moteur peine en coupe : le régime baisse un peu (jusqu'à −5 % avec une passe forte) */
-    const drop=1-cut*Math.min(0.05, 0.012*Math.sqrt(ch)), f0=Math.max(1,(p.f0||0)*drop), ft=Math.max(1,f0*Z);
+    const drop=1-cut*Math.min(R.coupe.peine, 0.012*Math.sqrt(ch)*R.coupe.peine/0.05), f0=Math.max(1,(p.f0||0)*drop), ft=Math.max(1,f0*Z);
     T(A.o1.frequency,f0,0.12); T(A.o2.frequency,ft,0.12);
     T(A.g3.gain, p.on? 0.08 : 0);
     T(A.wbp.frequency, 300+900*sp); T(A.wg.gain, 0.4+0.6*sp*sp);
@@ -87,12 +103,12 @@ export function createSynth(){
     T(A.aT2.frequency, ft*2, 0.12);
     T(A.cutBus.gain, (p.cutAmp||0)*cut, 0.05);
     const as=Math.max(0,Math.min(1,p.asp||0));
-    const fr=Math.max(1, 2900/60*as);                                   // ventilateur à 2 900 tr/min, 7 pales
+    const a=R.aspiration, fr=Math.max(1, a.vitesse/60*as);                // ventilateur (tr/min réglables), 7 pales
     T(A.aspBus.gain, (p.aspAmp||0), 0.1); T(A.aspLow.frequency, 200+400*as, 0.1);
-    T(A.fanR.frequency, fr, 0.1); T(A.fanRG.gain, 0.55*as, 0.1);
-    T(A.fan.frequency, fr*7, 0.1); T(A.fanG.gain, 0.32*as, 0.1);
-    T(A.fan2.frequency, fr*14, 0.1); T(A.fan2G.gain, 0.06*as, 0.1);
-    T(A.humG.gain, as>0.02? 0.10 : 0, 0.1);
+    T(A.fanR.frequency, fr, 0.1); T(A.fanRG.gain, a.ronron*as, 0.1);
+    T(A.fan.frequency, fr*7, 0.1); T(A.fanG.gain, a.pales*as, 0.1);
+    T(A.fan2.frequency, fr*14, 0.1); T(A.fan2G.gain, a.pales*0.19*as, 0.1);
+    T(A.humG.gain, as>0.02? a.electrique : 0, 0.1);
     /* casque : son étouffé (passe-bas) et plus faible ; à l'écoute, −16 dB seulement pour rester audible */
     T(A.muffle.frequency, p.casque? 650 : 16000, 0.08);
     T(A.master.gain, ((p.vol??60)/100)**2 * 0.9 * (p.casque? 0.16 : 1), 0.08);

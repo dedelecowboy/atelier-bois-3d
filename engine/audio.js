@@ -40,7 +40,7 @@ export function niveau(N, e){
   const cut = Math.max(0, Math.min(1, e.cut||0));
   const Lc = v>0.002 && cut>0? Math.min(L_MAX, N.coupe + K_CHARGE*lg(e.charge||1) + 10*lg(v)) : null;
   const as = Math.max(0, Math.min(1, e.asp||0));
-  const La = as>0.002? ASP + K_RPM*lg(as) : null;                        // aspiration : ventilateur qui monte en régime ou ralentit
+  const La = as>0.002? (N.asp??ASP) + K_RPM*lg(as) : null;                        // aspiration : ventilateur qui monte en régime ou ralentit
   const total = Math.min(L_MAX, sum(FOND, La, Lm, Lc==null? null : Lc + 10*lg(cut)));
   return { moteur:Lm, coupe:Lc, asp:La, total };
 }
