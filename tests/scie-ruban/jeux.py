@@ -39,7 +39,7 @@ LAME = BASE + r"""
  dev(0); msgs.push('dents sur le bandage:'+alerts().some(a=>a.includes('Dents sur le bandage')));
  dev(5); log.push(state('dévers')); next();
  guides(8.5,31); log.push(state('guides')); next();
- deconsigner(); await start(); await sleep(300); await stop(); log.push(state('essai')); next();
+ deconsigner(); await start(); for(let i=0;i<40&&!stepOk();i++) await sleep(100); await stop(); log.push(state('essai')); next();
  log.push(state('contrôle'));
  return {log, res:results(), info:$('stepRes').textContent, msgs};
 """
