@@ -20,7 +20,7 @@
 
 export const SEUILS = { inf:80, sup:85, vle:87 };     // Code du travail R4431-2 : valeurs d'exposition (LEX,8h) déclenchant l'action, VLE
 export const FOND = 45;                               // salle calme, machine arrêtée (dB(A))
-export const ASP = 72;                                // aspiration seule, au poste (dB(A)) : valeur PROPOSÉE sans source, À VALIDER (mesure)
+export const ASP = 78;                                // aspiration seule, au poste (dB(A)) : réglé à l'oreille par l'enseignant le 29/10/2026 (sans mesure)
 /* casque antibruit (serre-tête) : SNR d'un casque courant, décote INRS ED 133 (2021) pour le port réel d'un serre-tête : −5 dB */
 export const CASQUE = { snr:30, decote:5 };
 export const ATT = CASQUE.snr - CASQUE.decote;       // atténuation retenue : 25 dB

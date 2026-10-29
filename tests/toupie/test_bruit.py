@@ -44,7 +44,7 @@ async def main():
         check(d['sono'], 'sonomètre présent sur la vue 3D')
         check(abs(r['arret']['total'] - 45) < 0.5 and r['arret']['shown'] == 45 and not r['arret']['alert'], f'arrêt : fond de la salle {r["arret"]["total"]:.1f} dB(A), affiché {r["arret"]["shown"]}')
         v = r['vide']
-        check(83.5 <= v['total'] <= 84.5 and abs(v['shown'] - v['total']) <= 1 and not v['alert'], f'à vide (9 000 tr/min) : {v["total"]:.1f} dB(A), affiché {v["shown"]}, pas d\'alerte')
+        check(83.5 <= v['total'] <= 85 and abs(v['shown'] - v['total']) <= 1 and not v['alert'], f'à vide (9 000 tr/min) avec l\'aspiration : {v["total"]:.1f} dB(A), affiché {v["shown"]}, pas d\'alerte')
         c = r['coupe']
         check(c['total'] >= 92 and c['total'] <= 100, f'en coupe : {c["total"]:.1f} dB(A) (charge {c.get("charge",0):.2f})')
         check('BRUIT' in c['alert'] and c['alert'].startswith('warn'), 'en coupe sans casque : alerte « attention » ' + c['alert'][:70])
@@ -117,8 +117,8 @@ async def main():
           $('sndBtn').click(); await sleep(300); const noVar=!$('sndVar');
           on('asp'); await start(); $('pass').click(); await sleep(1500); await stop(); off('asp');
           return { N, mix, a, coast, noVar };"""))
-        check(abs(r['N'] - 72) < 0.3 and r['mix'] > 84 and r['mix'] < 85, f'aspiration seule {r["N"]:.1f} dB(A) ; avec le moteur à vide {r["mix"]:.1f} dB(A)')
-        check(r['a']['sp'] > 0.9 and abs(r['a']['total'] - 72) < 1.5, f'aspiration en marche : ventilateur à {r["a"]["sp"]:.2f}, sonomètre {r["a"]["total"]:.1f} dB(A)')
+        check(abs(r['N'] - 78) < 0.3 and r['mix'] > 84.5 and r['mix'] < 85, f'aspiration seule {r["N"]:.1f} dB(A) ; avec le moteur à vide {r["mix"]:.1f} dB(A)')
+        check(r['a']['sp'] > 0.9 and abs(r['a']['total'] - 78) < 1.5, f'aspiration en marche : ventilateur à {r["a"]["sp"]:.2f}, sonomètre {r["a"]["total"]:.1f} dB(A)')
         check(r['noVar'], 'son de coupe choisi (« rugissement ») : plus de liste de choix dans l\'en-tête')
         check(not pg.errors, 'coupe avec le son et l\'aspiration : aucune erreur ' + '; '.join(pg.errors))
 
@@ -158,7 +158,7 @@ async def main():
         await b.close()
         check(e['n'] == 13 and e['syn'] == 0.9 and e['cop'] == 0.8 and '"aspiration":70' in e['txt'] and e['store'],
               f'éditeur : {e["n"]} curseurs, réglage entendu tout de suite (ronron 0,9, copeaux 0,8), texte à copier, gardé dans le navigateur')
-        check(e['still'] and e['shown'] and e['back'] == 0.55, 'éditeur : pièce sans fin, texte affiché, « Revenir aux réglages actuels »')
+        check(e['still'] and e['shown'] and e['back'] == 0.3, 'éditeur : pièce sans fin, texte affiché, « Revenir aux réglages actuels »')
         check(r['on'] and r['ctx'] in ('running', 'suspended') and r['lv'] > 90 and not errs, f'banc d\'écoute : son, moteur, aspiration, passe ({r["lv"]} dB(A)), aucune erreur ' + '; '.join(errs))
 
     # téléphone : sonomètre visible dans la vue 3D, pas de défilement horizontal

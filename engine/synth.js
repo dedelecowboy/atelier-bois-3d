@@ -12,11 +12,11 @@
 /* Son de coupe : « rugissement », choisi par l'enseignant le 29/10/2026 parmi trois essais (A rugissement, B râpe, C souffle) :
    le sifflement de l'outil se durcit, le moteur peine, copeaux en souffle aigu. Les essais B et C ont été retirés (moins de calcul). */
 
-/* RÉGLAGES des sons (valeurs = sons validés par l'enseignant le 29/10/2026 ; modifiables dans l'éditeur du banc d'écoute,
+/* RÉGLAGES des sons (réglés par l'enseignant dans l'éditeur du banc d'écoute le 29/10/2026 ; modifiables dans cet éditeur,
    « Copier les réglages » donne ce même objet à reporter ici). Volumes en proportion (0 = coupé). */
 export const SONS = {
-  aspiration:{ ronron:0.55, pales:0.32, souffle:0.22, electrique:0.10, vitesse:2900 },   // vitesse : tr/min du ventilateur (7 pales)
-  coupe:{ sifflement:1, copeaux:0.55, grave:0.35, peine:0.05, irregularite:0.18 },       // sifflement : ×1 = réglage d'origine ; peine : baisse du régime max (0,05 = 5 %)
+  aspiration:{ ronron:0.3, pales:0.59, souffle:0.8, electrique:0.31, vitesse:2000 },   // vitesse : tr/min du ventilateur (7 pales)
+  coupe:{ sifflement:1.6, copeaux:0.55, grave:0.45, peine:0.05, irregularite:0.18 },       // sifflement : ×1 = réglage d'origine ; peine : baisse du régime max (0,05 = 5 %)
 };
 const clone=o=>JSON.parse(JSON.stringify(o));
 
