@@ -19,8 +19,8 @@ porte_sup
 guide_sup      | guide-lame            | guide-lame supérieur
 protecteur     | guide-lame            | protecteur de la lame
 coulisseau     | 3/4                   | levier de hauteur du guide-lame
-guide_par      | table                 | guide parallèle
-onglet         | table                 | guide d'onglet
+guide_par      | 3/4                   | guide parallèle
+onglet         | 3/4                   | guide d'onglet
 bloc_table     | table
 tension        | 3/4                   | volant de tension
 indicateur     | colonne               | indicateur de tension

@@ -207,6 +207,11 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(ongHead, rbox(0.30,0.05,0.02,M.alu,0.003), -0.10,0.035,-0.012);
   add(ongHead, cyl(0.012,0.05,M.red,12), 0,0.04,0.05);
   tagPart(onglet,'onglet');
+  /* support de rangement sur pied, à droite de la machine, hors de la table : le guide parallèle et le guide d'onglet
+     retirés y sont accrochés verticalement (la table est entièrement libre) */
+  const rack=new THREE.Group(); rack.position.set(0.98,0,-0.88); root.add(rack);
+  add(rack, rbox(0.30,0.02,0.30,M.dark,0.004), 0,0.01,0); add(rack, rbox(0.04,1.55,0.04,M.dark,0.004), 0,0.795,0);
+  for(const [y,z] of [[1.50,0.07],[1.28,-0.07]]) add(rack, rbox(0.012,0.012,0.10,M.steel,0.002), -0.03,y,z);
   // 18 inclinaison : secteurs sous la table (pivot au ras de la table, au droit de la lame) et poignée de blocage
   const incl=new THREE.Group(); root.add(incl);
   for(const z of [-0.25,0.25]){ const s=new THREE.Shape(), r0=0.10, r1=0.16; s.absarc(0,0,r1,Math.PI*1.15,Math.PI*1.85,false); s.absarc(0,0,r0,Math.PI*1.85,Math.PI*1.15,true);
@@ -276,15 +281,19 @@ export function buildModel({ root, tagPart, partMeshes }){
   const pieceRoot=new THREE.Group(); tilt.add(pieceRoot);
 
   /* ---------- mise à jour ----------
-     S = { hg (mm), tilt (°), fence, fx (m, face du guide), mitOn, mit (°), serv, doors, cad, au, ten (mm), guide:{ L,B,F, Li,Bi,Fi } (mm),
+     S = { hg (mm), tilt (°), fence, fx (m, face du guide), mitOn, mit (°), serv, doors, cad, au, rack (false : sans support de rangement), ten (mm), guide:{ L,B,F, Li,Bi,Fi } (mm),
            e (épaisseur de lame, mm), hands:[{x,z,y,bad,rot}] (m), pouss:{x,z,y,th,w}|null, gab:{z0,z1}|null } */
   function update(S){
     upper.position.y=TABLE_Y+S.hg/1000;
     chanIn.position.y=0;     // le canal intérieur suit le guide ; l'extérieur reste fixe : le brin descendant est toujours couvert
     tilt.rotation.z=-S.tilt*Math.PI/180;
-    // guide parallèle retiré : poussé au bout du rail (droite) ; guide d'onglet rangé : reculé au fond de sa rainure, d'équerre
-    fence.position.x= S.fence? S.fx : TABLE_X1-0.035;
-    onglet.position.z= S.mitOn? 0 : -0.34; ongHead.rotation.y= S.mitOn? -(S.mit||0)*Math.PI/180 : 0;
+    // guide parallèle retiré et guide d'onglet rangé : décrochés de la table, accrochés au support de rangement
+    rack.visible=S.rack!==false; if(S.rack===false) rack.position.set(-0.4,0.3,-0.05); else rack.position.set(0.98,0,-0.88);   // poste de l'atelier : sans support (encombrement)
+    if(S.fence){ if(fence.parent!==table) table.add(fence); fence.position.set(S.fx,0,0); fence.rotation.set(0,0,0); }
+    else { if(fence.parent!==rack) rack.add(fence); fence.position.set(-0.06,1.04,0.11); fence.rotation.set(-Math.PI/2,0,0); }
+    if(S.mitOn){ if(onglet.parent!==table) table.add(onglet); onglet.position.set(0,0,0); onglet.rotation.set(0,0,0); }
+    else { if(onglet.parent!==rack) rack.add(onglet); onglet.position.set(0.18,1.20,-0.10); onglet.rotation.set(-Math.PI/2,0,0); }
+    ongHead.rotation.y= S.mitOn? -(S.mit||0)*Math.PI/180 : 0;
     serv.position.set(S.serv? 0.05 : 0.95, 0, S.serv? -0.80 : -0.45); serv.rotation.y= S.serv? 0 : Math.PI/2;
     doorU.rotation.y= S.doors? -1.75 : 0; doorL.rotation.y= S.doors? -1.75 : 0;
     sectH.rotation.x= S.main? 0 : Math.PI/2; padlock.visible=!!S.cad;

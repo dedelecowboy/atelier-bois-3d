@@ -154,8 +154,8 @@ function update(){
   $('motor').setAttribute('aria-pressed',String(st.motor)); $('motor').textContent= st.motor? 'O · Lame' : 'I · Lame';
   $('main').textContent= st.main? 'Sectionneur sur I' : 'Sectionneur sur 0'; $('cad').textContent= st.cad? 'Consignée (cadenas)' : 'Consigner';
   $('doors').textContent= st.doors? 'Portes ouvertes' : 'Portes fermées'; $('serv').textContent= st.serv? 'Servante en sortie' : 'Servante rangée';
-  $('fenceOn').setAttribute('aria-pressed',String(st.fence)); $('fenceOn').textContent= st.fence? 'Guide parallèle en place' : 'Guide parallèle retiré';
-  $('mitOn').setAttribute('aria-pressed',String(st.mitOn)); $('mitOn').textContent= st.mitOn? 'Guide d\'onglet en place' : 'Guide d\'onglet rangé';
+  $('fenceOn').setAttribute('aria-pressed',String(st.fence)); $('fenceOn').textContent= st.fence? 'Guide parallèle en place sur la table' : 'Guide parallèle rangé sur le support';
+  $('mitOn').setAttribute('aria-pressed',String(st.mitOn)); $('mitOn').textContent= st.mitOn? 'Guide d\'onglet en place sur la table' : 'Guide d\'onglet rangé sur le support';
   $('feed').textContent= st.feed? 'Avance : arrêter' : 'Avance';
   document.querySelectorAll('[data-mains]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.mains===st.mains)));
   document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.speed===st.speed)));

@@ -19,7 +19,7 @@ export default {
   ],
 
   views: [
-    { id: 'v34', label: '3/4', pos: [2.85,2.20,3.65], tgt: [-0.25,1.25,0.0] },
+    { id: 'v34', label: '3/4', pos: [3.05,2.20,3.75], tgt: [-0.05,1.20,-0.10] },
     { id: 'vop', label: 'Opérateur', title: 'Poste de l\'opérateur, devant la table', pos: [0.42,1.86,1.62], tgt: [0.0,1.02,-0.02] },
     { id: 'vtable', label: 'Table', title: 'Table vue d\'au-dessus : la lame, la pièce, le guide parallèle', pos: [0.06,2.20,0.80], tgt: [0.03,0.96,0.04] },
     { id: 'vguide', label: 'Guide-lame', title: 'Guide-lame supérieur et protecteur, de près', pos: [0.34,1.30,0.42], tgt: [0.0,1.07,-0.03] },

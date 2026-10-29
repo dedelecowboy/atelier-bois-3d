@@ -42,7 +42,7 @@ export const STATIONS = [
     url:'https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E', build:format, rest:m=>m.update(), clip:[-1.6,3.4,-1.4,3.8] },
   { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'essai', famille:'debit',
     role:'Chantournage des pièces cintrées, refente au guide parallèle ; changement et réglage de la lame.',
-    url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:false, fx:0.05, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
+    url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:true, fx:0.05, rack:false, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
       guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
 ];
 
