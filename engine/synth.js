@@ -51,6 +51,7 @@ export function createSynth(reglages=SONS){
     comp.threshold.value=-12; comp.knee.value=12; comp.ratio.value=3; comp.attack.value=0.02; comp.release.value=0.3;
     chain(master,muffle,comp,ctx.destination);
     const hush=filt('lowpass',7000,0.5); hush.connect(master);
+    const hushIn=gain(1); hushIn.connect(master);                         // entrée des enregistrements (déjà sous 7 kHz par le codage)
     /* rugosité lente commune (fil du bois, nœuds, main de l'opérateur) : bruit lu très lentement puis filtré, 0 ± 1 */
     const rough=chain(src(wb,0.0008), filt('lowpass',5,0.5), gain(3));
 
@@ -84,7 +85,7 @@ export function createSynth(reglages=SONS){
     const hum=osc('sine',100), humG=gain(0); chain(hum, humG, aspBus);                                    // ronflement électrique
     const aspLow=filt('lowpass',600,0.5), souffleG=gain(0.22); chain(src(wb,1), aspLow, souffleG, aspBus);                   // souffle régulier (bruit blanc filtré, sans dérive)
 
-    A={ ctx, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, aT, aT2, aP, aTg, aT2g, chipG, bodyG, roughG, souffleG,
+    A={ ctx, hushIn, master, muffle, mot, o1, o2, o3, g3, wbp, wg, cutBus, vA, aT, aT2, aP, aTg, aT2g, chipG, bodyG, roughG, souffleG,
       aspBus, aspLow, fanR, fanRG, fan, fanG, fan2, fan2G, humG, nb };
     applyReg();
     return S;
@@ -98,10 +99,12 @@ export function createSynth(reglages=SONS){
     T(A.o1.frequency,f0,0.12); T(A.o2.frequency,ft,0.12);
     T(A.g3.gain, p.on? 0.08 : 0);
     T(A.wbp.frequency, 300+900*sp); T(A.wg.gain, 0.4+0.6*sp*sp);
-    T(A.mot.gain, (p.mot||0)*0.9);
+    const E=A.ech;                                                   // enregistrements de la machine (s'ils sont chargés) à la place du son synthétisé
+    T(A.mot.gain, E? 0 : (p.mot||0)*0.9);
     for(const o of [A.aT,A.aP]) T(o.frequency, ft, 0.12);
     T(A.aT2.frequency, ft*2, 0.12);
-    T(A.cutBus.gain, (p.cutAmp||0)*cut, 0.05);
+    T(A.cutBus.gain, E? 0 : (p.cutAmp||0)*cut, 0.05);
+    if(E) jouerEch(E, p, cut, ch);
     const as=Math.max(0,Math.min(1,p.asp||0));
     const a=R.aspiration, fr=Math.max(1, a.vitesse/60*as);                // ventilateur (tr/min réglables), 7 pales
     T(A.aspBus.gain, (p.aspAmp||0), 0.1); T(A.aspLow.frequency, 200+400*as, 0.1);
@@ -114,6 +117,34 @@ export function createSynth(reglages=SONS){
     T(A.master.gain, ((p.vol??60)/100)**2 * 0.9 * (p.casque? 0.16 : 1), 0.08);
   };
   S.mute=function(){ if(A) T(A.master.gain,0,0.03); };
+
+  /* ---------- enregistrements (essai sur la scie à ruban, 29/10/2026) ----------
+     ech = { demarrage, vide, coupe, arret } : MP3 en base64 (data:audio/mpeg;base64,…), intégrés à la page (hors ligne).
+     vide et coupe tournent en boucle ; demarrage est joué à la mise en marche puis fondu dans « vide » ; arret au freinage.
+     Le volume suit les mêmes niveaux (dB(A)) que le son synthétisé ; « vide » ralentit avec le régime réel (plus grave au freinage). */
+  const K_ECH=2.8;                                                     // enregistrements normalisés à −20 dBFS : même volume à l'écoute que la synthèse
+  S.chargerEchantillons=async function(ech){ if(!A||!ech) return; const ctx=A.ctx, out={};
+    const dec=async url=>{ const b64=url.split(',')[1], bin=atob(b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+      const buf=await new Promise((ok,ko)=>{ const r=ctx.decodeAudioData(u.buffer,ok,ko); if(r&&r.then) r.then(ok,ko); });
+      /* bornes de la boucle : sans le silence ajouté par le codage MP3 au début et à la fin */
+      const d=buf.getChannelData(0); let a=0, z=d.length-1; while(a<z&&Math.abs(d[a])<1e-4) a++; while(z>a&&Math.abs(d[z])<1e-4) z--;
+      return { buf, a:a/buf.sampleRate, z:(z+1)/buf.sampleRate }; };
+    for(const k of ['demarrage','vide','coupe','arret']) if(ech[k]) out[k]=await dec(ech[k]);
+    const loopV=(e)=>{ const s=ctx.createBufferSource(); s.buffer=e.buf; s.loop=true; s.loopStart=e.a; s.loopEnd=e.z; const g=ctx.createGain(); g.gain.value=0; s.connect(g); g.connect(A.hushIn); s.start(0, e.a); return { s, g }; };
+    A.ech={ d:out, vide:out.vide&&loopV(out.vide), coupe:out.coupe&&loopV(out.coupe), on:false, t0:-1, one:null }; };
+  S.echantillons=()=>!!(A&&A.ech);
+  function unCoup(e, gain){ const ctx=A.ctx, s=ctx.createBufferSource(); s.buffer=e.buf; const g=ctx.createGain(); g.gain.value=gain; s.connect(g); g.connect(A.hushIn); s.start(0, e.a); return { s, g }; }
+  function jouerEch(E, p, cut, ch){ const ctx=A.ctx, now=ctx.currentTime, on=!!p.on, sp=Math.max(0,Math.min(1,p.spin||0)), lv=(p.mot||0)*K_ECH;
+    const stopOne=()=>{ if(E.one){ const o=E.one; try{ o.g.gain.setTargetAtTime(0,now,0.08); o.s.stop(now+0.5); }catch(e){} E.one=null; } };
+    if(on&&!E.on){ stopOne(); if(E.d.demarrage&&sp<0.5){ E.one=unCoup(E.d.demarrage, (p.motFull||p.mot||0)*K_ECH); E.t0=now; } else E.t0=-1; }   // mise en marche
+    if(!on&&E.on){ stopOne(); if(E.d.arret&&sp>0.5){ E.one=unCoup(E.d.arret, (p.motFull||p.mot||0)*K_ECH); E.t0=-2; } }                      // freinage
+    E.on=on;
+    let gV;
+    if(on){ const dur=E.d.demarrage? E.d.demarrage.z-E.d.demarrage.a : 0;
+      gV= E.t0>=0 && now-E.t0 < dur-0.5 ? 0 : (p.motFull||p.mot||0)*K_ECH; }                 // pendant le démarrage enregistré, la boucle attend
+    else gV= E.t0===-2 ? 0 : lv;                                                                 // freinage enregistré : la boucle se tait
+    if(E.vide){ T(E.vide.g.gain, gV, 0.25); T(E.vide.s.playbackRate, Math.max(0.3, sp), 0.1); }
+    if(E.coupe){ T(E.coupe.g.gain, (p.cutAmp||0)*cut*K_ECH, 0.06); T(E.coupe.s.playbackRate, 1-cut*Math.min(R.coupe.peine, 0.012*Math.sqrt(ch)*R.coupe.peine/0.05), 0.12); } }
   /* bruits courts */
   S.bang=function(type){ if(!A) return; const ctx=A.ctx, t0=ctx.currentTime, out=ctx.createGain(); out.connect(A.master);
     const env=(g,a,peak,d)=>{ g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(peak,t0+a); g.gain.exponentialRampToValueAtTime(0.0001,t0+a+d); };

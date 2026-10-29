@@ -7,7 +7,12 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { TABLE_Y, ZONE, NEAR, PROT_GAP, VC, DEV_MAX, DEV_STEP, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, RIM_W } from './constants.js';
+import { TABLE_Y, ZONE, NEAR, PROT_GAP, VC, DEV_MAX, DEV_STEP, GUIDE_LAT, GUIDE_BACK, GUIDE_FRONT, RIM_W, BRUIT, BRUIT_DURETE } from './constants.js';
+/* enregistrements (essai, fournis par l'enseignant le 29/10/2026 ; découpés, mis en boucle et compressés par tools/sons.py) */
+import sonDemarrage from './sons/demarrage.mp3';
+import sonVide from './sons/vide.mp3';
+import sonCoupe from './sons/coupe.mp3';
+import sonArret from './sons/arret.mp3';
 import { st, lame, voie, rmin, dents, rimPos, rimOk, wide, tensionOk, ctx, $ } from './state.js';
 import { BLADES, bladeById, rmin as rminOf, toothH } from './lame.js';
 import { buildModel } from './model.js';
@@ -251,14 +256,14 @@ $('serv').onclick=()=>{ st.serv=!st.serv; apply(); };
 document.querySelectorAll('[data-mains]').forEach(x=>x.onclick=()=>{ st.mains=x.dataset.mains; apply(); });
 document.querySelectorAll('[data-speed]').forEach(x=>x.onclick=()=>{ st.speed=+x.dataset.speed; apply(); });
 $('rupture').onclick=()=>{ if(app.ex.mode!=='libre') return; if(!st.motor||spin()<0.9) return say('La lame doit tourner pour simuler une rupture.');
-  broken.on=true; st.feed=false; say('LA LAME A CASSÉ ! Restez à l\'écart, arrêtez la machine (O ou arrêt d\'urgence). N\'ouvrez rien avant l\'arrêt complet des volants.','danger'); };
+  broken.on=true; st.feed=false; app.bruit?.bang('choc'); say('LA LAME A CASSÉ ! Restez à l\'écart, arrêtez la machine (O ou arrêt d\'urgence). N\'ouvrez rien avant l\'arrêt complet des volants.','danger'); };
 
 /* ---------- pupitre ---------- */
 $('motor').onclick=()=>{ if(st.motor){ st.motor=false; st.feed=false; F.msg=''; apply(); return; }
   const why=motorBlock(); if(why) return say(why);
   app.recordDangers(computeAlerts(spin()).filter(a=>a[0]==='danger'&&(a[2]==='outil'||a[2]==='machine')));   // faute grave : démarrer une lame dangereuse
   st.motor=true; F.msg=''; apply(); };
-$('au').onclick=()=>{ if(st.au){ st.au=false; info('Arrêt d\'urgence déverrouillé. Redémarrez avec I si tout est en ordre.'); return; } st.au=true; st.motor=false; st.feed=false; say('Arrêt d\'urgence : la lame freine.','info'); };
+$('au').onclick=()=>{ if(st.au){ st.au=false; info('Arrêt d\'urgence déverrouillé. Redémarrez avec I si tout est en ordre.'); return; } st.au=true; app.bruit?.bang('au'); st.motor=false; st.feed=false; say('Arrêt d\'urgence : la lame freine.','info'); };
 $('pouss').onclick=()=>{ st.pouss=!st.pouss; const p=cur(), m=p&&feedMode(p);
   if(st.pouss) info(m==='gab'? 'Poussoir en main. Au gabarit, il n\'est pas utile : les mains restent sur la poignée du gabarit, derrière le rondin.'
     : m==='free'? 'Poussoir en main : il sert en fin de passe contre le guide parallèle ou au guide d\'onglet. À main levée, les mains restent de part et d\'autre de la lame.'
@@ -333,10 +338,11 @@ window.__ruban={ st, cut, pieces, pilot, measure, extent, advance:mm=>{ const ok
   back:mm=>{ back(mm); apply(); }, spin, setSpin:v=>model.setSpin(v), startGap:()=>cur()&&startGap(cur()) };   // poignée pour les tests automatiques
 let lastApply=0, lastSpinState='', lastTick;
 app.start({
-  /* bruit (engine/audio.js) : pour l'instant le son de l'aspiration seul (commun à toutes les machines) ; le son de la machine,
-     le sonomètre et le casque (niveaux, etat) seront ajoutés quand l'enseignant aura validé le rendu de la toupie :
-     bruit:{ aspiration, niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } } */
-  bruit:{ aspiration:()=>st.asp },
+  /* bruit (engine/audio.js) : essai avec les enregistrements fournis par l'enseignant (démarrage, à vide, coupe, arrêt) ;
+     sonomètre, casque et alerte comme à la toupie. Coupe = lame dans le bois pendant l'avance ; charge = vitesse d'avance × dureté. */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:{ demarrage:sonDemarrage, vide:sonVide, coupe:sonCoupe, arret:sonArret },
+    etat(){ const q=cur(), c=st.feed&&cut.inWood? 1 : 0;
+      return { on:st.motor&&!st.au&&!broken.on, rpm:BRUIT.rpm, spin:spin(), cut:c, charge:([0,0.5,1,2][st.speed]||1)*(BRUIT_DURETE[q?.wood]||1.3), dents:1 }; } },
   update, alerts:()=>computeAlerts(spin()),
   steps:STEPS,
   loadMode(m){ LOADERS[m](); for(const k in rackInv) delete rackInv[k]; Object.assign(rackInv,RACK0); model.stopNow(); bladeKey=''; planKey=debitKey=guideKey=protKey=''; backing=false; if(m!=='libre') stage.setView(m==='lame'?'v34':'vop'); },

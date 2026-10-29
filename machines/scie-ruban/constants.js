@@ -34,3 +34,9 @@ export const DEV_STEP = 3;             // dévers : un quart de tour de la maniv
 export const DEV_MAX = 8;
 export const BRAKE_S = 6;              // temps d'arrêt avec le frein (ED 6316 : 10 s au plus)
 export const RES = 0.5;                // grille des pièces (mm par case)
+
+/* bruit au poste de l'opérateur, dB(A) (engine/audio.js ; valeurs PROPOSÉES, À VALIDER) : essai avec ENREGISTREMENTS (sons/*.mp3)
+   fournis par l'enseignant le 29/10/2026. Coupe 91 : bas de la fourchette HSE « band resaws 90–105 dB » ; à vide 82 = coupe − 9 dB,
+   écart relevé entre la marche à vide et la coupe dans l'enregistrement fourni. */
+export const BRUIT = { vide:82, coupe:91, rpm:600 };
+export const BRUIT_DURETE = { sapin:1, epicea:1, pin:1.1, meleze:1.3, frene:1.6, hetre:1.6, chene:2 };

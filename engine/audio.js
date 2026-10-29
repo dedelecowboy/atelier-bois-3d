@@ -8,6 +8,7 @@
        niveaux:{ vide, coupe, rpm },   // (facultatif) dB(A) au poste de l'opérateur : à vide au régime rpm, en coupe (passe de référence) ;
                                        //   sans niveaux : pas de sonomètre ni de son de la machine, seulement l'aspiration
        etat(){ return { on, rpm, spin, cut, charge, dents }; }   // (avec niveaux)
+       echantillons:{ demarrage, vide, coupe, arret }            // (facultatif) enregistrements MP3 en base64 à la place du son synthétisé
          on     : moteur commandé (marche) ;  rpm : régime affiché (tr/min) ;  spin : régime réel / rpm (0 à 1, montée et frein) ;
          cut    : 0 à 1, part de l'outil dans le bois ;  charge : 1 = passe de référence (plus forte, avance rapide, bois dur : > 1) ;
          dents  : nombre de dents de l'outil (fréquence de passage des dents)
@@ -107,11 +108,11 @@ export function createBruit(app, hook){
   function audioTick(c){ if(!A||!B.on) return;
     const e=c.e, cut=Math.max(0,Math.min(1,e.cut||0));
     if(cut>0.05&&!wasCut) SY.bang('attaque'); wasCut=cut>0.05;   // l'outil mord dans le bois
-    SY.set({ f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(c.moteur), cut, cutAmp:amp(c.coupe),
+    SY.set({ motFull:amp(niveau(N0,{...e, spin:1, cut:0, asp:0}).moteur), f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(c.moteur), cut, cutAmp:amp(c.coupe),
       charge:e.charge, asp:aspSp, aspAmp:amp(ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
   function bang(type){ if(A&&B.on) SY.bang(type); }
   async function setOn(on){
-    if(on){ try{ if(!A) A=SY.start(); if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
+    if(on){ try{ if(!A){ A=SY.start(); if(hook.echantillons) SY.chargerEchantillons(hook.echantillons).catch(err=>{ B.err='enregistrements : '+(err&&err.message||err); }); } if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
       catch(e){ B.on=false; B.err=String(e&&e.message||e); app.toast(N? 'Son indisponible dans ce navigateur : le sonomètre reste affiché.' : 'Son indisponible dans ce navigateur.'); } }
     else { B.on=false; SY.mute(); }
     pref.on=on; save(); paint(); }
@@ -133,7 +134,7 @@ export function createBruit(app, hook){
     const r=[Math.round(B.shown),B.casque,B.on].join(); if(r!==lastR){ lastR=r; paint(); }
     audioTick(c); }
   paint();
-  const R = { tick, bang, alerte, calc, setOn, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
+  const R = { tick, bang, alerte, calc, setOn, get enregistrements(){ return SY.echantillons(); }, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
     get on(){ return B.on; }, get shown(){ return B.shown; }, get err(){ return B.err; }, get ctx(){ return A&&A.ctx; }, niveaux:N0 };
   return R;
 }

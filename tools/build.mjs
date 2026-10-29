@@ -91,7 +91,7 @@ async function buildMachine(id){
 
   const out = await esbuild.build({
     entryPoints: [path.join(dir, 'main.js')], bundle: true, format: 'esm', write: false,
-    external: ['three', 'three/addons/*'], loader: { '.txt': 'text' }, charset: 'utf8',
+    external: ['three', 'three/addons/*'], loader: { '.txt': 'text', '.mp3': 'dataurl' }, charset: 'utf8',
     target: 'es2020', legalComments: 'none', logLevel: 'silent',
   });
   const js = out.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
@@ -127,7 +127,7 @@ async function buildAtelier(){
   const dir = path.join(ROOT, 'atelier');
   const out = await esbuild.build({
     entryPoints: [path.join(dir, 'main.js')], bundle: true, format: 'esm', write: false,
-    external: ['three', 'three/addons/*'], loader: { '.txt': 'text' }, charset: 'utf8',
+    external: ['three', 'three/addons/*'], loader: { '.txt': 'text', '.mp3': 'dataurl' }, charset: 'utf8',
     target: 'es2020', legalComments: 'none', logLevel: 'silent',
   });
   const js = out.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
@@ -210,7 +210,7 @@ ${res.join('\n')}
    à charger) : les pages s'ouvrent aussi depuis le disque (file://), sur clé USB, sans internet (polices de secours). */
 async function buildTraining(){
   const bundle = async entry => (await esbuild.build({ entryPoints: [entry], bundle: true, format: 'esm', write: false, minify: true,
-    loader: { '.txt': 'text' }, charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+    loader: { '.txt': 'text', '.mp3': 'dataurl' }, charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
   const doc = (title, body, js) => `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<script>window.ATELIER_LOCAL=true;</script>\n<title>${esc(title)}</title>\n${FONTS}\n</head>\n<body>\n${body}\n<script type="module">\n${js}</script>\n</body>\n</html>\n`;
   const files = { 'index.html': strToU8(doc('Atelier bois 3D – Entraînement', `<style>\n${BUILT.atelier.css}</style>\n${BUILT.atelier.shell}`, await bundle(path.join(ROOT, 'atelier', 'main.js')))) };
   const ids = PKG_ORDER.filter(id => BUILT[id]);
