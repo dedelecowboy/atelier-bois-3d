@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Page atelier : démarrage sans erreur, les 9 machines construites et les postes à venir, sélection d'un poste,
 aperçu élève (verrouillage), disposition ordinateur (1400 px) et téléphone (412 px). Captures dans tests/out/."""
 import os, sys

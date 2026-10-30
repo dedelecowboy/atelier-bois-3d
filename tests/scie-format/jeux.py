@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la scie à format, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, evac}."""
 

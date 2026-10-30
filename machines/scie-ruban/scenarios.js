@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la scie à ruban (notés au parcours : 5 critères de 4 points dont « aucune faute grave »).
    1. Changer la lame et régler la machine : lame à chantourner de 10 mm montée → lame de 30 mm pour la refente
       (consignation, lame sans crique, dents vers le bas, tension, dévers, guide-lames, essai à vide).

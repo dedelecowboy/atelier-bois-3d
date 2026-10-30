@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Page atelier : s'ajoute à engine.css (variables, boutons .toggle, .lost). */
 html,body{height:100%;overflow:hidden}
 .at{display:grid;grid-template-columns:268px 1fr;grid-template-rows:auto 1fr;height:100%;background:var(--bg)}
@@ -120,3 +121,4 @@ body.editing .lbl,body.editing .dlbl{pointer-events:none}
 .at-tools .lect{order:-1}
 :root:not([data-lect-taille="0"]) :is(.at-top,.at-side,.card){zoom:var(--lz,1)}
 @media (min-width:901px){ :root:not([data-lect-taille="0"]) .at{grid-template-columns:calc(268px * var(--lz)) 1fr} }
+.at-side .credit{margin:0 4px}

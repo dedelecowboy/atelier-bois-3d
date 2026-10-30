@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces à la mortaiseuse : pièces de corroyage (engine/corroyage.js : faces F1/F2/C1/C2, repères SR1/SR2, fil), posées à plat
    sur la table, la face « down » sur la table, la face « back » contre le guide : c'est cette face que le bédane usine.
    Une pièce venue d'une autre machine arrive telle quelle (newPiece({json:C.pieceJSON(q)})), tenons compris.

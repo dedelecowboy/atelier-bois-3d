@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces à la toupie : pièces de corroyage (engine/corroyage.js : faces F1/F2/C1/C2, repères SR1/SR2, fil), posées sur la
    table, la face « back » (côté −Z) contre le guide, la face « down » sur la table. Une pièce qui sort de la raboteuse arrive
    telle quelle (newPiece({json:C.pieceJSON(q)})) avec ses repères.

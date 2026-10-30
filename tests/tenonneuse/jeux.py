@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la tenonneuse, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, msgs}. Les passes du chariot sont animées : on attend leur fin.
 window.__tenon donne l'état, les pièces et les bouts usinés aux tests (lecture seulement : l'élève, lui, clique)."""

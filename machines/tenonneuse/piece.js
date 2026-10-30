@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces à la tenonneuse : pièces de corroyage (engine/corroyage.js : faces F1/F2/C1/C2, repères SR1/SR2, fil, profils de
    la toupie), posées en travers sur le chariot, la face « down » sur la table du chariot, la face « back » contre le
    pare-éclat du guide (+X). Le bout usiné est A (bout en u = 0) ou B si la pièce est retournée bout pour bout (flip).

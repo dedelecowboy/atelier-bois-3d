@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Module « Risques généraux » : fiches (présentation) et panneau « Actions » (exercices, parcours). */
 .app:not([data-ui="pres"]) #dockSlot{display:none}
 .app .dock{grid-template-columns:minmax(0,1fr)}

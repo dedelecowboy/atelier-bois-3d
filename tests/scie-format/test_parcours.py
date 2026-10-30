@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Scie à format : parcours évalué SCORM avec une fausse API Moodle.
 1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed.
 2. Reprise : un scénario interrompu reprend à son introduction, fautes graves conservées.

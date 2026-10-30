@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "description": "Simulateurs 3D de machines à bois (bac pro / BTS DRB) – Julien ANDRE, Lycée André MALRAUX, Remiremont",
+  "author": "Julien ANDRE - Lycée André MALRAUX - REMIREMONT",
+  "license": "GPL-3.0-only",
   "scripts": {
     "build": "node tools/build.mjs",
     "test": "python3 tests/run.py"

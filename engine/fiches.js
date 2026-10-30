@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Fiches de la machine (présentation) : lecture obligatoire avant l'évaluation (demandé par l'enseignant le 29/10/2026).
    machines/<id>/data/fiches.txt, même format que les fiches des risques généraux (engine/data.js, parseFiches) :
    ## Titre | codes d'organes (bouton « Voir sur la machine ») ; paragraphe ; « - » puce ; « > » source.

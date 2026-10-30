@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la déligneuse multilames (mètres, repère de la scène).
    X = sens d'avance : l'opérateur est à l'entrée, côté +X ; la pièce avance vers −X (sortie).
    Z : guide d'entrée côté −Z (à droite de l'opérateur), moteur et pupitre côté +Z.

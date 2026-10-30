@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la scie radiale : alertes de sécurité et de qualité, blocages de la coupe.
    Une alerte « danger » active au moment où l'on tire la lame est une faute grave (parcours évalué) ;
    toucher une pièce alors que la lame n'est pas revenue en position arrière en est une aussi.

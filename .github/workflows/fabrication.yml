@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Fabrique les modules à chaque modification poussée sur GitHub (ou à la demande, onglet Actions).
 # Résultat : onglet Actions → dernière exécution → « Artifacts » → modules (pages web + paquetages SCORM).
 # Si un fichier de données contient une erreur, l'exécution échoue et le journal indique le fichier et la ligne.

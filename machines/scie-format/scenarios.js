@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la scie à format : pièce de départ, étapes (consigne, contrôles, réussite),
    contrôle final, et critères notés du parcours évalué.
    Nommage des chants : bruts numérotés (1, 2, 3, 4 ; U = chant d'usine), sciés en lettres ;

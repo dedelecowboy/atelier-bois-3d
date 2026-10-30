@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces sur la raboteuse : un lot de pièces de corroyage (logique commune à la dégauchisseuse, engine/corroyage.js),
    posées sur la table d'entrée, entraînées par les rouleaux sous l'arbre, rangées dans « Pièces débitées ».
 

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Panneaux de réglage par famille (demandé par l'enseignant : mieux distinguer machine, outil, guidage, protection, pièce).
 
    Dans les fragments HTML de la machine (settings.html, dock.html), chaque groupe de réglages est une section :

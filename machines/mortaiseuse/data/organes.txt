@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Nomenclature de la mortaiseuse KANAK 130 MB (mortaiseuse à bédane oscillant horizontal)
 # (repères du cours « La mortaiseuse à bédane horizontal » du lycée entre parenthèses : organes extérieurs et tableau de commande)
 #

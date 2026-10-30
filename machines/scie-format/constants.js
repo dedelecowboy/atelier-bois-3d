@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la scie à format (mètres, repère de la scène).
    X = sens d'avance : l'opérateur est côté +X, la pièce avance vers −X.
    Chariot côté +Z ; table fixe, guide parallèle et rallonge côté −Z. */

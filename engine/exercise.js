@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Exercices guidés : modes (libre ou par étapes), carte de consigne avec contrôles cochés,
    navigation entre étapes, tableau de résultats, liste d'alertes.
 

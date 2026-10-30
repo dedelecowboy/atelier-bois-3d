@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la mortaiseuse. Les pièces arrivent corroyées (SR1 et SR2 dressés et repérés, largeur et épaisseur faites),
    en attente dans « Pièces débitées ». Procédure de réglage de l'atelier : épaisseur (bédane), longueur (oscillation ou
    taquets de la table), profondeur (taquets de côté, + 71), arasement (hauteur du bédane, clé de 27), distance (taquets de

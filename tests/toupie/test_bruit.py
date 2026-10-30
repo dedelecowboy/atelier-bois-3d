@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Toupie : bruit (engine/audio.js). Les tests headless n'entendent rien : on vérifie les valeurs calculées.
 - son coupé par défaut (🔇), choix gardé dans le navigateur (localStorage « atelier.son ») ;
 - sonomètre : fond de la salle à l'arrêt, niveau à vide au régime, plus fort en coupe (passe forte, bois dur plus fort encore) ;

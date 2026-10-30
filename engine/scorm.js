@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* API SCORM 1.2 (Moodle). Sans LMS (version web), toutes les fonctions sont sans effet.
    state() rend l'objet à sauvegarder dans suspend_data ; restore(o) le recharge à la reprise. */
 export function createScorm({ enabled, state, restore, t0 }){

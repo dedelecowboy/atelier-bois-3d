@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Déligneuse multilames KANAK 300 M : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la toupie « KANAK 130 T » (d'après la toupie SCM de l'atelier à arbre fixe et pupitre électronique, guide à
    lamelles avec capot orange, protège-mains à presseurs, entraîneur à 4 rouleaux). Marque fictive : ne pas afficher la marque réelle.
    Arbre vertical fixe (non inclinable), hauteur réglée au pupitre ; vitesse par poulies étagées dans le bâti.

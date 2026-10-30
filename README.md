@@ -170,6 +170,13 @@ tools/sons.py            préparation des enregistrements sonores (découpe, niv
 tests/                   tests automatiques (voir tests/README.md)
 ```
 
-## Licence
+## Licence et droits
 
-Voir `LICENSE`. La bibliothèque 3D three.js (MIT) est incluse dans les paquetages SCORM.
+© 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT.
+
+Code, modèles 3D, textes (fiches, QCM, nomenclatures, scénarios) et outils de ce projet : licence GNU GPL v3 (fichier `LICENSE`). La mention ci-dessus figure en tête de chaque fichier source, sur chaque page produite (commentaire, auteur, copyright), en bas de la colonne de droite des simulateurs et de la liste des postes de la page atelier, sur les attestations, dans les manifestes SCORM et dans le LISEZ-MOI du dossier d'entraînement (voir aussi `COPYRIGHT.txt`).
+
+Éléments d'autres auteurs, sous leur propre licence :
+- three.js (bibliothèque 3D) : licence MIT, copiée dans les paquetages SCORM (`lib/LICENSE-three.txt`) ;
+- enregistrements sonores (`engine/sons/`, `machines/scie-ruban/sons/`) : fichiers de banques de sons (noms de type Pixabay / Freesound), licences à vérifier avant diffusion ;
+- polices des attestations (Caveat, Barlow, Barlow Condensed) : SIL Open Font License.

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Fabrication des modules machines.
    Usage : npm run build            → toutes les machines et la page atelier
            npm run build scie-format → une seule machine
@@ -15,7 +16,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import { zipSync, strToU8 } from 'fflate';
+import { zipSync, strToU8, strFromU8 } from 'fflate';
+
+/* droits (demandé par l'enseignant le 30/10/2026) : sur chaque page produite (commentaire en tête, auteur, copyright), dans les manifestes
+   SCORM et le LISEZ-MOI du dossier d'entraînement */
+const DROITS = 'Julien ANDRE - Lycée André MALRAUX - REMIREMONT';
+const NOTICE = `© 2026 ${DROITS}. Licence GNU GPL v3 (fichier LICENSE du projet). Bibliothèque three.js : licence MIT (lib/LICENSE-three.txt). Enregistrements sonores : licences de leurs auteurs (voir le README du projet).`;
+function signe(html){ const c = `<!-- ${NOTICE} -->\n`, meta = `<meta name="author" content="${DROITS}">\n<meta name="copyright" content="© 2026 ${DROITS}">`;
+  if (/^<!doctype/i.test(html)) { const i = html.indexOf('\n') + 1; html = html.slice(0, i) + c + html.slice(i); return html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${meta}`); }
+  return c + meta + '\n' + html; }
+const signeZip = files => { for (const k of Object.keys(files)) if (k.endsWith('.html')) files[k] = strToU8(signe(strFromU8(files[k]))); return files; };
 import { renderShell } from '../engine/shell.js';
 import { parseOrganes, parseQcm, parseReperage, checkData, parseDangers, parseEpi, parseFiches } from '../engine/data.js';
 
@@ -58,6 +68,7 @@ function checkMachineData(dir, config){
 
 function manifest(c, files){
   return `<?xml version="1.0" encoding="UTF-8"?>
+<!-- ${NOTICE} -->
 <manifest identifier="${c.identifier}" version="1.0"
   xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
   xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
@@ -107,7 +118,7 @@ async function buildMachine(id){
   fs.mkdirSync(DIST, { recursive: true });
   // page autonome (fragment : l'artifact claude.ai ajoute lui-même <html>, <head>, <body>)
   const page = `<title>${esc(config.pageTitle)}</title>\n${FONTS}\n${style}\n\n${shell}\n\n${importmap(CDN)}\n${script}\n`;
-  fs.writeFileSync(path.join(DIST, `${id}.html`), page);
+  fs.writeFileSync(path.join(DIST, `${id}.html`), signe(page));
 
   // paquetage SCORM 1.2
   if (config.scorm) {
@@ -117,7 +128,7 @@ async function buildMachine(id){
     const files = { 'index.html': strToU8(index) };
     for (const [k, src] of Object.entries(lib)) files[k] = new Uint8Array(fs.readFileSync(path.join(THREE_DIR, src)));
     files['imsmanifest.xml'] = strToU8(manifest(config.scorm, Object.keys(files)));
-    fs.writeFileSync(path.join(DIST, config.scorm.zip), zipSync(files, { level: 9, mtime: new Date('2026-01-01') }));
+    fs.writeFileSync(path.join(DIST, config.scorm.zip), zipSync(signeZip(files), { level: 9, mtime: new Date('2026-01-01') }));
   }
   console.log(`${id} : ${counts.organes} organes, ${counts.qcm} questions, ${counts.reperage} organes à repérer → dist/${id}.html${config.scorm ? ', dist/' + config.scorm.zip : ''}`);
 }
@@ -137,7 +148,7 @@ async function buildAtelier(){
   BUILT.atelier = { js, css, shell: read(path.join(dir, 'shell.html')) };
   const page = `<title>Atelier bois 3D</title>\n${FONTS}\n<style>\n${css}</style>\n\n${read(path.join(dir, 'shell.html'))}\n<script type="importmap">\n{"imports":{${CDN}}}\n</script>\n<script type="module">\n${js}</script>\n`;
   fs.mkdirSync(DIST, { recursive: true });
-  fs.writeFileSync(path.join(DIST, 'atelier.html'), page);
+  fs.writeFileSync(path.join(DIST, 'atelier.html'), signe(page));
   console.log('atelier → dist/atelier.html');
 }
 
@@ -184,6 +195,7 @@ function buildPackage(lock){
     `    <resource identifier="RES_ATELIER" type="webcontent" adlcp:scormtype="sco" href="atelier/index.html">\n      <file href="atelier/index.html"/>\n      <dependency identifierref="RES_LIB"/>\n    </resource>`]
     .concat(ids.map(id => `    <resource identifier="RES_${BUILT[id].config.scorm.code}" type="webcontent" adlcp:scormtype="sco" href="${id}/index.html">\n      <file href="${id}/index.html"/>\n      <dependency identifierref="RES_LIB"/>\n    </resource>`));
   files['imsmanifest.xml'] = strToU8(`<?xml version="1.0" encoding="UTF-8"?>
+<!-- ${NOTICE} -->
 <manifest identifier="ATELIER_BOIS_3D" version="1.0"
   xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
   xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
@@ -205,7 +217,7 @@ ${res.join('\n')}
 </manifest>
 `);
   const zip = lock ? 'Atelier_bois_3D_SCORM12.zip' : 'Atelier_bois_3D_SCORM12_sans_verrous.zip';
-  fs.writeFileSync(path.join(DIST, zip), zipSync(files, { level: 9, mtime: new Date('2026-01-01') }));
+  fs.writeFileSync(path.join(DIST, zip), zipSync(signeZip(files), { level: 9, mtime: new Date('2026-01-01') }));
   console.log(`paquetage unique → dist/${zip} (atelier + ${ids.length} éléments${lock ? ', verrous : risques généraux puis chaîne de débit' : ', sans verrous'})`);
 }
 
@@ -221,8 +233,8 @@ async function buildTraining(){
   const ids = PKG_ORDER.filter(id => BUILT[id]);
   for (const id of ids) { const B = BUILT[id];
     files[`${id}/index.html`] = strToU8(doc(B.config.pageTitle || B.config.title, `<style>\n${B.css}</style>\n${B.shell}`, await bundle(path.join(ROOT, 'machines', id, 'main.js')))); }
-  files['LISEZ-MOI.txt'] = strToU8(`Atelier bois 3D – version d'entraînement (sans note, sans Moodle)\r\n\r\nDézippez le dossier, puis ouvrez index.html dans Chrome, Edge ou Firefox : l'atelier 3D s'affiche.\r\nCliquez une machine, puis « Ouvrir le simulateur ». Le bouton « ← Atelier » ramène à l'atelier.\r\nRien n'est enregistré ni noté ; les fiches lues sont seulement gardées dans ce navigateur.\r\n\r\nLycée André Malraux – Remiremont\r\n`);
-  fs.writeFileSync(path.join(DIST, 'Atelier_bois_3D_entrainement.zip'), zipSync(files, { level: 9, mtime: new Date('2026-01-01') }));
+  files['LISEZ-MOI.txt'] = strToU8(`Atelier bois 3D – version d'entraînement (sans note, sans Moodle)\r\n\r\nDézippez le dossier, puis ouvrez index.html dans Chrome, Edge ou Firefox : l'atelier 3D s'affiche.\r\nCliquez une machine, puis « Ouvrir le simulateur ». Le bouton « ← Atelier » ramène à l'atelier.\r\nRien n'est enregistré ni noté ; les fiches lues sont seulement gardées dans ce navigateur.\r\n\r\n© 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3. three.js : licence MIT. Enregistrements sonores : licences de leurs auteurs.\r\n`);
+  fs.writeFileSync(path.join(DIST, 'Atelier_bois_3D_entrainement.zip'), zipSync(signeZip(files), { level: 9, mtime: new Date('2026-01-01') }));
   console.log(`entraînement hors ligne → dist/Atelier_bois_3D_entrainement.zip (atelier + ${ids.length} modules, three.js intégré)`);
 }
 
@@ -240,14 +252,14 @@ function buildAttestations(){
     .replace('/*FONTS*/', fs.readdirSync(path.join(dir, 'fonts')).map(f => { const [, fam, w] = f.match(/^(.+)-latin-(\d+)-normal\.woff2$/);
       const name = fam.split('-').map(x => x[0].toUpperCase() + x.slice(1)).join(' ');
       return `@font-face{font-family:'${name}';font-weight:${w};font-style:normal;font-display:block;src:url(data:font/woff2;base64,${fs.readFileSync(path.join(dir, 'fonts', f)).toString('base64')}) format('woff2')}`; }).join('\n'));
-  fs.writeFileSync(path.join(DIST, 'Attestations_atelier_bois_3D.html'), page);
+  fs.writeFileSync(path.join(DIST, 'Attestations_atelier_bois_3D.html'), signe(page));
   console.log('attestations → dist/Attestations_atelier_bois_3D.html');
 }
 /* Banc d'écoute du bruit (pour l'enseignant) : engine/banc-son.js → dist/Ecoute_bruit.html, une page seule hors ligne */
 async function buildBanc(){
   const js = (await esbuild.build({ entryPoints: [path.join(ROOT, 'engine', 'banc-son.js')], bundle: true, format: 'esm', write: false, minify: true,
     loader: { '.mp3': 'dataurl' }, charset: 'utf8', target: 'es2020', legalComments: 'none', logLevel: 'silent' })).outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
-  fs.writeFileSync(path.join(DIST, 'Ecoute_bruit.html'), `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Écoute du bruit – toupie</title>\n</head>\n<body>\n<script type="module">\n${js}</script>\n</body>\n</html>\n`);
+  fs.writeFileSync(path.join(DIST, 'Ecoute_bruit.html'), signe(`<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Écoute du bruit – toupie</title>\n</head>\n<body>\n<script type="module">\n${js}</script>\n</body>\n</html>\n`));
   console.log('banc d\'écoute → dist/Ecoute_bruit.html');
 }
 const ids = only ? (only === 'atelier' || only === 'attestations' || only === 'banc' ? [] : [only]) : fs.readdirSync(path.join(ROOT, 'machines')).filter(d => fs.existsSync(path.join(ROOT, 'machines', d, 'config.js')));

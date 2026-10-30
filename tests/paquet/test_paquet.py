@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Paquetage unique « Atelier bois 3D » (dist/Atelier_bois_3D_SCORM12*.zip) :
 - manifeste : atelier (SCO toujours « incomplete ») + « 0. Risques généraux » + 9 machines (SCO), lib partagée,
   verrous : risques généraux avant la scie radiale, la scie à format, la scie à ruban et la mortaiseuse, puis la chaîne de débit (ou aucun) ;

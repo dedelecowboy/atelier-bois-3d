@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Guide intégral à lamelles (type AIGNER) et entraîneur : mises en place automatiques.
 
    Guide intégral : chaque demi-guide est une cassette de LAM_N lamelles (entretoises) horizontales, au pas de LAM_P mm depuis

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages de la scie à ruban (mm, degrés) et état de la lame. */
 import { bladeById, toothH, voie as voieOf, rmin as rminOf } from './lame.js';
 import { RIM_W, DEV_STEP } from './constants.js';

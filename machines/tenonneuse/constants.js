@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes et réglages de la tenonneuse (mètres dans la scène, millimètres dans l'interface).
    X = sens d'avance du chariot : l'opérateur charge la pièce à droite (+X), le chariot l'emmène vers la gauche (−X) devant
    la scie d'affranchissement, puis les dérouleurs, puis l'unité de toupillage. Opérateur côté +Z, derrière le chariot.

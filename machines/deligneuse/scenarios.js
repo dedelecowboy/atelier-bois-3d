@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la déligneuse multilames.
    - Délignage d'avivés : avivé de 180 mm → 2 pièces de 85 mm au guide, en deux passes (manchon à 1 lame) ;
    - Délignage d'un plateau de plot : rives en flache, conique → guide escamoté, petit découvert dessus,

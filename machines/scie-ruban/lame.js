@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Lames de la scie à ruban : râtelier de l'atelier et ruban sans fin en 3D.
    La lame à ruban n'a rien de commun avec la lame circulaire `sawBlade` (engine/kit.js) : c'est un ruban d'acier
    sans fin, soudé, denté, avoyé, qui passe sur les deux volants. Elle est décrite par sa largeur (pointe des dents

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Fiches de chaque machine (lecture obligatoire, 29/10/2026) : pour les 9 machines,
 page web = onglet « Fiches » ouvert au départ, 8 fiches, « Voir sur la machine » nomme des organes, lecture complète ;
 paquetage séparé = la lecture des fiches est la première étape du parcours. (Détail complet : tests/scie-radiale/test_fiches.py.)"""

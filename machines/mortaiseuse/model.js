@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la mortaiseuse à bédane oscillant horizontal « KANAK 130 MB » (d'après la mortaiseuse de l'atelier et le
    catalogue du constructeur : bâti gris clair à plaque bleue, table mobile en X, portique noir à deux vérins verticaux,
    deux vérins horizontaux, tête de mortaisage derrière le guide sous un capot insonorisé, hotte d'aspiration jaune, tableau

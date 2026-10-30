@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la scie à ruban : alertes de sécurité et de qualité, blocages.
    Une alerte « danger » active au démarrage de la lame ou pendant l'avance de la pièce est une faute grave (parcours) ;
    certains gestes hors coupe en sont aussi (intervenir sur la lame sans consignation, reculer dans une courbe lame en

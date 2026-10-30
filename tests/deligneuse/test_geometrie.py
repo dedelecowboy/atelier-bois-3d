@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Déligneuse multilames : contrôle géométrique sans navigateur.
 Les rouleaux presseurs restent hors du cercle des lames, quelle que soit leur hauteur (pièce de 0 à 120 mm)
 (bug signalé par l'enseignant : rouleaux à ±150 mm, dans les lames Ø 300)."""

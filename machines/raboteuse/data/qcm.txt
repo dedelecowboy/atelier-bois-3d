@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # QCM sécurité et technique de la raboteuse (parcours évalué)
 # Sources : fiche OPPBTP « Raboteuse – les points clés pour travailler en sécurité », cours « La raboteuse » du lycée.
 #

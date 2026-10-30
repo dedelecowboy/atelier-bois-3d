@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scie à format KANAK 550 : assemblage du module (modèle, pièces, règles, scénarios) sur le moteur commun. */
 import * as THREE from 'three';
 import { createApp } from '../../engine/app.js';

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la toupie (lot 1 : travail au guide). Les pièces arrivent corroyées (dégauchisseuse puis raboteuse :
    SR1 et SR2 dressés et repérés, largeur et épaisseur faites), posées comme elles sortent de la raboteuse (SR1 sur la table).
    1. Quart de rond R 10 sur l'arête SR1 / chant opposé à SR2 (rive en partie usinée : demi-guides alignés).

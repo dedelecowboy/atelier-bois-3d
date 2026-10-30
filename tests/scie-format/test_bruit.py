@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Scies circulaires et tenonneuse : bruit avec les ENREGISTREMENTS de scie circulaire (30/10/2026, engine/sons/scie-*.mp3).
 Scie à format (aspiration ajoutée), scie radiale, déligneuse : mise en marche, régime à vide, coupe, arrêt enregistrés.
 Tenonneuse : trois sources (scie = enregistrements de scie, dérouleurs = enregistrements de la raboteuse, unité de toupillage = son

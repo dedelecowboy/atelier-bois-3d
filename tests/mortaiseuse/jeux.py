@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la mortaiseuse, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, msgs}. Les cycles sont animés : on attend leur fin et l'arrêt du bédane.
 window.__mortaise donne l'état, les pièces et les mortaises aux tests (lecture seulement : l'élève, lui, clique)."""

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Page « atelier » : entrée visuelle de l'atelier virtuel.
    La salle du plan réel (plan.js) en 3D avec les vrais modèles des machines (buildModel de chaque module, en position de repos),
    la chaîne de débit peinte au sol, une étiquette par poste, une fiche au clic avec le lien vers le simulateur.

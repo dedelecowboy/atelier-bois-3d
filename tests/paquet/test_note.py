@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Note envoyée à Moodle : plafonnée à 69 s'il y a une faute grave (décidé par l'enseignant le 28/10/2026),
 pour que « note ≥ 70 » dans les rapports veuille toujours dire « machine validée » (attestations)."""
 import json, os, sys

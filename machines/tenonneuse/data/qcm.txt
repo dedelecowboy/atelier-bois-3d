@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # QCM sécurité et technique de la tenonneuse (parcours évalué)
 # Sources : cours « La tenonneuse » du lycée (organes, procédure de réglage pour réaliser des tenons, travail en sécurité),
 # fiche « Tenonneuse : les points clés pour travailler en sécurité ».

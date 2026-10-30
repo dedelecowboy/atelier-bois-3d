@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Assemblage tenon – mortaise, commun à la mortaiseuse et à la tenonneuse (déplacé de machines/mortaiseuse/piece.js le 30/10/2026 :
    décidé par l'enseignant, la mortaise se fait AVANT le tenon, car on ajuste le tenon à la mortaise ; le contrôle d'assemblage
    est donc à la tenonneuse). Lecture des mortaises d'une pièce de corroyage (`q.morts`), du tenon d'un bout (`q.ends`), et test d'entrée. */

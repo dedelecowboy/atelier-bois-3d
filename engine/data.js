@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Lecture des fichiers de données que l'enseignant corrige lui-même (organes, QCM, repérage).
    Formats texte simples, commentés en tête de chaque fichier. En cas d'erreur, le message dit
    quel fichier et quelle ligne corriger (affiché par `npm run build`). */

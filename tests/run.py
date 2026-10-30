@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Lance toutes les vérifications d'une machine (ou de toutes) : « npm test » ou « python3 tests/run.py scie-format ».
 Prérequis : npm install, puis npm run build (les tests portent sur dist/).
 1. node --check du script module extrait de la page fabriquée ;

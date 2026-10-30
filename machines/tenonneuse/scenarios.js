@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la tenonneuse. Les pièces arrivent corroyées (dégauchisseuse puis raboteuse : SR1 et SR2 dressés et
    repérés, largeur et épaisseur faites), en attente dans « Pièces débitées ».
    1. Tenon simple sur une traverse de chêne : longueur à la scie (sous le capot), joue et épaisseur réglées en montant depuis

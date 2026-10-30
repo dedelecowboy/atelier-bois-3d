@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces sur la scie radiale : planches brutes (avec ou sans flache, avec défauts), position sur la table,
    coupes par le plan de la lame (droite, d'onglet, biaise), pièces débitées.
 

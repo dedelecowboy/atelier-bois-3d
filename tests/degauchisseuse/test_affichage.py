@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Dégauchisseuse : disposition sur ordinateur (1400 px) et téléphone (412 px), captures dans tests/out/.
 Sur ordinateur, pas de barre de défilement de page ; sur téléphone, une colonne, 3D jamais écrasée."""
 import os, sys

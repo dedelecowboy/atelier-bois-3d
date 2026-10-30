@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Styles propres à la mortaiseuse : râtelier des bédanes, taquets de la table, vérins, schémas, mortaises, pièces débitées. */
 .tl{grid-template-columns:1fr auto}
 .tl-t{font-weight:500}

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Nomenclature de la raboteuse KANAK 630 E
 #
 # Comment modifier ce fichier :

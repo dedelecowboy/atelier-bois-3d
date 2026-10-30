@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la déligneuse multilames : alertes de sécurité et de qualité, blocages de la passe.
    Une alerte « danger » active au moment où la pièce est engagée est une faute grave (parcours évalué).
    Sources : INRS ED 6019 « Déligneuses à lames multiples », notice constructeur (longueur mini 390 mm).

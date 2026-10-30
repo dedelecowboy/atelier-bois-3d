@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Risques généraux de l'atelier bois : assemblage du module sur le moteur commun.
    La scène est l'atelier entier (plan réel) ; présentation = visite + fiches risques ; exercices et parcours évalué =
    repérage des équipements, QCM, 4 scénarios notés (dangers, EPI, consignation, départ de feu). */

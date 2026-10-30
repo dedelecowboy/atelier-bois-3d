@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Mortaiseuse : les trois exercices guidés de bout en bout, comme un élève, et les gestes refusés.
 1. Changer le bédane : consignation complète (0, cadenas, essai de démarrage), bédane de 10 mm en bon état, serré, essai à vide.
 2. Mortaise à la cote : 10 × 40 × 30 à 9 mm de SR1 et 60 mm du bout, pièce d'essai d'abord ; pièges : taquet de départ après 71,

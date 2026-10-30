@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Synthèse des bruits de l'atelier (Web Audio, AUCUN fichier audio) : moteur et outil, coupe, aspiration, bruits courts.
    Utilisé par engine/audio.js (simulateurs) et par le banc d'écoute (engine/banc-son.js → dist/Ecoute_bruit.html).
    Rien n'est créé avant start() : le navigateur n'autorise le son qu'après un clic.

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scène 3D commune : rendu, caméra et vues, lumières, boucle d'affichage, perte de contexte WebGL,
    plein écran et messages flottants (toast). */
 import * as THREE from 'three';

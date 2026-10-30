@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Bruit des machines (demandé par l'enseignant le 29/10/2026 ; valeurs proposées, À VALIDER) :
    son synthétisé dans le navigateur (Web Audio, AUCUN fichier : marche hors ligne, dans Moodle et dans le dossier
    d'entraînement), sonomètre dB(A) posé sur la vue 3D, bouton « Casque antibruit », bouton 🔇 / 🔊 de l'en-tête.

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Atelier menuiserie du lycée (plan réel, atelier/plan.js) avec ses équipements de sécurité (repérables),
    les situations dangereuses du scénario « Repérer les dangers », l'avatar du scénario « EPI », le boîtier sectionneur
    de la scie à format (consignation) et le départ de feu.

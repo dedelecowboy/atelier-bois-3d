@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Banc d'écoute du bruit (pour l'enseignant, 29/10/2026) → dist/Ecoute_bruit.html (npm run build banc) :
    écouter au casque le moteur, l'aspiration et la coupe de la toupie (son « rugissement », choisi par l'enseignant le 29/10/2026),
    avec les mêmes calculs de niveau que le simulateur (engine/audio.js). Une page seule, sans three.js, qui marche hors ligne.

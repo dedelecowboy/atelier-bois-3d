@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Postes de l'atelier : une entrée par machine, dans l'ordre du parcours.
    rest(model) : met la machine dans sa position de repos (mêmes arguments que son main.js, sans pièce).
    clip : [x0, x1, z0, z1] (repère de la machine) : organes cachés hors de ce rectangle (raccords vers la page de la machine).

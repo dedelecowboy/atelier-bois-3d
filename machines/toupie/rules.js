@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la toupie (travail au guide) : alertes de sécurité et de qualité, blocages.
    Une alerte « danger » active au moment où l'on engage la pièce est une faute grave (parcours évalué).
    Gestes dangereux hors passe (réglage moteur en marche, choc de l'outil au démarrage, main vers la pièce arrêtée) :

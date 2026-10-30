@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Scie à ruban : bruit avec ENREGISTREMENTS (essai du 29/10/2026, engine/synth.js chargerEchantillons, machines/scie-ruban/sons/*.mp3).
 Les tests headless n'entendent rien : on vérifie que les enregistrements sont intégrés à la page et décodés, et les niveaux calculés
 (à vide 82, en coupe 91 avec l'alerte « attention », casque −25), sans erreur ; capture avec le sonomètre."""

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la déligneuse multilames « KANAK 300 M » (d'après une multilame à tapis de 300 mm,
    arbre au-dessus du tapis). Marque fictive : ne pas afficher la marque réelle.
    Sens de rotation : en opposition, les dents du bas vont vers l'opérateur (+X), contre l'avance.

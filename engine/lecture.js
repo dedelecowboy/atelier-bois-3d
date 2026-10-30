@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Confort de lecture (demandé par l'enseignant le 30/10/2026 : accessibilité, priorité « lecture / dys », pour les besoins réels
    des élèves, PAP / PPS). Bouton « Aa » de l'en-tête → panneau :
      - Police lisible : police sans empattement non condensée (Verdana, Tahoma…, installées sur les postes : RIEN à télécharger,

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* État des réglages de la machine (mm, degrés, tr/min) et références partagées entre les fichiers. */
 import { BLADE_Z, KERF, REG_X, REG_Z0, TABLE_Y, PIECE_Y } from './constants.js';
 

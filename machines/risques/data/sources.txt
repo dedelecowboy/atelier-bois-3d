@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Sources du module « Risques généraux de l'atelier bois » (vérifiées en ligne le 28/10/2026).
 # Ce fichier n'est pas lu par le simulateur : il garde les références exactes citées dans fiches.txt, qcm.txt,
 # dangers.txt et epi.txt. Mettre à jour la date de vérification après chaque relecture.

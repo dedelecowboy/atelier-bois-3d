@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Dossier d'entraînement hors ligne (dist/Atelier_bois_3D_entrainement.zip, demandé par l'enseignant le 29/10/2026) :
 dézippé et ouvert depuis le disque (file://, sans serveur ni internet pour three.js) : l'atelier est la page d'accueil,
 chaque module s'ouvre dans le même onglet par « Ouvrir le simulateur », « ← Atelier » ramène à l'atelier ;

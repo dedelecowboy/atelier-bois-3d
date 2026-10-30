@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la scie radiale (chaîne de débit : tronçonnage des planches brutes avant le délignage).
    - Débit en série : plateau de sapin 2 500 × 27 → bout brut affranchi, puis 4 montants de 550 mm à la butée ;
    - Purge des défauts : plateau de chêne 2 400 × 27 → fente en bout, nœud et gerce éliminés au plus près ;

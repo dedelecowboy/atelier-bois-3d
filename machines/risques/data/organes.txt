@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Équipements de l'atelier (nomenclature du module « Risques généraux »).
 #
 # Comment modifier ce fichier :

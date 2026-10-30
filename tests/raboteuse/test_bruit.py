@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Raboteuse et dégauchisseuse : bruit avec l'ENREGISTREMENT d'une raboteuse-dégauchisseuse (essai du 30/10/2026, engine/sons/rabotage-*.mp3).
 Les tests headless n'entendent rien : enregistrements intégrés et décodés, niveaux calculés (à vide 86 avec l'alerte « attention »,
 en coupe pendant une vraie passe, casque −25), aucune erreur ; captures avec le sonomètre."""

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces sur le chariot : géométrie (polygones convexes en coordonnées locales u, v avec theta, flip, tx, tz),
    maillages, découpe à la lame, cycle de coupe, manipulation par l'élève, pièces débitées.
    Règles validées : aller seulement ; chute évacuée avant le retour du chariot (tous les modes) ;

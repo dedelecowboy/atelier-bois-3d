@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Risques généraux : les quatre scénarios joués comme un élève (panneau « Actions »), sans faute et avec fautes.
 Chaque jeu rend {res: lignes du tableau de contrôle, faults: fautes graves du scénario}."""
 BASE = r"""
