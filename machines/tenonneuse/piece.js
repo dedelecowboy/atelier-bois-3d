@@ -202,6 +202,14 @@ export function tickPass(now, ok){ const dt=Math.min(0.5,now-(cut.tPrev??now)); 
   if(st.cx<=C_END+1e-6) finish();
   return true; }
 const last=q=>q.log[q.log.length-1];
+/* bruit (engine/audio.js) : quels outils sont dans le bois pendant la poussée du chariot (0 / 1 par outil) ; la pièce, large de D(q)
+   le long de X, coupe tant qu'elle est devant l'outil (demi-corde proposée : scie Ø 400 ≈ 120 mm, dérouleurs ≈ 70 mm, toupillage ≈ 90 mm) */
+export function bruitCoupe(){ const out={ scie:0, inf:0, sup:0, tou:0 }, q=cut.mover, R=cut.res; if(cut.phase!=='push'||!q||!R) return out;
+  const x=center(q), w=D(q)/2000, near=(X,r)=>Math.abs(x-X)<w+r;
+  out.scie= R.chute>0 && near(X_SAW,0.12)? 1 : 0;
+  for(const h of ['inf','sup']) out[h]= R.cuts.some(c=>c.h===h) && near(X_DER,0.07)? 1 : 0;
+  out.tou= R.cuts.some(c=>c.h==='tou') && near(X_TOU,0.09)? 1 : 0;
+  return out; }
 function peCuts(P,hs){ const cs=P.cuts.filter(c=>hs.includes(c.h)); if(!cs.length) return; const E=C.endRec(pe.q,'A'); for(const c of cs){ const {h,...k}=c; E.cuts.push(k); } peBuild(); }
 function applyCuts(q,R,hs){ const cs=R.cuts.filter(c=>hs.includes(c.h)); if(!cs.length) return; const E=C.endRec(q,endName(q));
   for(const c of cs){ const {h,...k}=c; E.cuts.push(k); last(q).cuts.push(h); } if(R.ec){ E.ec=true; last(q).ec=true; } build(q); }

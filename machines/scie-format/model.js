@@ -367,5 +367,5 @@ function tick(dt){
   { const wi=spin*dt*2.2*(st.inc?1:0); incBlade.rotation.z += wi; incMotPul.rotation.z += wi*0.022/0.028; } // inciseur : sens inverse de la lame
 }
 
-return { slider, pieceRoot, update, tick, resetScreen(){ screenKey=''; } };
+return { slider, pieceRoot, update, tick, get spin(){ return spin; }, resetScreen(){ screenKey=''; } };
 }

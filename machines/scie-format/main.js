@@ -6,7 +6,8 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { MAIN_KERF } from './constants.js';
+import { MAIN_KERF, BRUIT } from './constants.js';
+import { SCIE } from '../../engine/sons/scie.js';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initSchema } from '../../engine/schema.js';
@@ -25,7 +26,7 @@ initFamilies(app, {
   parts:{ machine:['bati','table','rallonge','moteur','transmission','aspiration','armoire'], outil:['lame','couteau','relevage','inclinaison'],
     inciseur:['inciseur'], regle:['cadre','regle','support'], guide:['guide','sabot'], protection:['protecteur','bras'], chariot:['chariot'], pupitre:['pupitre'] },
   summary:{
-    machine:()=>'',
+    machine:()=>`aspiration ${st.asp?'en marche':'arrêtée'}`,
     outil:()=>`hauteur ${Math.round(st.h)} mm · ${(+st.t).toFixed(1).replace('.',',')}° · ${st.rpm.toLocaleString('fr-FR')} tr/min`,
     regle:()=>`onglet ${(+st.mit).toFixed(1).replace('.',',')}° · butée ${Math.round(st.stop)} mm`,
     guide:()=>`${Math.round(st.r)} mm${st.guideShort?' · règle courte':''}${st.sabot?' · sabot':''}`,
@@ -92,7 +93,7 @@ const fmt = { slide:v=>`${v>0?'+':''}${Math.round(v)} mm`, height:v=>`${Math.rou
 function update(){
   updateCut();
   model.update();
-  $('bsabot').setAttribute('aria-pressed',String(st.sabot));
+  $('bsabot').setAttribute('aria-pressed',String(st.sabot)); $('asp').setAttribute('aria-pressed',String(st.asp));
   $('motor').textContent= st.motor? 'O · Moteur' : 'I · Moteur'; $('pupH').textContent=String(Math.round(st.h)); $('pupT').textContent=(+st.t).toFixed(1).replace('.',',').replace(',0','');
   $('binc').setAttribute('aria-pressed',String(st.inc)); $('binc').textContent=st.inc?'En marche':'Arrêté';
   for(const k of ['incH','incW','incOff']) if(document.activeElement!==$(k)) $(k).value=st[k].toFixed(1);
@@ -116,6 +117,7 @@ for(const [k,key] of [['slide','s'],['height','h'],['tilt','t'],['mit','mit'],['
 }
 $('motor').setAttribute('aria-pressed',String(st.motor));
 document.querySelectorAll('[data-rpm]').forEach(b=>b.onclick=()=>{ st.rpm=+b.dataset.rpm; apply(); });
+$('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
 $('motor').onclick=()=>{ st.motor=!st.motor; $('motor').setAttribute('aria-pressed',String(st.motor)); apply(); };
 /* passe de coupe animée : aller vers −1500, ou retour vers 1450 */
 let passT0=0, passFrom=1450, passTo=-1500;
@@ -129,9 +131,17 @@ for(const [id,k] of [['incH','incH'],['incW','incW'],['incOff','incOff']]) $(id)
 $('gshort').onclick=()=>{ st.guideShort=!st.guideShort; $('gshort').setAttribute('aria-pressed',String(st.guideShort)); apply(); };
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 
+/* ---------- bruit : la lame coupe tant qu'elle est dans la pièce et que le chariot avance (bouton ou curseur, depuis moins de 0,35 s) ---------- */
+let bruitS=st.s, bruitT=-9;
+function bruitEtat(){ const now=performance.now()/1000; if(Math.abs(st.s-bruitS)>0.2){ bruitS=st.s; bruitT=now; }
+  const p=A(), T=p? p.T*1000 : 19, cutNow=cut.inProgress && st.motor && now-bruitT<0.35;
+  return { on:st.motor, rpm:st.rpm, spin:model.spin, cut:cutNow? 1 : 0, charge:Math.max(0.3, T/22), dents:48 }; }
+
 /* ---------- démarrage ---------- */
 window.__scie={ st, pieces:()=>pieces, sAll, cam:(p,t)=>{ stage.setCam(p,t); stage.shadowsDirty?.(); } };   // poignée pour les tests automatiques
 app.start({
+  /* bruit (engine/audio.js) : enregistrements de scie circulaire ; coupe = lame dans la pièce pendant que le chariot avance */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:SCIE, etat:bruitEtat },
   update, alerts:computeAlerts, steps:STEPS,
   loadMode(m){ resetForMode(); LOADERS[m](); if(m==='planche') stage.setView('vop');
     for(const k of ['height','rip','stop']) $(k).value=st[{height:'h',rip:'r',stop:'stop'}[k]];

@@ -41,3 +41,11 @@ export const WORK_MODES = [
   { id:'tenon', label:'Tenonnage au chariot', lot:2 },
   { id:'entraineur', label:'Au guide avec entraîneur', lot:1 },
 ];
+
+/* bruit au poste de l'opérateur, dB(A) (engine/audio.js ; valeurs proposées, À VALIDER par l'enseignant, sources dans CLAUDE.md « Bruit ») :
+   à vide au régime de référence (outil Ø 125 à 9 000 tr/min) : 84 = notice Felder F 3 e-classic, LpA à vide 80 dB(A) + incertitude 4 dB ;
+   en coupe, passe de référence (3 mm, 6 m/min, résineux) : 95 = bas de la fourchette HSE pour une toupie (95 à 100 dB(A)) ;
+   la notice Felder donne 85 + 4 en usinage normalisé (passe légère, outil neuf) : l'atelier réel est plus bruyant. */
+export const BRUIT = { vide:84, coupe:95, rpm:9000 };
+/* dureté pour le bruit de coupe (charge ×) : résineux 1, feuillus durs plus */
+export const BRUIT_DURETE = { sapin:1, epicea:1, pin:1.1, meleze:1.3, frene:1.6, hetre:1.6, chene:2 };

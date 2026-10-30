@@ -15,6 +15,8 @@
      renderExtra()       (facultatif) panneaux propres à la machine (pièces débitées…)
      onPick(hit,hits)    (facultatif) clic dans la 3D (hit : premier organe touché ; hits : tout ce que le rayon traverse) ; rendre true si la machine l'a traité
      onContextRestored() (facultatif) après une perte de contexte WebGL
+     bruit               (facultatif) {niveaux:{vide,coupe,rpm}, etat()} : son synthétisé, sonomètre dB(A), casque antibruit (engine/audio.js) ;
+                         la machine signale les bruits courts par app.bruit.bang('au'|'choc'|'coup'|'rejet')
      (app.families : panneaux de réglage par famille, posés par initFamilies, engine/families.js)
      parcours            {scenarios:[{mode,t,intro,view}], criteria(mode,{dangers,ok}), onStart(), ignore:[codes]} */
 import { createStage } from './stage.js';
@@ -24,6 +26,7 @@ import { createParcours } from './parcours.js';
 import { parseOrganes, parseQcm, parseReperage, parseFiches, checkData } from './data.js';
 import { createFiches } from './fiches.js';
 import { moodleNav, pkg, pkgLock } from './moodlenav.js';
+import { createBruit } from './audio.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -46,7 +49,10 @@ export function createApp(config, raw){
     /* disposition : pres (nomenclature | 3D | réglages), ex (3D | consigne + dock), parcours (SCORM) */
     setUI(u){ $('app').dataset.ui=u; ($(u==='pres'?'presSlot':'dockSlot')).appendChild($('settings'));
       document.querySelectorAll('[data-ui]').forEach(b=>{ if(b.tagName==='BUTTON') b.setAttribute('aria-pressed',String(b.dataset.ui===u)); }); ex.invalidate(); app.apply(); },
-    start(hooks){ H=hooks;
+    start(hooks){
+      /* bruit (engine/audio.js) : sonomètre et son ; alerte « attention » au-dessus de 85 dB(A) sans casque, ajoutée aux alertes de la machine */
+      if(hooks.bruit){ app.bruit=createBruit(app, hooks.bruit); const al=hooks.alerts; hooks={ ...hooks, alerts:()=>{ const a=al(), b=app.bruit.alerte(); return b? a.concat([b]) : a; } }; }
+      H=hooks;
       ex.bind({ ...hooks, apply:app.apply, onAlerts:a=>app.families?.update(a) });
       parc=createParcours(app, {reperage, qcm}, hooks.parcours||{scenarios:[]});
       parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); if(hooks.onPick?.(hit,hits)) return true;
@@ -95,10 +101,10 @@ export function createApp(config, raw){
       if(window.ATELIER_LOCAL){ const b=$('toAtelier'); b.hidden=false; b.title='Revenir à l\'atelier'; b.onclick=()=>{ location.href='../index.html'; }; }   // dossier d'entraînement hors ligne
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
-      stage.run(hooks.tick||(()=>{}));
+      stage.run((dt,now)=>{ hooks.tick?.(dt,now); app.bruit?.tick(); });
       stage.onContext(()=>{ hooks.onContextRestored?.(); app.apply(); });
       /* poignée pour les tests automatiques */
-      window.__atelier={ app, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
+      window.__atelier={ app, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
       window.__ready=true; } };
   return app;
 }

@@ -9,3 +9,8 @@ export const FRAME_X0 = -1.27, FRAME_X1 = -0.62, FRAME_Z0 = SLIDER_Z+0.16, FRAME
 export const REG_L = 3.2, REG_X = FRAME_X0-0.01, REG_Z0 = SLIDER_Z-0.12; // règle de tronçonnage
 export const FENCE_FACE = REG_X + 0.0325;                        // face de travail de la règle (repère chariot)
 export const PIECE_Y = TABLE_Y + 0.004;
+
+/* bruit (engine/audio.js ; enregistrements de scie circulaire engine/sons/scie-*.mp3, 30/10/2026) : dB(A) au poste, valeurs PROPOSÉES, À VALIDER
+   (pas de fiche donnant le niveau d'une scie à format à vide et en coupe ; INRS, fiche « lames de scie silencieuses » : gain jusqu'à 9 dB(A) à vide
+   et 7 en charge, donc des lames ordinaires nettement au-dessus de 85) : à vide 84 (sans alerte, comme la toupie), en coupe 93 (passe de référence). */
+export const BRUIT = { vide:84, coupe:93, rpm:4000 };

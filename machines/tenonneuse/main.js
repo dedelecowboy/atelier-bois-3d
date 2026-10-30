@@ -7,11 +7,15 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { HEADS, HEAD_NAME, HEAD_SHORT, N_HEAD, LT, HINF, EP, DEC, HT, PT, BUT, PROT, ANG, AVANCES, C_HOME } from './constants.js';
+import { HEADS, HEAD_NAME, HEAD_SHORT, N_HEAD, LT, HINF, EP, DEC, HT, PT, BUT, PROT, ANG, AVANCES, C_HOME, BRUIT } from './constants.js';
+import { SCIE, DURETE } from '../../engine/sons/scie.js';
+import rabVide from '../../engine/sons/rabotage-vide.mp3';
+import rabCoupe from '../../engine/sons/rabotage-coupe.mp3';
 import { st, ctx, $, tool, anyRun, BL } from './state.js';
 import { libFor, toolById, marking, speedCheck, edgesOk } from './tools.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
+import { bruitCoupe } from './piece.js';
 import { initPieces, pieces, cut, chariotPiece, atHome, startPass, tickPass, returnChariot, placeAll, pieceTop, aside, take, setKind, orient,
   setZ, zContact, overhang, endInfo, peKey, peRenew, fromFace, lenFace, betweenShoulders, vmap, predict, newPiece, H, D, fmt, dims, sr1, sr2, endName, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, prediction, CHARGE, INTERV, spinning } from './rules.js';
@@ -273,7 +277,17 @@ $('resetPres').onclick=()=>{ if(cut.inProgress) return say('Chariot en mouvement
 
 /* ---------- démarrage ---------- */
 let lastSeq=0;
+/* bruit d'un groupe d'outils : en marche si l'un tourne, régime réel le plus haut, coupe si l'un est dans le bois */
+function bruitEtat(hs, dents){ const c=bruitCoupe(), q=cut.mover, on=hs.some(h=>st.run[h]), cutting=hs.some(h=>c[h]&&model.spin[h]>0.5);
+  return { on, rpm:N_HEAD[hs[0]], spin:Math.max(...hs.map(h=>model.spin[h])), cut:cutting? 1 : 0,
+    charge:Math.max(0.3, st.av/8)*(DURETE[q&&q.wood]||1.6)*(hs.length>1&&hs.every(h=>c[h])? 1.5 : 1), dents }; }
 app.start({
+  /* bruit (engine/audio.js) : trois sources (scie, dérouleurs, unité de toupillage), voir BRUIT dans constants.js
+     (la dernière, sans enregistrements, est jouée par le son synthétisé de la toupie) */
+  bruit:{ aspiration:()=>st.asp, sources:[
+    { nom:'scie', niveaux:BRUIT.scie, echantillons:SCIE, etat:()=>bruitEtat(['scie'], 36) },
+    { nom:'derouleurs', niveaux:BRUIT.der, echantillons:{ vide:rabVide, coupe:rabCoupe }, etat:()=>bruitEtat(['inf','sup'], 4) },
+    { nom:'toupillage', niveaux:BRUIT.tou, etat:()=>bruitEtat(['tou'], 2) } ] },
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=/(Éclats|envers|interrompue|incomplète|coincée)/.test(cut.lastMsg)?'warn':'info'; }
     const a=computeAlerts(); if(st.bl.hInf||st.bl.ep||st.bl.ht) a.push(['warn',`Réglage fait en descendant : le jeu de la vis n'est pas rattrapé, l'outil reste environ ${fmt(BL)} mm plus haut que le compteur. Réglez toujours les dérouleurs en montant : descendez sous la cote, puis remontez.`]); return a; },
   steps:STEPS,

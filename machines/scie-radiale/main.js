@@ -8,7 +8,8 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE, TABLE_X0, TABLE_X1 } from './constants.js';
+import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE, TABLE_X0, TABLE_X1, R as R_LAME, Z_PARK, BRUIT } from './constants.js';
+import { SCIE, DURETE } from '../../engine/sons/scie.js';
 import { st, head, parked, ctx, bladeX, stopX, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, measure, label, fmt, sawThrough, strokeNeeded, setKeep, setKind, evacuate, bringBack, aside, take, toGuide, endForEnd, nudge, clampPiece } from './piece.js';
@@ -194,6 +195,10 @@ function moveHead(dt){
 window.__radiale={ st, head, cut, pieces, measure };   // poignée pour les tests automatiques
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js) : enregistrements de scie circulaire ; coupe = lame tirée, dents passées devant la face du guide (dans la pièce) */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:SCIE, etat(){ const t=onTable(), q=t[0];
+    const inWood=head.mode==='pull' && t.length>0 && head.s*STROKE > FENCE_Z-R_LAME-Z_PARK;
+    return { on:st.motor, rpm:BRUIT.rpm, spin:model.spin, cut:inWood&&st.motor? 1 : 0, charge:q? Math.max(0.3,(q.prof.T||27)/27)*(DURETE[q.prof.wood]||1) : 1, dents:36 }; } },
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level='info'; } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cut.msgSeq; planKey=debitKey=''; if(m!=='libre') stage.setView('vop'); },

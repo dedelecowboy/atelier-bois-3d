@@ -11,7 +11,7 @@ export function renderShell(c, frag){
     <div class="brand"><button class="toggle back-atelier" type="button" id="toAtelier" hidden title="Revenir à l'atelier (votre progression est enregistrée)">← Atelier</button><button class="toggle mode-switch" type="button" id="modeSwitch" hidden></button><h1>${c.title}</h1></div>
     <div class="seg2" role="group" aria-label="Mode d'affichage"><button class="toggle" type="button" data-ui="pres" id="ui-pres">Présentation</button><button class="toggle" type="button" data-ui="ex" id="ui-ex">Exercice</button></div>
     <div class="exsel" role="group" aria-label="Exercice">${modes}</div>
-    <div class="views">${views}<button id="fs" type="button" class="fs-btn" aria-pressed="false" title="Afficher en plein écran (Échap pour quitter)" aria-label="Plein écran">⛶</button></div>
+    <div class="views"><div class="snd" id="snd" hidden><button type="button" class="toggle snd-btn" id="sndBtn" aria-pressed="false" title="Activer le son" aria-label="Activer le son">🔇</button><input type="range" id="sndVol" min="0" max="100" step="5" aria-label="Volume du son" hidden></div>${views}<button id="fs" type="button" class="fs-btn" aria-pressed="false" title="Afficher en plein écran (Échap pour quitter)" aria-label="Plein écran">⛶</button></div>
   </header>
   <aside class="left" id="left">
     <div class="ltabs" id="ltabs" role="tablist" hidden><button type="button" role="tab" class="ltab" data-lt="fiches" id="lt-fiches">Fiches <span id="fichesN"></span></button><button type="button" role="tab" class="ltab" data-lt="parts" id="lt-parts">Nomenclature</button></div>

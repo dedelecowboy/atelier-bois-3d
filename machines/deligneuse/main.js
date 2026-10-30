@@ -8,7 +8,8 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { GREEN, MANCHONS, KERF } from './constants.js';
+import { GREEN, MANCHONS, KERF, BRUIT } from './constants.js';
+import { SCIE } from '../../engine/sons/scie.js';
 import { st, ctx, bladeZ, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, entry, exitPieces, keepPiece, startPass, tickPass, chainSpeed, under, surf, laserKey, load, measure, mirror, take, setKeep, setKind, evacuate, bringBack, aside, flip, endForEnd, toGuide, nudge, clampZ, fmt, label } from './piece.js';
@@ -155,6 +156,9 @@ $('pass').onclick=()=>{ if(cut.inProgress) return; const why=startPass(passBlock
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
+  /* bruit (engine/audio.js) : enregistrements de scie circulaire */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:SCIE, etat(){ const q=cut.src, inWood=cut.inProgress&&st.tapis&&st.motor&&!!q&&q.xLead<0.01&&q.xLead+q.L/1000>0;   // coupe : pièce dans les lames, tapis en marche
+    return { on:st.motor, rpm:BRUIT.rpm, spin:model.spin, cut:inWood? 1 : 0, charge:inWood? Math.max(0.3, load(cut.src)/60) : 1, dents:24 }; } },
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level='info'; } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cut.msgSeq; planKey=ampKey=debitKey=''; if(m!=='libre') stage.setView('vop'); },
