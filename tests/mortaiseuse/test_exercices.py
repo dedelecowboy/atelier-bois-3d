@@ -2,7 +2,7 @@
 1. Changer le bédane : consignation complète (0, cadenas, essai de démarrage), bédane de 10 mm en bon état, serré, essai à vide.
 2. Mortaise à la cote : 10 × 40 × 30 à 9 mm de SR1 et 60 mm du bout, pièce d'essai d'abord ; pièges : taquet de départ après 71,
    vérin devant le bédane, arasement refusé capot fermé.
-3. Série en butée : 4 mortaises 8 × 60 × 37 à 150 mm de chaque bout (butée gauche puis droite), assemblage avec la traverse
+3. Série en butée : 4 mortaises 8 × 60 × 37 à 150 mm de chaque bout (butée gauche puis droite), (l'assemblage avec la traverse se contrôle maintenant à la tenonneuse)
    tenonnée ; pièges : bédane ébréché refusé, taquet 1 pas sur 0, pièce courte.
 4. Gestes refusés : intervention sur le bédane sans consignation, pièce touchée bédane en marche, réglages bédane en marche,
    capot verrouillé, cycle refusé (butée sur le passage, capot ouvert), mortaise transportée par pieceJSON."""

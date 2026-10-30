@@ -59,6 +59,7 @@ export function newPiece(spec){
     if(spec.dress) C.dresseSR(q,spec.dress);
     if(spec.lar){ C.rabote(q,'C1',spec.lar); Object.assign(q.face.C2,{passes:1,rab:true,full:true,angle:{ref:'F1',deg:90}}); }
     if(spec.ep){ C.rabote(q,'F1',spec.ep); Object.assign(q.face.F2,{passes:1,rab:true,full:true}); }
+    if(spec.morts) q.morts=spec.morts(q);      // pièce déjà mortaisée (montant venu de la mortaiseuse)
     q.k=spec.k||0; q.flip=!!spec.flip; }
   pieces.push(q);
   if(q.state==='chariot'){ placeDefault(q); build(q); }

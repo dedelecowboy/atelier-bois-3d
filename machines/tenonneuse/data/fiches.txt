@@ -11,7 +11,7 @@
 # Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
 
 ## À quoi sert la tenonneuse ? | scie, der_sup, der_inf, toupie, chariot
-La tenonneuse usine les bouts des pièces corroyées : tenons, enfourchements, épaulements. Elle vient après le corroyage, pour les assemblages des cadres (montants et traverses).
+La tenonneuse usine les bouts des pièces corroyées : tenons, enfourchements, épaulements. Elle vient après le corroyage, pour les assemblages des cadres (montants et traverses). Les mortaises sont faites avant : on ajuste le tenon à la mortaise, en essayant la pièce d'essai dans un montant mortaisé.
 - La pièce est serrée sur un chariot qu'on pousse devant les outils.
 - La scie d'affranchissement met la pièce à longueur (longueur du tenon).
 - Les dérouleurs inférieur et supérieur font les joues du tenon.

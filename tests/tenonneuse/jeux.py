@@ -83,7 +83,7 @@ ENFOURCHEMENT = BASE + r"""
 
 ATTENDU = {
   'tenon': [['Épaisseur du tenon 9,0 ± 0,1 mm (pied à coulisse)','9,0 mm'],['Tenon à 9,0 ± 0,1 mm de SR1 (pied à coulisse)','9,0 mm'],['Longueur des joues 40,0 ± 0,5 mm (réglet)','40,0 / 40,0 mm'],['Arasements nets, sans éclat','nets'],['Réglé depuis SR1 (table) et SR2 (guide)','oui']],
-  'serie': [['Tenons conformes aux deux bouts (8,0 à 8,0 de SR1, joues 35,0)','3 / 3'],['Longueur entre arasements 500,0 ± 0,5 mm','3 / 3 (500,0 ; 500,0 ; 500,0)'],['SR1 sur la table à chaque passe (même référence aux deux bouts)','oui'],['Arasements nets, sans éclat','oui'],["Pièce d'essai usinée et contrôlée",'oui']],
+  'serie': [['Tenons conformes aux deux bouts (8,0 à 8,0 de SR1, joues 35,0)','3 / 3'],['Longueur entre arasements 500,0 ± 0,5 mm','3 / 3 (500,0 ; 500,0 ; 500,0)'],['SR1 sur la table à chaque passe (même référence aux deux bouts)','oui'],['Arasements nets, sans éclat','oui'],["Pièce d'essai : le tenon entre dans la mortaise du montant",'oui']],
   'enfourchement': [['Enfourchements de 9,0 ± 0,1 mm à 9,0 ± 0,1 mm de SR1','2 / 2'],['Profondeur 40,0 ± 0,5 mm','2 / 2 (40,0 ; 40,0)'],['Pièce de 200 mm écartée, non usinée','oui'],['Vitesse ≤ n max des outils à chaque passe','oui'],['Sans éclat, joues intactes','oui']],
 }
 JEUX = {'tenon': TENON, 'serie': SERIE, 'enfourchement': ENFOURCHEMENT}

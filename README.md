@@ -6,7 +6,7 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 
 ## Atelier
 
-Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : l'atelier menuiserie du lycée d'après son plan (`atelier/plan.js`, relevé avec l'outil de placement), les neuf modules à leur place réelle (plus « 0. Risques généraux » en tête de la liste), les autres machines en modèles simplifiés, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la version Moodle (machines déverrouillées une à une).
+Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : l'atelier menuiserie du lycée d'après son plan (`atelier/plan.js`, relevé avec l'outil de placement), les neuf modules à leur place réelle (plus « 0. Risques généraux » en tête de la liste), les autres machines en modèles simplifiés, la chaîne de débit et de corroyage peinte au sol (jusqu'à la raboteuse), une fiche par poste avec le lien vers son simulateur, et un aperçu de la version Moodle (machines déverrouillées une à une).
 
 ## Machines
 
@@ -88,7 +88,7 @@ Usinage des bouts des pièces corroyées : affranchissement à longueur, tenons,
 
 - **Présentation** : nomenclature de 37 organes, avec les repères du cours « La tenonneuse » du lycée (chariot, table, guide, presse, pupitre, capot, scie, dérouleurs, unité de toupillage, filin et boîtier sectionneur, compteurs de réglage, pare-éclat, graduation angulaire, butée à 90°, butée de longueur…), vue intérieure, vues prédéfinies (outils de près, chariot vu de dessus, bout de la pièce, pupitre), bouton « Pièce à l'entrée ».
 - **Réglages** : bibliothèque d'outils par arbre (lame, dérouleurs ↺ et ↻, fraises à enfourcher, avec leur marquage Ø, n max, MAN, sens) montés machine consignée, capot ouvert, carters déposés, arbre bloqué ; longueur du tenon à la scie, décalage des arasements et profondeur de toupillage sous le capot (sélecteur « Ouverture capot », temporisation) ; hauteur de la joue, épaisseur du tenon et hauteur de toupillage sur le dessus, toujours en montant ; butée de longueur, protecteur avant, pare-éclat à renouveler et usiner à vide, presse, verrouillage du chariot, avance, position des mains. Une vue de côté montre les outils, le bout de la pièce et, en tirets, ce que fera la passe.
-- **Exercices guidés** : tenon simple sur une traverse corroyée (9 × 40 à 9 mm de SR1) ; série de traverses tenonnées aux deux bouts, 500 mm entre arasements (pièce d'essai, butée contre l'arasement, SR1 toujours sur la table) ; enfourchements avec une machine préparée par un autre groupe (fraise trop lente pour l'arbre) et une pièce trop courte à écarter. Contrôle au pied à coulisse et au réglet, éclats, référence.
+- **Exercices guidés** : tenon simple sur une traverse corroyée (9 × 40 à 9 mm de SR1) ; série de traverses tenonnées aux deux bouts, 500 mm entre arasements (pièce d'essai ajustée à la mortaise d'un montant déjà mortaisé, butée contre l'arasement, SR1 toujours sur la table) ; enfourchements avec une machine préparée par un autre groupe (fraise trop lente pour l'arbre) et une pièce trop courte à écarter. Contrôle au pied à coulisse et au réglet, éclats, référence.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 - Non simulés : tenons biais (guide orienté), contre-profil.
 
@@ -105,7 +105,7 @@ Hors chaîne de débit : chantournage et refente. Machine de synthèse (proporti
 Hors chaîne de débit : mortaises à bédane oscillant horizontal, en face des tenons de la tenonneuse.
 
 - **Présentation** : nomenclature de 31 organes (repères du cours), râtelier de bédanes, règle de profondeur (référence 71), taquets de la table, vérins hydrauliques serrés à deux mains.
-- **Exercices guidés** : changer le bédane machine consignée (bédane ébréché à refuser), mortaise à la cote après une pièce d'essai, série en butée aux deux bouts d'un montant et assemblage avec une traverse tenonnée.
+- **Exercices guidés** : changer le bédane machine consignée (bédane ébréché à refuser), mortaise à la cote après une pièce d'essai, série en butée aux deux bouts d'un montant. La mortaise se fait avant le tenon : l'assemblage se contrôle à la tenonneuse.
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 
 ## Corriger les QCM, la nomenclature ou le repérage
@@ -133,7 +133,7 @@ npm run build
 ```
 
 Dans `dist/` :
-- `Atelier_bois_3D_SCORM12.zip` (et `…_sans_verrous.zip`) : le **paquetage unique** pour Moodle (atelier, « 0. Risques généraux », puis les 9 machines ; entraînement et évaluation dans chaque machine, verrous dans l'ordre de la chaîne de débit) ;
+- `Atelier_bois_3D_SCORM12.zip` (et `…_sans_verrous.zip`) : le **paquetage unique** pour Moodle (atelier, « 0. Risques généraux », puis les 9 machines ; entraînement et évaluation dans chaque machine ; verrous : risques généraux, puis scie radiale → déligneuse → dégauchisseuse → raboteuse ; après la raboteuse, toupie, mortaiseuse et tenonneuse sont ouvertes ensemble ; scie à format et scie à ruban ouvertes dès les risques généraux) ;
 - `Atelier_bois_3D_entrainement.zip` : le **dossier d'entraînement hors ligne** (sans note ni Moodle), à dézipper et ouvrir par `index.html` (l'atelier), sur clé USB ou poste sans internet ;
 - `Attestations_atelier_bois_3D.html` : l'outil des attestations (à ouvrir dans le navigateur, on y dépose le rapport Moodle exporté en Excel) ;
 - `atelier.html`, `risques.html` et une page par machine (`scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html`, `tenonneuse.html`, `scie-ruban.html`, `mortaiseuse.html`) : les pages autonomes (three.js chargé depuis Internet) ;

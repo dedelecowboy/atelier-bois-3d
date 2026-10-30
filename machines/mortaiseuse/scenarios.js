@@ -26,7 +26,8 @@ const okM=(m,th,pos,len)=>!!m && near(m.th,th,0.1) && near(fromFace(m,'F1'),pos,
 const ecM=q=>morts(q).some(m=>m.ec);
 
 /* traverse tenonnée à la tenonneuse (scénario « Série » de la tenonneuse : hêtre 600 × 60 × 24, tenons 8 × 35 à 8 mm de SR1,
-   sur toute la largeur), pour le contrôle de l'assemblage */
+   sur toute la largeur) : plus contrôlée ici depuis le 30/10/2026 (la mortaise se fait avant le tenon : l'assemblage se contrôle à la
+   tenonneuse) ; gardée pour window.__mortaise.assemble et les tests */
 export function traverse(){ const q=C.makePiece({L:600,W:62,T:26,wood:'hetre',seed:5}); C.dresseSR(q,{s1:'F1',s2:'C1'}); C.rabote(q,'C1',60); C.rabote(q,'F1',24);
   const lo=q.w1[0], B=C.BIG; q.ends={ A:{cuts:[{d0:0,d1:35,ax:'w',a:-B,b:lo+8,k:'joue'},{d0:0,d1:35,ax:'w',a:lo+16,b:B,k:'joue'}],ec:false} }; return q; }
 const TENON=()=>tenonOf(traverse(),'A');
@@ -58,12 +59,12 @@ function rows(mode){ const r=[];
     const M=B.flatMap(q=>['A','B'].map(e=>mAt(q,e)));
     const nS=M.filter(m=>okM(m,8,8,60)).length, nD=M.filter(m=>m&&near(nearEnd(m).d,150,0.5)).length, nP=M.filter(m=>m&&near(m.dep,37,0.5)&&!m.through).length;
     const c=lot.c, courte=c.state==='stock'&&c.kind==='interdite'&&!C.hasMorts(c);
-    const me=lot.e&&morts(lot.e)[0], F=me? fit(me,TENON(),sr1(lot.e)||'F1','F1') : null, ass=!!F&&F.ok&&lot.e.state==='stock';
+    const me=lot.e&&morts(lot.e)[0], essai=!!me&&okM(me,8,8,60)&&near(me.dep,37,0.5)&&!me.through&&lot.e.state==='stock';
     r.push(['4 mortaises de 8,0 mm à 8,0 ± 0,2 mm de SR1, longueur 60,0 ± 0,5',`${nS} / 4`,nS===4],
       ['À 150,0 ± 0,5 mm de chaque bout',`${nD} / 4${M.some(Boolean)?' ('+M.map(m=>m?fmt(nearEnd(m).d):'—').join(' ; ')+')':''}`,nD===4],
       ['Profondeur 37,0 ± 0,5 mm (tenon de 35 + 2 mm)',`${nP} / 4`,nP===4],
       ['Montant de 220 mm écarté, non mortaisé',yes(courte,'oui',C.hasMorts(c)?'mortaisé':'non classé'),courte],
-      ['Pièce d\'essai : le tenon de la traverse entre (assemblage)',F? (F.ok?'oui':F.why) : 'pas d\'essai',ass]); }
+      ['Pièce d\'essai mortaisée aux cotes et contrôlée',me? (essai?'oui':'hors cotes') : 'pas d\'essai',essai]); }
   return {rows:r}; }
 
 /* ---------- pièces de départ (corroyées : SR1 = F1 dessous, SR2 = C1 contre le guide) ---------- */
@@ -161,9 +162,9 @@ export const STEPS={
     {k:'Lot', t:'Contrôler le lot',
       c:'Regardez chaque pièce du lot (« Pièces débitées »). Une pièce de moins de 300 mm n\'est pas tenue par les quatre vérins loin du bédane : marquez-la « Pas à la mortaiseuse ».',
       checks:[['Montant de 220 mm écarté',()=>lot.c.state==='stock'&&lot.c.kind==='interdite']], done:all},
-    {k:'Essai', t:'Pièce d\'essai et assemblage',
-      c:'Pièce d\'essai contre la butée gauche, SR1 sur la table, SR2 contre le guide, vérins sur la pièce et hors de la course du bédane, en pression ; cycle automatique. Desserrez, « Voir les mortaises » : le tenon de la traverse doit entrer. Mettez-la de côté.',
-      checks:[['Pièce d\'essai mortaisée',()=>!!lot.e&&C.hasMorts(lot.e)],['Le tenon de la traverse entre',()=>{ const m=morts(lot.e)[0]; return !!m&&fit(m,TENON(),'F1','F1').ok; }],['Pièce d\'essai mise de côté',()=>lot.e.state==='stock']], done:all},
+    {k:'Essai', t:'Pièce d\'essai',
+      c:'Pièce d\'essai contre la butée gauche, SR1 sur la table, SR2 contre le guide, vérins sur la pièce et hors de la course du bédane, en pression ; cycle automatique. Desserrez, « Voir les mortaises » : contrôlez l\'épaisseur (8), la position depuis SR1 (8), la longueur (60) et la profondeur (37). Mettez-la de côté. La mortaise se fait avant le tenon : les traverses seront tenonnées ensuite, à la tenonneuse, et leur tenon ajusté à ces mortaises.',
+      checks:[['Pièce d\'essai mortaisée',()=>!!lot.e&&C.hasMorts(lot.e)],['Mortaise d\'essai aux cotes (8 × 60 × 37 à 8 de SR1)',()=>{ const m=morts(lot.e)[0]; return !!m&&okM(m,8,8,60)&&near(m.dep,37,0.5)&&!m.through; }],['Pièce d\'essai mise de côté',()=>lot.e.state==='stock']], done:all},
     {k:'Premier bout', t:'Premier bout : butée gauche',
       c:'Pour chaque montant : « Contre la butée gauche », vérins en pression, cycle, desserrez, mettez de côté.',
       checks:[['Montant 1 : mortaise côté butée gauche',()=>!!mAt(lot.a,'A')],['Montant 2 : mortaise côté butée gauche',()=>!!mAt(lot.b,'A')]], done:all},
@@ -171,18 +172,18 @@ export const STEPS={
       c:'Relevez la butée gauche, abaissez la butée droite. Posez chaque montant « Contre la butée droite », sans le retourner : SR1 reste sur la table, SR2 contre le guide. La distance se mesure alors depuis le bout droit, avec les mêmes taquets.',
       checks:[['Montant 1 : mortaise à l\'autre bout',()=>!!mAt(lot.a,'B')],['Montant 2 : mortaise à l\'autre bout',()=>!!mAt(lot.b,'B')]], done:all},
     fin,
-    ctrl('Contrôlez la série : épaisseur, arasement et longueur au pied à coulisse, distances et profondeurs au réglet, assemblage avec une traverse.',()=>rows('serie'))],
+    ctrl('Contrôlez la série : épaisseur, arasement et longueur au pied à coulisse, distances et profondeurs au réglet. Les tenons des traverses seront ajustés à ces mortaises, à la tenonneuse.',()=>rows('serie'))],
 };
 
 /* ---------- parcours évalué : 3 scénarios, 5 critères de 4 points ---------- */
 export const SCENS=[
   {mode:'bedane', view:'vbed', t:'Changer le bédane', intro:'Le bédane monté ne convient pas : consignez la machine, choisissez un bédane de 10 mm en bon état, montez-le, serrez-le, remettez en service et faites un essai à vide.'},
   {mode:'simple', view:'vop', t:'Mortaise à la cote', intro:'Une mortaise de 10 × 40 × 30 mm à 9 mm de SR1 et 60 mm du bout, en suivant la procédure de réglage, avec une pièce d\'essai. La machine a été laissée par un autre groupe : vérifiez tout.'},
-  {mode:'serie', view:'vop', t:'Série en butée', intro:'Mortaises aux deux bouts de deux montants, assorties aux traverses tenonnées : bédane à changer, deux plongées, butée gauche puis butée droite, pièce d\'essai, lot à contrôler.'},
+  {mode:'serie', view:'vop', t:'Série en butée', intro:'Mortaises aux deux bouts de deux montants (les traverses seront tenonnées ensuite, ajustées à ces mortaises) : bédane à changer, deux plongées, butée gauche puis butée droite, pièce d\'essai, lot à contrôler.'},
 ];
 export function scenCriteria(m,{dangers,ok}){ const sec=['Aucune faute grave',`${dangers}`,ok];
   const R=rows(m); if(!R.rows) return [['Pièce','—',false],['Pièce','—',false],['Pièce','—',false],['Pièce','—',false],sec];
   const r=R.rows;
   if(m==='bedane') return [r[0],r[1],r[2],r[3],sec];
   if(m==='simple') return [r[0],r[1],r[2],['Pièce d\'essai, bords nets',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec];
-  return [r[0],r[1],r[2],['Lot contrôlé, assemblage vérifié',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec]; }
+  return [r[0],r[1],r[2],['Lot contrôlé, pièce d\'essai aux cotes',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec]; }

@@ -149,10 +149,15 @@ async function buildAtelier(){
    SCORM ; le carnet de notes n'a qu'une colonne (méthode conseillée : « Objets d'apprentissage » = machines validées).
    Deux versions : avec verrous (prérequis : la machine précédente de la chaîne de débit réussie) et sans verrous. */
 const BUILT = {};
-const PKG_ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format', 'scie-ruban', 'mortaiseuse'];
-const PKG_PREREQ = { 'scie-radiale': 'risques', 'scie-format': 'risques', 'scie-ruban': 'risques', mortaiseuse: 'risques', deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', tenonneuse: 'toupie' };
+/* ordre et verrous (décidés par l'enseignant le 30/10/2026) : risques généraux, puis la chaîne de débit et de corroyage
+   (scie radiale → déligneuse → dégauchisseuse → raboteuse) ; après la raboteuse, tout est ouvert : la suite dépend des pièces
+   (toupie, mortaiseuse, tenonneuse ; la mortaise se fait avant le tenon, car on ajuste le tenon à la mortaise : c'est dans les
+   exercices, pas dans les verrous) ; scie à format et scie à ruban ouvertes dès les risques généraux */
+const PKG_ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'mortaiseuse', 'tenonneuse', 'scie-format', 'scie-ruban'];
+const PKG_PREREQ = { 'scie-radiale': 'risques', 'scie-format': 'risques', 'scie-ruban': 'risques', deligneuse: 'scie-radiale', degauchisseuse: 'deligneuse', raboteuse: 'degauchisseuse', toupie: 'raboteuse', mortaiseuse: 'raboteuse', tenonneuse: 'raboteuse' };
 const PKG_ATELIER = 'Atelier';
-/* numérotation : « 0. Risques généraux », puis les machines de 1 à 7 (titres inchangés depuis le premier essai Moodle), « 8. Scie à ruban » et « 9. Mortaiseuse » (hors chaîne de débit, comme la scie à format) */
+/* numérotation (depuis le 30/10/2026) : « 0. Risques généraux », 1. Scie radiale … 4. Raboteuse, 5. Toupie, 6. Mortaiseuse, 7. Tenonneuse,
+   8. Scie à format, 9. Scie à ruban (les identifiants des éléments ne changent pas : les notes déjà enregistrées restent à leur machine) */
 const pkgTitle = (id, i) => `${BUILT.risques ? i : i + 1}. ${BUILT[id].config.title}`;
 const itemId = id => 'ITEM_' + BUILT[id].config.scorm.code;
 function buildPackage(lock){
