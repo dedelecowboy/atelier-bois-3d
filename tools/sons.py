@@ -12,6 +12,10 @@ Timber Planer Thicknesser Machine » (silence 0–2,5 s, à vide 2,5–4,5 s, us
 Scies circulaires (scie à format, scie radiale, déligneuse, scie de la tenonneuse ; fourni le 30/10/2026) :
   switch.mp3 = « audiopapkin-table-saw-switch-on-off-326820 » (mise en marche à 0,1 s, régime établi 1,5–4 s, arrêt et frein 4–7,6 s) ;
   circ.mp3 = « freesound_community-circ_saw-03-87937 » (coupe continue 0,25–4,1 s) → engine/sons/scie-*.mp3.
+Mortaiseuse (fourni le 30/10/2026) : mort.mp3 = « Bedanatrice_MasterWood_OMB_1 » (mise en route du groupe hydraulique 6,0 s,
+  pompe 7–9 s, pompe qui force au serrage des vérins 10,5–13 s, moteur du bédane 13 s, à vide 14–19,8 s, plongée en usinage 20–30 s,
+  sortie de la matière 30–31,5 s, arrêt 31,5–34,5 s) → engine/sons/mortaise-*.mp3 (lus seulement par la mortaiseuse : rangés avec les autres).
+Usage : python3 tools/sons.py mortaise <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py scie <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py rabotage <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py ruban <dossier des enregistrements> machines/scie-ruban/sons
@@ -69,4 +73,15 @@ def scie():
     save(loop(seg(x,1.5,3.95)*g,0.3),'scie-vide',48)
     save(fade(seg(x,3.95,7.6)*g,0.2,0.3),'scie-arret',48)
     save(loop(norm(seg(c,0.25,4.15)),0.35),'scie-coupe',48)
-{'scie':scie,'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()
+def mortaise():
+    x=hp(load(os.path.join(S,'mort.mp3')))
+    gp=10**(-20/20)/rms(seg(x,7.0,9.0))            # pompe : mise en route et régime au même gain
+    save(fade(seg(x,5.9,7.2)*gp,0.01,0.3),'mortaise-pompe-demarrage',40)
+    save(loop(seg(x,7.0,9.0)*gp,0.3),'mortaise-pompe',40)
+    save(loop(norm(seg(x,10.5,13.0)),0.3),'mortaise-pompe-force',40)
+    gb=10**(-20/20)/rms(seg(x,14.0,19.8))          # bédane : démarrage, à vide et arrêt au même gain
+    save(fade(seg(x,13.0,14.4)*gb,0.01,0.3),'mortaise-demarrage',48)
+    save(loop(seg(x,14.0,19.8)*gb,0.35),'mortaise-vide',48)
+    save(loop(norm(seg(x,20.0,31.4)),0.4),'mortaise-coupe',48)
+    save(fade(seg(x,31.4,34.6)*gb,0.1,0.4),'mortaise-arret',48)
+{'mortaise':mortaise,'scie':scie,'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()

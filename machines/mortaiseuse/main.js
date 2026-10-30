@@ -7,7 +7,15 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { BEDANES, bedById, REF0, OSC, ARAS, RULE_P, RULE_T, VER, PROF_MAX, BED_T, PAD_R, VER_MARGE } from './constants.js';
+import { BEDANES, bedById, REF0, OSC, ARAS, RULE_P, RULE_T, VER, PROF_MAX, BED_T, PAD_R, VER_MARGE, BRUIT, BRUIT_DURETE, SERRAGE_S } from './constants.js';
+/* enregistrement de la mortaiseuse (fourni par l'enseignant le 30/10/2026, tools/sons.py mortaise ; licence À VÉRIFIER) */
+import sPompeDem from '../../engine/sons/mortaise-pompe-demarrage.mp3';
+import sPompe from '../../engine/sons/mortaise-pompe.mp3';
+import sPompeForce from '../../engine/sons/mortaise-pompe-force.mp3';
+import sBedDem from '../../engine/sons/mortaise-demarrage.mp3';
+import sBedVide from '../../engine/sons/mortaise-vide.mp3';
+import sBedCoupe from '../../engine/sons/mortaise-coupe.mp3';
+import sBedArret from '../../engine/sons/mortaise-arret.mp3';
 import { st, ctx, $, tool, taquets } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
@@ -262,13 +270,22 @@ function doOp(op){
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 $('resetPres').onclick=()=>{ if(cyc.on) return say('Cycle en cours : attendez la fin du cycle.'); app.ex.setMode(app.ex.mode); info('Pièce de départ remise sur la table, machine arrêtée.'); };
 
+/* ---------- bruit ---------- */
+let pSpin=0, pT=null, pressT=-99, pressWas=false;
+function pompeEtat(){ const now=performance.now()/1000, dt=Math.min(0.5, pT==null? 0 : now-pT); pT=now;
+  const on=st.on&&st.main&&!st.au&&!st.cad; pSpin+=((on?1:0)-pSpin)*Math.min(1,dt/(on?0.25:0.6)); if(!on&&pSpin<0.003) pSpin=0;
+  if(st.press&&!pressWas) pressT=now; pressWas=st.press;                     // la pompe force pendant le serrage des vérins
+  return { on, rpm:BRUIT.pompe.rpm, spin:pSpin, cut:on&&now-pressT<SERRAGE_S? 1 : 0, charge:1, dents:1 }; }
+function bedEtat(){ const on=st.bed&&st.on&&!st.au&&st.main&&!st.cad, q=onTable(), inWood=cyc.on&&!cyc.empty&&st.R>REF0&&(cyc.phase==='in'||cyc.phase==='out');
+  return { on, rpm:BRUIT.bed.rpm, spin:model.amp, cut:inWood? 1 : 0, charge:(cyc.phase==='in'? 1 : 0.4)*(BRUIT_DURETE[q&&q.wood]||1), dents:1 }; }
+
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
-  /* bruit (engine/audio.js) : pour l'instant le son de l'aspiration seul (commun à toutes les machines) ; le son de la machine,
-     le sonomètre et le casque (niveaux, etat) seront ajoutés quand l'enseignant aura validé le rendu de la toupie :
-     bruit:{ aspiration, niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } } */
-  bruit:{ aspiration:()=>st.asp },
+  /* bruit (engine/audio.js) : deux sources enregistrées, le groupe hydraulique (qui force au serrage des vérins) et le bédane */
+  bruit:{ aspiration:()=>st.asp, sources:[
+    { nom:'pompe', niveaux:BRUIT.pompe, echantillons:{ demarrage:sPompeDem, vide:sPompe, coupe:sPompeForce }, etat:pompeEtat },
+    { nom:'bedane', niveaux:BRUIT.bed, echantillons:{ demarrage:sBedDem, vide:sBedVide, coupe:sBedCoupe, arret:sBedArret }, etat:bedEtat } ] },
   update, alerts:()=>{ if(cyc.seq!==lastSeq){ lastSeq=cyc.seq; F.msg=cyc.msg; F.level=/(éclat|interrompu|pas touché)/.test(cyc.msg)?'warn':'info'; onCycleEnd(); } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cyc.seq; profKey=debitKey=planKey=''; pick=null; F.msg=''; renderLib(); if(m!=='libre') stage.setView(m==='bedane'?'vbed':'vop'); },

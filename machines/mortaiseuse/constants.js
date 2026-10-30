@@ -46,3 +46,11 @@ export const BEDANES = [
   { id:'b16', E:16, n:'Bédane 16 mm', etat:'ok' },
 ];
 export const bedById = id=>BEDANES.find(b=>b.id===id)||null;
+
+/* bruit (engine/audio.js ; enregistrement d'une mortaiseuse à bédane oscillant fourni par l'enseignant le 30/10/2026, engine/sons/mortaise-*.mp3) :
+   deux sources, dB(A) au poste PROPOSÉS, À VALIDER (sans mesure ; écarts relevés dans l'enregistrement : bédane à vide ≈ pompe + 16 dB,
+   pompe qui force au serrage ≈ bédane − 5 dB, usinage ≈ bédane à vide + 3 dB) :
+   groupe hydraulique (pompe) à vide 66, au serrage des vérins 77 ; bédane à vide 82, en usinage 88 (passe de référence : hêtre). */
+export const BRUIT = { pompe:{ vide:66, coupe:77, rpm:1500 }, bed:{ vide:82, coupe:88, rpm:1500 } };
+export const BRUIT_DURETE = { sapin:0.6, epicea:0.6, pin:0.7, meleze:0.8, frene:1, hetre:1, chene:1.25 };
+export const SERRAGE_S = 2.2;                    // la pompe force pendant le serrage des vérins (s)

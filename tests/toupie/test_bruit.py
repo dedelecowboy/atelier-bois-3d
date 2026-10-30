@@ -5,7 +5,7 @@
 - alerte « attention » (pas une faute) au-dessus de 85 dB(A) en marche sans casque, plus avec le casque ;
 - son activé : AudioContext créé au clic, aucune erreur ; sans AudioContext : message, sonomètre toujours là, aucune erreur ;
 - aspiration (commune à toutes les machines) : niveau propre, ventilateur qui monte et ralentit ; sur une autre machine (raboteuse) :
-  bouton du son et aspiration, pas de sonomètre (mortaiseuse) ;
+  bouton du son et aspiration enregistrée sur une autre machine (mortaiseuse) ;
 - banc d'écoute dist/Ecoute_bruit.html : se lance, son, moteur, passe, éditeur des sons (curseurs entendus tout de suite, texte à copier, retour aux réglages actuels), aucune erreur ;
 - captures ordinateur et téléphone avec le sonomètre visible."""
 import os, sys, asyncio
@@ -122,14 +122,14 @@ async def main():
         check(r['noVar'], 'son de coupe choisi (« rugissement ») : plus de liste de choix dans l\'en-tête')
         check(not pg.errors, 'coupe avec le son et l\'aspiration : aucune erreur ' + '; '.join(pg.errors))
 
-    # autre machine sans son propre (mortaiseuse) : le son de l'aspiration seulement (pas de sonomètre)
+    # autre machine (mortaiseuse, sons enregistrés depuis le 30/10/2026) : l'aspiration enregistrée se joue aussi, sans alerte machine arrêtée
     async with Page('mortaiseuse') as pg:
         r = await pg.eval(js(r"""
           const Bz=window.__atelier.bruit; const out={ has:!!Bz, sono:!!$('sono'), btn:!$('snd').hidden };
           $('sndBtn').click(); await sleep(300); $('asp').click(); { let n=0; while((Bz.asp<0.6||!Bz.aspEnregistree)&&n<100){ await sleep(100); n++; } }
           out.on=Bz.on; out.asp=Bz.asp; out.alert=Bz.alerte(); out.rec=Bz.aspEnregistree;
           return out;"""))
-        check(r['has'] and r['btn'] and not r['sono'], 'mortaiseuse : bouton du son, pas de sonomètre')
+        check(r['has'] and r['btn'] and r['sono'], 'mortaiseuse : bouton du son et sonomètre')
         check(r['on'] and r['asp'] > 0.5 and r['rec'] and r['alert'] is None, f'mortaiseuse : aspiration enregistrée décodée et jouée (ventilateur {r["asp"]:.2f}), pas d\'alerte bruit')
         check(not pg.errors, 'mortaiseuse : aucune erreur ' + '; '.join(pg.errors))
 
