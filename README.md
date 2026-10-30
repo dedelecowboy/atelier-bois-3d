@@ -6,21 +6,21 @@ Julien ANDRE – Lycée André MALRAUX – REMIREMONT
 
 ## Atelier
 
-Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : l'atelier menuiserie du lycée d'après son plan (`atelier/plan.js`, relevé avec l'outil de placement), les sept modules à leur place réelle, les autres machines en modèles simplifiés, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la version Moodle (machines déverrouillées une à une).
+Page d'entrée en 3D (`atelier/`, `npm run build atelier` → `dist/atelier.html`) : l'atelier menuiserie du lycée d'après son plan (`atelier/plan.js`, relevé avec l'outil de placement), les neuf modules à leur place réelle (plus « 0. Risques généraux » en tête de la liste), les autres machines en modèles simplifiés, la chaîne de débit peinte au sol, une fiche par poste avec le lien vers son simulateur, et un aperçu de la version Moodle (machines déverrouillées une à une).
 
 ## Machines
 
 | Machine | État | Dossier |
 |---|---|---|
 | Scie à format « KANAK 550 » | en service | `machines/scie-format/` |
-| Dégauchisseuse « KANAK 520 D » | en essai | `machines/degauchisseuse/` |
-| Déligneuse multilames « KANAK 300 M » | en essai | `machines/deligneuse/` |
-| Scie radiale « KANAK 900 R » | en essai | `machines/scie-radiale/` |
-| Raboteuse « KANAK 630 E » | en essai | `machines/raboteuse/` |
-| Toupie « KANAK 130 T » (lot 1 : travail au guide) | en essai | `machines/toupie/` |
-| Tenonneuse à dérouleurs « KANAK 160 TN » | en essai | `machines/tenonneuse/` |
-| Scie à ruban « KANAK 800 RB » | en essai | `machines/scie-ruban/` |
-| Mortaiseuse à bédane oscillant « KANAK 130 MB » | en essai | `machines/mortaiseuse/` |
+| Dégauchisseuse « KANAK 520 D » | en service | `machines/degauchisseuse/` |
+| Déligneuse multilames « KANAK 300 M » | en service | `machines/deligneuse/` |
+| Scie radiale « KANAK 900 R » | en service | `machines/scie-radiale/` |
+| Raboteuse « KANAK 630 E » | en service | `machines/raboteuse/` |
+| Toupie « KANAK 130 T » (lot 1 : travail au guide) | en service | `machines/toupie/` |
+| Tenonneuse à dérouleurs « KANAK 160 TN » | en service | `machines/tenonneuse/` |
+| Scie à ruban « KANAK 800 RB » | en service | `machines/scie-ruban/` |
+| Mortaiseuse à bédane oscillant « KANAK 130 MB » | en service | `machines/mortaiseuse/` |
 
 ## Risques généraux de l'atelier (module sécurité, élément « 0 » du paquetage Moodle)
 
@@ -31,7 +31,12 @@ Module à faire avant les machines, sur la salle entière de l'atelier (`machine
 - **Parcours évalué (SCORM)** : repérage de 15 équipements, QCM de 20 questions, 4 scénarios notés sur 15. Note sur 100, réussite à 70 sans faute grave. Dans le paquetage unique, il doit être réussi avant les machines.
 - Emplacements des équipements proposés : à vérifier sur le plan d'évacuation de l'atelier.
 
-Dans chaque machine, le schéma de principe du réglage s'affiche sur la vue 3D dès qu'on touche un réglage, puis disparaît au bout de 6 s ; le bouton « Schéma du réglage : afficher » le garde à l'écran.
+## Commun à toutes les machines
+
+- **Fiches de la machine** (8 par machine, 10 pour les risques généraux) : à lire avant l'évaluation, qui reste fermée tant qu'elles ne sont pas toutes lues ; la date de lecture est envoyée à Moodle.
+- **Schéma du réglage** : il s'affiche sur la vue 3D dès qu'on touche un réglage, puis disparaît au bout de 6 s ; le bouton « Schéma du réglage : afficher » le garde à l'écran.
+- **Bruit** : son enregistré de chaque machine (mise en marche, à vide, usinage, arrêt) et de l'aspiration, coupé par défaut (bouton 🔇 / 🔊). Sonomètre en dB(A) sur la vue 3D, bouton « Casque antibruit » (−25 dB), alerte au-dessus de 85 dB(A) sans casque. Le son n'est jamais nécessaire pour réussir : tout est aussi à l'écran. Niveaux proposés, à confirmer au sonomètre dans l'atelier.
+- **Confort de lecture** (bouton « Aa ») : police lisible et texte aéré, taille du texte (A, A+, A++), lecture à voix haute de la consigne (bouton « 🔈 Lire ») ou d'un texte touché. Les choix suivent l'élève d'une machine à l'autre sur le même poste.
 
 ## Scie à format KANAK 550
 
@@ -87,6 +92,22 @@ Usinage des bouts des pièces corroyées : affranchissement à longueur, tenons,
 - **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
 - Non simulés : tenons biais (guide orienté), contre-profil.
 
+## Scie à ruban KANAK 800 RB
+
+Hors chaîne de débit : chantournage et refente. Machine de synthèse (proportions estimées).
+
+- **Présentation** : nomenclature de 30 organes (volants, lame, guide-lames à galets, protecteur télescopique, table inclinable, guide parallèle, guide d'onglet, portes interverrouillées, sectionneur…), râtelier de lames.
+- **Exercices guidés** : changer et régler la lame (choix au râtelier, lame fissurée à refuser, tension, dévers, guide-lames), chantourner une console en S en suivant le trait, refendre un avivé sur chant au guide parallèle (poussoir en fin de passe) et écarter un rondin (gabarit en vé).
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+
+## Mortaiseuse KANAK 130 MB
+
+Hors chaîne de débit : mortaises à bédane oscillant horizontal, en face des tenons de la tenonneuse.
+
+- **Présentation** : nomenclature de 31 organes (repères du cours), râtelier de bédanes, règle de profondeur (référence 71), taquets de la table, vérins hydrauliques serrés à deux mains.
+- **Exercices guidés** : changer le bédane machine consignée (bédane ébréché à refuser), mortaise à la cote après une pièce d'essai, série en butée aux deux bouts d'un montant et assemblage avec une traverse tenonnée.
+- **Parcours évalué (SCORM)** : repérage de 15 organes, QCM de 20 questions, 3 scénarios notés. Note sur 100, réussite à 70 sans faute grave.
+
 ## Corriger les QCM, la nomenclature ou le repérage
 
 Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (bouton crayon) ou dans n'importe quel éditeur de texte :
@@ -97,7 +118,8 @@ Ces textes sont dans des fichiers simples, modifiables directement sur GitHub (b
 | `machines/scie-format/data/organes.txt` | la nomenclature : `[code] repère Nom`, puis la description |
 | `machines/scie-format/data/reperage.txt` | les organes demandés au repérage, dans l'ordre, et la vue utilisée |
 | `machines/risques/data/…` | risques généraux : les trois mêmes fichiers, plus `dangers.txt` (situations dangereuses et leurs mesures), `epi.txt` (EPI et tâches), `fiches.txt` (fiches de la présentation), `sources.txt` (références) |
-| `machines/degauchisseuse/data/…`, `machines/deligneuse/data/…`, `machines/scie-radiale/data/…`, `machines/raboteuse/data/…`, `machines/toupie/data/…`, `machines/tenonneuse/data/…` | les mêmes trois fichiers pour la dégauchisseuse, la déligneuse, la scie radiale, la raboteuse, la toupie et la tenonneuse |
+| `machines/<machine>/data/…` | les mêmes trois fichiers pour chaque machine (`degauchisseuse`, `deligneuse`, `scie-radiale`, `raboteuse`, `toupie`, `tenonneuse`, `scie-ruban`, `mortaiseuse`) |
+| `machines/<machine>/data/fiches.txt` | les fiches de la machine à lire avant l'évaluation : `## Titre | codes d'organes`, paragraphes, `- ` puces, `> ` source |
 
 Le mode d'emploi est écrit en tête de chaque fichier. Après une modification enregistrée sur GitHub, le module est refabriqué automatiquement : onglet **Actions** → dernière exécution « Fabrication » → **Artifacts** → `modules` (zip contenant la page web et le paquetage SCORM). Si l'exécution est en rouge, son journal indique le fichier et la ligne à corriger. On peut aussi fabriquer sur son ordinateur (ci-dessous).
 
@@ -111,8 +133,12 @@ npm run build
 ```
 
 Dans `dist/` :
-- `scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html`, `tenonneuse.html` : les pages autonomes (three.js chargé depuis Internet), à ouvrir dans un navigateur ou à publier ;
-- `KANAK550_scie_format_SCORM12.zip`, `KANAK520D_degauchisseuse_SCORM12.zip`, `KANAK300M_deligneuse_SCORM12.zip`, `KANAK900R_scie_radiale_SCORM12.zip`, `KANAK630E_raboteuse_SCORM12.zip`, `KANAK130T_toupie_SCORM12.zip`, `KANAK160TN_tenonneuse_SCORM12.zip` : les paquetages SCORM. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute ».
+- `Atelier_bois_3D_SCORM12.zip` (et `…_sans_verrous.zip`) : le **paquetage unique** pour Moodle (atelier, « 0. Risques généraux », puis les 9 machines ; entraînement et évaluation dans chaque machine, verrous dans l'ordre de la chaîne de débit) ;
+- `Atelier_bois_3D_entrainement.zip` : le **dossier d'entraînement hors ligne** (sans note ni Moodle), à dézipper et ouvrir par `index.html` (l'atelier), sur clé USB ou poste sans internet ;
+- `Attestations_atelier_bois_3D.html` : l'outil des attestations (à ouvrir dans le navigateur, on y dépose le rapport Moodle exporté en Excel) ;
+- `atelier.html`, `risques.html` et une page par machine (`scie-format.html`, `degauchisseuse.html`, `deligneuse.html`, `scie-radiale.html`, `raboteuse.html`, `toupie.html`, `tenonneuse.html`, `scie-ruban.html`, `mortaiseuse.html`) : les pages autonomes (three.js chargé depuis Internet) ;
+- un paquetage SCORM séparé par module (`KANAK550_scie_format_SCORM12.zip`, …, `KANAK130MB_mortaiseuse_SCORM12.zip`, `Risques_generaux_atelier_bois_SCORM12.zip`), solution de secours. Dans Moodle : activité « Paquetage SCORM », affichage en nouvelle fenêtre, méthode d'évaluation « note la plus haute » ;
+- `Ecoute_bruit.html` : banc d'écoute et éditeur des sons.
 
 Pour une seule machine : `npm run build -- scie-format`.
 
@@ -131,9 +157,16 @@ engine/                  moteur commun à toutes les machines
   corroyage.js           pièce de corroyage commune (dégauchisseuse, raboteuse, toupie : profils, tenonneuse : bouts usinés)
   schema.js              schéma de principe du réglage posé sur la vue 3D (temporisé ou épinglé)
   families.js            réglages en panneaux colorés par famille, alertes dans leur panneau, lien avec la 3D
+  fiches.js              fiches de la machine à lire avant l'évaluation
+  audio.js, synth.js     bruit : sonomètre, casque, sons enregistrés (engine/sons/) et synthèse
+  lecture.js             confort de lecture : police, taille du texte, lecture à voix haute
+  moodlenav.js           navigation atelier ↔ machines dans le paquetage unique
   shell.js, engine.css   squelette HTML et feuille de style communs
+atelier/                 page d'entrée 3D (plan réel de l'atelier)
+attestations/            outil des attestations
 machines/<machine>/      une machine : modèle 3D, réglages, règles, scénarios, données
 tools/build.mjs          fabrication de dist/
+tools/sons.py            préparation des enregistrements sonores (découpe, niveau, boucles, MP3)
 tests/                   tests automatiques (voir tests/README.md)
 ```
 
