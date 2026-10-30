@@ -90,6 +90,21 @@ def check(cond, msg):
     if not cond: raise AssertionError(msg)
     print('  ✓', msg)
 
+# Dock du bas (exercice, parcours) : tous les panneaux de réglage sur une seule ligne, rien qui dépasse d'un panneau
+# (demandé par l'enseignant le 30/10/2026). Tolérance 2 px : marge par défaut du curseur (input range). Rend {n, lignes, deborde:[...]}.
+DOCK_LIGNE = """()=>{ const f=[...document.querySelectorAll('#dockSlot #settings>.fam')], deb=[];
+  for(const p of f){ const r=p.getBoundingClientRect();
+    for(const e of p.querySelectorAll('*')){ const q=e.getBoundingClientRect();
+      if(q.width>0 && q.height>0 && q.right>r.right+1) deb.push(p.dataset.key+' : '+(e.id||e.className||e.tagName));
+      else if(e.clientWidth>0 && e.scrollWidth>e.clientWidth+2 && e.type!=='range' && getComputedStyle(e).textOverflow!=='ellipsis')
+        deb.push(p.dataset.key+' : texte coupé dans '+(e.id||e.className||e.tagName)+' « '+e.textContent.trim().slice(0,20)+' »'); } }
+  return {n:f.length, lignes:new Set(f.map(e=>Math.round(e.getBoundingClientRect().top))).size, deborde:deb.slice(0,5)}; }"""
+
+async def dock_une_ligne(pg, largeur):
+    d = await pg.eval(DOCK_LIGNE)
+    check(d['n'] >= 3 and d['lignes'] == 1, f'{largeur} px : les {d["n"]} panneaux de réglage du bas sur une seule ligne ({d["lignes"]} ligne(s))')
+    check(not d['deborde'], f'{largeur} px : aucun réglage ne dépasse de son panneau {d["deborde"]}')
+
 def run(main):
     try: asyncio.run(main())
     except AssertionError as e: print('  ✗', e); sys.exit(1)

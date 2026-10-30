@@ -223,7 +223,31 @@ input:disabled{opacity:.45}
 .fam-chip{white-space:nowrap;border:0;border-radius:12px;padding:4px 9px;font:600 12px var(--f-body);cursor:pointer;background:var(--danger);color:#fff}
 .fam-chip[data-l="warn"]{background:#f2c14e;color:#3d2e00}
 .fam-none{color:var(--muted);font-size:12px}
-#dockSlot .settings.has-fam{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));align-items:start}
+/* exercice et parcours (dock du bas) : tous les panneaux sur UNE seule ligne, rétrécis pour tenir dans la largeur
+   (demandé par l'enseignant le 30/10/2026 : la 2e ligne ne se voyait pas) ; le bandeau Alertes garde sa ligne au-dessus */
+#dockSlot .settings.has-fam{display:flex;flex-wrap:wrap;align-items:flex-start}
+#dockSlot .settings.has-fam>*{flex:1 0 100%;min-width:0}
+#dockSlot .settings.has-fam>.fam{flex:1 1 0}
+@media (max-width:900px){ #dockSlot .settings.has-fam>.fam{flex-basis:100%} }
+/* panneau étroit (écran de 1 280 à 1 400 px, ligne de 5 ou 6 panneaux) : libellé au-dessus de la valeur, rien ne dépasse */
+#dockSlot .settings.has-fam>.fam{container-type:inline-size}
+@container (max-width:230px){
+  .fam-b{grid-template-columns:minmax(0,1fr)}
+  .fam-b *{min-width:0}
+  .fam-b .ctl{grid-template-columns:minmax(0,1fr)}
+  .fam-b .ctl input.num{grid-column:1/-1;width:100%;box-sizing:border-box;justify-self:stretch}
+  .fam-b input[type=range]{margin-inline:0}
+  .fam-b :is(.toggle,button){white-space:normal;max-width:100%;overflow-wrap:break-word;hyphens:auto;letter-spacing:0;font-size:11px;padding:6px 5px}
+  .fam-b :is(label,span,p,li,b,output,summary,small){overflow-wrap:break-word;hyphens:auto}
+  /* toute grille d'un panneau étroit (choix d'outils, boutons segmentés…) : autant de colonnes de 64 px que possible */
+  .fam-b *{grid-template-columns:repeat(auto-fill,minmax(min(100%,64px),1fr))!important}
+  .fam-b .ctl{grid-template-columns:minmax(0,1fr)!important}
+  .fam-h{flex-wrap:wrap;gap:4px 6px;padding:7px 9px}
+  .fam-i{display:none}
+  .fam-t{flex:1 1 100%}
+  .fam-t b{font-size:14px;letter-spacing:.02em;overflow-wrap:break-word;hyphens:auto}
+  .fam-p{white-space:normal;font-size:11px;padding:2px 6px}
+}
 /* pupitre (pupitre.html) : commandes de marche, posé en bas de la vue 3D ; fixé en bas de l'écran sous 900 px */
 .pupitre{display:none}
 .app.has-pup .pupitre{grid-area:stage;align-self:end;z-index:3;margin:0 12px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;background:rgb(28 32 37 / .94);color:#e8ecef;border-radius:10px;box-shadow:0 6px 20px rgb(0 0 0 / .25)}
