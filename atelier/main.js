@@ -12,8 +12,12 @@ import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './h
 import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
 import { toggleFs, fsOn, onFsChange } from '../engine/fullscreen.js';
+import { createLecture } from '../engine/lecture.js';
 
 const $ = id=>document.getElementById(id);
+/* confort de lecture (engine/lecture.js) : bouton « Aa » dans les outils de l'en-tête ; 🔈 lit la fiche du poste ouverte */
+const lecture = createLecture({ slot:'.at-tools', zones:'.at-side,.card,.tip,.edit',
+  consigne:()=>{ const c=$('card'); return c&&!c.hidden? { el:c, t:lecture.texte(c) } : null; } });
 const ETAT = { service:'En service', essai:'En essai', avenir:'À venir' };
 /* dans le paquetage Moodle : pas de modification de l'implantation ni d'aperçu, bilans des machines lus dans le navigateur */
 const PKG = pkg();
@@ -424,5 +428,5 @@ canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); $('lost').hi
 $('relaunch').onclick=()=>location.reload();
 if(PKG||LOCAL){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
 applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
-window.__atelier={ STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
+window.__atelier={ lecture, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
 window.__ready=true;

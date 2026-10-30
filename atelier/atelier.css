@@ -116,3 +116,7 @@ body.editing .lbl,body.editing .dlbl{pointer-events:none}
   .dlbl{font-size:10px}
   .help{display:none}
 }
+/* confort de lecture (engine/lecture.js) : panneaux agrandis, colonne des postes élargie d'autant */
+.at-tools .lect{order:-1}
+:root:not([data-lect-taille="0"]) :is(.at-top,.at-side,.card){zoom:var(--lz,1)}
+@media (min-width:901px){ :root:not([data-lect-taille="0"]) .at{grid-template-columns:calc(268px * var(--lz)) 1fr} }

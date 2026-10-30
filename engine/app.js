@@ -27,6 +27,7 @@ import { parseOrganes, parseQcm, parseReperage, parseFiches, checkData } from '.
 import { createFiches } from './fiches.js';
 import { moodleNav, pkg, pkgLock } from './moodlenav.js';
 import { createBruit } from './audio.js';
+import { createLecture } from './lecture.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -37,9 +38,10 @@ export function createApp(config, raw){
   const stage=createStage(config.views, config.stage);
   const parts=createParts(stage, organes, config);
   const ex=createExercise(config.modes);
+  const lecture=createLecture({ onChange:()=>stage.dirty() });   // confort de lecture (police, taille, voix) : bouton « Aa » de l'en-tête
   let H=null, parc=null;
 
-  const app={ config, stage, parts, ex, data:{organes, qcm, reperage, fiches},
+  const app={ config, stage, parts, ex, lecture, data:{organes, qcm, reperage, fiches},
     toast:stage.toast,
     get parcours(){ return parc; },
     alerts:()=>H.alerts(),
