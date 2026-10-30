@@ -26,3 +26,7 @@ export const MIN_USE = 350;                // longueur minimale d'une pièce uti
 export const PROT_GAP = [1, 10];           // protecteur : 1 à 10 mm au-dessus de la pièce
 export const ANGLES = [-45, -30, -15, 0, 15, 30, 45];   // rotation du bras (positions indexées)
 export const TILTS = [0, 15, 30, 45];      // inclinaison de la lame
+
+/* bruit (engine/audio.js ; enregistrements de scie circulaire engine/sons/scie-*.mp3, 30/10/2026) : dB(A) au poste, PROPOSÉS, À VALIDER
+   (pas de mesure ni de fiche donnant le niveau d'une scie radiale) : à vide 84 (sans alerte), en coupe 93 (passe de référence). */
+export const BRUIT = { vide:84, coupe:93, rpm:3000 };

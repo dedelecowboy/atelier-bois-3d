@@ -99,12 +99,10 @@ export function createSynth(reglages=SONS){
     T(A.o1.frequency,f0,0.12); T(A.o2.frequency,ft,0.12);
     T(A.g3.gain, p.on? 0.08 : 0);
     T(A.wbp.frequency, 300+900*sp); T(A.wg.gain, 0.4+0.6*sp*sp);
-    const E=A.ech;                                                   // enregistrements de la machine (s'ils sont chargés) à la place du son synthétisé
-    T(A.mot.gain, E? 0 : (p.mot||0)*0.9);
+    T(A.mot.gain, (p.mot||0)*0.9);                                  // une machine aux sons enregistrés envoie mot = 0 ici (setVoix)
     for(const o of [A.aT,A.aP]) T(o.frequency, ft, 0.12);
     T(A.aT2.frequency, ft*2, 0.12);
-    T(A.cutBus.gain, E? 0 : (p.cutAmp||0)*cut, 0.05);
-    if(E) jouerEch(E, p, cut, ch);
+    T(A.cutBus.gain, (p.cutAmp||0)*cut, 0.05);
     const as=Math.max(0,Math.min(1,p.asp||0));
     const a=R.aspiration, fr=Math.max(1, a.vitesse/60*as);                // ventilateur (tr/min réglables), 7 pales
     const aspRec=A.aspE&&S.aspUse!==false;
@@ -133,10 +131,14 @@ export function createSynth(reglages=SONS){
       return { buf, a:a/buf.sampleRate, z:(z+1)/buf.sampleRate }; };
     for(const k of Object.keys(o)) if(o[k]) out[k]=await dec(o[k]);
     return out; }
-  S.chargerEchantillons=async function(ech){ if(!A||!ech) return; const ctx=A.ctx, out=await decAll(ech);
+  /* plusieurs jeux d'enregistrements possibles (tenonneuse : scie, dérouleurs), un par source k, chacun piloté par setVoix(k, p) */
+  S.chargerEchantillons=async function(ech, k=0){ if(!A||!ech) return; const ctx=A.ctx, out=await decAll(ech);
     const loopV=(e)=>{ const s=ctx.createBufferSource(); s.buffer=e.buf; s.loop=true; s.loopStart=e.a; s.loopEnd=e.z; const g=ctx.createGain(); g.gain.value=0; s.connect(g); g.connect(A.hushIn); s.start(0, e.a); return { s, g }; };
-    A.ech={ d:out, vide:out.vide&&loopV(out.vide), coupe:out.coupe&&loopV(out.coupe), on:false, t0:-1, one:null }; };
-  S.echantillons=()=>!!(A&&A.ech);
+    (A.vx||(A.vx={}))[k]={ d:out, vide:out.vide&&loopV(out.vide), coupe:out.coupe&&loopV(out.coupe), on:false, t0:-1, one:null }; };
+  S.echantillons=k=>!!(A&&A.vx&&(k==null? Object.keys(A.vx).length : A.vx[k]));
+  /* p comme pour set() (on, spin, mot, motFull, cut, cutAmp, charge) : volume et vitesse de lecture des enregistrements de la source k */
+  S.setVoix=function(k, p){ const E=A&&A.vx&&A.vx[k]; if(!E) return;
+    jouerEch(E, p, Math.max(0,Math.min(1,p.cut||0)), Math.max(0.2,Math.min(20,p.charge||1))); };
   /* aspiration enregistrée (commune à toutes les machines) : { boucle, arret } ; la boucle suit le régime du ventilateur
      (plus lente et plus faible au démarrage), « arret » est joué quand on coupe l'aspiration (ralentissement enregistré). */
   S.chargerAspiration=async function(e){ if(!A||!e) return; const d=await decAll(e);

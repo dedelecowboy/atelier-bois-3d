@@ -28,3 +28,7 @@ export const MANCHONS = {
 export const CAP = 2070;
 export const HARD = { sapin: 0.8, hetre: 1.1, chene: 1.2 };
 export const GREEN = [40, 90];
+
+/* bruit (engine/audio.js ; enregistrements de scie circulaire engine/sons/scie-*.mp3, 30/10/2026) : dB(A) au poste, PROPOSÉS, À VALIDER
+   (pas de mesure ; plusieurs lames et un tapis : un peu plus que les autres scies) : à vide 84 (sans alerte), en coupe 95 (charge de 60 % à l'ampèremètre). */
+export const BRUIT = { vide:84, coupe:95, rpm:4200 };

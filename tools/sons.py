@@ -9,6 +9,10 @@ Aspiration (commune à toutes les machines, fournie le 29/10/2026) : asp.mp3 = �
 Rabotage (raboteuse ET dégauchisseuse, fourni le 30/10/2026) : rabot.mp3 = « Woodworking Machinery Sound Effect - Power Tool Sounds -
 Timber Planer Thicknesser Machine » (silence 0–2,5 s, à vide 2,5–4,5 s, usinage 4,5–23,3 s, à vide 25,8–28 s) → engine/sons/rabotage-vide.mp3
 (2,8–4,4 s + 26,0–27,4 s, en boucle) et rabotage-coupe.mp3 (boucle 5,0–11,5 s) ; pas de démarrage ni d'arrêt enregistrés (la boucle à vide ralentit au freinage).
+Scies circulaires (scie à format, scie radiale, déligneuse, scie de la tenonneuse ; fourni le 30/10/2026) :
+  switch.mp3 = « audiopapkin-table-saw-switch-on-off-326820 » (mise en marche à 0,1 s, régime établi 1,5–4 s, arrêt et frein 4–7,6 s) ;
+  circ.mp3 = « freesound_community-circ_saw-03-87937 » (coupe continue 0,25–4,1 s) → engine/sons/scie-*.mp3.
+Usage : python3 tools/sons.py scie <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py rabotage <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py ruban <dossier des enregistrements> machines/scie-ruban/sons
         python3 tools/sons.py aspiration <dossier des enregistrements> engine/sons
@@ -58,4 +62,11 @@ def rabotage():
     n=int(0.2*SR); t=np.linspace(0,1,n); ab=np.concatenate([a[:-n], a[-n:]*np.sqrt(1-t)+b[:n]*np.sqrt(t), b[n:]])
     save(loop(ab,0.3),'rabotage-vide',48)
     save(loop(norm(seg(x,5.0,11.5)),0.35),'rabotage-coupe',48)
-{'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()
+def scie():
+    x=hp(load(os.path.join(S,'switch.mp3'))); c=hp(load(os.path.join(S,'circ.mp3')))
+    g=10**(-20/20)/rms(seg(x,1.5,3.95))            # même gain pour le démarrage, le régime établi et l'arrêt
+    save(fade(seg(x,0.08,2.6)*g,0.005,0.4),'scie-demarrage',48)
+    save(loop(seg(x,1.5,3.95)*g,0.3),'scie-vide',48)
+    save(fade(seg(x,3.95,7.6)*g,0.2,0.3),'scie-arret',48)
+    save(loop(norm(seg(c,0.25,4.15)),0.35),'scie-coupe',48)
+{'scie':scie,'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()

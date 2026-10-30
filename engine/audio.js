@@ -13,6 +13,9 @@
          cut    : 0 à 1, part de l'outil dans le bois ;  charge : 1 = passe de référence (plus forte, avance rapide, bois dur : > 1) ;
          dents  : nombre de dents de l'outil (fréquence de passage des dents)
      }
+   Machine à plusieurs outils (tenonneuse, 30/10/2026) : à la place de niveaux / etat / echantillons, une liste
+     sources:[ { nom, niveaux, etat, echantillons }, … ]   chaque outil son niveau, son état, ses enregistrements (ou le son
+     synthétisé : UNE source au plus sans enregistrements) ; le sonomètre fait la somme énergétique de toutes les sources.
    La machine signale les bruits courts par app.bruit.bang('au' | 'choc' | 'coup' | 'rejet').
 
    Le son n'est JAMAIS nécessaire pour réussir : le sonomètre et l'alerte « attention » montrent la même chose.
@@ -56,7 +59,9 @@ export const zone = L=> L>=SEUILS.sup? 'rouge' : L>=SEUILS.inf? 'orange' : 'vert
 const fmtDur = m=> m>=120? `${Math.round(m/60)} h` : m>=60? `1 h ${String(Math.round(m-60)).padStart(2,'0')}` : m>=1? `${Math.round(m)} min` : `${Math.max(1,Math.round(m*60))} s`;
 
 export function createBruit(app, hook){
-  const N = hook.niveaux || null, $ = id=>document.getElementById(id);   // sans niveaux : aspiration seule, pas de sonomètre
+  const SRC = hook.sources || (hook.niveaux? [{ nom:'machine', niveaux:hook.niveaux, etat:hook.etat, echantillons:hook.echantillons }] : []);
+  const N = SRC.length? SRC[0].niveaux : null, $ = id=>document.getElementById(id);   // sans niveaux : aspiration seule, pas de sonomètre
+  const SYN = SRC.findIndex(s=>!s.echantillons);       // la source jouée par le son synthétisé (−1 : toutes enregistrées)
   const N0 = N || { vide:0, coupe:0, rpm:1 };
   let pref = { on:false, vol:60 };
   try{ const s=JSON.parse(localStorage.getItem(STORE)||'null'); if(s&&typeof s==='object') pref={ on:!!s.on, vol:Math.max(0,Math.min(100,+s.vol||0)) }; }catch(e){}
@@ -98,9 +103,17 @@ export function createBruit(app, hook){
   /* ---------- calcul ---------- */
   let aspSp=0;    // régime du ventilateur d'aspiration (0 à 1) : monte en ≈ 1 s, ralentit en ≈ 2,5 s
   const aspOn = ()=>{ try{ return !!hook.aspiration?.(); }catch(e){ return false; } };
-  const etat = ()=>{ let e={}; if(N&&hook.etat){ try{ e=hook.etat()||{}; }catch(err){ e={}; } } return { ...e, asp:aspSp }; };
-  function calc(){ const e=etat(), n=niveau(N0,e), steady=niveau(N0,{...e, spin:e.on? 1 : e.spin, asp:aspOn()? 1 : aspSp});
-    return { e, ...n, oreille:oreille(n.total,B.casque), marche:!!e.on, enMarche:e.on? steady.total : null }; }
+  const etats = ()=>SRC.map(s=>{ let e={}; try{ e=s.etat?.()||{}; }catch(err){ e={}; } return e; });
+  /* somme des sources (une seule : exactement niveau()) */
+  function somme(es, as){
+    if(SRC.length<=1) return niveau(N0, { ...(es[0]||{}), asp:as });
+    const P=SRC.map((s,i)=>niveau(s.niveaux, { ...es[i], asp:0 })), La=niveau(N0,{ asp:as }).asp;
+    const cuts=P.map((n,i)=>n.coupe==null? null : n.coupe + 10*lg(Math.max(0,Math.min(1,es[i].cut||0))));
+    const nn=L=>L.filter(v=>v!=null), opt=L=>nn(L).length? sum(...nn(L)) : null;
+    return { moteur:opt(P.map(n=>n.moteur)), coupe:opt(cuts), asp:La, total:Math.min(L_MAX, sum(FOND, La, ...P.map(n=>n.moteur), ...cuts)), parts:P }; }
+  function calc(){ const es=etats(), n=somme(es, aspSp), on=es.some(e=>e.on);
+    const steady=somme(es.map(e=>({ ...e, spin:e.on? 1 : e.spin })), aspOn()? 1 : aspSp);
+    return { e:{ ...(es[0]||{}), asp:aspSp }, es, ...n, oreille:oreille(n.total,B.casque), marche:on, enMarche:on? steady.total : null }; }
   /* alerte « attention » (pas une faute) : en marche au-dessus de 85 dB(A) sans casque */
   function alerte(){ if(B.casque||!N) return null; const c=calc(); if(!c.marche || c.enMarche<SEUILS.sup) return null;
     return ['warn', `BRUIT : ${Math.round(c.enMarche)} dB(A) au poste, au-dessus de ${SEUILS.sup} dB(A). Portez le casque antibruit (bouton « Casque antibruit » du sonomètre).`, 'machine']; }
@@ -108,14 +121,18 @@ export function createBruit(app, hook){
   /* ---------- son (Web Audio, engine/synth.js) ---------- */
   const SY=createSynth(); let A=null, wasCut=false;
   const amp = L=> L==null? 0 : Math.pow(10,(L-100)/20);     // niveau → gain relatif (100 dB(A) = 1)
+  /* paramètres du son d'une source : moteur (plein régime et réel), coupe */
+  function voix(i, e){ const Ns=SRC[i].niveaux, n=niveau(Ns,{ ...e, asp:0 }), cut=Math.max(0,Math.min(1,e.cut||0));
+    return { motFull:amp(niveau(Ns,{...e, spin:1, cut:0, asp:0}).moteur), f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(n.moteur), cut, cutAmp:amp(n.coupe), charge:e.charge }; }
   function audioTick(c){ if(!A||!B.on) return;
-    const e=c.e, cut=Math.max(0,Math.min(1,e.cut||0));
-    if(cut>0.05&&!wasCut) SY.bang('attaque'); wasCut=cut>0.05;   // l'outil mord dans le bois
-    SY.set({ motFull:amp(niveau(N0,{...e, spin:1, cut:0, asp:0}).moteur), f0:(e.spin||0)*(e.rpm||0)/60, Z:e.dents||2, spin:e.spin, on:e.on, mot:amp(c.moteur), cut, cutAmp:amp(c.coupe),
-      charge:e.charge, asp:aspSp, aspOn:aspOn(), aspAmp:amp(N0.asp??ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
+    const cutNow=c.es.some(e=>(e.cut||0)>0.05);
+    if(cutNow&&!wasCut) SY.bang('attaque'); wasCut=cutNow;   // un outil mord dans le bois
+    c.es.forEach((e,i)=>{ if(i!==SYN) SY.setVoix(i, voix(i,e)); });
+    SY.set({ ...(SYN>=0? voix(SYN, c.es[SYN]) : { mot:0, cutAmp:0, cut:0, f0:0, spin:0, on:false }),
+      asp:aspSp, aspOn:aspOn(), aspAmp:amp(N0.asp??ASP)*0.9, casque:B.casque&&!!N, vol:B.vol }); }
   function bang(type){ if(A&&B.on) SY.bang(type); }
   async function setOn(on){
-    if(on){ try{ if(!A){ A=SY.start(); if(hook.echantillons) SY.chargerEchantillons(hook.echantillons).catch(err=>{ B.err='enregistrements : '+(err&&err.message||err); });
+    if(on){ try{ if(!A){ A=SY.start(); SRC.forEach((s,i)=>{ if(s.echantillons) SY.chargerEchantillons(s.echantillons, i).catch(err=>{ B.err='enregistrements : '+(err&&err.message||err); }); });
         if(hook.aspiration) SY.chargerAspiration({ boucle:sonAsp, arret:sonAspArret }).catch(err=>{ B.err='aspiration : '+(err&&err.message||err); }); } if(A.ctx.state==='suspended') await A.ctx.resume(); B.on=true; B.err=''; }
       catch(e){ B.on=false; B.err=String(e&&e.message||e); app.toast(N? 'Son indisponible dans ce navigateur : le sonomètre reste affiché.' : 'Son indisponible dans ce navigateur.'); } }
     else { B.on=false; SY.mute(); }
@@ -138,7 +155,7 @@ export function createBruit(app, hook){
     const r=[Math.round(B.shown),B.casque,B.on].join(); if(r!==lastR){ lastR=r; paint(); }
     audioTick(c); }
   paint();
-  const R = { tick, bang, alerte, calc, setOn, get enregistrements(){ return SY.echantillons(); }, get aspEnregistree(){ return SY.aspirationEnregistree(); }, niveau:e=>niveau(N0,e), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
+  const R = { tick, bang, alerte, calc, setOn, get enregistrements(){ return SY.echantillons(); }, get aspEnregistree(){ return SY.aspirationEnregistree(); }, niveau:e=>niveau(N0,e), sources:SRC.map(s=>s.nom), sonometre:!!N, get asp(){ return aspSp; }, get casque(){ return B.casque; }, set casque(v){ B.casque=!!v; paint(); },
     get on(){ return B.on; }, get shown(){ return B.shown; }, get err(){ return B.err; }, get ctx(){ return A&&A.ctx; }, niveaux:N0 };
   return R;
 }

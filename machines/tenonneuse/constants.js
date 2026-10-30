@@ -48,3 +48,8 @@ export const AV_WARN = 12, AV_MAX = 15;   // avance : à partir de 12 m/min en b
 export const CHUTE_MIN = 5;           // chute d'affranchissement : 5 mm au moins (sinon chute fine projetée ou coincée)
 export const VC_MIN = 40, VC_MAX = 80;    // vitesse de coupe conseillée (m/s)
 export const SPEEDUP = 4;             // l'animation du chariot va 4 fois plus vite que l'avance réelle
+
+/* bruit (engine/audio.js, 30/10/2026, demandé par l'enseignant) : trois sources au poste, dB(A) PROPOSÉS, À VALIDER (pas de mesure) :
+   scie d'affranchissement = enregistrements de scie circulaire, dérouleurs = enregistrements de la raboteuse (arbres porte-lames),
+   unité de toupillage = son synthétisé de la toupie. Les trois à vide ≈ 86 : au-dessus de 85, alerte « casque » dès la marche. */
+export const BRUIT = { scie:{ vide:82, coupe:92, rpm:N_HEAD.scie }, der:{ vide:82, coupe:93, rpm:N_HEAD.inf }, tou:{ vide:78, coupe:90, rpm:N_HEAD.tou } };
