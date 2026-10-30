@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Raboteuse : le paquetage SCORM tel que Moodle le reçoit (zip de dist/), servi fichier par fichier,
 sans aucun accès au CDN : manifeste, three.js local, parcours actif, dialogue avec l'API SCORM."""
 import asyncio, mimetypes, os, re, sys, zipfile

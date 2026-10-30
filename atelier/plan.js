@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Plan réel de l'atelier menuiserie (relevé sur le plan DWG avec l'outil « Placement atelier menuiserie »).
    Pour mettre à jour : dans la page atelier, « Modifier l'implantation » puis « Copier la disposition » (murs compris),
    et coller le texte à la place de LAYOUT. Disposition du 26/10/2026 : celle corrigée par l'enseignant dans la page atelier.

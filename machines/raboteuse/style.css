@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Styles propres à la raboteuse : cote, mesure de la pièce, tableau des faces, pièces débitées. */
 .cote-i{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
 .debit-list .toggle{text-transform:none;letter-spacing:0;font-size:12px;padding:7px 8px}

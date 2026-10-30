@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Risques généraux : parcours évalué SCORM avec une fausse API Moodle.
 1. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 4 scénarios réussis) → 94 / 100, passed, 56 interactions,
    4 scénarios de 15 points (5 critères de 3 points).

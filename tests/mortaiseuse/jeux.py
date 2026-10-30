@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la mortaiseuse, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, msgs}. Les cycles sont animés : on attend leur fin et l'arrêt du bédane.
 window.__mortaise donne l'état, les pièces et les mortaises aux tests (lecture seulement : l'élève, lui, clique)."""
@@ -73,6 +74,6 @@ SERIE = BASE + r"""
 ATTENDU = {
   'bedane': [['Consignation complète avant d\'intervenir (0, cadenas, essai de démarrage)','oui'],['Bédane de 10 mm en bon état monté','10 mm n° 2'],['Bédane serré, capot refermé','serré · capot fermé'],['Remise en service et essai à vide','oui']],
   'simple': [['Mortaise de 10,0 mm à 9,0 ± 0,2 mm de SR1','10,0 mm à 9,0 mm'],['Longueur 40,0 ± 0,5, à 60,0 ± 0,5 mm du bout','40,0 mm à 60,0 mm'],['Profondeur 30,0 ± 0,5 mm','30,0 mm'],["Pièce d'essai mortaisée et contrôlée avant le montant",'oui'],['Bords nets (taquet de départ avant 71)','nets']],
-  'serie': [['4 mortaises de 8,0 mm à 8,0 ± 0,2 mm de SR1, longueur 60,0 ± 0,5','4 / 4'],['À 150,0 ± 0,5 mm de chaque bout','4 / 4 (150,0 ; 150,0 ; 150,0 ; 150,0)'],['Profondeur 37,0 ± 0,5 mm (tenon de 35 + 2 mm)','4 / 4'],['Montant de 220 mm écarté, non mortaisé','oui'],["Pièce d'essai : le tenon de la traverse entre (assemblage)",'oui']],
+  'serie': [['4 mortaises de 8,0 mm à 8,0 ± 0,2 mm de SR1, longueur 60,0 ± 0,5','4 / 4'],['À 150,0 ± 0,5 mm de chaque bout','4 / 4 (150,0 ; 150,0 ; 150,0 ; 150,0)'],['Profondeur 37,0 ± 0,5 mm (tenon de 35 + 2 mm)','4 / 4'],['Montant de 220 mm écarté, non mortaisé','oui'],["Pièce d'essai mortaisée aux cotes et contrôlée",'oui']],
 }
 JEUX = {'bedane': BEDANE, 'simple': SIMPLE, 'serie': SERIE}

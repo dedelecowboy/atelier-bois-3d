@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Feuille de style commune à toutes les machines.
    Dispositions : pres (nomenclature | 3D | réglages), ex (3D | consigne + dock en bas), parcours (SCORM).
    Pas de défilement de page sur ordinateur ; sous 900 px, une seule colonne.
@@ -352,3 +353,6 @@ input:disabled{opacity:.45}
   :root:not([data-lect-taille="0"]) .app[data-ui="parcours"]{grid-template-columns:minmax(0,1fr) calc(360px * var(--lz))}
 }
 @media (max-width:900px){ .lect-lire{padding-inline:8px} .lect-panel{position:fixed;top:56px;right:8px;left:8px;width:auto} }
+
+/* droits (demandé par l'enseignant le 30/10/2026) : en bas de la colonne de droite, discret */
+.credit{margin:18px 0 4px;font-size:11px;line-height:1.35;color:var(--muted);opacity:.85}

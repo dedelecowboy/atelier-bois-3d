@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la dégauchisseuse : dresser le plat (SR1), le marquer, dresser le chant (SR2) contre SR1,
    tracer le repère d'angle (petit V à cheval sur l'arête SR1 / SR2), arrêter la machine, contrôler.
    Trois pièces : rectiligne, cintrée sur le plat (creux sur la table, plusieurs passes), fil incliné (sens d'usinage). */

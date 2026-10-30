@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Postes de l'atelier : une entrée par machine, dans l'ordre du parcours.
    rest(model) : met la machine dans sa position de repos (mêmes arguments que son main.js, sans pièce).
    clip : [x0, x1, z0, z1] (repère de la machine) : organes cachés hors de ce rectangle (raccords vers la page de la machine).
@@ -35,19 +36,19 @@ export const STATIONS = [
   { id:'toupie', n:5, nom:'Toupie', ref:'KANAK 130 T', etat:'service', famille:'usinage',
     role:'Profils au guide : quarts de rond, feuillures, moulures.',
     url:'https://claude.ai/artifact/RD38t4edhpubi6Q28nYJj5', build:toupie, rest:m=>m.update(()=>0,()=>0,null) },
-  { id:'tenonneuse', n:6, nom:'Tenonneuse', ref:'KANAK 160 TN', etat:'service', famille:'usinage',
-    role:'Usinage des bouts : tenons, enfourchements, en série à la butée.',
+  { id:'mortaiseuse', n:6, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'service', famille:'usinage',
+    role:'Mortaises au bédane oscillant : à la cote, en série à la butée, avant les tenons (on ajuste le tenon à la mortaise).',
+    url:'https://claude.ai/artifact/EwBc8rBaSxnTSVygBq9jJb', build:mortaise, rest:m=>m.update(null) },
+  { id:'tenonneuse', n:7, nom:'Tenonneuse', ref:'KANAK 160 TN', etat:'service', famille:'usinage',
+    role:'Usinage des bouts : tenons ajustés aux mortaises, enfourchements, en série à la butée.',
     url:'https://claude.ai/artifact/YLwEUxq35PKaHPYjm13DnH', build:tenon, rest:m=>m.update(0) },
-  { id:'scie-format', n:7, nom:'Scie à format', ref:'KANAK 550', etat:'service', famille:'panneaux',
+  { id:'scie-format', n:8, nom:'Scie à format', ref:'KANAK 550', etat:'service', famille:'panneaux',
     role:'Débit et mise au format des panneaux, délignage au sabot, coupes d\'onglet et biaises.',
     url:'https://claude.ai/artifact/5TrWcgiDVbvMBYtp78Sc6E', build:format, rest:m=>m.update(), clip:[-1.6,3.4,-1.4,3.8] },
-  { id:'scie-ruban', n:8, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'service', famille:'debit',
+  { id:'scie-ruban', n:9, nom:'Scie à ruban', ref:'KANAK 800 RB', etat:'service', famille:'debit',
     role:'Chantournage des pièces cintrées, refente au guide parallèle ; changement et réglage de la lame.',
     url:'https://claude.ai/artifact/1peSTcP1ktVKmT7UQ9YrnC', build:ruban, rest:m=>{ m.setBlade(B.lame(),false); m.update({ hg:B.st.hg, tilt:0, fence:true, fx:0.05, rack:false, mitOn:false, mit:0, serv:false, doors:false, cad:false, main:true, au:false, ten:B.st.ten,
       guide:{ L:B.st.gL, B:B.st.gB, F:B.st.gF, Li:B.st.gLi, Bi:B.st.gBi, Fi:B.st.gFi }, e:B.lame()?.e||0.7, hands:[], pouss:null }); } },
-  { id:'mortaiseuse', n:9, nom:'Mortaiseuse', ref:'KANAK 130 MB', etat:'service', famille:'usinage',
-    role:'Mortaises au bédane oscillant : à la cote, en série à la butée, assorties aux tenons de la tenonneuse.',
-    url:'https://claude.ai/artifact/EwBc8rBaSxnTSVygBq9jJb', build:mortaise, rest:m=>m.update(null) },
 ];
 
 /* module « Risques généraux » : pas de poste dans la salle (il porte sur tout l'atelier), en tête de la liste ;
@@ -64,6 +65,10 @@ export const FAMILLES = {
   panneaux:{ nom:'Panneaux', col:'#8a6a3a' },
 };
 
-/* chaîne de débit des bois massifs, peinte au sol dans les passages du plan :
-   scie radiale → déligneuse → dégauchisseuse → raboteuse → toupie → tenonneuse (points [x, z]) */
-export const FLOW = [[9.6,-5.9],[7.6,-6.0],[3.9,-5.6],[-1,-5.3],[-6,-5.3],[-9.7,-4.6],[-10.1,-1.6],[-9.3,1.5],[-7.25,1.85],[-5,2.05],[-3,2.2],[0.7,2.4],[2.4,3.2],[2.4,4.9],[0,5.25],[-2.6,5.4],[-3.2,6.6],[-4.6,7.2]];
+/* chaîne de débit et de corroyage des bois massifs, peinte au sol dans les passages du plan :
+   scie radiale → déligneuse → dégauchisseuse → raboteuse (points [x, z]). Elle s'arrête à la raboteuse (décidé par l'enseignant
+   le 30/10/2026) : la suite (toupie, mortaiseuse, tenonneuse) dépend des pièces. */
+export const FLOW = [[9.6,-5.9],[7.6,-6.0],[3.9,-5.6],[-1,-5.3],[-6,-5.3],[-9.7,-4.6],[-10.1,-1.6],[-9.3,1.5],[-7.25,1.85],[-5,2.05],[-3.85,2.15]];
+/* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs), pour l'aperçu « Moodle » de cette page */
+export const PREREQ = { 'scie-radiale':'risques', 'scie-format':'risques', 'scie-ruban':'risques', deligneuse:'scie-radiale', degauchisseuse:'deligneuse',
+  raboteuse:'degauchisseuse', toupie:'raboteuse', mortaiseuse:'raboteuse', tenonneuse:'raboteuse' };

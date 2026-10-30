@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Banc d'essai commun à toutes les machines.
 
 Ouvre une page fabriquée (dist/<machine>.html) dans chromium headless (swiftshader), sert three.js

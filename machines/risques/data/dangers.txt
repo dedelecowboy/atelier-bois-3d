@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Situations du scénario « Repérer les dangers dans l'atelier ».
 #
 # Dans l'atelier en 3D, l'élève touche les situations qu'il juge dangereuses. Pour chaque danger trouvé,

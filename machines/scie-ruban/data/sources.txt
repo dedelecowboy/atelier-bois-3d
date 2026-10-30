@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Sources du module « Scie à ruban » (non lu par le simulateur).
 # Vérifiées en ligne le 28/10/2026 quand une adresse est donnée ; les autres sont les documents fournis par l'enseignant.
 

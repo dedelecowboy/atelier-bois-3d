@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la scie radiale « KANAK 900 R » (d'après une scie radiale de débit Ø 400, 900 × 120 mm).
    Marque fictive : ne pas afficher la marque réelle.
    Hiérarchie de la tête : bras (pivote sur la colonne, angle α) → chariot (coulisse le long du bras, course s)

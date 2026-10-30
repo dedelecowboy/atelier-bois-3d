@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Toupie, mode libre : points de sécurité et de qualité propres au travail au guide.
 - outil retourné (tranchants à l'envers) : alerte rouge, la passe n'usine rien ; inverseur sur ↻ : « travail en avalant » ;
   inverseur et outil refusés moteur en marche ; vitesse au-dessus de n max ; pièce trop courte ;

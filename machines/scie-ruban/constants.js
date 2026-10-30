@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la scie à ruban KANAK 800 RB (mètres dans la scène, millimètres dans l'interface).
    Machine fictive de synthèse d'après des scies à ruban de menuiserie à volants de 800 mm (photos et schémas fournis par
    l'enseignant, affiche INRS « Scie à ruban à table », INRS ED 6316) : proportions ESTIMÉES (voir CLAUDE.md).

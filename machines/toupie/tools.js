@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Bibliothèque d'outils de la toupie (lot 1 : travail au guide) et règle de la vitesse de rotation.
 
    Un outil est décrit par sa coupe en 2D (section dans un plan qui contient l'axe de l'arbre) :

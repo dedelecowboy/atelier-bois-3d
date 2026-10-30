@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes et réglages de la toupie (mètres dans la scène, millimètres dans l'interface).
    X = sens d'avance : l'opérateur est devant la table (côté +Z), face au guide ; la pièce avance de sa droite (+X)
    vers sa gauche (−X), en opposition : vu de dessus, l'outil tourne dans le sens anti-horaire, ses dents vont vers +X

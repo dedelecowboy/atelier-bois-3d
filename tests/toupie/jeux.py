@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la toupie, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, msgs}. Les passes sont animées : on attend leur fin.
 window.__toupie donne l'état, les pièces et le profil aux tests (lecture seulement : l'élève, lui, clique)."""

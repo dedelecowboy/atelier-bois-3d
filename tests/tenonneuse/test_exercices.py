@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Tenonneuse : les trois exercices guidés de bout en bout (tenon simple, série aux deux bouts, enfourchement et machine à contrôler)."""
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la dégauchisseuse : alertes de sécurité et de qualité, mesures de la pièce.
    Une alerte « danger » active au moment où la passe commence est une faute grave (parcours évalué).
    Protecteur SUVAMATIC (documentation SUVA) : la couverture repose sur la table contre le guide, rappelée par ressort ;

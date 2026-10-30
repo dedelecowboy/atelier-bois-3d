@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Parcours évalué (paquetage SCORM, actif seulement si window.PARCOURS) :
    repérage d'organes, QCM, scénarios notés. Barème : repérage 20, QCM 20, 20 par scénario
    (5 critères de 4 points dont « aucune faute grave »). Réussite : 70 / 100 ET aucune faute grave.

@@ -1,0 +1,14 @@
+Atelier bois 3D – simulateurs 3D de machines à bois pour la formation (bac pro, CAP, BTS DRB)
+
+© 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT
+
+Ce programme est un logiciel libre : vous pouvez le redistribuer et le modifier selon les termes de la licence
+GNU General Public License version 3 publiée par la Free Software Foundation (texte complet : fichier LICENSE).
+Il est distribué SANS AUCUNE GARANTIE, sans même la garantie implicite de qualité marchande ou d'adéquation
+à un usage particulier.
+
+Toute copie, modification ou rediffusion doit conserver la mention :
+« Julien ANDRE - Lycée André MALRAUX - REMIREMONT ».
+
+Éléments d'autres auteurs, sous leur propre licence : three.js (MIT), enregistrements sonores (licences de
+leurs auteurs, à vérifier), polices des attestations (SIL Open Font License).

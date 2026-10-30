@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages de la toupie (mm, tr/min) et références partagées. */
 import { toolById, Rmax } from './tools.js';
 

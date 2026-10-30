@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Paquetage « Atelier bois 3D » (un seul paquetage SCORM, un élément par machine) : on passe d'un élément à l'autre
    par le sommaire du lecteur SCORM de Moodle, qui est sur le même domaine que le contenu.
    window.ATELIER_PKG = { atelier:'Atelier', titles:{ <id machine>:'<titre de l'élément>' } } est posé par le paquetage.

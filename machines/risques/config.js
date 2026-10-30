@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Configuration du module « Risques généraux de l'atelier bois » : textes de l'interface, modes, vues, paquetage SCORM.
    Fichier sans dépendance : lu à la fabrication (squelette HTML) et dans la page.
    La scène est la salle de l'atelier menuiserie (plan réel, atelier/plan.js) : repère de la salle, mètres,

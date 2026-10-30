@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages de la tenonneuse (mm) et références partagées. */
 import { C_HOME, HEADS } from './constants.js';
 import { toolById } from './tools.js';

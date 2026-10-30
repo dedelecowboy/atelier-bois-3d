@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Styles propres à la déligneuse : manchon, ampèremètre, guide, vue de dessus, pièces débitées. */
 .man,.amp,.gctl{grid-template-columns:1fr auto;align-items:center}
 .man-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la dégauchisseuse (mètres, repère de la scène).
    X = sens d'avance : l'opérateur est côté +X (table d'entrée), la pièce avance vers −X (table de sortie).
    Z : côté opérateur +Z (avant), guide et carter côté −Z (arrière). Arbre d'axe Z sous la lumière, en X = 0. */

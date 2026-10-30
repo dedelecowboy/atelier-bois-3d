@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces sur la scie à ruban : grille en plan, avance et trait de scie, séparation des morceaux, maillage 3D.
 
    Une pièce est décrite en plan, dans le plan de la table : sa trace au sol (« empreinte ») est une grille de cases

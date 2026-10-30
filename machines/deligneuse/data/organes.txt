@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Nomenclature de la déligneuse multilames KANAK 300 M
 #
 # Comment modifier ce fichier :

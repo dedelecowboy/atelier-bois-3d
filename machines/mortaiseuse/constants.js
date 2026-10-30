@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes et réglages de la mortaiseuse à bédane oscillant horizontal (mètres dans la scène, millimètres dans l'interface).
    PROPORTIONS ESTIMÉES d'après les photos et le catalogue de la machine de l'atelier (aucune cote relevée sur la machine).
    X = le long de la table (course longitudinale) ; opérateur devant (+Z) ; la tête de mortaisage est derrière le guide (−Z)

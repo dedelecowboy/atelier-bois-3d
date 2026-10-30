@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Risques généraux : les quatre exercices guidés joués comme un élève (mode Exercice, sans Moodle).
 - Dangers : 12 dangers repérés avec la bonne mesure → bilan conforme ; une situation correcte touchée = fausse alerte ;
   une mauvaise mesure est signalée.

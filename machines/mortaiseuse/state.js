@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages et état de la mortaiseuse (mm), références partagées. */
 import { bedById } from './constants.js';
 

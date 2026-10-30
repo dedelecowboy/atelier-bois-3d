@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Fiches de la machine à lecture obligatoire (engine/fiches.js, demandé par l'enseignant le 29/10/2026) :
 1. page web : onglet « Fiches » ouvert au départ, lecture fiche par fiche, mémoire du navigateur, « Voir sur la machine » ;
 2. paquetage séparé (évaluation seule) : la lecture se fait dans la carte du parcours avant le repérage,

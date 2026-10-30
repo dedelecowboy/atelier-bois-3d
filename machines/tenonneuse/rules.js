@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la tenonneuse : alertes de sécurité et de qualité, blocages.
    Une alerte « danger » active au moment où l'on pousse le chariot est une faute grave (parcours évalué).
    Gestes dangereux hors passe (relevés par app.recordDangers(liste), geste refusé) : charger, retourner ou desserrer la pièce

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la mortaiseuse : alertes de sécurité et de qualité, blocages.
    Une alerte « danger » active au moment où le cycle démarre (bédane lancé en automatique, ou plongée en manuel) est une faute
    grave (parcours évalué). Gestes dangereux hors cycle (app.recordDangers(liste), geste refusé) : intervenir sur le bédane sans

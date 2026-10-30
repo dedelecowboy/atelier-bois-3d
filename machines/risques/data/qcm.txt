@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # QCM « Risques généraux de l'atelier » (parcours évalué), 20 questions.
 # Sources : voir sources.txt (INRS ED 974, ED 6192, ED 6054, ED 6021, ED 6109, ED 6077, ED 4471, ED 7000,
 # Code du travail R4412-149, R4431-2, R4434-7, R4227-29, R4541-9, R4153-52, R4223-4, fiches INRS RG 01 à RG 04,

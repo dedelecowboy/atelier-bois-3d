@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* La salle de l'atelier menuiserie d'après le plan réel (plan.js) : sol, murs relevés sur le DWG (ouverte là où
    le plan n'a pas de mur), portes, aspiration au plafond, autres machines de l'atelier en modèles simplifiés,
    et la chaîne de débit peinte au sol.

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Mortaiseuse : bruit ENREGISTRÉ (30/10/2026, engine/sons/mortaise-*.mp3) en deux sources : le groupe hydraulique (mise en route,
 pompe qui force au serrage des vérins) et le bédane (mise en route, à vide, plongée en usinage, arrêt). L'exercice « Mortaise à la cote »
 joué comme un élève, sonomètre relevé toutes les 50 ms : serrage et usinage entendus, niveaux, alerte « casque » en usinage."""

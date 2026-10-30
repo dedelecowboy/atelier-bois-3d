@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages de la machine (mm, degrés) et références partagées. */
 import { TABLE_F } from './constants.js';
 

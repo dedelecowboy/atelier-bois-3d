@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la scie à format : alertes de sécurité et de qualité, mesures de la pièce obtenue.
    Une alerte « danger » active au moment où une coupe commence est une faute grave (parcours évalué).
    Règles validées par l'enseignant (ne pas régresser) :

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Prépare les enregistrements d'une machine pour le simulateur (engine/synth.js, chargerEchantillons) :
 découpe, coupe-bas 40 Hz, mise au même niveau (−20 dBFS), boucles fondues sans clic, MP3 mono 56 kbit/s.
 Essai sur la scie à ruban (29/10/2026), enregistrements fournis par l'enseignant :

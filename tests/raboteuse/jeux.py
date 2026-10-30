@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Exercices guidés de la raboteuse, joués comme un élève (corps JS passés à harness.js()).
 Chaque jeu suppose le mode déjà choisi et rend {log, res, msgs}. Les passes sont animées : on attend leur fin.
 window.__rabot donne les pièces et leurs mesures (lecture seulement : l'élève, lui, clique les pièces)."""

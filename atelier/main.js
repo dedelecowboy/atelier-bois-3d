@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Page « atelier » : entrée visuelle de l'atelier virtuel.
    La salle du plan réel (plan.js) en 3D avec les vrais modèles des machines (buildModel de chaque module, en position de repos),
    la chaîne de débit peinte au sol, une étiquette par poste, une fiche au clic avec le lien vers le simulateur.
@@ -7,7 +8,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { STATIONS, FAMILLES, FLOW, RISQUES } from './stations.js';
+import { STATIONS, FAMILLES, FLOW, RISQUES, PREREQ } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
@@ -193,7 +194,10 @@ for(const s of STATIONS){
 /* ---------- aperçu élève : progression ---------- */
 const ORDER=STATIONS.filter(s=>s.etat!=='avenir');
 let eleve=false, done=0;
-const locked=s=>s.etat==='avenir' || (eleve && ORDER.indexOf(s)>done) || pkgLocked(s);
+/* aperçu « Moodle » : les `done` premiers modules sont validés ; un module est ouvert si son verrou (PREREQ, comme le paquetage) est validé
+   (risques généraux supposés réussis) : après la raboteuse, toupie, mortaiseuse et tenonneuse s'ouvrent ensemble */
+const valide=id=>id==='risques' || ORDER.findIndex(t=>t.id===id)<done && ORDER.findIndex(t=>t.id===id)>=0;
+const locked=s=>s.etat==='avenir' || (eleve && !!PREREQ[s.id] && !valide(PREREQ[s.id])) || pkgLocked(s);
 function applyLocks(){
   for(const s of STATIONS){ const L=locked(s), D=(eleve && ORDER.indexOf(s)>=0 && ORDER.indexOf(s)<done) || !!(PKG && pkgValid(s.id));
     s.lbl.dataset.locked=String(L); s.item.dataset.locked=String(L); s.lbl.dataset.done=String(D); s.item.dataset.done=String(D);
@@ -223,7 +227,7 @@ function hover(s){ if(s===hov) return; if(hov && hov!==sel) tint(hov,false); hov
   canvas.style.cursor= s? 'pointer' : ''; }
 
 function renderCard(s){
-  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev= PKG?.prereq?.[s.id] ? (STATIONS.find(t=>t.id===PKG.prereq[s.id]) || (PKG.prereq[s.id]===RISQUES.id && RISQUES)) : ORDER[ORDER.indexOf(s)-1];
+  const c=$('card'), f=FAMILLES[s.famille], L=locked(s), prev= PKG?.prereq?.[s.id] ? (STATIONS.find(t=>t.id===PKG.prereq[s.id]) || (PKG.prereq[s.id]===RISQUES.id && RISQUES)) : (PREREQ[s.id]==='risques'? RISQUES : STATIONS.find(t=>t.id===PREREQ[s.id]));
   c.style.setProperty('--fam',f.col);
   c.innerHTML=`<div class="card-head"><span class="num">${s.n}</span><div><p class="kick">${f.nom} · ${s.ref}</p><h2>${s.nom}</h2></div>
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>

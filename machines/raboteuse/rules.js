@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Règles de la raboteuse : alertes de sécurité et de qualité.
    Une alerte « danger » active au moment où l'on engage les pièces est une faute grave (parcours évalué).
    Gestes dangereux hors passe (main vers l'entrée ou les rouleaux, machine en marche) : relevés par app.recordDangers(liste).

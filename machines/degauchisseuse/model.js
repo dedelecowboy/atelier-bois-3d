@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la dégauchisseuse « KANAK 520 D » (d'après une dégauchisseuse de 520 mm type UTIS D52
    avec protecteur SUVAMATIC). Marque fictive : ne pas afficher la marque réelle.
    Arbre porte-outils à 4 fers ; sens de rotation : les fers du haut vont vers l'opérateur (+X), contre l'avance. */

@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Styles propres à la scie à ruban : râtelier des lames, dévers, déplacement de la pièce, vue de dessus, pièces débitées. */
 .bl{grid-template-columns:1fr auto;align-items:center}
 .bl-t{font-weight:500}.bl-t small{display:block;font-size:11px;color:var(--muted);font-weight:400}

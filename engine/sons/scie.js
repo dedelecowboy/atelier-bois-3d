@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Enregistrements de scie circulaire (fournis par l'enseignant le 30/10/2026, tools/sons.py scie ; licence À VÉRIFIER) :
    mise en marche, régime à vide, coupe, arrêt et frein. Communs à la scie à format, la scie radiale, la déligneuse et la scie
    d'affranchissement de la tenonneuse (crochet bruit.echantillons, engine/audio.js). */

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Images des machines pour les attestations : chaque modèle 3D en vue 3/4, sur fond transparent → attestations/img/<id>.webp
 Usage : npm run build, puis python3 tools/capture_machines.py [id …] (sans argument : toutes les machines)"""
 import asyncio, os, sys

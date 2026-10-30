@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Fiches de la machine, affichées dans la présentation (onglet « Fiches », colonne de gauche).
 # Lecture obligatoire : l'élève valide chaque fiche (« J'ai lu cette fiche ») avant de pouvoir passer l'évaluation.
 #
@@ -11,7 +12,7 @@
 # Ajouter, retirer ou réordonner des fiches est possible : l'élève devra lire toutes celles du fichier.
 
 ## À quoi sert la mortaiseuse ? | bedane, table, piece
-La mortaiseuse usine des mortaises : des trous rectangulaires qui reçoivent les tenons faits à la tenonneuse. Tenon et mortaise forment l'assemblage le plus courant des cadres, des portes et des meubles.
+La mortaiseuse usine des mortaises : des trous rectangulaires qui reçoivent les tenons faits à la tenonneuse. Tenon et mortaise forment l'assemblage le plus courant des cadres, des portes et des meubles. On fait la mortaise AVANT le tenon : le tenon est ensuite ajusté à la mortaise, à la tenonneuse.
 - Mortaises borgnes (non débouchantes) dans le chant des montants.
 - Mortaises débouchantes, qui traversent la pièce.
 - Mortaises en série, à la même place sur plusieurs pièces, grâce aux butées et aux taquets.

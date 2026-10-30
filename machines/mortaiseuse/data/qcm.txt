@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # QCM sécurité et technique de la mortaiseuse (parcours évalué), niveau bac pro / CAP
 # Sources : cours « La mortaiseuse à bédane horizontal » et fiches de l'atelier (sécurité, mise en marche, procédure, profondeur,
 # distance, arasement) ; INRS ED 6109 (consignation), ED 6122 (risques mécaniques), ED 974 (poussières de bois) ; voir sources.txt.

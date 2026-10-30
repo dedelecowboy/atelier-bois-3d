@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièce sur la dégauchisseuse : forme (profils des 4 faces le long de la pièce), orientation, passes,
    arrachements selon le sens du fil, angle du chant dressé par rapport à la face contre le guide,
    repères au crayon.

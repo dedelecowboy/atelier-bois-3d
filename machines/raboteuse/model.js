@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la raboteuse « KANAK 630 E » (d'après une raboteuse de 630 mm à commande électronique de la cote,
    bâti acier-béton, table sur quatre colonnes, arbre à 4 lames réversibles). Marque fictive : ne pas afficher la marque réelle.
    L'arbre est fixe, au-dessus de la table ; la table monte et descend. Sens de rotation : les lames du bas vont vers

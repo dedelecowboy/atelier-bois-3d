@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Outils de construction des modèles 3D, communs à toutes les machines.
    Unités : mètres. Une machine importe ce dont elle a besoin. */
 import * as THREE from 'three';

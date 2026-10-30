@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # QCM sécurité et technique de la dégauchisseuse (parcours évalué)
 #
 # Comment modifier ce fichier :

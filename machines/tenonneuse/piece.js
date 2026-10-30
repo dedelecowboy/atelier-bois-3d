@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces à la tenonneuse : pièces de corroyage (engine/corroyage.js : faces F1/F2/C1/C2, repères SR1/SR2, fil, profils de
    la toupie), posées en travers sur le chariot, la face « down » sur la table du chariot, la face « back » contre le
    pare-éclat du guide (+X). Le bout usiné est A (bout en u = 0) ou B si la pièce est retournée bout pour bout (flip).
@@ -59,6 +60,7 @@ export function newPiece(spec){
     if(spec.dress) C.dresseSR(q,spec.dress);
     if(spec.lar){ C.rabote(q,'C1',spec.lar); Object.assign(q.face.C2,{passes:1,rab:true,full:true,angle:{ref:'F1',deg:90}}); }
     if(spec.ep){ C.rabote(q,'F1',spec.ep); Object.assign(q.face.F2,{passes:1,rab:true,full:true}); }
+    if(spec.morts) q.morts=spec.morts(q);      // pièce déjà mortaisée (montant venu de la mortaiseuse)
     q.k=spec.k||0; q.flip=!!spec.flip; }
   pieces.push(q);
   if(q.state==='chariot'){ placeDefault(q); build(q); }

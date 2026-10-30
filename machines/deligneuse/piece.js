@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièces sur la déligneuse : forme (avivé ou plateau en flache), orientation, position en travers,
    passe entraînée par le tapis, découpe par les plans des lames, pièces débitées.
 

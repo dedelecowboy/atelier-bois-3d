@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Nomenclature de la scie à ruban KANAK 800 RB
 #
 # Comment modifier ce fichier :

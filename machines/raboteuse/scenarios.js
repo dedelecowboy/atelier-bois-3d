@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la raboteuse : la suite du corroyage. Les pièces arrivent de la dégauchisseuse (SR1 et SR2 dressés,
    repérés au crayon, posées SR1 dessus comme on les a repérées) : mise à largeur d'abord (sur chant, SR2 sur la table : la pièce
    encore épaisse est plus stable), puis mise à épaisseur (à plat, SR1 sur la table), puis contrôle au pied à coulisse, au dixième.

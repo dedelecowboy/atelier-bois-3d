@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Géométrie 2D des pièces : polygones convexes [[x,z],…] (repère de la machine ou local). */
 
 export function centroid(P){ let x=0,z=0; for(const q of P){x+=q[0];z+=q[1];} return [x/P.length,z/P.length]; }

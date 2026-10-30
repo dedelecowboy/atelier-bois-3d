@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios du module « Risques généraux » : état de départ, actions de l'élève, étapes guidées, critères notés.
    Parcours évalué : 4 scénarios de 15 points (5 critères de 3 points dont « aucune faute grave »).
    Une action renvoie { msg, level } (message affiché) et, pour une faute grave, fault: 'texte' (relevée par le parcours).

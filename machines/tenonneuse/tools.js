@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Bibliothèque d'outils de la tenonneuse et règle de la vitesse de rotation.
 
    Chaque arbre reçoit un type d'outil : 'scie' (lame), 'der' (dérouleur, supérieur ou inférieur), 'tou' (unité de toupillage).

@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Paquetage unique « Atelier bois 3D » (dist/Atelier_bois_3D_SCORM12*.zip) :
 - manifeste : atelier (SCO toujours « incomplete ») + « 0. Risques généraux » + 9 machines (SCO), lib partagée,
   verrous : risques généraux avant la scie radiale, la scie à format, la scie à ruban et la mortaiseuse, puis la chaîne de débit (ou aucun) ;
@@ -12,7 +13,7 @@ from playwright.async_api import async_playwright
 
 NS = {'c': 'http://www.imsproject.org/xsd/imscp_rootv1p1p2', 'a': 'http://www.adlnet.org/xsd/adlcp_rootv1p2'}
 A = '{http://www.adlnet.org/xsd/adlcp_rootv1p2}'
-ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'tenonneuse', 'scie-format', 'scie-ruban', 'mortaiseuse']
+ORDER = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'toupie', 'mortaiseuse', 'tenonneuse', 'scie-format', 'scie-ruban']
 
 def manifest(zp, lock):
     z = zipfile.ZipFile(zp); names = set(z.namelist())
@@ -20,7 +21,8 @@ def manifest(zp, lock):
     items = m.findall('.//c:organization/c:item', NS); res = {r.get('identifier'): r for r in m.findall('.//c:resource', NS)}
     check(len(items) == 11 and items[0].find('c:title', NS).text == 'Atelier', f'{os.path.basename(zp)} : 11 éléments, l\'atelier en premier')
     titles = [i.find('c:title', NS).text for i in items]
-    check(titles[1] == '0. Risques généraux' and titles[2] == '1. Scie radiale' and titles[8] == '7. Scie à format' and titles[9] == '8. Scie à ruban' and titles[10] == '9. Mortaiseuse', 'titres : « 0. Risques généraux », machines numérotées de 1 à 7 comme avant, puis « 8. Scie à ruban », « 9. Mortaiseuse »')
+    check(titles[1:] == ['0. Risques généraux', '1. Scie radiale', '2. Déligneuse multilames', '3. Dégauchisseuse', '4. Raboteuse', '5. Toupie', '6. Mortaiseuse', '7. Tenonneuse', '8. Scie à format', '9. Scie à ruban'],
+          f'titres (30/10/2026) : risques généraux, corroyage, puis toupie, mortaiseuse (avant le tenon), tenonneuse, scie à format, scie à ruban : {titles[1:]}')
     kinds = [res[i.get('identifierref')].get(A + 'scormtype') for i in items]
     check(kinds == ['sco'] * 11, 'atelier, risques généraux et 9 machines « sco » (Moodle ne lance pas un asset de lui-même)')
     hrefs = [res[i.get('identifierref')].get('href') for i in items]
@@ -30,7 +32,8 @@ def manifest(zp, lock):
     pre = [i.find('a:prerequisites', NS) for i in items]
     pre = [p.text if p is not None else None for p in pre]
     ids = [i.get('identifier') for i in items]
-    if lock: check(pre[1] is None and pre[2] == ids[1] and pre[8] == ids[1] and pre[9] == ids[1] and pre[10] == ids[1] and all(pre[k] == ids[k - 1] for k in range(3, 8)), 'verrous : risques généraux avant la scie radiale, la scie à format, la scie à ruban et la mortaiseuse, puis chaque machine de la chaîne demande la précédente')
+    if lock: check(pre[1] is None and pre[2] == ids[1] and pre[9] == ids[1] and pre[10] == ids[1] and all(pre[k] == ids[k - 1] for k in range(3, 6)) and pre[6] == pre[7] == pre[8] == ids[5],
+                   'verrous : risques généraux avant la scie radiale, la scie à format et la scie à ruban ; chaîne jusqu\'à la raboteuse ; après la raboteuse, toupie, mortaiseuse et tenonneuse ouvertes ensemble')
     else: check(all(p is None for p in pre), 'sans verrous')
     check(b'masteryscore' not in z.read('imsmanifest.xml'), 'pas de masteryscore (le module pose passed / failed)')
     for mid in ORDER:

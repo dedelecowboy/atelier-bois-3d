@@ -1,3 +1,4 @@
+/* © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Styles propres à la dégauchisseuse : protecteur, tableau des faces. */
 
 .prot{grid-template-columns:1fr auto;align-items:center}

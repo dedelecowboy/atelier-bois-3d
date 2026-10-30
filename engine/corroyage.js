@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Pièce de corroyage, commune à la dégauchisseuse et à la raboteuse : une pièce dressée à l'une peut passer
    à l'autre (mêmes faces, mêmes repères, même fil). pieceJSON / makePiece(json) la transportent telle quelle.
 

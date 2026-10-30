@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Personnages de l'atelier (élèves), articulés : bassin, dos, cou, tête ; épaules, coudes, poignets ; hanches, genoux.
    person(o) rend un groupe debout sur y = 0, regardant vers +Z, environ 1,74 m.
    o.epi   : codes d'EPI portés (lunettes, auditif, masque, masque_a, chaussures, gants_manut, gants_chim, tenue)

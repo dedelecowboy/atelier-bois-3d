@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Toupie KANAK 130 T : assemblage du module (modèle, outils, pièces, règles, scénarios) sur le moteur commun. */
 import { createApp } from '../../engine/app.js';
 import { initSchema } from '../../engine/schema.js';

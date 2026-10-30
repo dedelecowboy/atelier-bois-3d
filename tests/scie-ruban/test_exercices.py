@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Scie à ruban : les trois exercices guidés de bout en bout (changement et réglage de la lame, chantournage suivant un
 tracé, refente au guide), puis les gestes refusés et les alertes de sécurité en mode libre."""
 import os, sys

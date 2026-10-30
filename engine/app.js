@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Assemblage d'un module machine.
 
    const app = createApp(config, {organes, qcm, reperage});   // textes bruts des fichiers de données

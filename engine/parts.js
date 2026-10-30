@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Organes de la machine : registre (depuis organes.txt), nomenclature cliquable, surbrillance,
    vue intérieure (transparence) et sélection au clic / au doigt dans la 3D. */
 import * as THREE from 'three';

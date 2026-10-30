@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Confort de lecture (engine/lecture.js, 30/10/2026) : bouton « Aa » de l'en-tête, police lisible et texte aéré, taille du texte
 (colonnes élargies), lecture à voix haute (🔈 lit la consigne en cours, clic sur un texte, Échap), choix gardés d'une page à l'autre ;
 sur la scie radiale (présentation, exercice, parcours SCORM), sur la page atelier, et sur téléphone. La voix n'est pas entendue en

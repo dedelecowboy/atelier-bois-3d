@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Tenonneuse, mode libre : points de sécurité et de qualité.
 - interverrouillages : capot (sélecteur, temporisation, démarrage refusé capot ouvert), filin de sécurité (boîtier puis réarmement) ;
 - outils : lame retournée (ne coupe pas), dérouleur du mauvais sens, n max, carters déposés ;

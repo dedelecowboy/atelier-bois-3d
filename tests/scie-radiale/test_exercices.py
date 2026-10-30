@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Scie radiale : les trois exercices guidés de bout en bout (débit en série, purge des défauts, coupe inclinée),
 puis les gestes refusés (pièce touchée lame en avant, réglages lame en marche, pièce non tenue)."""
 import os, sys

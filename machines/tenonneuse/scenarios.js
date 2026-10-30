@@ -1,9 +1,11 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la tenonneuse. Les pièces arrivent corroyées (dégauchisseuse puis raboteuse : SR1 et SR2 dressés et
    repérés, largeur et épaisseur faites), en attente dans « Pièces débitées ».
    1. Tenon simple sur une traverse de chêne : longueur à la scie (sous le capot), joue et épaisseur réglées en montant depuis
       SR1, pare-éclat renouvelé et usiné à vide, contrôle au pied à coulisse et au réglet.
-   2. Série de traverses de hêtre tenonnées aux deux bouts : pièce d'essai, premier bout de toute la série, butée de longueur
-      contre l'arasement, deuxième bout SR1 toujours sur la table ; longueur entre arasements.
+   2. Série de traverses de hêtre tenonnées aux deux bouts : pièce d'essai ajustée à la mortaise d'un montant déjà mortaisé (la
+      mortaise se fait avant le tenon), premier bout de toute la série, butée de longueur contre l'arasement, deuxième bout SR1
+      toujours sur la table ; longueur entre arasements.
    3. Enfourchements sur deux montants de chêne, machine préparée par un autre groupe (fraise de l'unité de toupillage marquée
       n max 4 500 pour un arbre à 6 000 tr/min, dérouleurs qui toucheraient la pièce) et lot avec une pièce trop courte.
    Barème du parcours : 5 critères de 4 points dont « aucune faute grave ». */
@@ -14,6 +16,7 @@ import { peRenew, peMachineAll } from './piece.js';
 import { pieces, newPiece, clearPieces, chariotPiece, atHome, endInfo, fromFace, betweenShoulders, overhang, peKey, H, fmt, cut } from './piece.js';
 import { spinning } from './rules.js';
 import * as C from '../../engine/corroyage.js';
+import { mortises, tenonOf, fit } from '../../engine/assemblage.js';
 
 const lot={};
 const near=(v,t,e)=>Math.abs(v-t)<=e+1e-9;
@@ -27,6 +30,13 @@ const protOk=q=>!!q && st.protH>=H(q)-1e-6 && st.protH<=H(q)+PROT_JEU+1e-6;
 const tenonAt=(q,e)=>{ const I=endInfo(q,e); return I && I.items.find(x=>x.type==='tenon'&&x.ax==='w') || null; };
 const enfAt=(q,e)=>{ const I=endInfo(q,e); return I && I.items.find(x=>x.type==='enf'&&x.ax==='w') || null; };
 const endWith=(q,f)=>['A','B'].find(e=>f(q,e))||null;
+/* la mortaise se fait AVANT le tenon (décidé par l'enseignant le 30/10/2026 : on ajuste le tenon à la mortaise). Série : montant de hêtre
+   mortaisé à la mortaiseuse (scénario « Série en butée » : 900 × 60 × 24, mortaise 8 × 60 × 37 à 8 mm de SR1, sur SR2, à 150 mm du bout) ;
+   le tenon de la pièce d'essai doit y entrer avant de lancer la série */
+const MORT=q=>{ const lo=Math.min(...q.w1), v=Math.min(...q.v1); return [{u0:150,u1:210,w0:lo+8,w1:lo+16,v0:-C.BIG,v1:v+37,ec:false}]; };
+export function assemblage(q){ const m=lot.m&&mortises(lot.m)[0], e=q&&endWith(q,tenonAt), t=e&&tenonOf(q,e);
+  return m&&t? fit(m,t,'F1',sr1(q)||'F1') : { ok:false, why: t? 'montant introuvable' : 'pas de tenon' }; }
+const sr1=q=>['F1','F2'].find(f=>q.face[f].mark==='loop')||null;
 const tenonOk=(it,th,pos,len)=>!!it && near(it.th,th,0.1) && near(fromFace(it,'F1'),pos,0.1) && near(it.lenLo,len,0.5) && near(it.lenHi,len,0.5);
 const refOk=q=>{ const L=q.log.filter(l=>l.done&&l.cuts.length); return L.length>0 && L.every(l=>l.down==='F1'); };
 const noEc=q=>!['A','B'].some(e=>q.ends&&q.ends[e]&&q.ends[e].ec);
@@ -52,9 +62,9 @@ function rows(mode){ const r=[];
       ['Réglé depuis SR1 (table) et SR2 (guide)',yes(ref),ref]); }
   if(mode==='serie'){ const B=['a','b','c'].map(k=>lot[k]); if(B.some(q=>!q)) return {msg:'Pièces introuvables.'};
     const nT=B.filter(q=>tenonOk(tenonAt(q,'A'),8,8,35)&&tenonOk(tenonAt(q,'B'),8,8,35)).length, bs=B.map(betweenShoulders), nL=bs.filter(x=>x!==null&&near(x,500,0.5)).length;
-    const ref=B.every(refOk), ec=B.every(noEc), essai=!!lot.e && !!endWith(lot.e,tenonAt) && lot.e.state==='stock';
+    const ref=B.every(refOk), ec=B.every(noEc), A=assemblage(lot.e), essai=!!lot.e && A.ok && lot.e.state==='stock';
     r.push(['Tenons conformes aux deux bouts (8,0 à 8,0 de SR1, joues 35,0)',`${nT} / 3`,nT===3],['Longueur entre arasements 500,0 ± 0,5 mm',`${nL} / 3${bs.some(x=>x!==null)?' ('+bs.map(x=>x===null?'—':fmt(x)).join(' ; ')+')':''}`,nL===3],
-      ['SR1 sur la table à chaque passe (même référence aux deux bouts)',yes(ref),ref],['Arasements nets, sans éclat',yes(ec),ec],['Pièce d\'essai usinée et contrôlée',yes(essai),essai]); }
+      ['SR1 sur la table à chaque passe (même référence aux deux bouts)',yes(ref),ref],['Arasements nets, sans éclat',yes(ec),ec],['Pièce d\'essai : le tenon entre dans la mortaise du montant',essai? 'oui' : !lot.e||!endWith(lot.e,tenonAt)? 'pas d\'essai' : A.ok? 'pas mise de côté' : A.why,essai]); }
   if(mode==='enfourchement'){ const B=['a','b'].map(k=>lot[k]); if(B.some(q=>!q)) return {msg:'Pièces introuvables.'};
     const E=B.map(q=>{ const e=endWith(q,enfAt); return e? enfAt(q,e) : null; });
     const nW=E.filter(x=>x&&near(x.width,9,0.1)&&near(fromFace(x,'F1'),9,0.1)).length, nD=E.filter(x=>x&&near(x.depth,40,0.5)).length;
@@ -72,7 +82,8 @@ const PIECES={
   tenon:[['a',{name:'Traverse',L:600,W:72,T:29.5,lar:70,ep:27,wood:'chene',seed:21,dress:DR,state:'stock'}]],
   serie:[['e',{name:'Pièce d\'essai',L:450,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:9,dress:DR,state:'stock'}],
     ['a',{name:'Traverse 1',L:600,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:5,dress:DR,state:'stock'}],['b',{name:'Traverse 2',L:600,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:6,dress:DR,state:'stock'}],
-    ['c',{name:'Traverse 3',L:600,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:7,dress:DR,state:'stock'}]],
+    ['c',{name:'Traverse 3',L:600,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:7,dress:DR,state:'stock'}],
+    ['m',{name:'Montant mortaisé (mortaiseuse)',L:900,W:62,T:26,lar:60,ep:24,wood:'hetre',seed:8,dress:DR,state:'stock',morts:MORT}]],
   enfourchement:[['a',{name:'Montant 1',L:700,W:72,T:29.5,lar:70,ep:27,wood:'chene',seed:31,dress:DR,state:'stock'}],['b',{name:'Montant 2',L:700,W:72,T:29.5,lar:70,ep:27,wood:'chene',seed:32,dress:DR,state:'stock'}],
     ['c',{name:'Montant court',L:200,W:72,T:29.5,lar:70,ep:27,wood:'chene',seed:33,dress:DR,state:'stock'}]],
 };
@@ -122,7 +133,7 @@ export const STEPS={
     fin,
     ctrl('Contrôlez le tenon : épaisseur et position depuis SR1 au pied à coulisse, longueur des joues au réglet, arasements nets, référence respectée.',()=>rows('tenon'))],
   serie:[
-    prep('Série de 3 traverses de hêtre corroyées (600 × 60 × 24) : tenons de 8 mm d\'épaisseur, à 8 mm de SR1, 35 mm de long, aux deux bouts, 500 mm entre arasements. Une pièce d\'essai de même section sert à valider les réglages. EPI, poste dégagé, aspiration en marche.'),
+    prep('Série de 3 traverses de hêtre corroyées (600 × 60 × 24) : tenons de 8 mm d\'épaisseur, à 8 mm de SR1, 35 mm de long, aux deux bouts, 500 mm entre arasements. Les montants sont déjà mortaisés (la mortaise se fait avant le tenon) : le tenon est ajusté à leur mortaise de 8 × 60 × 37. Une pièce d\'essai de même section sert à valider les réglages. EPI, poste dégagé, aspiration en marche.'),
     capotOpen,
     {k:'Scie', t:'Longueur du tenon', c:'Scie : trait à 35 mm de l\'arasement. Unité de toupillage hors de la pièce.',
       checks:[['Scie : longueur du tenon 35 mm',()=>near(st.lt,35,0.05)],['Unité de toupillage hors de la pièce',()=>st.pt<=0]], done:s=>s.checks.every(c=>c[1]())},
@@ -131,9 +142,9 @@ export const STEPS={
       c:'Dérouleur inférieur à 8 mm, épaisseur 8 mm. Les compteurs sont à 9 : il faut descendre ; descendez sous la cote, puis remontez à 8 (réglage en montant).',
       checks:[['Joue du dessous : 8 mm',()=>near(st.hInf,8,0.05)],['Épaisseur du tenon : 8 mm',()=>near(st.ep,8,0.05)],['Réglés en montant (jeu rattrapé)',()=>!st.bl.hInf&&!st.bl.ep]], done:s=>s.checks.every(c=>c[1]())},
     peStep('Renouvelez le pare-éclat et usinez-le à vide (scie et dérouleurs en marche, chariot poussé sans pièce, puis ramené et verrouillé).'),
-    {k:'Essai', t:'Pièce d\'essai',
-      c:'Passez la pièce d\'essai (SR1 sur la table, SR2 contre le guide, presse serrée, protecteur réglé), contrôlez son tenon dans « Bouts de la pièce » (8 × 35 à 8 de SR1), puis mettez-la de côté.',
-      checks:[['Pièce d\'essai tenonnée',()=>!!lot.e&&!!endWith(lot.e,tenonAt)],['Pièce d\'essai conforme',()=>{ const e=endWith(lot.e,tenonAt); return !!e&&tenonOk(tenonAt(lot.e,e),8,8,35); }],['Pièce d\'essai mise de côté',()=>lot.e.state==='stock']], done:s=>s.checks.every(c=>c[1]())},
+    {k:'Essai', t:'Pièce d\'essai et assemblage',
+      c:'Passez la pièce d\'essai (SR1 sur la table, SR2 contre le guide, presse serrée, protecteur réglé), contrôlez son tenon dans « Bouts de la pièce » (8 × 35 à 8 de SR1) et présentez-le dans la mortaise du montant (« Pièces débitées » : montant mortaisé à la mortaiseuse) : il doit entrer, parements affleurants. Sinon, corrigez les réglages avant la série. Mettez-la de côté.',
+      checks:[['Pièce d\'essai tenonnée',()=>!!lot.e&&!!endWith(lot.e,tenonAt)],['Pièce d\'essai conforme',()=>{ const e=endWith(lot.e,tenonAt); return !!e&&tenonOk(tenonAt(lot.e,e),8,8,35); }],['Le tenon entre dans la mortaise du montant',()=>assemblage(lot.e).ok],['Pièce d\'essai mise de côté',()=>lot.e.state==='stock']], done:s=>s.checks.every(c=>c[1]())},
     {k:'Premier bout', t:'Premier bout de toute la série',
       c:'Butée relevée, usinez le premier bout des trois traverses, l\'une après l\'autre : SR1 sur la table, SR2 contre le guide, le bout dépasse du trait de scie, presse serrée. Mettez chaque traverse de côté avant de reprendre la suivante (chariot ramené et verrouillé).',
       checks:[['Traverse 1 : premier tenon',()=>!!tenonAt(lot.a,'A')],['Traverse 2 : premier tenon',()=>!!tenonAt(lot.b,'A')],['Traverse 3 : premier tenon',()=>!!tenonAt(lot.c,'A')]], done:s=>s.checks.every(c=>c[1]())},
@@ -171,12 +182,12 @@ export const STEPS={
 /* ---------- parcours évalué : 3 scénarios, 5 critères de 4 points ---------- */
 export const SCENS=[
   {mode:'tenon', view:'vop', t:'Tenon simple', intro:'Tenon de 9 × 40 mm à 9 mm de SR1 sur une traverse corroyée : longueur à la scie (sous le capot), joue et épaisseur réglées en montant, pare-éclat usiné, puis contrôle.'},
-  {mode:'serie', view:'vop', t:'Série aux deux bouts', intro:'Trois traverses tenonnées aux deux bouts, 500 mm entre arasements : pièce d\'essai, premier bout de toute la série, butée contre l\'arasement, deuxième bout SR1 sur la table.'},
+  {mode:'serie', view:'vop', t:'Série aux deux bouts', intro:'Trois traverses tenonnées aux deux bouts, 500 mm entre arasements, ajustées aux mortaises des montants déjà mortaisés : pièce d\'essai et assemblage, premier bout de toute la série, butée contre l\'arasement, deuxième bout SR1 sur la table.'},
   {mode:'enfourchement', view:'vop', t:'Enfourchement et machine à contrôler', intro:'Enfourchements sur deux montants. La machine a été préparée par un autre groupe et le lot contient une pièce à ne pas usiner : vérifiez tout avant de démarrer.'},
 ];
 export function scenCriteria(m,{dangers,ok}){ const sec=['Aucune faute grave',`${dangers}`,ok];
   const R=rows(m); if(!R.rows) return [['Pièce','—',false],['Pièce','—',false],['Pièce','—',false],['Pièce','—',false],sec];
   const r=R.rows;
   if(m==='tenon') return [r[0],r[1],r[2],['Arasements nets, référence respectée',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec];
-  if(m==='serie') return [r[0],r[1],r[2],['Sans éclat, pièce d\'essai',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec];
+  if(m==='serie') return [r[0],r[1],r[2],['Sans éclat, assemblage vérifié sur la pièce d\'essai',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec];
   return [r[0],r[1],r[2],['Vitesse adaptée, sans éclat',`${r[3][1]} / ${r[4][1]}`,r[3][2]&&r[4][2]],sec]; }

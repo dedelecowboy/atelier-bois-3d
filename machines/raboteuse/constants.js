@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la raboteuse (mètres, repère de la scène).
    X = sens d'avance : l'opérateur est à l'entrée, côté +X ; la pièce avance vers −X (sortie, rallonge de 1 200 mm).
    Z : pupitre et transmission d'avance côté −Z (à droite de l'opérateur), courroies de l'arbre côté +Z.

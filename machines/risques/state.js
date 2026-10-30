@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* État des scénarios du module « Risques généraux » (remis à zéro par chaque mode, voir scenarios.js). */
 export const st = {
   d: null,   // dangers : { found:{code:{m, ok}}, fa:[codes], pending, fb }

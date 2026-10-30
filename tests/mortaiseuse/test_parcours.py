@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Mortaiseuse : parcours évalué SCORM avec une fausse API Moodle.
 1. Fiches à lecture obligatoire (paquetage séparé) : lecture avant le repérage, trace MORTAISE_lecture.
 2. Parcours complet (2 erreurs de repérage, 3 erreurs de QCM, 3 scénarios réussis) → 94 / 100, passed, 51 interactions.

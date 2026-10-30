@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la tenonneuse « KANAK 160 TN » (d'après la tenonneuse simple de l'atelier : chariot rouge à table aluminium,
    guide orientable, presse-pièce pneumatique, butée de longueur d'arasement à taquets de couleur, scie d'affranchissement,
    dérouleurs supérieur et inférieur, unité de toupillage verticale, capot blanc vitré relevable, filin de sécurité).

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Schéma de principe du réglage, posé sur la vue 3D (demandé par l'enseignant : les réglages le cachaient).
    Il apparaît dès qu'on touche un réglage (curseur, champ, bouton du bloc #settings, ou bouton de la pièce dans le dock),
    et disparaît 6 s après la dernière action, sauf s'il est épinglé (bouton « Schéma du réglage : afficher ») ; × le ferme.

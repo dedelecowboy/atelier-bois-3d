@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la scie à format « KANAK 550 » (d'après une Format-4 kappa 550).
    Règles validées par l'enseignant : couteau diviseur DERRIÈRE la lame ; dents du haut vers l'opérateur ;
    pas de bague de protection autour de la lame ; groupe d'inclinaison dans le bâti ; marque fictive KANAK 550. */

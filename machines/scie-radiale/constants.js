@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Cotes de la scie radiale (mètres, repère de la scène).
    X = le long du guide (sens de la longueur des planches) : la planche arrive par la gauche (−X, servante à rouleaux),
    les pièces débitées sortent à droite (+X), entre la lame et la butée de longueur.

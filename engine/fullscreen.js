@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Plein écran. Dans le paquetage unique, c'est le lecteur SCORM de Moodle entier (sommaire + contenu) qui passe en
    plein écran, dans la page de Moodle (même domaine) : il le reste quand on passe d'une machine à l'atelier, puisque
    seul le contenu du cadre change. Hors du paquetage : la page elle-même, comme avant. */

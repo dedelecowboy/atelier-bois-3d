@@ -1,3 +1,4 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Outil des attestations : lecture du rapport de base de Moodle (formats réels du 28/10/2026, avec et sans objectifs,
 avec l'élément « 0. Risques généraux »), une attestation par machine (ou module risques) validée (note ≥ 70), deux par feuille A4, pas de défilement horizontal sur téléphone."""
 import asyncio, os, sys

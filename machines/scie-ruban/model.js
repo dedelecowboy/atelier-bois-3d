@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Modèle 3D de la scie à ruban « KANAK 800 RB » (machine fictive de synthèse, volants Ø 800 ; proportions estimées
    d'après les photos de scies à ruban de menuiserie fournies par l'enseignant et l'affiche INRS « Scie à ruban à table »).
    Ne pas afficher de marque réelle.

@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Squelette HTML commun, produit au moment de la fabrication (tools/build.mjs) à partir de la
    configuration de la machine et de ses fragments HTML (réglages, dock, panneau d'exercice, pupitre).
    pupitre.html (facultatif) : commandes de marche (agir), barre posée en bas de la vue 3D, fixée en bas de l'écran sur téléphone. */
@@ -50,6 +51,7 @@ export function renderShell(c, frag){
       ${frag.panel||''}
     </div>
     <div id="presSlot"><h2>Réglages</h2></div>
+    <p class="credit">© 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT · licence GNU GPL v3</p>
   </aside>
   <div class="dock" id="dock">
     ${frag.dock||'<div></div>'}

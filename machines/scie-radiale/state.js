@@ -1,3 +1,4 @@
+/*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Réglages de la scie radiale (mm, degrés) et plan de la lame. */
 import { TABLE_Y, Z_PIV, KERF } from './constants.js';
 
