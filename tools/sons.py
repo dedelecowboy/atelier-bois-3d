@@ -15,6 +15,9 @@ Scies circulaires (scie à format, scie radiale, déligneuse, scie de la tenonne
 Mortaiseuse (fourni le 30/10/2026) : mort.mp3 = « Bedanatrice_MasterWood_OMB_1 » (mise en route du groupe hydraulique 6,0 s,
   pompe 7–9 s, pompe qui force au serrage des vérins 10,5–13 s, moteur du bédane 13 s, à vide 14–19,8 s, plongée en usinage 20–30 s,
   sortie de la matière 30–31,5 s, arrêt 31,5–34,5 s) → engine/sons/mortaise-*.mp3 (lus seulement par la mortaiseuse : rangés avec les autres).
+Toupie (fourni le 30/10/2026) : toupie.mp3 = « Usinage d'une feuillure à la toupie » (à vide 0–3,4 s, usinage 3,5–11,7 s)
+  → engine/sons/toupie-vide.mp3, toupie-coupe.mp3 ; pas de démarrage ni d'arrêt enregistrés.
+Usage : python3 tools/sons.py toupie <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py mortaise <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py scie <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py rabotage <dossier des enregistrements> engine/sons
@@ -84,4 +87,8 @@ def mortaise():
     save(loop(seg(x,14.0,19.8)*gb,0.35),'mortaise-vide',48)
     save(loop(norm(seg(x,20.0,31.4)),0.4),'mortaise-coupe',48)
     save(fade(seg(x,31.4,34.6)*gb,0.1,0.4),'mortaise-arret',48)
-{'mortaise':mortaise,'scie':scie,'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()
+def toupie():
+    x=hp(load(os.path.join(S,'toupie.mp3')))
+    save(loop(norm(seg(x,0.1,3.4)),0.3),'toupie-vide',48)
+    save(loop(norm(seg(x,3.6,11.6)),0.4),'toupie-coupe',48)
+{'toupie':toupie,'mortaise':mortaise,'scie':scie,'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()

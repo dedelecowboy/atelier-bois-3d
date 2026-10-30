@@ -8,6 +8,10 @@ import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
 import { RPMS, RINGS, H_MIN, H_MAX, P_MIN, P_MAX, E_MAX, OPEN_MIN, OPEN_MAX, HV_MAX, DH_MAX, VARIATEUR, TABLE_Y, FEED, BRUIT, BRUIT_DURETE } from './constants.js';
+/* enregistrement « Usinage d'une feuillure à la toupie » (fourni par l'enseignant le 30/10/2026, tools/sons.py toupie ; licence À VÉRIFIER) :
+   il remplace le son synthétisé (moteur et « rugissement », gardés dans engine/synth.js pour le banc d'écoute) */
+import sonVide from '../../engine/sons/toupie-vide.mp3';
+import sonCoupe from '../../engine/sons/toupie-coupe.mp3';
 import { st, ctx, $, tool, saillie } from './state.js';
 import { LIB, toolById, Rmax, Dmm, marking, profilePts, speedCheck, advisedRpm } from './tools.js';
 import { buildModel } from './model.js';
@@ -259,7 +263,7 @@ app.start({
   tick(dt,now){ const moved=tickPass(now, st.motor&&model.spin>0.5&&(!st.entr.placed||st.entr.on)); const s0=model.spin; model.tick(dt);
     const b=!!butePiece(); if(b&&!wasBute) app.bruit?.bang('coup'); wasBute=b;   // la pièce bute contre le demi-guide de sortie
     if(moved||cut.msgSeq!==lastSeq||(s0>0.03)!==(model.spin>0.03)) apply(); },
-  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, etat:bruitEtat },
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:{ vide:sonVide, coupe:sonCoupe }, etat:bruitEtat },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
 /* poignée pour les tests et pour la future page « atelier » : importPiece(pieceJSON d'une autre machine) pose la pièce à l'entrée */

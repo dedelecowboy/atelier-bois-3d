@@ -21,6 +21,8 @@ NOISE = r"""
 """
 
 async def main():
+    html = open(os.path.join(os.path.dirname(__file__), '..', '..', 'dist', 'toupie.html'), encoding='utf-8').read()
+    check(html.count('data:audio/mpeg;base64,') == 4, f'toupie : 4 enregistrements intégrés (vide, usinage, aspiration ×2), page de {len(html)//1024} Ko')
     async with Page('toupie') as pg:
         await pg.eval("()=>document.getElementById('ui-ex').click()")
         r = await pg.eval(js(BASE + NOISE + r"""
@@ -37,7 +39,7 @@ async def main():
           $('casque').click(); await sleep(100); out.sansCasque=!!noiseAlert()===false;   // à vide (84) : pas d'alerte
           // arrêt : l'outil tourne encore (frein), le niveau redescend
           off('motor'); out.frein={ spin:T.model.spin, total:calc().total, mi:Bz().niveau({on:false,rpm:9000,spin:0.5,cut:0,dents:2}).total };   // juste après l'arrêt (le frein en headless dépend du rythme des images)
-          await stop(); off('asp'); { let n=0; while(Bz().asp>0&&n<150){ await sleep(100); n++; } } await settle(); out.fin={ total:calc().total, shown:shown() };   // aspiration arrêtée aussi (le ventilateur ralentit)
+          await stop(); off('asp'); { let n=0; while((Bz().asp>0||calc().total>45.05)&&n<400){ await sleep(100); n++; } } await settle(); out.fin={ total:calc().total, shown:shown() };   // aspiration arrêtée aussi (le ventilateur ralentit)
           return out;"""))
         d = r['def']
         check(not d['on'] and d['btn'] == '🔇' and not d['hidden'] and d['vol'] and not d['ctx'], f'son coupé par défaut (bouton {d["btn"]}, pas d\'AudioContext créé)')
@@ -65,12 +67,14 @@ async def main():
         r = await pg.eval(js(BASE + NOISE + r"""
           $('sndBtn').click(); await sleep(400);
           const out={ on:Bz().on, btn:$('sndBtn').textContent, vol:!$('sndVol').hidden, ctx:Bz().ctx&&Bz().ctx.state, err:Bz().err };
+          { let n=0; while(!Bz().enregistrements&&n<60){ await sleep(100); n++; } } out.ech=Bz().enregistrements;
           await start(); await sleep(500);
           window.__atelier.bruit.bang('choc'); window.__atelier.bruit.bang('au'); window.__atelier.bruit.bang('coup');
           await stop(); out.store=localStorage.getItem('atelier.son');
           $('sndBtn').click(); await sleep(100); out.off=!Bz().on; out.store2=localStorage.getItem('atelier.son'); $('sndBtn').click(); await sleep(200);
           return out;"""))
         check(r['on'] and r['btn'] == '🔊' and r['vol'] and r['ctx'] in ('running', 'suspended') and not r['err'], f'son activé au clic : AudioContext {r["ctx"]}, volume visible')
+        check(r['ech'], 'enregistrement de la toupie (à vide, usinage) décodé : il remplace le son synthétisé')
         check('"on":true' in (r['store'] or '') and r['off'] and '"on":false' in (r['store2'] or ''), 'choix du son gardé dans le navigateur (localStorage)')
         check(not pg.errors, 'aucune erreur avec le son : ' + '; '.join(pg.errors))
         print('   capture', await pg.shot('toupie_bruit_1400.png'))
