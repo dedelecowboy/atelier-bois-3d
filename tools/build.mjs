@@ -235,6 +235,9 @@ async function buildTraining(){
     files[`${id}/index.html`] = strToU8(doc(B.config.pageTitle || B.config.title, `<style>\n${B.css}</style>\n${B.shell}`, await bundle(path.join(ROOT, 'machines', id, 'main.js')))); }
   files['LISEZ-MOI.txt'] = strToU8(`Atelier bois 3D – version d'entraînement (sans note, sans Moodle)\r\n\r\nDézippez le dossier, puis ouvrez index.html dans Chrome, Edge ou Firefox : l'atelier 3D s'affiche.\r\nCliquez une machine, puis « Ouvrir le simulateur ». Le bouton « ← Atelier » ramène à l'atelier.\r\nRien n'est enregistré ni noté ; les fiches lues sont seulement gardées dans ce navigateur.\r\n\r\n© 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3. three.js : licence MIT. Enregistrements sonores : licences de leurs auteurs.\r\n`);
   fs.writeFileSync(path.join(DIST, 'Atelier_bois_3D_entrainement.zip'), zipSync(signeZip(files), { level: 9, mtime: new Date('2026-01-01') }));
+  /* le même dossier, dézippé, pour le site public (GitHub Pages, .github/workflows/fabrication.yml) : dist/site/index.html = l'atelier */
+  const SITE = path.join(DIST, 'site'); fs.rmSync(SITE, { recursive: true, force: true });
+  for (const [k, v] of Object.entries(files)) { const f = path.join(SITE, k); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, v); }
   console.log(`entraînement hors ligne → dist/Atelier_bois_3D_entrainement.zip (atelier + ${ids.length} modules, three.js intégré)`);
 }
 
