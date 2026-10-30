@@ -158,7 +158,7 @@ export function createSynth(reglages=SONS){
     E.on=on;
     let gV;
     if(on){ const dur=E.d.demarrage? E.d.demarrage.z-E.d.demarrage.a : 0;
-      gV= E.t0>=0 && now-E.t0 < dur-0.5 ? 0 : (p.motFull||p.mot||0)*K_ECH; }                 // pendant le démarrage enregistré, la boucle attend
+      gV= E.t0>=0 && now-E.t0 < dur-0.5 ? 0 : E.d.demarrage? (p.motFull||p.mot||0)*K_ECH : lv; }   // pendant le démarrage enregistré, la boucle attend ; sans démarrage enregistré, elle monte avec le régime
     else gV= E.t0===-2 ? 0 : lv;                                                                 // freinage enregistré : la boucle se tait
     if(E.vide){ T(E.vide.g.gain, gV, 0.25); T(E.vide.s.playbackRate, Math.max(0.3, sp), 0.1); }
     if(E.coupe){ T(E.coupe.g.gain, (p.cutAmp||0)*cut*K_ECH, 0.06); T(E.coupe.s.playbackRate, 1-cut*Math.min(R.coupe.peine, 0.012*Math.sqrt(ch)*R.coupe.peine/0.05), 0.12); } }

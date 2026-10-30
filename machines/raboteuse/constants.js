@@ -30,3 +30,9 @@ export const CHANT_RATIO = 4;                // sur chant : hauteur ≤ 4 × ép
 export const HOOD_Y = 1.237;                 // dessus du capot : l'aide en sortie y repose les pièces rabotées
 export const HOOD_X = [-0.48, 0.20];         // étendue du capot le long de X
 export const RPM = 5000, Z_KNIVES = 4;       // arbre TERSA à 4 lames, 5 000 tr/min
+
+/* bruit au poste de l'opérateur, dB(A) (engine/audio.js ; valeurs PROPOSÉES, À VALIDER) : essai avec l'ENREGISTREMENT d'une raboteuse-dégauchisseuse
+   fourni par l'enseignant le 30/10/2026 (engine/sons/rabotage-*.mp3, commun à la raboteuse et à la dégauchisseuse).
+   Coupe 97 = bas de la fourchette HSE « planer thicknesser 97–101 dB » ; à vide 86 (arbre porte-lames qui siffle : déjà au-dessus de 85) : proposé. */
+export const BRUIT = { vide:86, coupe:97, rpm:5000 };
+export const BRUIT_DURETE = { sapin:1, epicea:1, pin:1.1, meleze:1.3, frene:1.6, hetre:1.6, chene:2 };

@@ -8,6 +8,11 @@ import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
 import { st, ctx, guideZ, $ } from './state.js';
+import { BRUIT, BRUIT_DURETE } from './constants.js';
+/* bruit : enregistrement d'une raboteuse-dégauchisseuse (fourni par l'enseignant le 30/10/2026, tools/sons.py rabotage) */
+import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
+import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
+
 import { buildModel } from './model.js';
 import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markRef, markFocus, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, protState, coverPose } from './rules.js';
@@ -133,11 +138,14 @@ document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.o
 
 /* ---------- démarrage ---------- */
 let lastSeq=0;
+let bruitT=0, bruitMove=-1e9;
 app.start({
-  /* bruit (engine/audio.js) : pour l'instant le son de l'aspiration seul (commun à toutes les machines) ; le son de la machine,
-     le sonomètre et le casque (niveaux, etat) seront ajoutés quand l'enseignant aura validé le rendu de la toupie :
-     bruit:{ aspiration, niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } } */
-  bruit:{ aspiration:()=>st.asp },
+  /* bruit (engine/audio.js) : même enregistrement que la raboteuse (à vide, usinage) ; sonomètre, casque et alerte comme à la toupie.
+     Coupe = pièce sur l'arbre pendant la passe ; charge = passe / 1,5 mm × dureté. */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:{ vide:sonRabVide, coupe:sonRabCoupe },
+    etat(){ const now=performance.now(); if(st.t!==bruitT){ bruitT=st.t; bruitMove=now; }       // la pièce avance (bouton ou curseur d'avance)
+      const c=cut.started&&st.motor&&now-bruitMove<350? 1 : 0;
+      return { on:st.motor, rpm:BRUIT.rpm, spin:model.spin, cut:c, charge:Math.max(0.15,(cut.depth||st.d)/1.5)*(BRUIT_DURETE[p?.wood]||1.3), dents:4 }; } },
   update, alerts:()=>{ const a=computeAlerts(); if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=cut.lastMsg.startsWith('Arrachements')?'warn':'info'; } return a; },
   steps:STEPS,
   loadMode(m){ stopPass(); st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },
@@ -151,3 +159,6 @@ app.start({
       st.t = passFrom + (passTo-passFrom)*t; apply(); if(t>=1) stopPass(); } },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, ignore:['piece'] },
 });
+
+/* poignée pour les tests du bruit */
+window.__degau={ st, cut, model };

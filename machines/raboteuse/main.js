@@ -7,7 +7,11 @@ import organes from './data/organes.txt';
 import qcm from './data/qcm.txt';
 import reperage from './data/reperage.txt';
 import fiches from './data/fiches.txt';
-import { H_MIN, H_MAX, GRIP, PASS_MAX } from './constants.js';
+import { H_MIN, H_MAX, GRIP, PASS_MAX, BRUIT, BRUIT_DURETE } from './constants.js';
+/* bruit : enregistrement d'une raboteuse-dégauchisseuse (fourni par l'enseignant le 30/10/2026, tools/sons.py rabotage) */
+import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
+import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
+
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
@@ -145,10 +149,12 @@ $('pass').onclick=()=>{ if(cut.inProgress) return;
 /* ---------- démarrage ---------- */
 let lastSeq=0;
 app.start({
-  /* bruit (engine/audio.js) : pour l'instant le son de l'aspiration seul (commun à toutes les machines) ; le son de la machine,
-     le sonomètre et le casque (niveaux, etat) seront ajoutés quand l'enseignant aura validé le rendu de la toupie :
-     bruit:{ aspiration, niveaux:{ vide, coupe, rpm }, etat(){ return { on, rpm, spin, cut, charge, dents }; } } */
-  bruit:{ aspiration:()=>st.asp },
+  /* bruit (engine/audio.js) : enregistrement (à vide, usinage) ; sonomètre, casque et alerte comme à la toupie.
+     Coupe = une pièce sous l'arbre pendant l'avance ; charge = passe / 3 mm × avance / 10 m/min × dureté. */
+  bruit:{ aspiration:()=>st.asp, niveaux:BRUIT, echantillons:{ vide:sonRabVide, coupe:sonRabCoupe },
+    etat(){ const sous=cut.inProgress&&st.feed&&st.motor? cut.movers.filter(q=>q.state==='moving'&&q.x<0&&q.x+q.L/1000>0) : [];
+      const q=sous[0], ch=q? Math.max(0.15,passDepth(q)/3)*(st.v/10)*(BRUIT_DURETE[q.wood]||1.3)*Math.min(2,sous.length) : 1;
+      return { on:st.motor, rpm:BRUIT.rpm, spin:model.spin, cut:sous.length?1:0, charge:ch, dents:4 }; } },
   update, alerts:()=>{ if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=/(s'est arrêtée|Arrachements|Pièce plus mince|n'avance pas)/.test(cut.lastMsg)?'warn':'info'; } return computeAlerts(); },
   steps:STEPS,
   loadMode(m){ LOADERS[m](); model.stopNow(); lastSeq=cut.msgSeq; facesKey=debitKey=''; F.msg=''; if(m!=='libre') stage.setView('vop'); },

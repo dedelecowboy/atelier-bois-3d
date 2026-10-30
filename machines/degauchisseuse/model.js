@@ -203,5 +203,5 @@ export function buildModel({ root, tagPart, partMeshes }){
   function tick(dt){ spin += ((st.motor?1:0)-spin)*Math.min(1,dt*1.2); const w=spin*dt*2.0; rotor.rotation.z -= w; pA.rotation.z -= w; pM.rotation.z -= w*0.035/0.055; }
 
   const pieceRoot=new THREE.Group(); root.add(pieceRoot);
-  return { update, tick, pieceRoot };
+  return { update, tick, pieceRoot, get spin(){ return spin; } };
 }

@@ -6,6 +6,10 @@ Essai sur la scie à ruban (29/10/2026), enregistrements fournis par l'enseignan
 licence et source à vérifier par l'enseignant (noms de fichiers de type Pixabay / Freesound).
 Aspiration (commune à toutes les machines, fournie le 29/10/2026) : asp.mp3 = « audiopapkin-mobile-extraction-in-the-carpentry-workshop-320669 »
 (régime établi puis arrêt et ralentissement de 15 s) → engine/sons/aspiration.mp3 (boucle) et aspiration-arret.mp3.
+Rabotage (raboteuse ET dégauchisseuse, fourni le 30/10/2026) : rabot.mp3 = « Woodworking Machinery Sound Effect - Power Tool Sounds -
+Timber Planer Thicknesser Machine » (silence 0–2,5 s, à vide 2,5–4,5 s, usinage 4,5–23,3 s, à vide 25,8–28 s) → engine/sons/rabotage-vide.mp3
+(2,8–4,4 s + 26,0–27,4 s, en boucle) et rabotage-coupe.mp3 (boucle 5,0–11,5 s) ; pas de démarrage ni d'arrêt enregistrés (la boucle à vide ralentit au freinage).
+Usage : python3 tools/sons.py rabotage <dossier des enregistrements> engine/sons
 Usage : python3 tools/sons.py ruban <dossier des enregistrements> machines/scie-ruban/sons
         python3 tools/sons.py aspiration <dossier des enregistrements> engine/sons
 Les instants (secondes) des extraits sont propres à ces enregistrements : à adapter pour une autre machine."""
@@ -48,4 +52,10 @@ def aspiration():
     g=10**(-20/20)/rms(seg(x,2.0,11.0))           # régime établi à −20 dBFS, l'arrêt avec le même gain
     save(loop(seg(x,2.0,11.0)*g,0.5),'aspiration',40)            # 40 kbit/s : ce son est dans chaque page
     save(fade(seg(x,11.6,19.0)*g,0.2,1.5),'aspiration-arret',40)
-{'ruban':ruban,'aspiration':aspiration}[RECETTE]()
+def rabotage():
+    x=hp(load(os.path.join(S,'rabot.mp3')))
+    a,b=norm(seg(x,2.8,4.4)),norm(seg(x,26.0,27.4))     # deux plages à vide mises bout à bout (fondu 0,2 s) : boucle moins répétitive
+    n=int(0.2*SR); t=np.linspace(0,1,n); ab=np.concatenate([a[:-n], a[-n:]*np.sqrt(1-t)+b[:n]*np.sqrt(t), b[n:]])
+    save(loop(ab,0.3),'rabotage-vide',48)
+    save(loop(norm(seg(x,5.0,11.5)),0.35),'rabotage-coupe',48)
+{'ruban':ruban,'aspiration':aspiration,'rabotage':rabotage}[RECETTE]()

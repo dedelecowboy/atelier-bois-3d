@@ -13,3 +13,9 @@ export const LEAD0 = 0.10;                   // bout avant de la pièce au dépa
 export const KNIFE_X = 0.06;                 // la coupe commence quand le bout avant passe sous cette cote
 export const MIN_LEN = 320;                  // longueur minimale d'une pièce (mm)
 export const FLAT = 0.05;                    // planéité à atteindre (mm)
+
+/* bruit au poste de l'opérateur, dB(A) (engine/audio.js ; valeurs PROPOSÉES, À VALIDER) : essai avec l'ENREGISTREMENT d'une raboteuse-dégauchisseuse
+   fourni par l'enseignant le 30/10/2026 (engine/sons/rabotage-*.mp3, commun à la raboteuse et à la dégauchisseuse).
+   Coupe 97 = bas de la fourchette HSE « planer thicknesser 97–101 dB » ; à vide 86 (arbre porte-lames qui siffle : déjà au-dessus de 85) : proposé. */
+export const BRUIT = { vide:86, coupe:97, rpm:6000 };
+export const BRUIT_DURETE = { sapin:1, epicea:1, pin:1.1, meleze:1.3, frene:1.6, hetre:1.6, chene:2 };
