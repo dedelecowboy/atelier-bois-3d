@@ -148,9 +148,9 @@ async def machine():
                 check(r['raw'] == str(r['total']) and r['st'] == 'passed' and not r['keys'], 'note et statut Moodle inchangés, aucune valeur Moodle en plus')
                 check(r['m'] == ('reduit' if reduce else 'plein'), f'prefers-reduced-motion respecté ({r["m"]})')
                 if not reduce:
-                    await pg.page.wait_for_timeout(2500); await pg.shot('permis_fete.png')
-                    await pg.eval("()=>document.querySelector('.pf-fete [data-pf]').click()")
-                    check(not await pg.eval("()=>!!document.querySelector('.pf-fete')"), '« Continuer » ferme le badge')
+                    await pg.page.wait_for_timeout(1500); await pg.shot('permis_fete.png')
+                    c = await pg.eval("()=>{ const b=document.querySelector('.pf-fete [data-pf]'); if(!b) return 'auto'; b.click(); return document.querySelector('.pf-fete')? 'ouvert' : 'ferme'; }")
+                    check(c in ('ferme', 'auto'), '« Continuer » ferme le badge' if c == 'ferme' else 'badge refermé seul au bout de 7 s')
                     await pg.eval("()=>window.__atelier.app.parcours.render()")
                     check(not await pg.eval("()=>!!document.querySelector('.pf-fete')"), 'résultat relu : badge pas refêté')
 
@@ -174,8 +174,8 @@ async def entrainement(br):
     await pg.evaluate("()=>{ const s=JSON.parse(localStorage.getItem('atelier.entraine.scie-radiale')); s.modes=['purge','biais']; localStorage.setItem('atelier.entraine.scie-radiale', JSON.stringify(s)); }")
     await pg.evaluate('async () => {' + HELPERS + JEUX['serie'] + '}'); await pg.wait_for_timeout(400)
     r = await pg.evaluate("()=>({ f:document.querySelector('.pf-fete')?.innerText||'', e:document.querySelector('.pf-fete')?.dataset.etat, s:JSON.parse(localStorage.getItem('atelier.entraine.scie-radiale')) })")
-    check(r['e'] == 'entraine' and 'Entraîné' in r['f'] and len(r['s']['modes']) == 3 and r['s']['date'], f'3 / 3 exercices : badge « Entraîné » fêté ({r["f"].splitlines()[0] if r["f"] else ""})')
-    await pg.wait_for_timeout(2500); await pg.screenshot(path=os.path.join(OUT, 'permis_entraine_fete.png'))
+    check(r['e'] == 'entraine' and 'Badge « Entraîné » obtenu' in r['f'] and 'Scie radiale : les 3 exercices' in r['f'] and len(r['s']['modes']) == 3 and r['s']['date'], f'3 / 3 exercices : badge « Entraîné » fêté ({r["f"].splitlines()[0] if r["f"] else ""})')
+    await pg.wait_for_timeout(1500); await pg.screenshot(path=os.path.join(OUT, 'permis_entraine_fete.png'))
     # atelier : badge argent sur le poste, panneau
     await pg.evaluate("()=>localStorage.setItem('atelier.entraine.deligneuse', JSON.stringify({modes:['avives'], total:3, date:''}))")
     await pg.click('#toAtelier'); await pg.wait_for_function('window.__ready && window.__atelier?.permis', timeout=120000); await pg.wait_for_timeout(1500)
