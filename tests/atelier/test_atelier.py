@@ -26,6 +26,11 @@ async def main():
         for s in info:
             x0, z0, x1, z1 = s['box']
             check(x0 > -10.95 and x1 < 10.95 and z0 > -10.82 and z1 < 10.82, f'{s["id"]} dans la salle ({x0:.1f} à {x1:.1f} ; {z0:.1f} à {z1:.1f})')
+        # chemins au sol (31/10/2026) : jaune niveau 1, orange foncé niveau 2, jamais sous une machine
+        fl = await pg.eval("""()=>{ const A=window.__atelier, B=A.STATIONS[0].box.constructor, boxes=A.STATIONS.map(s=>[s.id,s.box]).concat(A.DECORS.map(d=>[d.L.nom,new B().setFromObject(d.g)]));
+          return A.flows.map(f=>({ niv:f.niv, col:f.col, hit:f.pts.flatMap(([x,z])=>boxes.filter(([n,b])=>x>b.min.x+0.05&&x<b.max.x-0.05&&z>b.min.z+0.05&&z<b.max.z-0.05).map(([n])=>n)) })); }""")
+        check(len(fl) == 7 and [f['niv'] for f in fl].count(1) == 2 and fl[0]['col'] != fl[2]['col'], f'chemins au sol : 2 jaunes (niveau 1, branche de la scie à ruban), 5 orange foncé (niveau 2) — {[f["col"] for f in fl]}')
+        check(all(not f['hit'] for f in fl), 'aucun chemin ne passe sous une machine : ' + str([f['hit'] for f in fl if f['hit']]))
         g = await pg.eval(GEOM)
         check(g['sh'] <= g['ih'] + 1 and g['sw'] <= g['iw'] + 1, f'pas de défilement de page ({g["sw"]}×{g["sh"]})')
         print('   capture', await pg.shot('atelier_ensemble_1400.png'))

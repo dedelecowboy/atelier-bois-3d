@@ -85,12 +85,13 @@ async def paquet(br):
     pm = await f.evaluate("""()=>{ const c=document.getElementById('permis'); return { vis:!c.hidden, txt:c.innerText,
         n:document.getElementById('pmN').textContent, next:c.querySelector('.pm-next [data-pmgo]')?.dataset.pmgo,
         grid:[...c.querySelectorAll('.pm-grid [data-pmgo]')].map(b=>b.dataset.pmgo+':'+b.dataset.etat),
-        bar:c.querySelector('.pm-prog .bar i').style.width, complet:c.querySelector('.pm-complet').dataset.ok,
+        bar:c.querySelector('.pm-prog .bar i').style.width, niv:[...c.querySelectorAll('.pm-niv')].map(n=>n.dataset.niv+':'+n.dataset.ok+':'+n.querySelector('em').textContent+':'+[...n.querySelectorAll('[data-pmgo]')].map(b=>b.dataset.pmgo).join(',')),
         fl:!!c.querySelector('.pm-grid [data-pmgo=deligneuse] svg title') }; }""")
     check(pm['vis'] and pm['n'] == '3 / 10' and pm['bar'] == '30%', f'« Mon permis machine » : {pm["n"]} obtenus, barre à {pm["bar"]}')
     check(len(pm['grid']) == 10 and pm['grid'][0] == 'risques:obtenu' and 'scie-radiale:obtenu' in pm['grid'] and 'deligneuse:aobtenir' in pm['grid'], 'les 10 badges : obtenus en couleur, les autres « à obtenir »')
     check(pm['next'] == 'deligneuse', f'prochaine machine conseillée : déligneuse (chaîne de débit) — {pm["next"]}')
-    check(pm['complet'] == 'false' and 'Permis atelier bois' in pm['txt'] and '3 / 5' in pm['txt'], 'permis complet « Permis atelier bois » : 3 / 5 (affichage seul)')
+    check(pm['niv'] == ['1:false:3 / 6:risques,scie-radiale,deligneuse,degauchisseuse,raboteuse,scie-ruban', '2:false:0 / 4:toupie,mortaiseuse,tenonneuse,scie-format'],
+          f'permis niveau 1 (3 / 6 : risques généraux, débit, corroyage, scie à ruban) et niveau 2 (0 / 4) : {pm["niv"]}')
     check('Obtenu le 29/10/2026 · 88 / 100' in pm['txt'], 'badge de la scie radiale : date et note')
     check(pm['fl'], 'déligneuse : repère « fiches lues » sur le badge à obtenir')
     await pg.screenshot(path=os.path.join(OUT, 'permis_panneau.png'))
@@ -184,7 +185,7 @@ async def entrainement(br):
     await pg.screenshot(path=os.path.join(OUT, 'permis_entraine_atelier.png'))
     await pg.evaluate("()=>document.getElementById('permisBtn').click()"); await pg.wait_for_timeout(1000)
     t = await pg.evaluate("()=>document.getElementById('permis').innerText")
-    check('Exercices réussis : 1 / 3' in t and 'Permis atelier bois' not in t and 'Entraîné' in t, 'panneau d\'entraînement : badges argent, exercices réussis par machine, pas de permis complet')
+    check('Exercices réussis : 1 / 3' in t and 'Permis niveau' not in t and 'Niveau 1' in t and 'Entraîné' in t, 'panneau d\'entraînement : badges argent par niveau, exercices réussis par machine, pas de « permis » obtenu')
     await pg.screenshot(path=os.path.join(OUT, 'permis_entraine_panneau.png'))
     real = [e for e in errs if 'context' not in e.lower()]
     check(not real, 'aucune erreur JavaScript' + (' : ' + '; '.join(real) if real else ''))
