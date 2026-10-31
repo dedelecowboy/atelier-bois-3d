@@ -9,6 +9,7 @@
    CODE_bilan (une ligne de synthèse datée) ; objectif SCORM CODE (note, passed / failed).
    Bilan local (localStorage atelier.bilan.<id>) relu par la page atelier du paquetage. */
 import { createScorm } from './scorm.js';
+import { celebrer, NOM } from './permis.js';
 
 const $ = id=>document.getElementById(id);
 const sum=a=>a.reduce((x,y)=>x+y,0);
@@ -82,7 +83,9 @@ export function createParcours(app, { reperage, qcm }, P){
     scorm.set('cmi.objectives.0.id',CODE); scorm.set('cmi.objectives.0.score.min',0); scorm.set('cmi.objectives.0.score.max',100);
     scorm.set('cmi.objectives.0.score.raw',parc.note); scorm.set('cmi.objectives.0.status',parc.passed?'passed':'failed');
     try{ localStorage.setItem('atelier.bilan.'+app.config.id, JSON.stringify({ total:parc.total, passed:parc.passed, date })); }catch(e){}
-    scorm.save(); render(); }
+    scorm.save(); render();
+    /* permis machine (engine/permis.js) : moment de réussite, une seule fois (à la fin de l'évaluation validée) ; rien d'envoyé à Moodle */
+    if(parc.passed) celebrer(app.config.id, { sous:`${NOM} · ${parc.total} / 100 · ${date.split(' ')[0]}` }); }
 
   /* --- affichage --- */
   function render(){ if(!act()) return; const el=$('parcCard'); if(!el) return;

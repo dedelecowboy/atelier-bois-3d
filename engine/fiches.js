@@ -9,6 +9,7 @@
    hors Moodle, le navigateur (localStorage, rien n'est bloqué : pas d'évaluation sur la page web).
    Évaluation bloquée tant que toutes les fiches ne sont pas lues (app.js : carte de choix du paquetage ;
    parcours.js : paquetage séparé, la lecture se fait dans la carte du parcours avant le repérage). */
+import { noteFiches } from './permis.js';
 const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 export function createFiches(app, parc){
@@ -20,7 +21,9 @@ export function createFiches(app, parc){
   /* mémoire */
   const get = ()=>{ if(P) return Array.isArray(P.lu)? P.lu : [];
     try{ const a=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(a)? a : []; }catch(e){ return []; } };
-  const put = a=>{ if(P){ P.lu=a; parc.scorm.save(); return; } try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} };
+  /* repère « fiches lues » du permis machine (engine/permis.js) : aussi gardé dans le navigateur dans Moodle (indicatif, sans effet) */
+  const repere = ()=>noteFiches(id, count(), F.length);
+  const put = a=>{ if(P){ P.lu=a; parc.scorm.save(); repere(); return; } try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} repere(); };
   const isRead = i=>get().includes(i);
   const count = ()=>F.reduce((n,_,i)=>n+(isRead(i)?1:0),0);
   const all = ()=>F.length>0 && count()===F.length;
@@ -56,7 +59,7 @@ export function createFiches(app, parc){
 
   /* el : conteneur ; o : { voir, todoMsg, doneMsg } */
   function mount(el, o={}){ if(!el || !F.length) return; for(let i=mounts.length-1;i>=0;i--) if(mounts[i].el===el || !mounts[i].el.isConnected) mounts.splice(i,1);
-    mounts.push({ el, o }); if(open<0) open=Math.max(0, F.findIndex((_,k)=>!isRead(k))); render(); }
+    mounts.push({ el, o }); repere(); if(open<0) open=Math.max(0, F.findIndex((_,k)=>!isRead(k))); render(); }
 
   return { list:F, count, all, need, mark, mount, render, onChange:f=>listeners.add(f), get CODE(){ return CODE; } };
 }

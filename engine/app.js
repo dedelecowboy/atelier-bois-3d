@@ -29,6 +29,7 @@ import { createFiches } from './fiches.js';
 import { moodleNav, pkg, pkgLock } from './moodlenav.js';
 import { createBruit } from './audio.js';
 import { createLecture } from './lecture.js';
+import { noteExercice, celebrer, estEntraine } from './permis.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -41,14 +42,27 @@ export function createApp(config, raw){
   const ex=createExercise(config.modes);
   const lecture=createLecture({ onChange:()=>stage.dirty() });   // confort de lecture (police, taille, voix) : bouton « Aa » de l'en-tête
   let H=null, parc=null;
+  /* badge « Entraîné » (engine/permis.js) : hors Moodle seulement (dossier d'entraînement, pages web). Un exercice guidé
+     est réussi quand son contrôle final est entièrement coché (mêmes critères que le parcours noté) et qu'aucune faute
+     grave n'a été commise depuis son début (alerte danger au moment d'une coupe, geste refusé) ; gardé dans le navigateur. */
+  const TRAIN = !window.PARCOURS;
+  let exFaute=false, exVu='';
+  function trackEx(){ if(!TRAIN || ex.free || !ex.STEPS.length || ex.step!==ex.STEPS.length-1) return;
+    const P=H?.parcours, S=P?.scenarios||[]; if(!P?.criteria || !S.some(s=>s.mode===ex.mode)) return;
+    let C; try{ C=P.criteria(ex.mode,{ dangers:exFaute?1:0, ok:!exFaute }); }catch(e){ return; }
+    const ok=C.length>0 && C.every(c=>!!c[2]); if(!ok) return;
+    const k=ex.mode; if(exVu===k) return; exVu=k;
+    const was=estEntraine(config.id), r=noteExercice(config.id, k, S.length);
+    if(r.complet && !was) celebrer(config.id, { etat:'entraine', sous:`Les ${r.total} exercices guidés sont réussis. Badge gardé dans ce navigateur (le permis machine se passe dans Moodle).` });
+    else if(r.nouveau) stage.toast(`Exercice réussi : ${r.n} / ${r.total} pour le badge « Entraîné ».`); }
 
   const app={ config, stage, parts, ex, lecture, data:{organes, qcm, reperage, fiches},
     toast:stage.toast,
     get parcours(){ return parc; },
     alerts:()=>H.alerts(),
-    recordDangers:list=>parc?.recordDangers(list),
+    recordDangers:list=>{ parc?.recordDangers(list); if(TRAIN && !ex.free && (list||H.alerts()).some(a=>a[0]==='danger')) exFaute=true; },
     /* recalcul complet : simulation, 3D, panneaux */
-    apply(){ stage.dirty(); H.update(); H.renderExtra?.(); parc?.refresh(); ex.render(); },
+    apply(){ stage.dirty(); H.update(); H.renderExtra?.(); parc?.refresh(); ex.render(); trackEx(); },
     /* disposition : pres (nomenclature | 3D | réglages), ex (3D | consigne + dock), parcours (SCORM) */
     setUI(u){ $('app').dataset.ui=u; ($(u==='pres'?'presSlot':'dockSlot')).appendChild($('settings'));
       document.querySelectorAll('[data-ui]').forEach(b=>{ if(b.tagName==='BUTTON') b.setAttribute('aria-pressed',String(b.dataset.ui===u)); }); ex.invalidate(); app.apply(); },
@@ -56,7 +70,7 @@ export function createApp(config, raw){
       /* bruit (engine/audio.js) : sonomètre et son ; alerte « attention » au-dessus de 85 dB(A) sans casque, ajoutée aux alertes de la machine */
       if(hooks.bruit){ app.bruit=createBruit(app, hooks.bruit); const al=hooks.alerts; hooks={ ...hooks, alerts:()=>{ const a=al(), b=app.bruit.alerte(); return b? a.concat([b]) : a; } }; }
       H=hooks;
-      ex.bind({ ...hooks, apply:app.apply, onAlerts:a=>app.families?.update(a) });
+      ex.bind({ ...hooks, apply:app.apply, onAlerts:a=>app.families?.update(a), loadMode:m=>{ exFaute=false; exVu=''; hooks.loadMode(m); } });
       parc=createParcours(app, {reperage, qcm}, hooks.parcours||{scenarios:[]});
       parts.onPick(hits=>{ if(parc.pick(hits)) return true; const hit=hits.find(h=>h.object.userData.part); if(hooks.onPick?.(hit,hits)) return true;
         if(hit) app.families?.reveal(hit.object.userData.part); return false; });   // organe touché : son panneau de réglage s'ouvre
