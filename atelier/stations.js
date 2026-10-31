@@ -57,13 +57,8 @@ export const RISQUES = { id:'risques', n:0, nom:'Risques généraux', ref:'Tout 
   role:'Poussières, bruit, incendie, électricité, manutention, circulation, produits, EPI, règles de l\'atelier : à valider avant les machines.',
   url:'https://claude.ai/artifact/9fVgRR2Uk3tJ6o3D3Tp6za' };
 
-export const FAMILLES = {
-  risques:{ nom:'Sécurité', col:'#c4261c' },
-  debit:{ nom:'Débit', col:'#c76a14' },
-  corroyage:{ nom:'Corroyage', col:'#2f7d6f' },
-  usinage:{ nom:'Usinage', col:'#5a5fb0' },
-  panneaux:{ nom:'Panneaux', col:'#8a6a3a' },
-};
+/* couleurs des familles : une seule source, engine/permis.js (badges du permis machine) */
+export { FAMILLES } from '../engine/permis.js';
 
 /* chaîne de débit et de corroyage des bois massifs, peinte au sol dans les passages du plan :
    scie radiale → déligneuse → dégauchisseuse → raboteuse (points [x, z]). Elle s'arrête à la raboteuse (décidé par l'enseignant

@@ -14,6 +14,7 @@ import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
 import { toggleFs, fsOn, onFsChange } from '../engine/fullscreen.js';
 import { createLecture } from '../engine/lecture.js';
+import * as PM from '../engine/permis.js';
 
 const $ = id=>document.getElementById(id);
 /* confort de lecture (engine/lecture.js) : bouton « Aa » dans les outils de l'en-tête ; 🔈 lit la fiche du poste ouverte */
@@ -45,8 +46,9 @@ const pkgLocked=s=>!!(PKG && pkgLock(s.id));
 const atApi=(()=>{ if(!PKG) return null; let w=window, n=0; while(w && !w.API && w.parent && w.parent!==w && n<12){ w=w.parent; n++; }
   const api=w&&w.API; if(!api) return null;
   try{ if(String(api.LMSInitialize(''))!=='true') return null; api.LMSSetValue('cmi.core.lesson_status','incomplete'); api.LMSSetValue('cmi.core.exit','suspend'); api.LMSCommit(''); }catch(e){ return null; }
+  let nom=''; try{ const n=String(api.LMSGetValue('cmi.core.student_name')||''); const [a,b]=n.split(','); nom= b? `${b.trim()} ${a.trim()}` : n.trim(); }catch(e){}
   let open=true; const close=()=>{ if(!open) return; open=false; try{ api.LMSSetValue('cmi.core.lesson_status','incomplete'); api.LMSCommit(''); api.LMSFinish(''); }catch(e){} };
-  addEventListener('pagehide',close); addEventListener('beforeunload',close); return { close }; })();
+  addEventListener('pagehide',close); addEventListener('beforeunload',close); return { close, nom }; })();
 const DEG = Math.PI/180, UP = new THREE.Vector3(0,1,0);
 
 /* ---------- disposition : celle du plan, ou celle modifiée dans ce navigateur ---------- */
@@ -161,24 +163,25 @@ const lockSvg='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5
 const labels=$('labels');
 for(const s of STATIONS){
   const b=document.createElement('button'); b.type='button'; b.className='lbl'; b.dataset.etat=s.etat; b.style.setProperty('--fam',FAMILLES[s.famille].col);
-  b.innerHTML=`<span class="num">${s.n}</span><span class="nm">${s.nom}</span><span class="lock">${lockSvg}</span>`;
+  b.innerHTML=`<span class="pb" aria-hidden="true"></span><span class="num">${s.n}</span><span class="nm">${s.nom}</span><span class="lock">${lockSvg}</span>`;
   b.onclick=()=>editing? edSelect({ s }) : select(s); b.onmouseenter=()=>{ if(!editing) hover(s); }; b.onmouseleave=()=>hover(null);
   labels.appendChild(b); s.lbl=b;
 }
 /* liste des postes (colonne de gauche) */
-const itemHTML=s=>`<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
+const itemHTML=s=>`<span class="num">${s.n}</span>${pbMini(s.id)}<span class="tx"><b>${s.nom}</b><small>${s.etat==='avenir'?'Module prévu':s.ref} · ${ PKG && s.etat!=='avenir' ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validée':'non validée'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`;
 const list=$('postes');
 /* « 0. Risques généraux » en tête de liste : fiche sans caméra (le module porte sur tout l'atelier) ; état lu comme les machines (pkgEtat) */
-function riskHTML(){ const s=RISQUES; return `<span class="num">${s.n}</span><span class="tx"><b>${s.nom}</b><small>${s.ref} · ${ PKG ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validé':'non validé'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire en premier</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`; }
+function riskHTML(){ const s=RISQUES; return `<span class="num">${s.n}</span>${pbMini(s.id)}<span class="tx"><b>${s.nom}</b><small>${s.ref} · ${ PKG ? (b=>b? `<span class="st" data-etat="${b.passed?'service':''}">${b.passed?'validé':'non validé'}${b.total!=null?' · '+b.total:''}</span>` : '<span class="st">à faire en premier</span>')(pkgEtat(s.id)) : `<span class="st" data-etat="${s.etat}">${ETAT[s.etat].toLowerCase()}</span>`}</small></span><span class="lock">${lockSvg}</span>`; }
 { const s=RISQUES, li=document.createElement('li'), b=document.createElement('button'); b.type='button'; b.dataset.id=s.id; b.style.setProperty('--fam',FAMILLES[s.famille].col);
   b.innerHTML=riskHTML();
-  b.onclick=()=>{ if(editing) return; select(null); for(const t of STATIONS) t.item.setAttribute('aria-pressed','false'); b.setAttribute('aria-pressed','true'); riskCard(); };
+  b.onclick=()=>{ if(editing) return; permisClose(); select(null); for(const t of STATIONS) t.item.setAttribute('aria-pressed','false'); b.setAttribute('aria-pressed','true'); riskCard(); };
   li.appendChild(b); list.appendChild(li); s.item=b; }
 function riskCard(){ const s=RISQUES, c=$('card'), f=FAMILLES[s.famille];
   c.style.setProperty('--fam',f.col);
   c.innerHTML=`<div class="card-head"><span class="num">${s.n}</span><div><p class="kick">${f.nom} · ${s.ref}</p><h2>${s.nom}</h2></div>
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>
     <p class="role">${s.role}</p>
+    ${permisRow(s.id)}
     ${ PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validé':'Non validé', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}${PKG.titles?.[s.id]?'<button type="button" class="go" id="cardGo">Ouvrir le module</button>':''}`
       : (s.url||LOCAL) ? goLink(s,'Ouvrir le module') : '<p class="note">Module « Risques généraux » : dans le paquetage Moodle (élément 0).</p>' }`;
   c.hidden=false; const close=()=>{ c.hidden=true; s.item.setAttribute('aria-pressed','false'); };
@@ -206,17 +209,82 @@ function applyLocks(){
   $('prog').hidden=!eleve; $('progN').textContent=`${done} / ${ORDER.length}`;
   $('progBar').style.width=`${100*done/ORDER.length}%`;
   if(sel) renderCard(sel);
+  refreshBadges();
 }
 /* paquetage : Moodle met son sommaire à jour un peu après le retour à l'atelier (statut et note de la machine qu'on
    vient de quitter) : on relit les états quand il change, et à 1,5 s puis 4 s par sécurité */
 if(PKG){ let tm=0; const pkgRefresh=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ for(const s of STATIONS) if(s.item) s.item.innerHTML=itemHTML(s); if(RISQUES.item) RISQUES.item.innerHTML=riskHTML(); applyLocks(); },250); };
   try{ if(window.top!==window) new MutationObserver(pkgRefresh).observe(window.top.document.body,{ subtree:true, childList:true, attributes:true, attributeFilter:['src','alt','title','class'] }); }catch(e){}
   setTimeout(pkgRefresh,1500); setTimeout(pkgRefresh,4000); }
-const setVersion=v=>{ eleve=v; $('eleve').setAttribute('aria-pressed',String(v)); $('vWeb').setAttribute('aria-pressed',String(!v)); applyLocks(); };
+const rewriteItems=()=>{ for(const s of STATIONS) if(s.item) s.item.innerHTML=itemHTML(s); if(RISQUES.item) RISQUES.item.innerHTML=riskHTML(); };
+const setVersion=v=>{ eleve=v; rewriteItems(); $('eleve').setAttribute('aria-pressed',String(v)); $('vWeb').setAttribute('aria-pressed',String(!v)); applyLocks(); };
 $('eleve').onclick=()=>setVersion(true); $('vWeb').onclick=()=>setVersion(false);
-$('progMinus').onclick=()=>{ done=Math.max(0,done-1); applyLocks(); };
-$('progPlus').onclick=()=>{ done=Math.min(ORDER.length,done+1); applyLocks(); };
+$('progMinus').onclick=()=>{ done=Math.max(0,done-1); rewriteItems(); applyLocks(); };
+$('progPlus').onclick=()=>{ done=Math.min(ORDER.length,done+1); rewriteItems(); applyLocks(); };
 $('chaine').onclick=()=>{ flow.group.visible=!flow.group.visible; $('chaine').setAttribute('aria-pressed',String(flow.group.visible)); };
+
+
+/* ---------- permis machine (engine/permis.js) ----------
+   Paquetage Moodle : badge en couleur = machine validée (pkgEtat : sommaire de Moodle d'abord, sinon bilan du navigateur),
+   avec la date et la note ; aucune écriture vers Moodle. Aperçu « Moodle » de la page web : badges simulés (− / +).
+   Dossier d'entraînement et page web : badge « Entraîné » (argent) quand les exercices guidés d'une machine sont tous réussis
+   (gardé dans le navigateur par la machine). Le badge obtenu se pose sur son poste (au-dessus de l'étiquette), avec une
+   petite animation la première fois seulement (atelier.permis.poses ; rien si prefers-reduced-motion). */
+const pmode=()=> PKG? 'permis' : eleve? 'apercu' : 'entraine';
+const ALL=[RISQUES, ...STATIONS];
+const stationOf=id=> id===RISQUES.id? RISQUES : STATIONS.find(s=>s.id===id);
+function badgeEtat(id){ const m=pmode(), fl=PM.fichesLues(id);
+  if(m==='permis'){ const e=pkgEtat(id); return e?.passed? { etat:'obtenu', total:e.total, date:e.date||'', fl } : { etat:'aobtenir', tente:!!e, total:e?.total??null, fl }; }
+  if(m==='apercu') return valide(id)? { etat:'obtenu', total:null, date:'', fl, sim:true } : { etat:'aobtenir', fl };
+  const t=PM.entraine(id); return PM.estEntraine(id)? { etat:'entraine', n:t.total, total:t.total, date:t.date, fl } : { etat:'aobtenir', n:t.modes.length, total:t.total, fl }; }
+const gagne=id=>badgeEtat(id).etat!=='aobtenir';
+const verrouId=id=>{ const s=stationOf(id); return !!s && s!==RISQUES && locked(s); };
+const conseilId=()=>PM.conseil(gagne, verrouId)?.id || null;
+function pbMini(id){ if(!pmReady) return ''; const e=badgeEtat(id); return e.etat==='aobtenir'? '' : `<span class="pbm" data-etat="${e.etat}">${PM.badgeSVG(id,e.etat,{ mini:true })}</span>`; }
+function etatTxt(id, e=badgeEtat(id)){
+  if(e.etat==='obtenu') return e.sim? 'Obtenu (aperçu)' : [e.date? 'Obtenu le '+String(e.date).split(' ')[0] : 'Obtenu', e.total!=null? e.total+' / 100' : ''].filter(Boolean).join(' · ');
+  if(e.etat==='entraine') return 'Entraîné'+(e.date? ' le '+e.date : '');
+  if(pmode()==='entraine') return e.total? `Exercices réussis : ${e.n} / ${e.total}` : 'Exercices guidés à réussir';
+  return e.tente? `Non validée${e.total!=null? ' · '+e.total+' / 100' : ''}` : 'À obtenir'; }
+/* ligne « permis » de la fiche d'une machine */
+function permisRow(id){ const e=badgeEtat(id), m=pmode();
+  const txt= e.etat==='obtenu'? `<b>Badge obtenu</b><span>${e.sim? 'Aperçu de la version Moodle.' : [e.date? 'le '+String(e.date).split(' ')[0] : '', e.total!=null? e.total+' / 100' : ''].filter(Boolean).join(' · ') || PM.NOM}</span>`
+    : e.etat==='entraine'? `<b>Badge « Entraîné »</b><span>Exercices guidés tous réussis${e.date? ' · le '+e.date : ''}.</span>`
+    : m==='entraine'? `<b>Badge « Entraîné » à obtenir</b><span>Réussissez les exercices guidés de la machine${e.total? ` (${e.n} / ${e.total})` : ''}. Le permis machine se passe dans Moodle.</span>`
+    : `<b>Badge à obtenir</b><span>Pour l'obtenir : ${PM.SEUIL}.</span>`;
+  return `<div class="pm-row" data-etat="${e.etat}"><span class="pm-rb">${PM.badgeSVG(id,e.etat,{ mini:true, fiches:e.fl })}</span><p>${txt}${e.fl && e.etat==='aobtenir'? '<span class="pm-fl">Fiches lues ✓</span>' : ''}</p></div>`; }
+/* badges posés sur les postes, compteur de l'en-tête, animation de pose (une fois par badge) */
+function refreshBadges(){ const m=pmode(); let n=0;
+  for(const s of ALL){ const e=badgeEtat(s.id); if(e.etat!=='aobtenir') n++;
+    const pb=s.lbl?.querySelector('.pb');
+    if(pb){ const k=e.etat==='aobtenir'? '' : e.etat; if(pb.dataset.k!==k){ pb.dataset.k=k; pb.innerHTML= k? PM.badgeSVG(s.id,k,{ mini:true }) : ''; s.lbl.dataset.badge=k||''; } }
+    if(e.etat!=='aobtenir'){ const key=e.etat+':'+s.id, neuf= m==='apercu'? !apercuVus.has(key) && (apercuVus.add(key), true) : PM.poser(key);
+      if(neuf) pmAnimes.push(key+(PM.reduit()?' (sans animation)':''));
+      if(neuf && !PM.reduit()){ const el= pb || s.item?.querySelector('.pbm'); if(el){ el.classList.remove('pose'); void el.offsetWidth; el.classList.add('pose'); setTimeout(()=>el.classList.remove('pose'),1800); } } } }
+  $('permisN').textContent=`${n}/${ALL.length}`; $('permisBtn').dataset.n=String(n);
+  if(!$('permis').hidden) renderPermis(); }
+const apercuVus=new Set(), pmAnimes=[];
+function renderPermis(){ const c=$('permis'), m=pmode(), n=ALL.filter(s=>gagne(s.id)).length, nx=conseilId(), nxs=nx&&stationOf(nx);
+  const nc=PM.PERMIS_COMPLET.filter(gagne).length, full=nc===PM.PERMIS_COMPLET.length;
+  const ent=m==='entraine';
+  c.innerHTML=`<div class="pm-head"><div><p class="kick">${ent? 'Version d\'entraînement' : 'Atelier bois 3D'}</p><h2>Mon ${PM.NOM.toLowerCase()}</h2>${atApi?.nom? `<p class="pm-who">${atApi.nom}</p>` : ''}</div>
+      <button type="button" class="x" id="permisX" aria-label="Fermer le permis">×</button></div>
+    <div class="pm-prog"><p><b id="pmN">${n} / ${ALL.length}</b> ${ent? (n>1?'badges « Entraîné »':'badge « Entraîné »') : (n>1?'obtenus':'obtenu')}</p><span class="bar"><i style="width:${Math.round(100*n/ALL.length)}%"></i></span></div>
+    ${ ent? '' : `<div class="pm-complet" data-ok="${full}"><b>${PM.COMPLET}</b><span>${full? 'obtenu ✓ (risques généraux et chaîne de débit)' : `${nc} / ${PM.PERMIS_COMPLET.length} : risques généraux et chaîne de débit (scie radiale → raboteuse)`}</span></div>` }
+    <div class="pm-next">${ nxs? `<span>Prochaine machine conseillée</span><button type="button" class="toggle" data-pmgo="${nxs.id}"><span class="num" style="--fam:${PM.couleur(nxs.id)}">${nxs.n}</span>${nxs.nom}</button>`
+        : `<span>${ent? 'Toutes les machines sont « Entraîné » : passez le permis dans Moodle.' : 'Tous les badges sont obtenus : bravo !'}</span>` }</div>
+    <ul class="pm-grid">${ALL.map(s=>{ const e=badgeEtat(s.id); return `<li><button type="button" data-pmgo="${s.id}" data-etat="${e.etat}" title="${s.nom}">${PM.badgeSVG(s.id,e.etat,{ fiches:e.fl })}<span class="pm-st">${etatTxt(s.id,e)}</span></button></li>`; }).join('')}</ul>
+    ${PM.REGLE? `<p class="pm-regle">${PM.REGLE}</p>` : ''}
+    <p class="pm-note">${ m==='permis'? 'Un badge = une machine validée dans Moodle (évaluation : 70 / 100 et aucune faute grave). Le permis ne change pas la note.'
+      : m==='apercu'? 'Aperçu de la version Moodle : badges simulés (boutons − et +).'
+      : 'Badge « Entraîné » (argent) : tous les exercices guidés d\'une machine réussis, sans faute grave. Gardé dans ce navigateur. Les badges en couleur du permis machine s\'obtiennent dans Moodle (évaluation validée).' } Petit livre coché : fiches de la machine lues.</p>`;
+  $('permisX').onclick=permisClose;
+  c.querySelectorAll('[data-pmgo]').forEach(b=>b.onclick=()=>{ const s=stationOf(b.dataset.pmgo); permisClose(); if(s===RISQUES) RISQUES.item?.click(); else if(s) select(s); }); }
+function permisOpen(){ if(editing) return; select(null); $('card').hidden=true; RISQUES.item?.setAttribute('aria-pressed','false');
+  renderPermis(); $('permis').hidden=false; $('permisBtn').setAttribute('aria-pressed','true'); }
+function permisClose(){ const c=$('permis'); if(!c || c.hidden) return; c.hidden=true; $('permisBtn').setAttribute('aria-pressed','false'); }
+$('permisBtn').onclick=()=> $('permis').hidden? permisOpen() : permisClose();
+var pmReady=true;
 
 /* ---------- survol et sélection ---------- */
 let hov=null, sel=null;
@@ -233,6 +301,7 @@ function renderCard(s){
       <button type="button" class="x" id="cardX" aria-label="Fermer la fiche">×</button></div>
     <p class="role">${s.role}</p>
     <p class="etat" data-etat="${s.etat}">${ETAT[s.etat]}</p>
+    ${ s.etat!=='avenir' ? permisRow(s.id) : '' }
     ${ s.etat==='avenir' ? '<p class="note">Ce module n\'est pas encore construit.</p>'
       : L ? `<p class="note lockmsg">${lockSvg}Verrouillée : valider d'abord le module « ${prev?.nom||''} ».</p>`
       : PKG ? `${(b=>b? `<p class="etat" data-etat="${b.passed?'service':''}">${[b.passed?'Validée':'Non validée', b.total!=null? b.total+' / 100':'', b.date].filter(Boolean).join(' · ')}</p>`:'')(pkgEtat(s.id))}<button type="button" class="go" id="cardGo">Ouvrir la machine</button>`
@@ -243,6 +312,7 @@ function renderCard(s){
   const go=$('cardGo'); if(go) go.onclick=()=>{ if(!moodleNav(PKG.titles[s.id],{ before:()=>atApi?.close() })) flash(`Choisissez « ${PKG.titles[s.id]} » dans le sommaire du cours.`); };
 }
 function select(s){
+  if(s) permisClose();
   if(sel && sel!==hov) tint(sel,false); sel=s;
   for(const t of STATIONS){ t.lbl.classList.toggle('sel',t===s); t.item.setAttribute('aria-pressed',String(t===s)); }
   RISQUES.item?.setAttribute('aria-pressed','false');
@@ -281,7 +351,7 @@ canvas.addEventListener('pointerup',e=>{ if(editing){ edUp(e); down=null; return
 let tipT=0;
 canvas.addEventListener('pointermove',e=>{ if(editing){ edMove(e); return; } if(e.pointerType!=='mouse'||e.buttons) return; const s=hitAt(e); tip(e,s?.decor); hover(s?.decor? null : s); });
 canvas.addEventListener('pointerleave',()=>{ hover(null); tip(null,null); });
-addEventListener('keydown',e=>{ if(editing){ edKey(e); return; } if(e.key==='Escape' && sel) select(null); });
+addEventListener('keydown',e=>{ if(editing){ edKey(e); return; } if(e.key==='Escape' && !$('permis').hidden){ permisClose(); return; } if(e.key==='Escape' && sel) select(null); });
 
 /* ---------- modifier l'implantation ---------- */
 let editing=false, esel=null, drag=null, topView=true;
@@ -390,7 +460,7 @@ function edKey(e){ if(/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement?.t
   if(e.key==='r'||e.key==='R'){ edRotate(e.shiftKey? -15 : 15); e.preventDefault(); return; }
   const mv={ ArrowLeft:[-st,0], ArrowRight:[st,0], ArrowUp:[0,-st], ArrowDown:[0,st] }[e.key]; if(!mv) return;
   e.preventDefault(); L.x=Math.max(-RXm,Math.min(RXm,snap(L.x+mv[0]))); L.z=Math.max(-RZm,Math.min(RZm,snap(L.z+mv[1]))); placeItem(esel); edSync(); save(); }
-function setEditing(on){ if(on===editing) return; if(on) select(null); editing=on; $('editBtn').setAttribute('aria-pressed',String(on));
+function setEditing(on){ if(on===editing) return; if(on){ select(null); permisClose(); } editing=on; $('editBtn').setAttribute('aria-pressed',String(on));
   document.body.classList.toggle('editing',on); $('help').textContent= on? 'Glisser une machine pour la déplacer · R : tourner de 15° · flèches : 10 cm' : 'Glisser pour tourner · molette ou pincement pour zoomer · clic sur une machine';
   decorPins(on); if(on){ edSelect(null); setTop(true); } else { esel=null; drag=null; ring.visible=false; $('edit').hidden=true; controls.enabled=true;
     for(const t of STATIONS) t.lbl.classList.remove('sel'); setTop(false); controls.enableRotate=true; controls.mouseButtons.LEFT=THREE.MOUSE.ROTATE; controls.touches.ONE=THREE.TOUCH.ROTATE; controls.screenSpacePanning=true; } }
@@ -408,7 +478,7 @@ function resize(){ const w=canvas.clientWidth, h=canvas.clientHeight; const pr=r
 /* fiche ouverte sur ordinateur : la scène glisse à gauche pour que la machine choisie ne soit pas sous la fiche */
 let offNow=0;
 function viewOffset(force){ const w=canvas.clientWidth, h=canvas.clientHeight, card=$('card'), ed=$('edit');
-  const pan= !card.hidden? card : !ed.hidden? ed : null;
+  const pm=$('permis'), pan= !card.hidden? card : !ed.hidden? ed : !pm.hidden? pm : null;
   const want= (pan && w>900)? Math.min(pan.offsetWidth+32, w*0.4)/2 : 0;
   if(!force && Math.abs(want-offNow)<0.5) return; offNow+= force? want-offNow : (want-offNow)*0.18;
   if(Math.abs(want-offNow)<0.5) offNow=want;
@@ -431,6 +501,6 @@ function frame(){ requestAnimationFrame(frame);
 canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); $('lost').hidden=false; });
 $('relaunch').onclick=()=>location.reload();
 if(PKG||LOCAL){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
-applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
-window.__atelier={ lecture, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
+rewriteItems(); applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
+window.__atelier={ lecture, permis:{ animes:pmAnimes, etat:badgeEtat, open:permisOpen, close:permisClose, mode:pmode, conseil:()=>conseilId() }, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
 window.__ready=true;
