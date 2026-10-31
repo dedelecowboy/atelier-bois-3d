@@ -141,7 +141,7 @@ export function celebrer(id, { etat='obtenu', titre, sous, duree=7000 }={}){
   el.dataset.motion= reduit()? 'reduit' : 'plein'; el.dataset.id=id; el.dataset.etat=etat;
   el.style.setProperty('--pfc', etat==='obtenu'? couleur(id) : '#8c959e');
   el.innerHTML=`<div class="pf-box"><div class="pf-b">${badgeSVG(id, etat)}</div>`
-    + `<p class="pf-t">${esc(titre || (etat==='obtenu'? `Badge ${M.nom} obtenu !` : `Badge Entraîné : ${M.nom} !`))}</p>`
+    + `<p class="pf-t">${esc(titre || (etat==='obtenu'? `Badge ${M.nom} obtenu !` : 'Badge « Entraîné » obtenu !'))}</p>`
     + `<p class="pf-s">${esc(sous || '')}</p><button type="button" class="toggle" data-pf="ok">Continuer</button></div>`;
   const close=()=>{ el.remove(); removeEventListener('keydown',key); clearTimeout(t); };
   const key=e=>{ if(e.key==='Escape') close(); };

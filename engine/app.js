@@ -53,7 +53,7 @@ export function createApp(config, raw){
     const ok=C.length>0 && C.every(c=>!!c[2]); if(!ok) return;
     const k=ex.mode; if(exVu===k) return; exVu=k;
     const was=estEntraine(config.id), r=noteExercice(config.id, k, S.length);
-    if(r.complet && !was) celebrer(config.id, { etat:'entraine', sous:`Les ${r.total} exercices guidés sont réussis. Badge gardé dans ce navigateur (le permis machine se passe dans Moodle).` });
+    if(r.complet && !was) celebrer(config.id, { etat:'entraine', sous:`${config.title||''} : les ${r.total} exercices guidés sont réussis. Badge gardé dans ce navigateur (le permis machine se passe dans Moodle).` });
     else if(r.nouveau) stage.toast(`Exercice réussi : ${r.n} / ${r.total} pour le badge « Entraîné ».`); }
 
   const app={ config, stage, parts, ex, lecture, data:{organes, qcm, reperage, fiches},
