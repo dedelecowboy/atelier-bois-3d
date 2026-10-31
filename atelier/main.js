@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { STATIONS, FAMILLES, FLOW, RISQUES, PREREQ } from './stations.js';
+import { STATIONS, FAMILLES, FLOWS, RISQUES, PREREQ } from './stations.js';
 import { buildHall, buildFlow, decorMachine, HALL, DECOR_MATS, TYPES } from './hall.js';
 import { LAYOUT, MODULE_SLOT } from './plan.js';
 import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
@@ -85,7 +85,9 @@ camera.position.copy(HOME.pos); controls.target.copy(HOME.tgt);
 
 /* ---------- hall et postes ---------- */
 const hall=buildHall(scene);
-const flow=buildFlow(scene, FLOW);
+/* chemins au sol aux couleurs des niveaux du permis : jaune niveau 1, orange foncé niveau 2 (stations.js) */
+const flows=FLOWS.map(f=>buildFlow(scene, f.pts, new THREE.Color(PM.NIVEAUX.find(v=>v.n===f.niv).col).getHex()));
+const flow={ group:{ get visible(){ return flows[0].group.visible; }, set visible(v){ for(const f of flows) f.group.visible=v; } }, tick:t=>{ for(const f of flows) f.tick(t); } };
 
 const GREY=new THREE.Color(0xb7bcc0);
 const pickables=[];
@@ -252,7 +254,8 @@ function permisRow(id){ const e=badgeEtat(id), m=pmode();
     : e.etat==='entraine'? `<b>Badge « Entraîné »</b><span>Exercices guidés tous réussis${e.date? ' · le '+e.date : ''}.</span>`
     : m==='entraine'? `<b>Badge « Entraîné » à obtenir</b><span>Réussissez les exercices guidés de la machine${e.total? ` (${e.n} / ${e.total})` : ''}. Le permis machine se passe dans Moodle.</span>`
     : `<b>Badge à obtenir</b><span>Pour l'obtenir : ${PM.SEUIL}.</span>`;
-  return `<div class="pm-row" data-etat="${e.etat}"><span class="pm-rb">${PM.badgeSVG(id,e.etat,{ mini:true, fiches:e.fl })}</span><p>${txt}${e.fl && e.etat==='aobtenir'? '<span class="pm-fl">Fiches lues ✓</span>' : ''}</p></div>`; }
+  const nv=PM.niveauDe(id);
+  return `<div class="pm-row" data-etat="${e.etat}" title="${nv? nv.nom : ''}"><span class="pm-rb">${PM.badgeSVG(id,e.etat,{ mini:true, fiches:e.fl })}</span><p>${txt}${nv? `<span class="pm-nv" style="--niv:${nv.col}">${nv.nom}</span>` : ''}${e.fl && e.etat==='aobtenir'? '<span class="pm-fl">Fiches lues ✓</span>' : ''}</p></div>`; }
 /* badges posés sur les postes, compteur de l'en-tête, animation de pose (une fois par badge) */
 function refreshBadges(){ const m=pmode(); let n=0;
   for(const s of ALL){ const e=badgeEtat(s.id); if(e.etat!=='aobtenir') n++;
@@ -265,15 +268,15 @@ function refreshBadges(){ const m=pmode(); let n=0;
   if(!$('permis').hidden) renderPermis(); }
 const apercuVus=new Set(), pmAnimes=[];
 function renderPermis(){ const c=$('permis'), m=pmode(), n=ALL.filter(s=>gagne(s.id)).length, nx=conseilId(), nxs=nx&&stationOf(nx);
-  const nc=PM.PERMIS_COMPLET.filter(gagne).length, full=nc===PM.PERMIS_COMPLET.length;
   const ent=m==='entraine';
   c.innerHTML=`<div class="pm-head"><div><p class="kick">${ent? 'Version d\'entraînement' : 'Atelier bois 3D'}</p><h2>Mon ${PM.NOM.toLowerCase()}</h2>${atApi?.nom? `<p class="pm-who">${atApi.nom}</p>` : ''}</div>
       <button type="button" class="x" id="permisX" aria-label="Fermer le permis">×</button></div>
     <div class="pm-prog"><p><b id="pmN">${n} / ${ALL.length}</b> ${ent? (n>1?'badges « Entraîné »':'badge « Entraîné »') : (n>1?'obtenus':'obtenu')}</p><span class="bar"><i style="width:${Math.round(100*n/ALL.length)}%"></i></span></div>
-    ${ ent? '' : `<div class="pm-complet" data-ok="${full}"><b>${PM.COMPLET}</b><span>${full? 'obtenu ✓ (risques généraux et chaîne de débit)' : `${nc} / ${PM.PERMIS_COMPLET.length} : risques généraux et chaîne de débit (scie radiale → raboteuse)`}</span></div>` }
     <div class="pm-next">${ nxs? `<span>Prochaine machine conseillée</span><button type="button" class="toggle" data-pmgo="${nxs.id}"><span class="num" style="--fam:${PM.couleur(nxs.id)}">${nxs.n}</span>${nxs.nom}</button>`
         : `<span>${ent? 'Toutes les machines sont « Entraîné » : passez le permis dans Moodle.' : 'Tous les badges sont obtenus : bravo !'}</span>` }</div>
-    <ul class="pm-grid">${ALL.map(s=>{ const e=badgeEtat(s.id); return `<li><button type="button" data-pmgo="${s.id}" data-etat="${e.etat}" title="${s.nom}">${PM.badgeSVG(s.id,e.etat,{ fiches:e.fl })}<span class="pm-st">${etatTxt(s.id,e)}</span></button></li>`; }).join('')}</ul>
+    ${PM.NIVEAUX.map(v=>{ const k=v.ids.filter(gagne).length, ok=k===v.ids.length;
+      return `<section class="pm-niv" data-niv="${v.n}" data-ok="${!ent && ok}" style="--niv:${v.col}"><div class="pm-nh"><b>${ent? `Niveau ${v.n}` : v.nom}</b><span>${v.sous}</span><em>${ent? `${k} / ${v.ids.length}` : ok? 'obtenu ✓' : `${k} / ${v.ids.length}`}</em></div>
+      <ul class="pm-grid">${v.ids.map(id=>{ const s=stationOf(id), e=badgeEtat(id); return `<li><button type="button" data-pmgo="${id}" data-etat="${e.etat}" title="${s.nom}">${PM.badgeSVG(id,e.etat,{ fiches:e.fl })}<span class="pm-st">${etatTxt(id,e)}</span></button></li>`; }).join('')}</ul></section>`; }).join('')}
     ${PM.REGLE? `<p class="pm-regle">${PM.REGLE}</p>` : ''}
     <p class="pm-note">${ m==='permis'? 'Un badge = une machine validée dans Moodle (évaluation : 70 / 100 et aucune faute grave). Le permis ne change pas la note.'
       : m==='apercu'? 'Aperçu de la version Moodle : badges simulés (boutons − et +).'
@@ -502,5 +505,5 @@ canvas.addEventListener('webglcontextlost',e=>{ e.preventDefault(); $('lost').hi
 $('relaunch').onclick=()=>location.reload();
 if(PKG||LOCAL){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
 rewriteItems(); applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
-window.__atelier={ lecture, permis:{ animes:pmAnimes, etat:badgeEtat, open:permisOpen, close:permisClose, mode:pmode, conseil:()=>conseilId() }, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
+window.__atelier={ flows:FLOWS.map((f,i)=>({ niv:f.niv, pts:flows[i].curve.getSpacedPoints(80).map(p=>[p.x,p.z]), col:'#'+flows[i].group.children[0].material.color.getHexString() })), lecture, permis:{ animes:pmAnimes, etat:badgeEtat, open:permisOpen, close:permisClose, mode:pmode, conseil:()=>conseilId() }, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
 window.__ready=true;

@@ -60,10 +60,23 @@ export const RISQUES = { id:'risques', n:0, nom:'Risques généraux', ref:'Tout 
 /* couleurs des familles : une seule source, engine/permis.js (badges du permis machine) */
 export { FAMILLES } from '../engine/permis.js';
 
-/* chaîne de débit et de corroyage des bois massifs, peinte au sol dans les passages du plan :
-   scie radiale → déligneuse → dégauchisseuse → raboteuse (points [x, z]). Elle s'arrête à la raboteuse (décidé par l'enseignant
-   le 30/10/2026) : la suite (toupie, mortaiseuse, tenonneuse) dépend des pièces. */
+/* chemins peints au sol dans les passages du plan (points [x, z], flèches dans le sens du travail), aux couleurs des niveaux
+   du permis machine (engine/permis.js, décidé par l'enseignant le 31/10/2026) :
+   - niveau 1, JAUNE : chaîne de débit et de corroyage scie radiale → déligneuse → dégauchisseuse → raboteuse,
+     et une petite branche vers la scie à ruban (juste à côté) ;
+   - niveau 2, ORANGE FONCÉ : le chemin se divise après la raboteuse, sans ordre imposé (« c'est fonction des pièces ») :
+     toupie, mortaiseuse, tenonneuse, scie à format.
+   Les branches partent d'un point du chemin principal. Contrôlé par tests/atelier/test_atelier.py (hors des machines). */
 export const FLOW = [[9.6,-5.9],[7.6,-6.0],[3.9,-5.6],[-1,-5.3],[-6,-5.3],[-9.7,-4.6],[-10.1,-1.6],[-9.3,1.5],[-7.25,1.85],[-5,2.05],[-3.85,2.15]];
+export const FLOWS = [
+  { niv:1, pts:FLOW },
+  { niv:1, pts:[[-8.6,-4.95],[-8.95,-5.9],[-9.1,-6.85]] },                                        // scie à ruban
+  { niv:2, pts:[[-2.35,2.25],[-1.2,2.45],[1,2.45],[3,2.35],[6.5,2.4],[8.55,3.1],[8.85,4.6],[8.85,6.2],[9.1,7.2]] },   // → mortaiseuse
+  { niv:2, pts:[[-0.45,2.45],[0.25,2.7],[0.75,3.2]] },                                                 // → toupie
+  { niv:2, pts:[[-1.45,2.55],[-1.6,3.8],[-1.75,5.2],[-1.7,6.3]] },                                // tronc vers le bas
+  { niv:2, pts:[[-1.75,6.0],[-2.7,6.6],[-3.6,6.95],[-4.6,7.2]] },                                 // → tenonneuse
+  { niv:2, pts:[[-1.6,6.3],[-1.3,7.1],[-0.9,7.7]] },                                              // → scie à format
+];
 /* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs), pour l'aperçu « Moodle » de cette page */
 export const PREREQ = { 'scie-radiale':'risques', 'scie-format':'risques', 'scie-ruban':'risques', deligneuse:'scie-radiale', degauchisseuse:'deligneuse',
   raboteuse:'degauchisseuse', toupie:'raboteuse', mortaiseuse:'raboteuse', tenonneuse:'raboteuse' };

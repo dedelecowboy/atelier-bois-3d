@@ -103,7 +103,7 @@ export function buildHall(scene, opt={}){
 }
 
 /* ---------- chaîne de débit : chevrons peints au sol le long d'un tracé ---------- */
-export function buildFlow(scene, points){
+export function buildFlow(scene, points, color=0xe0761a){
   const g=new THREE.Group(); scene.add(g);
   const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,0.006,z)),false,'centripetal',0.4);
   const L=curve.getLength(), step=0.6, n=Math.floor(L/step);
@@ -111,7 +111,7 @@ export function buildFlow(scene, points){
   const geo=new THREE.ShapeGeometry(sh); geo.rotateX(-Math.PI/2);
   const chev=[];
   for(let i=0;i<n;i++){ const u=(i+0.5)/n, p=curve.getPointAt(u), t=curve.getTangentAt(u);
-    const m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:0xe0761a, transparent:true, opacity:0.85, depthWrite:false, toneMapped:false }));
+    const m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.85, depthWrite:false, toneMapped:false }));
     m.position.copy(p); m.rotation.y=Math.atan2(-t.z,t.x); m.renderOrder=2; g.add(m); chev.push({ m, u }); }
   return { group:g, curve,
     tick(time){ for(const c of chev){ const w=0.5+0.5*Math.sin((c.u*L/step)*0.9 - time*3.2); c.m.material.opacity=0.35+0.6*w; } } };

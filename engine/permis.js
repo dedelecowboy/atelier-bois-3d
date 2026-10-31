@@ -8,14 +8,19 @@
    - Badge « Entraîné » (gris argent ; dossier d'entraînement hors ligne et pages web, sans évaluation) : les exercices guidés
      de la machine tous réussis (contrôle final entièrement coché, sans faute grave), gardé dans ce navigateur.
    - Repère « fiches lues » (petit livre coché) sur un badge pas encore obtenu.
-   - Permis complet « Permis atelier bois » : affichage seul quand les modules de PERMIS_COMPLET sont tous obtenus.
+   - Deux niveaux de permis (décidé par l'enseignant le 31/10/2026), affichage seul, indépendants (le niveau 2 n'exige pas
+     le niveau 1) : NIVEAUX ; au sol de l'atelier, chemin jaune pour le niveau 1, orange foncé pour le niveau 2.
    Pour lier plus tard le permis au droit d'utiliser les vraies machines : écrire le texte de la règle dans REGLE
    (affiché sur la carte du permis), sans autre changement. */
 
 export const NOM = 'Permis machine';
-export const COMPLET = 'Permis atelier bois';
-/* modules du permis complet : risques généraux et la chaîne de débit (À VALIDER par l'enseignant) */
-export const PERMIS_COMPLET = ['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse'];
+/* niveaux du permis (décidés par l'enseignant le 31/10/2026) : niveau 1 = risques généraux, débit et corroyage, scie à ruban ;
+   niveau 2 = les machines après la raboteuse et la scie à format. col : couleur du chemin peint au sol (atelier/hall.js). */
+export const NIVEAUX = [
+  { n:1, nom:'Permis niveau 1', sous:'Débit et corroyage', col:'#e2b416', ids:['risques', 'scie-radiale', 'deligneuse', 'degauchisseuse', 'raboteuse', 'scie-ruban'] },
+  { n:2, nom:'Permis niveau 2', sous:'Usinage et panneaux', col:'#b4460c', ids:['toupie', 'mortaiseuse', 'tenonneuse', 'scie-format'] },
+];
+export const niveauDe = id=>NIVEAUX.find(v=>v.ids.includes(id)) || null;
 /* règle d'atelier liée au permis (vide pour l'instant : le permis ne donne aucun droit sur les vraies machines) */
 export const REGLE = '';
 export const SEUIL = 'validez l\'évaluation (70 / 100, aucune faute grave)';
@@ -109,7 +114,7 @@ export function poser(cle){ const p=poses(); if(p.includes(cle)) return false; p
 /* prochaine machine conseillée : la première, dans l'ordre du paquetage (chaîne de débit d'abord), pas encore obtenue
    et pas verrouillée */
 export function conseil(obtenu, verrou=()=>false){ return MODULES.find(m=>!obtenu(m.id) && !verrou(m.id)) || null; }
-export const complet = obtenu=>PERMIS_COMPLET.every(id=>obtenu(id));
+export const niveauObtenu = (niv, obtenu)=>niv.ids.every(id=>obtenu(id));
 
 /* ---------- styles communs (atelier et machines) ---------- */
 const CSS = `
