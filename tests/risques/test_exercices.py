@@ -1,7 +1,9 @@
 # © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Risques généraux : les quatre exercices guidés joués comme un élève (mode Exercice, sans Moodle).
-- Dangers : 12 dangers repérés avec la bonne mesure → bilan conforme ; une situation correcte touchée = fausse alerte ;
+- Dangers : tous les dangers de dangers.txt repérés avec la bonne mesure → bilan conforme ; une situation correcte touchée = fausse alerte ;
   une mauvaise mesure est signalée.
+- Relecture de l'équipe (nov. 2026) : la déligneuse qui déborde sur l'allée se touche en mode Dangers (et seulement là) ;
+  le câble se touche même un peu à côté.
 - EPI : 4 tenues correctes ; des gants à la toupie = faute grave.
 - Consignation : arrêter, séparer, condamner, signaler, vérifier, intervenir, déconsigner → bilan conforme ;
   intervention machine en marche ou après le seul arrêt d'urgence refusée (faute grave).
@@ -33,6 +35,19 @@ async def main():
           return {fa, fb1, fb2, marks};"""))
         check(r['fa'] == ['p_chariot'] and r['fb1'].startswith('Fausse alerte'), 'situation correcte touchée : fausse alerte expliquée')
         check(r['marks']['cable']['ok'] is False and 'pas la bonne mesure' in r['fb2'], 'mauvaise mesure : signalée, avec la bonne réponse')
+        print('Zones de clic (relecture de l\'équipe)')
+        r = await pg.eval(js(r"""
+          const R=window.__risques, S=window.__atelier.app.stage, THREE=S.THREE, ray=new THREE.Raycaster();
+          const first=(from,to)=>{ ray.set(new THREE.Vector3(...from), new THREE.Vector3(...to).sub(new THREE.Vector3(...from)).normalize());
+            const h=ray.intersectObjects(S.root.children,true).find(h=>{ let o=h.object; while(o){ if(!o.visible||o.userData.off) return false; o=o.parent; } return true; }); return h?.object.userData.danger||null; };
+          const c=new THREE.Box3().setFromObject(R.model.DEC.m21.g).getCenter(new THREE.Vector3());
+          const mach=first([c.x,c.y+5,c.z+0.01],[c.x,c.y,c.z]);
+          const cab=first([-8.9+0.08,3,-5.6],[-8.9+0.08,0,-5.6]);    // 8 cm à côté du câble
+          $('m-epi').click(); await sleep(400); const off=[]; R.model.DEC.m21.g.traverse(o=>{ if(o.userData.danger) off.push(o); });
+          return {mach, cab, off:off.length};"""))
+        check(r['mach'] == 'machine_allee', f'déligneuse sur l\'allée : touchable en mode Dangers ({r["mach"]})')
+        check(r['cab'] == 'cable', f'câble touché à 8 cm à côté ({r["cab"]})')
+        check(r['off'] == 0, 'dans un autre exercice, la déligneuse n\'est plus une situation')
         print('Fautes graves')
         await mode(pg, 'epi')
         r = await pg.eval(js(FAUTES['epi']))
