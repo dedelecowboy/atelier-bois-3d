@@ -19,8 +19,14 @@ export function createFiches(app, parc){
   const CODE = (app.config.scorm?.code||id).toUpperCase();
   const listeners = new Set(), mounts = [];
   /* mémoire */
-  const get = ()=>{ if(P) return Array.isArray(P.lu)? P.lu : [];
-    try{ const a=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(a)? a : []; }catch(e){ return []; } };
+  /* version des fiches (config.fichesV, 1 par défaut) : la lecture est mémorisée par numéro de fiche ; quand l'ordre ou
+     le nombre des fiches change, l'enseignant augmente fichesV et l'ancienne lecture est oubliée (sinon de nouvelles
+     fiches seraient marquées « lues » par erreur). Mémoire sans version = version 1. */
+  const V = +app.config.fichesV || 1;
+  if(P){ if((+P.luV||1)!==V){ P.lu=[]; delete P.luD; } if(V>1) P.luV=V; }
+  else try{ if((+localStorage.getItem(KEY+'.v')||1)!==V){ localStorage.removeItem(KEY); localStorage.setItem(KEY+'.v', V); } }catch(e){}
+  const get = ()=>{ if(P) return Array.isArray(P.lu)? P.lu.filter(i=>i<F.length) : [];
+    try{ const a=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(a)? a.filter(i=>i<F.length) : []; }catch(e){ return []; } };
   /* repère « fiches lues » du permis machine (engine/permis.js) : aussi gardé dans le navigateur dans Moodle (indicatif, sans effet) */
   const repere = ()=>noteFiches(id, count(), F.length);
   const put = a=>{ if(P){ P.lu=a; parc.scorm.save(); repere(); return; } try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} repere(); };
@@ -45,7 +51,8 @@ export function createFiches(app, parc){
     return `<div class="fiches-prog" data-all="${all()}"><b>Fiches lues : ${n} / ${F.length}</b><span class="fbar"><i style="width:${pc}%"></i></span>`
       + `<span class="fiches-msg">${all()? (o.doneMsg||'Toutes les fiches sont lues.') : (o.todoMsg||'Lisez chaque fiche jusqu\'au bout, puis « J\'ai lu cette fiche ». Obligatoire avant l\'évaluation dans Moodle.')}</span></div>`
       + F.map((f,i)=>{ const lu=isRead(i);
-        return `<details class="fiche" data-i="${i}" data-lu="${lu}"${i===open?' open':''}><summary><span class="fnum">${lu?'✓':i+1}</span><span class="ft">${esc(f.t)}</span></summary>`
+        return (f.sec?`<h4 class="fiches-sec">${esc(f.sec)}</h4>${f.secNote?`<p class="fiches-secnote">${esc(f.secNote)}</p>`:''}`:'')
+          + `<details class="fiche" data-i="${i}" data-lu="${lu}"${i===open?' open':''}><summary><span class="fnum">${lu?'✓':i+1}</span><span class="ft">${esc(f.t)}${f.tag?`<small class="ftag">${esc(f.tag)}</small>`:''}</span></summary>`
           + f.blocks.map(b=>b.p?`<p>${esc(b.p)}</p>`:b.ul?`<ul>${b.ul.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p class="src">${esc(b.src)}</p>`).join('')
           + `<div class="fiche-act">${f.parts.length?`<button type="button" class="toggle mini" data-fshow="${i}">${o.voir||'Voir sur la machine'}</button>`:''}`
           + `<button type="button" class="toggle fiche-lu" data-flu="${i}" ${lu?'disabled aria-pressed="true"':''}>${lu?'Fiche lue ✓':'J\'ai lu cette fiche'}</button></div></details>`; }).join(''); }
