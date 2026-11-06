@@ -1,7 +1,7 @@
 # © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
-"""Vestiaire des risques généraux (demandé par l'enseignant le 06/11/2026, prototype à 3 démonstrations) :
-1. page web : onglet « Vestiaire », 12 fiches, l'élève apparaît et la caméra vient sur lui, démonstrations sans / avec
-   protection (casque à la raboteuse, éclat et lunettes, écharpe à la toupie) qui finissent sur la bonne carte,
+"""Vestiaire des risques généraux (demandé par l'enseignant le 06/11/2026) :
+1. page web : onglet « Vestiaire », 12 fiches, l'élève apparaît et la caméra vient sur lui, les démonstrations sans / avec
+   protection des 12 fiches (et « gants près d'un outil qui tourne ») finissent sur la bonne carte,
    lecture gardée dans le navigateur, sortie du vestiaire (avatar caché, modèles simplifiés remis) ;
 2. paquetage séparé : après les fiches risques, la carte du parcours demande le vestiaire, trace RISQUES_vestiaire,
    reprise (suspend_data) ; 3. téléphone : pas de défilement horizontal."""
@@ -25,11 +25,15 @@ async def main():
         print('   capture', await pg.shot('risques_vestiaire.png'))
         for k, m, t, l, mot in [('auditif','sans',[2,8],'ko','Sans casque'),('auditif','avec',[8],'ok','Avec le casque'),
                                 ('lunettes','sans',[2,3.4],'ko','Sans lunettes'),('lunettes','avec',[4.2],'ok','Avec les lunettes'),
-                                ('echarpe','sans',[4,4.7],'ko','écharpe'),('echarpe','avec',[4.2],'ok','Sans écharpe')]:
+                                ('echarpe','sans',[4,4.7],'ko','écharpe'),('echarpe','avec',[4.2],'ok','Sans écharpe'),
+                                ('chaussures','sans',[3.0],'ko','Sans chaussures'),('chaussures','avec',[3.8],'ok','embout'),
+                                ('masque','sans',[4.4],'ko','Sans masque'),('masque_a','sans',[4.4],'ko','FFP2'),('masque_a','avec',[4.4],'ok','demi-masque'),
+                                ('gants_manut','sans',[3.2],'ko','écharde'),('gants_manut','toupie',[4,4.8],'ko','gant'),('gants_chim','sans',[2.6],'ko','vernis'),
+                                ('cheveux','sans',[4,4.8],'ko','cheveux'),('sweat','sans',[4,4.8],'ko','sweat'),('tenue','avec',[4.2],'ok','vêtement de travail'),('bijoux','sans',[4,4.8],'ko','bracelet')]:
             r = await pg.eval(DEMO, [k, m, t])
             check(not r['hidden'] and r['l'] == l and mot in r['t'], f'{k} {m} : carte « {r["t"]} » ({l})')
             if k == 'auditif': check(r['sono'], f'{k} {m} : sonomètre affiché pendant la démonstration')
-            if m == 'sans': print('   capture', await pg.shot(f'risques_vestiaire_{k}.png'))
+            if m in ('sans','toupie'): print('   capture', await pg.shot(f'risques_vestiaire_{k}_{m}.png'))
         await pg.eval("()=>{ window.__risques.V.freeze(null); window.__risques.V.stopDemo(); }")
         await pg.eval(LIRE, '#vestiaire')
         n = await pg.eval("()=>document.getElementById('vestN').textContent")
