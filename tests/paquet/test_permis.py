@@ -73,8 +73,10 @@ async def paquet(br):
     check(sorted(st['poses']) == ['obtenu:risques', 'obtenu:scie-radiale'], f'2 badges mémorisés comme posés ({st["poses"]})')
     # l'atelier a pu poser les badges avant le clic sur « Atelier » (selon la vitesse de chargement) : animation contrôlée ici, sans dépendre de ce moment
     await f.evaluate("()=>{ localStorage.removeItem('atelier.permis.poses'); __atelier.permis.animes.length=0; }")
-    await pg.evaluate("setSt('0. Risques généraux','fa-check','Réussi',96)"); await pg.wait_for_timeout(1200)
-    anim = await f.evaluate("()=>__atelier.permis.animes.slice()")
+    await pg.evaluate("setSt('0. Risques généraux','fa-check','Réussi',96)"); 
+    for _ in range(20):
+        await pg.wait_for_timeout(500); anim = await f.evaluate("()=>__atelier.permis.animes.slice()")
+        if len(anim) >= 2: break
     check(sorted(anim) == ['obtenu:risques', 'obtenu:scie-radiale'], f'animation de pose des 2 badges ({anim})')
     await pg.screenshot(path=os.path.join(OUT, 'permis_atelier.png'))
     # rechargement : plus d'animation (une seule fois par badge)
@@ -82,8 +84,10 @@ async def paquet(br):
     check(await f.evaluate("()=>__atelier.permis.animes.length") == 0 and await f.evaluate("()=>__atelier.STATIONS.find(s=>s.id==='scie-radiale').lbl.dataset.badge") == 'obtenu',
           'retour à l\'atelier : badge toujours posé, animation pas rejouée')
     # nouvelle machine validée pendant que l'atelier est ouvert : le badge se pose (une fois)
-    await pg.evaluate("setSt('3. Dégauchisseuse','fa-check','Réussi',92)"); await pg.wait_for_timeout(1200)
-    st = await f.evaluate("()=>({ b:__atelier.STATIONS.find(s=>s.id==='degauchisseuse').lbl.dataset.badge, a:__atelier.permis.animes.slice() })")
+    await pg.evaluate("setSt('3. Dégauchisseuse','fa-check','Réussi',92)")
+    for _ in range(20):
+        await pg.wait_for_timeout(500); st = await f.evaluate("()=>({ b:__atelier.STATIONS.find(s=>s.id==='degauchisseuse').lbl.dataset.badge, a:__atelier.permis.animes.slice() })")
+        if st['b'] == 'obtenu': break
     check(st['b'] == 'obtenu' and st['a'] == ['obtenu:degauchisseuse'], 'sommaire mis à jour : badge de la dégauchisseuse posé avec son animation')
     # panneau « Mon permis machine »
     await f.evaluate("()=>document.getElementById('permisBtn').click()"); await pg.wait_for_timeout(1000)

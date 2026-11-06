@@ -23,7 +23,7 @@ async def qcm(pg, wrong=()):
     ans = await pg.eval('__atelier.QCM.map(q=>q.a)')
     for i, a in enumerate(ans):
         if i in wrong: a = (a + 1) % 3
-        await pg.page.click(f'#parcCard [data-q="{a}"]'); await pg.page.click('#qVal'); await pg.page.click('#qNext')
+        await pg.eval("(a)=>{ document.querySelector(`#parcCard [data-q=\"${a}\"]`).click(); document.getElementById('qVal').click(); document.getElementById('qNext').click(); }", a)   # clics directs : trois clics Playwright par question sont très lents ici en headless
     return ans
 
 async def complet():
