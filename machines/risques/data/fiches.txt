@@ -1,83 +1,141 @@
 # © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 # Fiches « Risques » affichées dans la présentation (colonne de droite).
+# Organisation (décidée par l'équipe, novembre 2026) : 1. les RISQUES, dans l'ordre et avec les intitulés des fiches
+# de l'INRS ED 840 « Évaluation des risques professionnels. Aide au repérage des risques dans les PME-PMI » ;
+# 2. la PRÉVENTION et la conduite à tenir (EPI, règles, accident, évacuation), qui ne sont pas des risques.
 #
 # Comment modifier ce fichier :
-# - ## Titre | codes        : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
+# - ### Partie | note        : un titre de partie (et une courte note facultative, affichée sous le titre).
+# - ## Titre | codes | repère : une nouvelle fiche. Les codes (facultatifs, séparés par des virgules) sont ceux de
 #                             organes.txt : le bouton « Voir dans l'atelier » de la fiche les met en surbrillance.
+#                             Le repère (facultatif) s'affiche sous le titre (ici : le numéro de la fiche ED 840).
 # - une ligne de texte      : un paragraphe.
 # - - texte                 : une puce (les puces qui se suivent forment une liste).
 # - > texte                 : la source (en petit, en bas de la fiche).
 # - Les lignes qui commencent par un seul # sont des commentaires : elles sont ignorées.
+# Après un changement de l'ordre ou du nombre des fiches, augmenter `fichesV` dans config.js : la lecture
+# est alors à refaire (sinon des fiches seraient marquées « lues » par erreur).
 
-## Poussières de bois | aspiration, aspirateur, consignes_epi
+### Les risques de l'atelier | D'après les fiches de l'INRS ED 840 (le numéro est indiqué sous chaque titre). Moins présents à l'atelier et non détaillés ici : risques routiers (4), agents biologiques (8), ambiances thermiques (12), rayonnements (16), risques psychosociaux (17), pratiques addictives (20).
+
+## Risques de chute de plain-pied | allee | ED 840 · fiche 1
+Glisser ou trébucher près d'une machine en marche peut causer une blessure grave.
+- Allées marquées en jaune, toujours libres : pas de bois, de câble, de copeaux, de déchets ni de machine qui déborde.
+- Ranger au fur et à mesure ; ne pas courir ; essuyer un liquide renversé.
+- Chaussures de sécurité antidérapantes.
+> INRS ED 840, fiche 1 ; INRS, « Chutes de plain-pied : mesures de prévention » et ED 6458 ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Risques de chute de hauteur | ratelier | ED 840 · fiche 2
+Une chute de moins d'un mètre peut suffire à se blesser gravement, surtout contre une machine.
+- Pour atteindre un rangement en hauteur : un escabeau ou une plateforme en bon état, bien calé.
+- Ne jamais monter sur une chaise, un établi, une machine ou le râtelier.
+- Pas de charge lourde portée en haut d'un escabeau ; on se fait aider.
+> INRS ED 840, fiche 2.
+
+## Risques liés aux circulations internes de véhicules et d'engins | chariot, allee | ED 840 · fiche 3
+Chariot porte-panneaux, transpalette, table roulante : heurts, pieds écrasés, charge qui se renverse.
+- Circuler dans les allées, au pas, en voyant devant soi : la charge ne masque pas la vue.
+- Pousser plutôt que tirer ; prévenir les camarades avant de passer derrière eux.
+- Chariot rangé hors des allées, freins serrés.
+> INRS ED 840, fiche 3.
+
+## Risques liés à la charge physique de travail | chariot | ED 840 · fiche 5
+Ports de charges répétés, postures penchées : lombalgies, troubles musculosquelettiques (TMS).
+- D'abord les aides : chariot porte-panneaux, table élévatrice, transpalette ; à deux pour les grands panneaux.
+- Charge près du corps, dos droit, jambes fléchies, sans torsion.
+- Repère : 15 kg par charge est acceptable, 25 kg seulement sous conditions (norme NF X35-109).
+- Moins de 18 ans : plus de 20 % de son poids seulement avec un avis médical d'aptitude.
+> INRS ED 840, fiche 5 ; INRS, Travail & Sécurité n° 852 (2023) « Le port de charges » ; Code du travail, art. R4541-9 et R4153-52.
+
+## Risques liés à la manutention mécanique | chariot | ED 840 · fiche 6
+Le chariot ou la table élévatrice soulagent le dos, mais la charge peut glisser ou basculer.
+- Charge stable, centrée, calée ; pas plus haute que ce que prévoit le chariot.
+- Vérifier les roues et les freins ; jamais de passager, jamais de pied sous la table élévatrice.
+- Gants de manutention et chaussures de sécurité.
+> INRS ED 840, fiche 6.
+
+## Poussières de bois | aspiration, aspirateur, consignes_epi | ED 840 · fiche 7
 Toutes les poussières de bois, quel que soit le bois, sont cancérogènes : cancer des fosses nasales et des sinus (de l'ethmoïde), qui peut apparaître 20 ans et plus après l'exposition. Elles provoquent aussi allergies, asthme, eczéma et conjonctivite.
 - Avant d'usiner : aspiration en marche, trappe de sa machine ouverte. C'est la protection principale (captage à la source).
 - Nettoyer à l'aspirateur, machine arrêtée. Jamais de soufflette ni de balai.
 - Masque FFP2 au minimum quand l'aspiration ne suffit pas : ponçage, nettoyage, vidange des sacs.
 - Valeur limite : 1 mg de poussière par m³ d'air sur 8 heures, contrôlée chaque année.
-> INRS ED 974 « Poussières de bois. Prévenir les risques » (2021) ; INRS ED 6192 ; Code du travail, art. R4412-149 ; tableau n° 47 des maladies professionnelles.
+> INRS ED 840, fiche 7 ; INRS ED 974 « Poussières de bois. Prévenir les risques » (2021) ; INRS ED 6192 ; Code du travail, art. R4412-149 ; tableau n° 47 des maladies professionnelles.
 
-## Bruit | consignes_epi
+## Produits chimiques et déchets | armoire_produits, poubelle_metal, lave_oeil | ED 840 · fiche 7
+Colles, vernis, teintes, solvants, huiles, produits de traitement du bois : intoxication, irritation, allergies, incendie.
+- Lire l'étiquette : le pictogramme (losange à bord rouge) indique le type de danger ; la mention d'avertissement indique sa gravité : « Danger » (le plus grave) ou « Attention » (règlement CLP).
+- La fiche de données de sécurité (FDS) dit les dangers, les EPI et la conduite à tenir.
+- Au poste, seulement la petite quantité nécessaire, dans un petit contenant étiqueté. Le reste fermé, dans son emballage, dans l'armoire de sécurité. Jamais dans une bouteille d'eau.
+- Travailler dans la zone ventilée ; gants nitrile, lunettes, masque indiqué par la FDS (un masque FFP2 n'arrête pas les vapeurs).
+- Déchets : chiffons humidifiés puis jetés dans la poubelle métallique fermée ; fonds de produits et emballages vides dans la filière prévue, jamais à l'évier.
+- Projection dans l'œil : rincer tout de suite au lave-œil et prévenir. Ni boire ni manger à l'atelier.
+> INRS ED 840, fiche 7 ; INRS, « Classification et étiquetage des produits chimiques » et ED 6207 « Mémento du règlement CLP » ; INRS ED 4471.
+
+## Risques liés aux équipements de travail | sectionneur, arret_general, consignes_epi | ED 840 · fiche 9
+Les machines à bois coupent, entraînent, rejettent la pièce : coupures, doigts amputés, choc de la pièce rejetée.
+- Pas de machine sans l'autorisation du professeur, après avoir été formé à cette machine.
+- Protecteurs en place et réglés ; poussoir pour les petites pièces ; jamais la main dans l'axe de l'outil.
+- Arrêter la machine et attendre l'arrêt complet de l'outil avant de toucher la pièce ou les chutes.
+- Consigner avant toute intervention (changement d'outil, nettoyage, pièce coincée) : 1. arrêter ; 2. séparer (sectionneur sur 0) ; 3. condamner (son cadenas, clé gardée sur soi) et signaler (panneau) ; 4. vérifier qu'elle ne démarre pas ; 5. intervenir.
+- L'arrêt d'urgence n'est pas une consignation : quelqu'un peut le déverrouiller.
+- Déconsigner : remettre les protecteurs, ranger ses outils, prévenir, retirer son cadenas, remettre le sectionneur sur 1.
+> INRS ED 840, fiche 9 ; INRS ED 6122 « Sécurité des machines. Prévention des risques mécaniques » ; INRS ED 6109 « Consignations et déconsignations » (2011).
+
+## Risques liés aux effondrements et aux chutes d'objets | ratelier | ED 840 · fiche 10
+Un panneau mal appuyé ou une pile de planches qui glisse peut écraser un pied ou une jambe.
+- Bois et panneaux rangés au râtelier, calés, jamais appuyés contre une machine ou dans une allée.
+- Les charges lourdes en bas, les légères en haut ; ne pas surcharger les étagères.
+- Chaussures de sécurité à embout.
+> INRS ED 840, fiche 10 ; INRS ED 4471 « TutoPrév' Accueil Métiers du bois ».
+
+## Risques et nuisances liés au bruit | consignes_epi | ED 840 · fiche 11
 La perte d'audition due au bruit arrive sans douleur, petit à petit, et elle est définitive : les cellules de l'oreille interne détruites ne se réparent pas.
 - 80 dB(A) en moyenne sur la journée : protections auditives mises à disposition.
 - 85 dB(A) : port obligatoire.
 - 87 dB(A) : valeur limite, protections comprises, à ne jamais dépasser.
 - À l'atelier : casque ou bouchons portés dès qu'une machine tourne, même celle d'un camarade.
 - Si l'on n'entend plus une personne qui parle normalement à 2 mètres, le bruit abîme l'oreille.
-> Code du travail, art. R4431-2 et R4434-7 ; fiche INRS RG 01 « Le bruit » ; fiche « Sécurité atelier » 2MB du lycée.
+> INRS ED 840, fiche 11 ; Code du travail, art. R4431-2 et R4434-7 ; fiche INRS RG 01 « Le bruit » ; fiche « Sécurité atelier » 2MB du lycée.
 
-## Incendie et explosion | extincteur_eau, extincteur_co2, poubelle_metal, armoire_produits
-Le feu a besoin d'un combustible (bois, copeaux, poussières, vernis), d'air et d'une source d'inflammation (étincelle, point chaud, cigarette, court-circuit). Des poussières fines en nuage dans un endroit fermé (filtre, silo) peuvent exploser.
-- Atelier propre : copeaux et poussières aspirés chaque jour ; interdiction de fumer.
-- Chiffons imbibés d'huile, de vernis ou de solvant : dans la poubelle métallique à couvercle fermé (ils peuvent s'enflammer seuls).
+## Risques d'incendie et d'explosion | extincteur_eau, extincteur_co2, poubelle_metal, armoire_produits | ED 840 · fiche 13
+Le feu naît quand trois éléments sont réunis (le « triangle du feu ») : un combustible (bois, copeaux, poussières, vernis), un comburant (l'oxygène de l'air) et une source d'inflammation (étincelle, point chaud, cigarette, court-circuit). Des poussières fines en nuage dans un endroit fermé (filtre, silo) peuvent exploser.
+- Atelier propre : copeaux et poussières aspirés chaque jour ; interdiction de fumer et de vapoter.
+- Chiffons imbibés d'huile d'imprégnation (huile de lin, huile dure…), de vernis ou de solvant : ils peuvent s'échauffer et s'enflammer seuls. On les humidifie, puis on les jette dans la poubelle métallique à couvercle fermé, vidée chaque jour.
 - Classes de feu : A solides (bois), B liquides (vernis, solvants), C gaz, D métaux, F huiles de cuisson.
 - Extincteur à eau pulvérisée avec additif : classes A et B, celui de l'atelier. CO2 : classe B et installations électriques.
 - Alerter d'abord. Eau : à 2 – 3 m ; CO2 : à 0,5 – 1,5 m. Dos à une issue, viser la base des flammes. Feu non maîtrisé : évacuer.
-> INRS ED 6054 « Les extincteurs d'incendie portatifs, mobiles et fixes » (2023) ; INRS ED 6021 « Incendie et explosion dans l'industrie du bois » ; Code du travail, art. R4227-29 ; AEAI, liste de contrôle « auto-inflammation ».
+> INRS ED 840, fiche 13 ; INRS ED 6054 « Les extincteurs d'incendie portatifs, mobiles et fixes » (2023) ; INRS ED 6021 « Incendie et explosion dans l'industrie du bois » ; Code du travail, art. R4227-29 ; AEAI, liste de contrôle « auto-inflammation ».
 
-## Évacuation | issue, baes, plan_evac, alarme, allee
-- Au signal d'alarme : arrêter sa machine et sortir dans le calme par l'issue la plus proche qui n'est pas enfumée, en suivant les panneaux verts.
-- Ne jamais revenir chercher ses affaires.
-- Fermer les portes derrière soi, sans les verrouiller.
-- Aller au point de rassemblement et se signaler au professeur (appel).
-- Issues et allées toujours dégagées ; plan d'évacuation affiché près de la porte.
-Dans les établissements scolaires, des exercices d'évacuation ont lieu chaque année, le premier dans le mois de la rentrée.
-> Règlement de sécurité contre l'incendie des établissements recevant du public (ERP), art. R33 ; INRS ED 6054.
-
-## Risque électrique | armoire_elec, arret_general, sectionneur
+## Risques liés à l'électricité | armoire_elec, arret_general, sectionneur | ED 840 · fiche 14
 Électrisation, électrocution, brûlures : toute tension supérieure à 50 volts présente un danger de mort.
 - Armoire électrique toujours fermée : seule une personne habilitée l'ouvre. Un élève ne l'ouvre jamais.
 - Câble abîmé, prise cassée : ne pas utiliser, prévenir le professeur.
-- Consigner avant toute intervention (changement d'outil, nettoyage, pièce coincée) : 1. arrêter ; 2. séparer (sectionneur sur 0) ; 3. condamner (son cadenas, clé gardée sur soi) et signaler (panneau) ; 4. vérifier qu'elle ne démarre pas ; 5. intervenir.
-- L'arrêt d'urgence n'est pas une consignation : quelqu'un peut le déverrouiller.
-- Déconsigner : remettre les protecteurs, ranger ses outils, prévenir, retirer son cadenas, remettre le sectionneur sur 1.
-> INRS ED 6109 « Consignations et déconsignations » (2011) ; fiche INRS RG 03 « Le risque électrique ».
+- Rallonge : jamais en travers d'une allée ni sous un tas de copeaux ; déroulée entièrement.
+- Intervention sur une machine : consignation (voir la fiche « Risques liés aux équipements de travail »).
+> INRS ED 840, fiche 14 ; fiche INRS RG 03 « Le risque électrique ».
 
-## Manutention et rangement | chariot, ratelier
-Ports de charges répétés : lombalgies, troubles musculosquelettiques (TMS), chute de panneau sur les pieds, coupures.
-- D'abord les aides : chariot porte-panneaux, table élévatrice, transpalette ; à deux pour les grands panneaux.
-- Charge près du corps, dos droit, jambes fléchies, sans torsion.
-- Repère : 15 kg par charge est acceptable, 25 kg seulement sous conditions (norme NF X35-109).
-- Moins de 18 ans : plus de 20 % de son poids seulement avec un avis médical d'aptitude.
-- Bois rangés au râtelier, stables, jamais dans les allées. Gants de manutention et chaussures de sécurité.
-> INRS, Travail & Sécurité n° 852 (2023) « Le port de charges » ; Code du travail, art. R4541-9 et R4153-52 ; INRS ED 4471 « TutoPrév' Accueil Métiers du bois ».
-
-## Chutes et circulation | allee, eclairage
-Glisser ou trébucher près d'une machine en marche peut causer une blessure grave.
-- Allées marquées en jaune, toujours libres : pas de bois, de câble, de copeaux ni de déchets.
-- Ranger au fur et à mesure ; ne pas courir ; essuyer un liquide renversé.
+## Risques liés aux ambiances lumineuses | eclairage | ED 840 · fiche 15
+Un poste mal éclairé fait mal juger la position de la main et de l'outil ; un éblouissement gêne la lecture des cotes.
 - Éclairage suffisant : 120 lux au minimum au poste de travail, 40 lux dans les allées.
-- Chaussures de sécurité antidérapantes.
-> INRS, « Chutes de plain-pied : mesures de prévention » et ED 6458 ; Code du travail, art. R4223-4 ; fiche « Sécurité atelier » 2MB du lycée.
+- Signaler un tube éteint ou qui clignote ; ne pas travailler dans son ombre (lampe d'appoint).
+> INRS ED 840, fiche 15 ; Code du travail, art. R4223-4.
 
-## Produits chimiques | armoire_produits, poubelle_metal, lave_oeil
-Colles, vernis, teintes, solvants, produits de traitement du bois : intoxication, irritation, allergies, incendie.
-- Lire l'étiquette : pictogramme en losange à bord rouge, mention « Danger » ou « Attention », conseils de prudence (règlement CLP).
-- La fiche de données de sécurité (FDS) dit les dangers, les EPI et la conduite à tenir.
-- Produits fermés, dans leur emballage étiqueté, rangés dans l'armoire de sécurité. Jamais dans une bouteille d'eau.
-- Travailler dans la zone ventilée ; gants nitrile, lunettes, masque indiqué par la FDS (un masque FFP2 n'arrête pas les vapeurs).
-- Projection dans l'œil : rincer tout de suite au lave-œil et prévenir. Ni boire ni manger à l'atelier.
-> INRS, « Classification et étiquetage des produits chimiques » et ED 6207 « Mémento du règlement CLP » ; INRS ED 4471.
+## Risques liés aux vibrations | | ED 840 · fiche 18
+Ponceuses, défonceuses et scies portatives transmettent des vibrations à la main et au bras : doigts blancs et engourdis, douleurs du poignet et du coude.
+- Outil adapté et entretenu (abrasif changé, fraise affûtée) : il vibre moins.
+- Tenir l'outil sans le serrer trop fort ; alterner les tâches, faire des pauses.
+- Repères pour la main et le bras : 2,5 m/s² sur 8 heures, la valeur qui oblige à agir ; 5 m/s², la valeur limite.
+> INRS ED 840, fiche 18 ; Code du travail, art. R4443-1 et R4443-2.
+
+## Risques de heurt, de cognement | allee, ratelier | ED 840 · fiche 19
+Se cogner à l'angle d'une table de machine, à une pièce longue qui dépasse ou à un camarade qui porte un panneau.
+- Pièces longues : se faire aider pour les sortir de la machine ; un camarade tient l'autre bout.
+- Ne pas laisser dépasser une pièce ou une machine dans l'allée ; servantes et rallonges de table bien placées.
+- Regarder derrière soi avant de reculer avec une charge.
+> INRS ED 840, fiche 19.
+
+### Prévention et conduite à tenir
 
 ## Équipements de protection individuelle | consignes_epi
 Les protections collectives passent d'abord (aspiration, protecteurs des machines) ; les EPI complètent. Ils sont fournis, personnels et vérifiés avant usage.
@@ -87,13 +145,27 @@ Les protections collectives passent d'abord (aspiration, protecteurs des machine
 - Gants : jamais près d'un outil en rotation (ils peuvent être happés). Gants de manutention pour porter les bois ; gants nitrile pour les produits.
 > INRS ED 6077 « Les équipements de protection individuelle. Règles d'utilisation » (2013) ; CCHST « Machines à travailler le bois – Conseils de sécurité d'ordre général » ; INRS ED 4471.
 
-## Règles de l'atelier et accident | trousse, lave_oeil, affiche_urgence, arret_general
+## Règles de l'atelier
 - Pas de machine sans l'autorisation du professeur, après avoir été formé à cette machine.
 - Jamais seul dans l'atelier : un professeur est présent quand une machine tourne.
 - Ne pas distraire un camarade à sa machine ; arrêter sa machine pour parler ; ne jamais la laisser tourner sans surveillance.
 - Moins de 18 ans : les machines dangereuses sont autorisées seulement pour la formation (dérogation, formation à la sécurité, avis médical, encadrement).
-En cas d'accident :
+> INRS « Jeunes travailleurs : réglementation » (art. R4153-38 à R4153-45 du Code du travail) ; CCHST ; fiche « Sécurité atelier » 2MB du lycée.
+
+## En cas d'accident | trousse, lave_oeil, affiche_urgence, arret_general
 - Protéger : faire arrêter la machine (arrêt d'urgence), sans se mettre en danger.
-- Examiner la victime et faire alerter : le professeur, puis le 15 (SAMU), le 18 (pompiers) ou le 112 ; le 114 par SMS. Dire qui on est, où, ce qui s'est passé, l'état de la victime ; ne pas raccrocher le premier.
+- Examiner la victime.
+- Faire alerter : le professeur, la vie scolaire (surveillant) et l'infirmière du lycée, et les secours : 15, 18 ou 112 (dans les Vosges, ces trois numéros arrivent au même centre, celui du SDIS 88) ; le 114 par SMS. Dire qui on est, où, ce qui s'est passé, l'état de la victime ; ne pas raccrocher le premier.
 - Secourir avec les gestes appris ; trousse de secours, lave-œil.
-> INRS ED 7000 « Référentiel technique SST » ; INRS « Jeunes travailleurs : réglementation » (art. R4153-38 à R4153-45 du Code du travail) ; CCHST ; fiche « Sécurité atelier » 2MB du lycée.
+- Doigt ou partie de la main sectionné : prendre la boîte de secours « membre sectionné » de l'atelier, suivre sa notice, et la remettre aux secours avec la victime.
+- Plaie grave de la main : les secours (le SAMU) décident où aller, souvent un centre spécialisé de chirurgie de la main (anciennement POSU, réseau SOS Mains).
+> INRS ED 7000 « Référentiel technique SST » ; organisation des secours du lycée ; décret n° 2006-576 du 22 mai 2006 (structures des urgences).
+
+## Évacuation | issue, baes, plan_evac, alarme, allee
+- Au signal d'alarme : arrêter sa machine et sortir dans le calme par l'issue la plus proche qui n'est pas enfumée, en suivant les panneaux verts.
+- Ne jamais revenir chercher ses affaires.
+- Fermer les portes derrière soi, sans les verrouiller.
+- Aller au point de rassemblement et se signaler au professeur (appel).
+- Issues et allées toujours dégagées. Le plan d'évacuation, affiché près de la porte, montre « vous êtes ici », les issues, les extincteurs et le point de rassemblement.
+Dans les établissements scolaires, des exercices d'évacuation ont lieu chaque année, le premier dans le mois de la rentrée.
+> Règlement de sécurité contre l'incendie des établissements recevant du public (ERP), art. R33 ; INRS ED 6054.
