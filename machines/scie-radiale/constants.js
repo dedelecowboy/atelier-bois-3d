@@ -10,7 +10,7 @@ export const R = 0.20;                     // lame Ø 400
 export const DROP = 0.005;                 // la lame descend 5 mm dans la table en bois
 export const KERF = 4.0;                   // trait de scie (mm)
 export const FENCE_Z = -0.30;              // face avant du guide
-export const FENCE_T = 0.04, FENCE_H = 0.07;
+export const FENCE_T = 0.04, FENCE_H = 0.03;   // guide bas (demandé par l'enseignant le 06/11/2026) : le protecteur descend au plus près d'une pièce de 22 à 27 mm sans taper dedans
 export const Z_COL = -0.90;                // axe de la colonne = pivot du bras, 600 mm derrière la face du guide (la tête en position arrière s'arrête 15 mm avant elle)
 export const Z_PIV = Z_COL;                // pivot du bras (sur la colonne)
 export const ANGLE_MARKS = [-45, -30, -15, 0, 15, 30, 45];   // traits de lame laissés dans la table et le guide

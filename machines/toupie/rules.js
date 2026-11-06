@@ -13,7 +13,7 @@ import { lamStatus, entrPress, ENT_PRESS, ENT_DOWN, entrZ, rollCover, ENT_CLR } 
 
 /* gestes hors passe (faute grave) */
 export const INTERV = 'RÉGLAGE MOTEUR EN MARCHE : outil, inverseur, hauteur, guide, presseurs ou bague de table ne se règlent qu\'arbre arrêté. Arrêtez le moteur, attendez l\'arrêt complet de l\'arbre (frein), puis réglez';
-export const CHOC = 'CHOC DE L\'OUTIL AU DÉMARRAGE : l\'outil touche les lamelles du guide ou la bague de table. Machine consignée, faites tourner l\'outil à la main pour vérifier qu\'il ne touche rien avant de démarrer';
+export const CHOC = 'CHOC DE L\'OUTIL AU DÉMARRAGE : l\'outil touche les lamelles du guide ou la bague de table. Moteur arrêté, faites tourner l\'outil à la main pour vérifier qu\'il ne touche rien avant de démarrer';
 export const HANDS = 'MAINS VERS LA PIÈCE ARRÊTÉE CONTRE L\'OUTIL, MOTEUR EN MARCHE : arrêtez le moteur et attendez l\'arrêt complet de l\'arbre avant de dégager la pièce';
 
 /* jeu entre l'outil et les lamelles de chaque demi-guide, au plan du guide (mm) ; Infinity sans outil */
@@ -52,7 +52,7 @@ export function computeAlerts(){ const out=[], t=tool(), q=entryPiece();
   else if(!st.main) out.push(['info','Interrupteur général sur 0 : la machine est hors tension.','machine']);
   if(st.lock) out.push(['warn','Arbre verrouillé en rotation : déverrouillez-le avant de démarrer (le moteur ne démarre pas arbre verrouillé).','outil']);
   if(st.motor) out.push(['info','Arbre en rotation : aucun réglage de l\'outil, du guide ni des presseurs (faute grave). Restez hors de la ligne de rejet.','machine']);
-  if(!t) out.push(['info','Aucun outil sur l\'arbre : consignez la machine, verrouillez l\'arbre, montez un outil de la bibliothèque.','outil']);
+  if(!t) out.push(['info','Aucun outil sur l\'arbre : moteur arrêté, verrouillez l\'arbre, montez un outil de la bibliothèque.','outil']);
   else {
     const sp=speedCheck(t,st.rpm), adv=advisedRpm(t,RPMS);
     if(sp.over) out.push(['danger',`VITESSE TROP ÉLEVÉE POUR L'OUTIL : ${st.rpm.toLocaleString('fr-FR')} tr/min pour un outil marqué n max ${t.nmax.toLocaleString('fr-FR')} (Ø ${Dmm(t)}). Risque d'éclatement de l'outil : ${adv.toLocaleString('fr-FR')} tr/min au plus.`,'outil']);

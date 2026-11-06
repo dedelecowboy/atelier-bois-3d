@@ -11,7 +11,7 @@
    - lot2 : outil préparé pour le lot 2, pas proposé dans la bibliothèque.
    Monté retourné (dessus dessous), le profil est inversé en hauteur et les tranchants tournent dans l'autre sens.
 
-   Vitesse de coupe : Vc (m/s) = π × D (mm) × n (tr/min) / 60 000. Règle (niveau bac pro, à valider) :
+   Vitesse de coupe : Vc = (π × D × N) / 60, Vc en m/s, D en m, N en tr/min (ici D en mm, d'où le 60 000 du calcul). Règle (niveau bac pro, à valider) :
    jamais plus que n max marqué sur l'outil, et Vc entre 40 et 70 m/s. Conseil : la plus grande vitesse
    de la machine qui respecte les deux. */
 

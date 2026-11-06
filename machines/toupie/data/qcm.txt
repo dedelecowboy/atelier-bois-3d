@@ -38,11 +38,11 @@ Q: Que faut-il vérifier avant de mettre en route, pour la vitesse de rotation ?
 - Que la vitesse soit la même que pour l'outil précédent
 = Au-delà de n max, l'outil peut éclater ; trop lent, l'état de surface est mauvais et le rejet plus probable.
 
-Q: Un outil de Ø 160 mm tourne à 7 000 tr/min. Quelle est sa vitesse de coupe Vc = π × D × n / 60 000 ?
+Q: Un outil de Ø 160 mm tourne à 7 000 tr/min. Quelle est sa vitesse de coupe Vc = (π × D × N) / 60 (Vc en m/s, D en m, N en tr/min) ?
 - Environ 35 m/s
 + Environ 59 m/s
 - Environ 117 m/s
-= π × 160 × 7 000 / 60 000 ≈ 58,6 m/s : dans la plage de 40 à 70 m/s retenue pour la toupie.
+= π × 0,160 × 7 000 / 60 ≈ 58,6 m/s : dans la plage de 40 à 70 m/s retenue pour la toupie.
 
 Q: Un outil de Ø 200 mm est marqué « n max 6 500 ». La machine tourne à 4 000, 6 000, 7 000 ou 9 000 tr/min. Quelle vitesse choisir ?
 - 9 000 tr/min
@@ -58,8 +58,8 @@ Q: Que signifie la mention « MAN » gravée sur un outil de toupie ?
 
 Q: Dans quelles conditions monte-t-on un outil sur l'arbre ?
 - Moteur en marche, pour le centrer
-- Arbre arrêté, interrupteur général sur I
-+ Machine consignée (interrupteur général sur 0, cadenassé), arbre verrouillé, flèche du sens de rotation dessus
+- Arbre encore en train de ralentir, écrou serré à la main
++ Moteur arrêté, arbre à l'arrêt complet et verrouillé, flèche du sens de rotation dessus
 = On serre l'écrou arbre verrouillé, puis on déverrouille et on fait tourner l'outil à la main pour vérifier qu'il ne touche rien.
 
 Q: L'outil a été monté à l'envers par rapport au sens de rotation de l'arbre. Que se passe-t-il ?

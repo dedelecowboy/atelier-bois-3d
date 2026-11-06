@@ -7,13 +7,13 @@ export default {
   title: 'Toupie',
   canvasLabel: 'Modèle 3D d\'une toupie, à faire pivoter à la souris ou au doigt',
   info: { title: 'Toupie', text: 'Faites glisser pour tourner, molette ou pincement pour zoomer.' },
-  note: 'Machine fictive « KANAK 130 T », d\'après la toupie de l\'atelier : arbre fixe Ø 30 (non inclinable), hauteur réglée au pupitre électronique, 4 vitesses par poulies étagées (4 000, 6 000, 7 000, 9 000 tr/min), inverseur ↺ 0 ↻, frein, guide à lamelles avec capot d\'aspiration, protège-mains à presseurs, entraîneur à 4 rouleaux. Proportions estimées. Lot 1 : travail au guide ; le travail à l\'arbre, le tenonnage et l\'entraîneur viendront au lot 2.',
+  note: 'Machine fictive « KANAK 130 T », d\'après la toupie de l\'atelier : arbre fixe Ø 50 (non inclinable), hauteur réglée au pupitre électronique, 4 vitesses par poulies étagées (4 000, 6 000, 7 000, 9 000 tr/min), inverseur ↺ 0 ↻, frein, guide à lamelles avec capot d\'aspiration, protège-mains à presseurs, entraîneur à 4 rouleaux. Proportions estimées. Lot 1 : travail au guide ; le travail à l\'arbre, le tenonnage et l\'entraîneur viendront au lot 2.',
   parcoursTitle: 'Parcours évalué · toupie',
 
   modes: [
     { id: 'libre', label: 'Libre', title: 'Travail au guide libre',
       free: { k: 'Toupillage libre', t: 'Avivé de sapin corroyé 1 000 × 70 × 27, une cale de 220 mm et un frêne au fil incliné',
-        c: 'Choisissez l\'outil (machine consignée, arbre verrouillé), la vitesse, la hauteur, la saillie, les demi-guides, les lamelles et les presseurs, puis « Passer la pièce ». La pièce sortie : « Ramener la pièce » pour une autre passe, « Mettre de côté » pour la ranger ; « Reprendre » une pièce de « Pièces débitées ». Le profil obtenu s\'affiche à droite, en coupe.' } },
+        c: 'Choisissez l\'outil (moteur arrêté, arbre verrouillé), la vitesse, la hauteur, la saillie, les demi-guides, les lamelles et les presseurs, puis « Passer la pièce ». La pièce sortie : « Ramener la pièce » pour une autre passe, « Mettre de côté » pour la ranger ; « Reprendre » une pièce de « Pièces débitées ». Le profil obtenu s\'affiche à droite, en coupe.' } },
     { id: 'quart', label: 'Quart de rond', title: 'Quart de rond R 10 sur une traverse corroyée' },
     { id: 'feuillure', label: 'Feuillure', title: 'Feuillure 12 × 15 en deux passes' },
     { id: 'serie', label: 'Série', title: 'Série de baguettes moulurées, machine et lot à contrôler' },
