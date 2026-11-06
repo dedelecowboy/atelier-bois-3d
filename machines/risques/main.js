@@ -22,7 +22,7 @@ const THREE = stage.THREE;
 const model = ctx.model = buildModel({ root:stage.root, tagPart:parts.tagPart });
 ctx.app = app;
 /* situations retirées de dangers.txt par l'enseignant : cachées */
-for(const [k,o] of Object.entries(model.DANG)) if(k!=='armoire_ouverte' && !data.dangers.some(d=>d.k===k)) o.userData.off=true;
+for(const [k,o] of Object.entries(model.DANG)) if(k!=='armoire_ouverte' && k!=='machine_allee' && !data.dangers.some(d=>d.k===k)) o.userData.off=true;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const F = app.ex.flash;
 const apply=()=>app.apply();
@@ -34,15 +34,51 @@ function fault(t){ if(!st.faults.includes(t)) st.faults.push(t); app.recordDange
 const visible=o=>{ while(o){ if(!o.visible||o.userData.off) return false; o=o.parent; } return true; };
 
 /* ---------- caméra : cadrer des équipements, vue du poste (avatar, feu) ---------- */
-function frame(codes){ const b=new THREE.Box3(); for(const k of codes) for(const m of parts.partMeshes[k]||[]) if(visible(m)) b.expandByObject(m);
-  if(b.isEmpty()) return; const c=b.getCenter(new THREE.Vector3()), s=b.getSize(new THREE.Vector3()), r=Math.max(s.x,s.y,s.z,0.6);
-  const dir=stage.camera.position.clone().sub(stage.controls.target); dir.y=0; if(dir.lengthSq()<0.01) dir.set(0,0,1); dir.normalize();
-  /* rester dans la salle : on regarde depuis le centre de l'atelier vers l'équipement s'il est contre un mur */
-  const toC=new THREE.Vector3(-c.x,0,-c.z); if(Math.abs(c.x)>9||Math.abs(c.z)>9) dir.copy(toC.normalize());
-  const d=Math.min(30,Math.max(2.6,r*2.4)); stage.setCam([c.x+dir.x*d, c.y+d*0.55+0.6, c.z+dir.z*d],[c.x,Math.max(0.4,c.y),c.z]); }
+/* cadrage (relecture de l'équipe, nov. 2026 : « chaque élément de la nomenclature doit pouvoir être vu de près ») :
+   - un équipement en plusieurs exemplaires (extincteurs, issues, BAES…) est cadré exemplaire par exemplaire ;
+   - la caméra essaie plusieurs côtés et garde le premier d'où l'on voit l'équipement sans qu'un autre objet le cache. */
+const ray=new THREE.Raycaster();
+const ownedBy=(o,codes)=>{ while(o){ if(o.userData.part && codes.includes(o.userData.part)) return true; o=o.parent; } return false; };
+const pickable=o=>visible(o) && o.material?.visible!==false && o.material?.opacity!==0;
+function seen(pos,c,codes){ const dir=c.clone().sub(pos), L=dir.length(); ray.set(pos,dir.normalize()); ray.far=L+0.3;
+  const h=ray.intersectObjects(stage.root.children,true).find(h=>pickable(h.object));
+  return !h || ownedBy(h.object,codes) || h.distance>L-0.15; }
+function frameBox(b,codes){ if(b.isEmpty()) return; const c=b.getCenter(new THREE.Vector3()), s=b.getSize(new THREE.Vector3()), r=Math.max(s.x,s.y,s.z,0.6);
+  /* très grand (allées, réseau d'aspiration) : vue plongeante d'ensemble */
+  if(r>7){ const d=Math.min(26,r*0.9); stage.setCam([c.x, d, c.z+d*0.35],[c.x,0,c.z]); return; }
+  const cur=stage.camera.position.clone().sub(stage.controls.target); cur.y=0; if(cur.lengthSq()<0.01) cur.set(0,0,1); cur.normalize();
+  const toC=new THREE.Vector3(-c.x,0,-c.z); if(toC.lengthSq()<0.01) toC.set(0,0,1); toC.normalize();
+  const first= (Math.abs(c.x)>9||Math.abs(c.z)>9)? toC : cur;   // contre un mur : depuis l'intérieur de la salle
+  const base=Math.atan2(first.x,first.z), d=Math.min(12,Math.max(2.6,r*2.4)), tgt=new THREE.Vector3(c.x,Math.max(0.4,c.y),c.z);
+  let best=null;
+  search: for(const lift of [0.55,1.0,1.6]) for(const da of [0,0.5,-0.5,1.0,-1.0,1.6,-1.6,2.3,-2.3,Math.PI]){ const a=base+da;
+    const p=new THREE.Vector3(c.x+Math.sin(a)*d, c.y+d*lift+0.6, c.z+Math.cos(a)*d);
+    if(Math.abs(p.x)>10.4||Math.abs(p.z)>10.3) continue;              // pas derrière un mur
+    if(!best) best=p;
+    if(seen(p,tgt,codes)){ best=p; break search; } }
+  stage.setCam(best? best.toArray() : [c.x+first.x*d, c.y+d*0.55+0.6, c.z+first.z*d], tgt.toArray()); }
+function frame(codes){ const b=new THREE.Box3(); for(const k of codes) for(const m of parts.partMeshes[k]||[]) if(visible(m)) b.expandByObject(m); frameBox(b,codes); }
+/* exemplaires d'un équipement : pièces proches (moins de 0,6 m) regroupées ; un groupe de plus de 6 m est découpé pièce par pièce */
+function instances(k){ const ms=(parts.partMeshes[k]||[]).filter(visible); if(!ms.length) return [];
+  let G=ms.map(m=>({ b:new THREE.Box3().setFromObject(m), ms:[m] })).filter(g=>!g.b.isEmpty());
+  for(let merged=true; merged;){ merged=false;
+    for(let i=0;i<G.length && !merged;i++) for(let j=i+1;j<G.length;j++) if(G[i].b.clone().expandByScalar(0.6).intersectsBox(G[j].b)){ G[i].b.union(G[j].b); G[i].ms.push(...G[j].ms); G.splice(j,1); merged=true; break; } }
+  const big=g=>{ const s=g.b.getSize(new THREE.Vector3()); return Math.max(s.x,s.z)>6; };
+  G=G.flatMap(g=>big(g)&&g.ms.length>1? g.ms.map(m=>({ b:new THREE.Box3().setFromObject(m), ms:[m] })) : [g]);
+  /* d'abord le plus proche de ce que l'on regarde, puis dans l'ordre de la salle */
+  const t=stage.controls.target, d=g=>g.b.getCenter(new THREE.Vector3()).distanceTo(t);
+  G.sort((a,b)=>{ const ca=a.b.getCenter(new THREE.Vector3()), cb=b.b.getCenter(new THREE.Vector3()); return (ca.z-cb.z)||(ca.x-cb.x); });
+  if(G.length>1){ let i0=0; G.forEach((g,i)=>{ if(d(g)<d(G[i0])) i0=i; }); G=[...G.slice(i0),...G.slice(0,i0)]; }
+  return G; }
+const nomen={ k:null, G:[], i:0 };
+function showInstance(){ const { k, G, i }=nomen; if(!G.length) return; frameBox(G[i].b.clone(),[k]);
+  const info=$('info'); info.querySelector('.inst')?.remove(); if(G.length<2) return;
+  const d=document.createElement('div'); d.className='inst';
+  d.innerHTML=`<span>Exemplaire ${i+1} / ${G.length}</span><button type="button" class="toggle mini" id="instNext">Suivant ›</button>`;
+  info.appendChild(d); d.querySelector('button').onclick=()=>{ nomen.i=(nomen.i+1)%nomen.G.length; showInstance(); }; }
+function frameNomen(k){ nomen.k=k; nomen.G=instances(k); nomen.i=0; if(nomen.G.length) showInstance(); else frame([k]); }
 /* vue d'un personnage sans obstacle : on essaie plusieurs côtés autour de la direction qu'il regarde, et on garde le premier
    d'où l'on voit sa poitrine sans traverser une machine, un mur ou un meuble (et sans sortir de la salle) */
-const ray=new THREE.Raycaster();
 function clearSide(x,z,ry,dist,h,ty,skip){ const tgt=new THREE.Vector3(x,ty+0.25,z);
   /* de face d'abord : on voit le visage et les EPI */
   for(const side of [0.4,-0.4,0.7,-0.7,0.15,-0.15,1.0,-1.0,1.35,-1.35,1.7,-1.7]){ const a=ry+side, p=new THREE.Vector3(x+Math.sin(a)*dist,h,z+Math.cos(a)*dist);
@@ -60,7 +96,7 @@ function posteView(x,z,ry,dist=2.8,h=1.75,ty=1.1,side=0){ const V=stage.VIEWS.vp
    les affiche dans #fiches (colonne de droite) ; « Voir dans l'atelier » cadre les équipements (app.fichesShow) */
 app.fichesShow=f=>frame(f.parts);
 /* nomenclature : l'équipement choisi dans la liste est cadré */
-$('parts').addEventListener('click',e=>{ const b=e.target.closest('button[data-k]'); if(b && parts.selected===b.dataset.k) frame([b.dataset.k]); });
+$('parts').addEventListener('click',e=>{ const b=e.target.closest('button[data-k]'); if(b && parts.selected===b.dataset.k) frameNomen(b.dataset.k); });
 
 /* ---------- marqueurs des dangers repérés ---------- */
 const marks=new THREE.Group(); stage.root.add(marks);
@@ -178,4 +214,4 @@ app.start({
     labels:{ rep:'Repérage des équipements', item:'équipement', where:'dans l\'atelier',
       scenNote:'Suivez les étapes et vos actions dans le panneau « Actions ». À l\'étape « Contrôle », vos choix sont relevés, et toute faute grave de sécurité est relevée' } },
 });
-window.__risques={ st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame };
+window.__risques={ st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };

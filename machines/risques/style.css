@@ -27,3 +27,5 @@
 .afb[data-l="warn"]{border-color:var(--warn,#d9772b)}
 .afb[data-l="danger"]{border-color:var(--danger,#c4261c)}
 @media (max-width:900px){ .acts .epis{grid-template-columns:minmax(0,1fr)} }
+/* nomenclature : exemplaire cadré d'un équipement présent plusieurs fois (main.js, frameNomen) */
+#info .inst{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px}

@@ -55,7 +55,7 @@ function checkMachineData(dir, config){
   /* module « Risques généraux » : situations dangereuses, EPI, fiches */
   if (fs.existsSync(D('dangers.txt'))) {
     const dangers = parseDangers(read(D('dangers.txt')));
-    const codes = new Set(fs.readdirSync(dir).filter(f => f.endsWith('.js')).flatMap(f => [...read(path.join(dir, f)).matchAll(/danger\('([a-z0-9_]+)'/g)].map(m => m[1])).concat(['armoire_ouverte']));
+    const codes = new Set(fs.readdirSync(dir).filter(f => f.endsWith('.js')).flatMap(f => [...read(path.join(dir, f)).matchAll(/danger\('([a-z0-9_]+)'/g)].map(m => m[1])).concat(['armoire_ouverte', 'machine_allee']));
     for (const d of dangers) if (!codes.has(d.k)) throw new Error(`dangers.txt : la situation « ${d.k} » n'existe pas dans la scène 3D (codes possibles : ${[...codes].join(', ')}).`);
   }
   if (fs.existsSync(D('epi.txt'))) { const { tasks } = parseEpi(read(D('epi.txt')));
