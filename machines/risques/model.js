@@ -73,11 +73,10 @@ function buste(c,w){ c.fillStyle='#fff';
   c.fillRect(w*0.43,w*0.58,w*0.14,w*0.12);                                                         // cou
   c.beginPath(); c.moveTo(w*0.14,w*1.0); c.quadraticCurveTo(w*0.16,w*0.71,w*0.5,w*0.69); c.quadraticCurveTo(w*0.84,w*0.71,w*0.86,w*1.0); c.closePath(); c.fill(); }
 const ICON={
-  /* M004 : lunettes à branches, verres découpés en bleu dans un cadre blanc */
+  /* M004 : lunettes, deux verres découpés en bleu et leurs branches */
   lunettes:(c,w)=>{ buste(c,w); const y=w*0.41;
-    c.fillStyle=BLEU; c.beginPath(); if(c.roundRect) c.roundRect(w*0.315,y-w*0.06,w*0.37,w*0.12,w*0.05); else c.rect(w*0.315,y-w*0.06,w*0.37,w*0.12); c.fill();
-    c.fillStyle='#fff'; c.fillRect(w*0.485,y-w*0.06,w*0.03,w*0.07);
-    c.strokeStyle=BLEU; c.lineWidth=w*0.022; c.beginPath(); c.moveTo(w*0.315,y-w*0.01); c.lineTo(w*0.3,y-w*0.01); c.stroke(); c.beginPath(); c.moveTo(w*0.685,y-w*0.01); c.lineTo(w*0.7,y-w*0.01); c.stroke(); },
+    c.fillStyle=BLEU; for(const x of [0.415,0.585]){ c.beginPath(); c.ellipse(w*x,y,w*0.068,w*0.048,0,0,7); c.fill(); }   // deux verres
+    c.strokeStyle=BLEU; c.lineWidth=w*0.02; c.beginPath(); c.moveTo(w*0.335,y-w*0.005); c.lineTo(w*0.35,y-w*0.005); c.moveTo(w*0.65,y-w*0.005); c.lineTo(w*0.665,y-w*0.005); c.stroke(); },
   /* M003 : casque antibruit, arceau sur la tête et deux coquilles sur les oreilles */
   casque:(c,w)=>{ buste(c,w);
     c.strokeStyle=BLEU; c.lineWidth=w*0.075; c.beginPath(); c.ellipse(w*0.5,w*0.43,w*0.215,w*0.255,0,Math.PI*1.08,Math.PI*1.92); c.stroke();
