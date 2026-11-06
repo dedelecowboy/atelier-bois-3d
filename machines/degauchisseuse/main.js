@@ -15,7 +15,8 @@ import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
 import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
 
 import { buildModel } from './model.js';
-import { initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markRef, markFocus, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
+import * as C from '../../engine/corroyage.js';
+import { stock, rangePiece, takePiece, initPiece, p, cut, build, place, updateFeed, stopPass, travelMax, faces, flatness, isFlat, rot, endForEnd, toGuide, markRef, markFocus, back, heightMm, thickness, width, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, protState, coverPose } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -75,6 +76,13 @@ function drawSide(){ const el=$('sideSvg'); if(!el) return;
 
 /* ---------- tableau des faces ---------- */
 let facesKey='';
+/* pièces rangées : Pièce / Chute, Reprendre (la pièce sur la machine part alors dans la liste) */
+let debitKey='';
+function renderDebit(){ const key=JSON.stringify([stock.map(s=>[s.id,s.kind]),cut.inProgress]); if(key===debitKey) return; debitKey=key;
+  const np=stock.filter(s=>s.kind==='piece').length, nc=stock.length-np; $('debitN').textContent=stock.length?`${np} pièce${np>1?'s':''} · ${nc} chute${nc>1?'s':''}`:'';
+  $('debit').innerHTML= stock.length? stock.map(s=>`<li data-k="${s.kind}"><div><b>${s.q.L} × ${fmt(C.width(s.q))} × ${fmt(C.thickness(s.q))}</b></div><div class="d-act"><button class="toggle mini" type="button" data-kind="${s.id}" aria-pressed="${s.kind==='piece'}">${s.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${s.id}" ${cut.inProgress?'disabled':''}>Reprendre</button></div></li>`).join('') : '<li class="debit-empty">Les pièces rangées apparaissent ici.</li>';
+  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ takePiece(+b.dataset.take); $('travel').max=travelMax(); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); });
+  document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ const it=stock.find(s=>s.id===+b.dataset.kind); if(it){ it.kind=it.kind==='piece'?'chute':'piece'; debitKey=''; renderDebit(); } }); }
 function renderFaces(){ if(!p){ $('facesTab').innerHTML=''; return; }
   const fc=faces(), pos={[fc.down]:'dessous',[fc.up]:'dessus',[fc.back]:'côté guide',[fc.front]:'côté opérateur'};
   const key=JSON.stringify([pos,p.face,flatness('F1'),flatness('F2'),flatness('C1'),flatness('C2')]); if(key===facesKey) return; facesKey=key;
@@ -106,6 +114,7 @@ function doOp(op){ F.level='warn';
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
   if(!p) return;
   if(cut.inProgress){ F.msg='Terminez la passe en cours avant de toucher la pièce.'; app.ex.invalidate(); apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ rangePiece(op==='rangeP'?'piece':'chute'); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='back'){ back(); F.msg=''; app.ex.invalidate(); apply(); return; }
   if(cut.done||st.t>0){ F.msg='Ramenez d\'abord la pièce sur la table d\'entrée en la soulevant (« Ramener la pièce »).'; app.ex.invalidate(); apply(); return; }
   stopPass(); F.msg='';
@@ -149,8 +158,8 @@ app.start({
       return { on:st.motor, rpm:BRUIT.rpm, spin:model.spin, cut:c, charge:Math.max(0.15,(cut.depth||st.d)/1.5)*(BRUIT_DURETE[p?.wood]||1.3), dents:4 }; } },
   update, alerts:()=>{ const a=computeAlerts(); if(cut.msgSeq!==lastSeq){ lastSeq=cut.msgSeq; F.msg=cut.lastMsg; F.level=cut.lastMsg.startsWith('Arrachements')?'warn':'info'; } return a; },
   steps:STEPS,
-  loadMode(m){ stopPass(); st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },
-  renderExtra:renderFaces,
+  loadMode(m){ stopPass(); stock.length=0; debitKey=''; st.bec='plat'; cut.lastMsg=''; lastSeq=cut.msgSeq; LOADERS[m](); build(); $('travel').max=travelMax(); if(m!=='libre') stage.setView('vop'); },
+  renderExtra(){ renderFaces(); renderDebit(); },
   panelKey:()=>[cut.inProgress,cut.done,p&&p.face],
   onPanel(){ document.querySelectorAll('#tools button').forEach(b=>b.disabled=cut.inProgress && b.dataset.op!=='reset'); },
   onPick(hit){ if(hit && hit.object.userData.part==='piece' && p){ const fc=faces();

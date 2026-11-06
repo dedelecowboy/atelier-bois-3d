@@ -20,7 +20,7 @@ import sBedArret from '../../engine/sons/mortaise-arret.mp3';
 import { st, ctx, $, tool, taquets } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
-import { initPieces, pieces, cyc, onTable, newPiece, startCycle, stopCycle, tickCycle, placeAll, aside, take, setKind, orient, build,
+import { initPieces, pieces, cyc, onTable, newPiece, startCycle, stopCycle, tickCycle, placeAll, aside, range, take, setKind, orient, build,
   span, refEnd, peekCam, plannedS0, curS0, tableX, depth, mortises, fromFace, nearEnd, tenonOf, fit, atLoad, H, D, fmt, dims, sr1, sr2, XR, FACE_NAME } from './piece.js';
 import { computeAlerts, cycleBlock, clampCheck, sweeps, moving, running, INTERV, MAINS } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria, USEFUL, onCycleEnd, onIntervention, lot, traverse } from './scenarios.js';
@@ -159,7 +159,7 @@ function update(){
 }
 /* ---------- boutons utiles à chaque exercice (tous en mode libre) ---------- */
 function usefulButtons(){ const m=app.ex.mode, U=m==='libre'? null : USEFUL[m]||null;
-  document.querySelectorAll('#tools [data-op]').forEach(b=>{ b.hidden= !!U && b.dataset.op!=='reset' && !U.ops.includes(b.dataset.op); });
+  document.querySelectorAll('#tools [data-op]').forEach(b=>{ b.hidden= !!U && b.dataset.op!=='reset' && !U.ops.includes(b.dataset.op) && !(b.dataset.op.startsWith('range')&&U.ops.includes('aside')); });
   $('quick').hidden= !!U && !U.quick;
   for(const id of ['pupDeb','plonge','jog']) $(id).hidden= !!U && !U.manual;
   $('pupAuto').hidden= !!U && !U.manual; }
@@ -262,6 +262,7 @@ function doOp(op){
   if(op==='peek'){ q.peek=!q.peek; build(q); if(q.peek){ peekView(q); schema.pin(false); } else stage.setView('vop'); F.msg=''; app.ex.invalidate(); apply();
     if(q.peek) info(mortises(q).length? 'Pièce soulevée et tournée vers vous : la face qui était contre le guide, avec ses mortaises. « Voir les mortaises » encore une fois pour la reposer contre la butée.' : 'Pièce soulevée et tournée vers vous : pas encore de mortaise sur la face qui était contre le guide.'); return; }
   if(q.peek){ q.peek=false; build(q); }
+  if(op==='rangeP'||op==='rangeC'){ const why=range(op==='rangeP'?'piece':'interdite'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='left'||op==='right'){ const R=op==='left'?'G':'D';
     if(!(R==='G'?st.butG:st.butD)) return say(`Butée ${R==='G'?'gauche':'droite'} relevée : abaissez-la d'abord.`);

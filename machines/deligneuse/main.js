@@ -13,7 +13,7 @@ import { GREEN, MANCHONS, KERF, BRUIT } from './constants.js';
 import { SCIE } from '../../engine/sons/scie.js';
 import { st, ctx, bladeZ, guideZ, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPieces, pieces, cut, entry, exitPieces, keepPiece, startPass, tickPass, chainSpeed, under, surf, laserKey, load, measure, mirror, take, setKeep, setKind, evacuate, bringBack, aside, flip, endForEnd, toGuide, nudge, clampZ, fmt, label } from './piece.js';
+import { initPieces, pieces, cut, entry, exitPieces, keepPiece, startPass, tickPass, chainSpeed, under, surf, laserKey, load, measure, mirror, take, setKeep, setKind, evacuate, bringBack, aside, range, flip, endForEnd, toGuide, nudge, clampZ, fmt, label } from './piece.js';
 import { computeAlerts, passBlock, presOk } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -94,12 +94,12 @@ stage.controls.addEventListener('change',updateNudge);
 
 /* ---------- pièces débitées ---------- */
 let debitKey='';
-function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!entry()&&!exitPieces().length&&!cut.inProgress;
+function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!cut.inProgress;
   const key=JSON.stringify([list.map(q=>[q.id,q.kind]),free]); if(key===debitKey) return; debitKey=key;
   const np=list.filter(q=>q.kind==='piece').length; $('debitN').textContent=list.length?`${np} pièce${np>1?'s':''} · ${list.length-np} chute${list.length-np>1?'s':''}`:'';
   $('debit').innerHTML= list.length? list.map(q=>{ const m=measure(q);
       return `<li data-k="${q.kind}"><div><b>${fmt(m.kind==='avivé'?m.W:m.Wmax)} mm</b> <small>${m.kind==='avivé'?'avivé':m.kind==='délignure'?'délignure':`en flache, ${fmt(m.W)} mm sans flache`} · ${q.T} × ${q.L}</small></div>
-        <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Libérez d\'abord la machine : entrée et sortie dégagées"'}>Reprendre</button></div></li>`; }).join('')
+        <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Sciage en cours"'}>Reprendre</button></div></li>`; }).join('')
     : '<li class="debit-empty">Les pièces évacuées ou mises de côté apparaissent ici.</li>';
   document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; clampZ(entry()); app.ex.invalidate(); apply(); });
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; renderDebit(); }); }
@@ -128,8 +128,9 @@ function doOp(op){
   if(cut.inProgress) return say('Sciage en cours : ne touchez jamais une pièce engagée. Restez hors de son axe.');
   if(op==='evac'){ if(!exitPieces().length) return say('Aucune pièce à la sortie.'); evacuate(); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='back'){ const why=bringBack(); if(why) return say(why); F.msg=''; clampZ(entry()); debitKey=''; app.ex.invalidate(); apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ const why=range(op==='rangeP'?'piece':'chute'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
-  const p=entry(); if(!p) return say(exitPieces().length? 'La pièce est à la sortie : « Évacuer les chutes », puis « Ramener la pièce ».' : 'Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».');
+  const p=entry(); if(!p) return say(exitPieces().length? 'La pièce est à la sortie : « Ranger comme chute », puis « Ramener la pièce ».' : 'Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».');
   F.msg='';
   if(op==='flip') flip(p); else if(op==='end') endForEnd(p);
   else if(op==='guide'){ if(!st.guideUp) return say('Guide escamoté : remettez-le en place pour y plaquer la pièce.'); toGuide(p); }

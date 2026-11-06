@@ -42,7 +42,7 @@ function computeAlerts(){ const out=[], p=A(); if(cut.blocked) out.push(['danger
     else if(ss==='narrow') out.push(['warn',`Largeur d'incision (${st.incW.toFixed(1)} mm) inférieure au trait de lame (${MAIN_KERF.toFixed(1)} mm) : éclats sur les bords du trait.`,'inciseur']);
     else if(ss==='misaligned') out.push(['warn',`Inciseur mal aligné sur la lame (décalage ${st.incOff.toFixed(1)} mm) : éclats d'un côté du trait.`,'inciseur']);
     if(st.inc && st.incH>3) out.push(['warn','Inciseur trop haut : 1 à 2 mm suffisent.','inciseur']); }
-  if(cut.needEvac && !cut.inProgress) out.push(['warn','Chute à évacuer avant de ramener le chariot : « Évacuer les chutes » garde la pièce entourée en orange et retire les autres. Cliquez une pièce pour changer celle qui est gardée.','piece']);
+  if(cut.needEvac && !cut.inProgress) out.push(['warn','Chute à évacuer avant de ramener le chariot : « Ranger comme chute » garde la pièce entourée en orange et retire les autres. Cliquez une pièce pour changer celle qui est gardée.','piece']);
   return out; }
 
 /* --- mesures sur la pièce --- */

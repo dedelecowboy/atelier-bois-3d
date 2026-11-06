@@ -33,6 +33,11 @@ export function newPiece(spec){ clearPiece();
   p={ ...C.makePiece(spec), zOff:0.05, group:null, mesh:null };
   cut.started=false; cut.done=false; cut.inProgress=false; cut.lastT=0; st.t=0;
   return p; }
+/* pièces rangées (« Pièces débitées », demandé par l'enseignant le 06/11/2026) */
+export const stock=[]; let stockSeq=0;
+export function rangePiece(kind){ if(!p) return; if(p.group){ pieceRoot.remove(p.group); disposeGroup(p.group); } if(partMeshes) partMeshes.piece=[]; p.group=null; p.mesh=null;
+  stock.unshift({ id:++stockSeq, q:p, kind }); p=null; st.t=0; cut.started=false; cut.done=false; cut.inProgress=false; cut.lastT=0; }
+export function takePiece(id){ const k=stock.findIndex(s=>s.id===id); if(k<0) return; if(p) rangePiece('piece'); const it=stock.splice(stock.findIndex(s=>s.id===id),1)[0]; p=it.q; p.zOff=0.05; st.t=0; cut.started=false; cut.done=false; cut.inProgress=false; cut.lastT=0; build(); }
 export function clearPiece(){ if(p&&p.group){ pieceRoot.remove(p.group); disposeGroup(p.group); } if(partMeshes) partMeshes.piece=[]; p=null; }
 function disposeGroup(g){ g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); }
 

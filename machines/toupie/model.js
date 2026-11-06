@@ -40,7 +40,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   label(bati,0.22,0.06,kanak('#c4261c'),[-0.28,0.545,ZB+0.003]);
   label(bati,0.20,0.06,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='rgba(255,255,255,.92)'; g.fillRect(0,0,w,h); g.font=`700 ${h*0.72}px "Barlow Condensed",sans-serif`; g.fillStyle='#2a2f34'; g.fillText('130 T',w*0.22,h*0.75); },[0.30,0.545,ZB+0.003]);
   label(bati,0.20,0.12,(g,w,h)=>{ g.fillStyle='#d4d7da'; g.fillRect(0,0,w,h); g.fillStyle='#1b2228'; g.font='italic 700 110px "Barlow Condensed",sans-serif'; g.fillText('KANAK',30,120);
-    g.font='44px sans-serif'; g.fillText('Toupie 130 T · arbre Ø 30',30,215); g.fillText('5,5 kW · 4 000 / 6 000 / 7 000 / 9 000',30,280); g.fillText('tr/min · arbre fixe 90°',30,345); g.fillText('Outils Ø 250 max.',30,410); },[-XB-0.001,0.66,-0.10],-Math.PI/2);
+    g.font='44px sans-serif'; g.fillText('Toupie 130 T · arbre Ø 50',30,215); g.fillText('5,5 kW · 4 000 / 6 000 / 7 000 / 9 000',30,280); g.fillText('tr/min · arbre fixe 90°',30,345); g.fillText('Outils Ø 250 max.',30,410); },[-XB-0.001,0.66,-0.10],-Math.PI/2);
   // pictogramme électrique sur la porte
   label(bati,0.07,0.06,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='#f2c200'; g.beginPath(); g.moveTo(w/2,4); g.lineTo(w-4,h-4); g.lineTo(4,h-4); g.closePath(); g.fill(); g.strokeStyle='#111'; g.lineWidth=8; g.stroke(); g.fillStyle='#111'; g.font=`bold ${h*0.55}px sans-serif`; g.fillText('⚡',w*0.34,h*0.86); },[-0.30,0.36,ZB+0.0035]);
   // cuve sous l'ouverture de la table (logement de l'arbre)
@@ -88,7 +88,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   /* ---------- Arbre, bagues entretoises, écrou ; outil ---------- */
   const arbreG=new THREE.Group(); root.add(arbreG);              // y = bas du tranchant
   const spinG=new THREE.Group(); arbreG.add(spinG);
-  const shaft=cyl(0.015,1,M.steel,20); spinG.add(shaft);
+  const shaft=cyl(0.025,1,M.steel,20); spinG.add(shaft);
   const spacers=new THREE.Group(); spinG.add(spacers);
   const nut=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,0.022,6),M.steel); spinG.add(nut);
   const flange=cyl(0.04,0.012,MI.cast,32); spinG.add(flange);
@@ -305,7 +305,7 @@ export function buildModel({ root, tagPart, partMeshes }){
       const top=H+0.06; shaft.scale.y=top+0.20; shaft.position.y=(top-0.20)/2;            // arbre : de 0,20 m sous le tranchant à l'écrou
       nut.position.y=H+0.05; flange.position.y=-0.006; cart.position.y=-0.22;
       while(spacers.children.length){ const c=spacers.children.pop(); c.geometry.dispose(); }
-      const sp=cyl(0.025,0.036,MI.zinc,24); sp.position.y=H+0.022; sp.castShadow=true; sp.userData.part='arbre'; spacers.add(sp); }
+      const sp=cyl(0.038,0.036,MI.zinc,24); sp.position.y=H+0.022; sp.castShadow=true; sp.userData.part='arbre'; spacers.add(sp); }
     if(ringKey!==st.ring){ ringKey=st.ring; buildRing(st.ring); }
     // guide
     const zi=st.zIn/1000, zo=zOut()/1000, o=st.open/2000;

@@ -31,15 +31,12 @@ END = r"""
 LAME = BASE + r"""
  msgs.push('lame au départ:'+R.st.blade);
  consigner(); log.push(state('consigner')); next();
- on('doors'); $('unmount').click(); msgs.push('démontage refusé tendue:'+alerts().some(a=>a.includes('Détendez d\'abord')));
- setN('ten-n',0); $('unmount').click(); log.push(state('démonter')); next();
+ on('doors'); $('unmount').click(); msgs.push('démontée sans détendre:'+(R.st.blade===null));
  sel('r30c'); $('exam').click(); msgs.push('crique vue:'+alerts().some(a=>a.includes('CRIQUE')));
  sel('r30'); $('exam').click(); msgs.push('dents vers le haut annoncées:'+alerts().some(a=>a.includes('vers le haut si on la monte')));
  $('flip').click(); $('mount').click(); log.push(state('monter')); next();
+ msgs.push('galets et volants réglés seuls:'+(R.st.posOk&&R.st.gL===0.2));
  setN('ten-n',30); log.push(state('tendre')); next();
- dev(0); msgs.push('dents sur le bandage:'+alerts().some(a=>a.includes('Dents sur le bandage')));
- dev(5); log.push(state('dévers')); next();
- guides(8.5,31); log.push(state('guides')); next();
  deconsigner(); await start(); for(let i=0;i<40&&!stepOk();i++) await sleep(100); await stop(); log.push(state('essai')); next();
  log.push(state('contrôle'));
  return {log, res:results(), info:$('stepRes').textContent, msgs};
@@ -70,7 +67,7 @@ REFENTE = BASE + r"""
 """
 
 ATTENDU = {
-  'lame': [['Lame montée', '30 mm, pas 15'], ['Tension (indicateur)', '30 pour 30 mm']],
+  'lame': [['Lame montée', '30 mm, pas 15'], ['Machine consignée pour intervenir', 'oui'], ['Tension (indicateur)', '30 pour 30 mm'], ['Essai à vide', 'fait']],
   'chant': [],
   'refente': [['Guide à 20 mm, table à 0°', '20,0 mm · 0°']],
 }

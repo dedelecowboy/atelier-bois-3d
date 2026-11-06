@@ -36,8 +36,8 @@ const loadIn=()=>{ const L=load(); return L>=GREEN[0]&&L<=GREEN[1]; };
 const ampChk=['Ampèremètre (charge prévue) dans la zone verte, 40 à 90 %',loadIn];
 const presChk=T=>[`Presseurs réglés pour ${T} mm (${T-4} à ${T-1} mm)`,()=>presOk(cur())];
 const fin={k:'Fin', t:'Arrêter la machine',
-  c:'Le débit est fini. Rangez les pièces sorties (« Mettre de côté ») : elles sont reprises côté sortie, jamais en passant les mains dans la machine. Arrêtez le tapis puis les lames, et attendez l\'arrêt complet avant de quitter le poste.',
-  checks:[['Aucune pièce en cours de sciage',()=>!cut.inProgress],['Pièces de la sortie rangées (« Mettre de côté »)',()=>!exitPieces().length],['Tapis arrêté',()=>!st.tapis],['Lames arrêtées',()=>!st.motor]],
+  c:'Le débit est fini. Rangez les pièces sorties (« Ranger comme pièce ») : elles sont reprises côté sortie, jamais en passant les mains dans la machine. Arrêtez le tapis puis les lames, et attendez l\'arrêt complet avant de quitter le poste.',
+  checks:[['Aucune pièce en cours de sciage',()=>!cut.inProgress],['Pièces de la sortie rangées (« Ranger comme pièce »)',()=>!exitPieces().length],['Tapis arrêté',()=>!st.tapis],['Lames arrêtées',()=>!st.motor]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler les pièces', c, checks:[], results, done:()=>false});
 const man=(m,lbl)=>[`Manchon « ${lbl} » monté`,()=>st.man===m];
@@ -64,7 +64,7 @@ export const STEPS={
       checks:[['Guide en place à 85 mm',()=>st.guideUp&&st.gw===85],['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())],presChk(27),['Lames en marche',()=>st.motor],['Tapis en marche',()=>st.tapis],ampChk], done:s=>s.checks.every(c=>c[1]())},
     {k:'Passe 1', t:'Déligner la première pièce', c:'Tapis en marche, engagez la pièce, puis placez-vous sur le côté, hors de l\'axe : le tapis l\'entraîne, les presseurs la plaquent, les linguets empêchent tout rejet. Une pièce de 85 mm sort entre le guide et la lame, une autre de 91,8 mm à côté.',
       checks:[['Avivé contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(85).length>0]], done:()=>goodOf(85).length>=1},
-    {k:'Passe 2', t:'Déligner la deuxième pièce', c:'À la sortie, gardez la pièce de 91,8 mm (contour orange ; cliquez-la si besoin). « Évacuer les chutes » range la pièce de 85 mm dans « Pièces débitées ». « Ramener la pièce » remet la pièce de 91,8 mm à l\'entrée : plaquez-la contre le guide, toujours à 85 mm, et engagez-la. Il reste une délignure de 3,6 mm : c\'est un déchet.',
+    {k:'Passe 2', t:'Déligner la deuxième pièce', c:'À la sortie, gardez la pièce de 91,8 mm (contour orange ; cliquez-la si besoin). « Ranger comme chute » range la pièce de 85 mm dans « Pièces débitées ». « Ramener la pièce » remet la pièce de 91,8 mm à l\'entrée : plaquez-la contre le guide, toujours à 85 mm, et engagez-la. Il reste une délignure de 3,6 mm : c\'est un déchet.',
       checks:[['Pièce de 91,8 mm ramenée à l\'entrée',()=>{ const e=cur(); return !!e&&Math.abs(measure(e).W-91.8)<1 || goodOf(85).length>=2; }],['Contre le guide',()=>!!cur()&&againstGuide(cur())||goodOf(85).length>=2]],
       done:()=>goodOf(85).length>=2},
     fin,

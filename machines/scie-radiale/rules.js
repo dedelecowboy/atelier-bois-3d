@@ -32,7 +32,7 @@ export const handOk=()=>st.handD>=ZONE && handOnWood();
 export function passBlock(){ const p=cur(), t=onTable();
   if(!parked()) return 'Ramenez d\'abord la lame en position arrière, contre la colonne.';
   if(!t.length) return 'Pas de pièce sur la table : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».';
-  if(t.length>1) return 'Dégagez d\'abord la table : gardez la pièce utile (contour orange) et « Évacuer les chutes ».';
+  if(t.length>1) return 'Dégagez d\'abord la table : gardez la pièce utile (contour orange) et « Ranger comme chute ».';
   if(!st.motor) return 'Lame arrêtée : démarrez-la avant de la tirer.';
   if(st.prot<p.prof.T) return `Le protecteur (${st.prot} mm) bute contre la pièce (${p.prof.T} mm) : réglez-le 1 à 10 mm au-dessus de la pièce.`;
   return ''; }
@@ -62,7 +62,7 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
   if(!st.motor) out.push(['info','Lame arrêtée.']);
   if(head.mode==='front') out.push(['warn','Lame en avant : ramenez-la en position arrière, derrière le guide, sans lâcher la poignée, AVANT de toucher aux pièces.']);
   if(head.mode==='pull'||head.mode==='back') out.push(['info','Lame en mouvement : la main gauche tient la pièce, la droite retient la poignée.']);
-  if(parked() && t.length>1) out.push(['info','Deux pièces sur la table : gardez la pièce utile (contour orange, cliquez l\'autre pour la garder), « Évacuer les chutes », puis « Mettre la pièce en butée » ou « Mettre de côté ».','piece']);
+  if(parked() && t.length>1) out.push(['info','Deux pièces sur la table : gardez la pièce utile (contour orange, cliquez l\'autre pour la garder), « Ranger comme chute », puis « Mettre la pièce en butée » ou « Ranger comme pièce ».','piece']);
   return out; }
 
 /* ---------- mesures des pièces produites ---------- */

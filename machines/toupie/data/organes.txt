@@ -22,7 +22,7 @@ Rallonges d'entrée et de sortie, avec un rouleau en bout : elles soutiennent le
 Bague amovible qui réduit la lumière (l'espace) entre l'outil et la table : choisir la plus petite qui laisse passer l'outil, pour que la pièce ne bascule pas dans l'ouverture.
 
 [arbre] 05 Arbre porte-outil
-Arbre vertical Ø 30, fixe (non inclinable). Sa hauteur se règle au pupitre (toujours en montant) puis se bloque. L'outil y est serré entre des bagues entretoises par l'écrou.
+Arbre vertical Ø 50, fixe (non inclinable). Sa hauteur se règle au pupitre (toujours en montant) puis se bloque. L'outil y est serré entre des bagues entretoises par l'écrou.
 
 [outil] 06 Outil (fraise ou porte-outil)
 Fraise ou porte-outil monté sur l'arbre, flèche du sens de rotation dessus. Il porte son marquage : diamètre, vitesse maximale (n max), « MAN » pour l'avance manuelle.
@@ -73,7 +73,7 @@ Bouton coup de poing rouge sur fond jaune : coupe le moteur, le frein arrête l'
 Tirette qui bloque l'arbre en rotation pour desserrer et serrer l'écrou de l'outil. Le moteur ne démarre pas arbre verrouillé.
 
 [sectionneur] 22 Interrupteur général (sectionneur)
-Mise sous tension et hors tension, cadenassable : machine consignée pour monter ou démonter l'outil.
+Mise sous tension et hors tension de la machine, cadenassable.
 
 [moteur] 23 Moteur-frein
 Moteur de 5,5 kW sous la table, avec frein électrique : l'arbre s'arrête en quelques secondes après « O ».

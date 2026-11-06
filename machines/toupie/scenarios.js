@@ -31,13 +31,13 @@ function needE(q,dn,back){ const r={...C.makePiece(C.pieceJSON(q)), log:[]}; for
 /* ---------- étapes communes ---------- */
 const prep=c=>({k:'Préparation', t:'Préparer le poste', c, checks:[['Aspiration en marche',()=>st.asp]], done:s=>s.checks.every(c=>c[1]())});
 const fin={k:'Fin', t:'Ranger et arrêter',
-  c:'Le travail est fini : mettez les pièces de côté (« Mettre de côté »), arrêtez le moteur (O). Ne quittez le poste qu\'à l\'arrêt complet de l\'arbre ; démontez et rangez l\'outil machine consignée, nettoyez à l\'aspirateur, jamais à la soufflette.',
+  c:'Le travail est fini : mettez les pièces de côté (« Ranger comme pièce »), arrêtez le moteur (O). Ne quittez le poste qu\'à l\'arrêt complet de l\'arbre ; démontez et rangez l\'outil machine consignée, nettoyez à l\'aspirateur, jamais à la soufflette.',
   checks:[['Aucune pièce sur la machine',()=>!onMachine().length],['Moteur arrêté',()=>!st.motor],['Arbre arrêté (frein)',()=>!!ctx.model&&ctx.model.spin<0.03]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler le profil', c, checks:[], results, done:()=>false});
 const mount=(id,name)=>({k:'Outil', t:`Monter ${name}`,
-  c:`Arbre arrêté : consignez la machine (interrupteur général sur 0, puis cadenas), verrouillez l'arbre, démontez l'outil en place et montez ${name}, flèche ↺ dessus (sens de rotation de la machine). Déverrouillez l'arbre, faites tourner l'outil à la main (rien ne doit toucher), puis déconsignez.`,
-  checks:[[`${name[0].toUpperCase()+name.slice(1)} montée, flèche ↺ dessus`,()=>toolIs(id)],['Arbre déverrouillé',()=>!st.lock],['Machine déconsignée, interrupteur général sur I',()=>!st.cad&&st.main]],
+  c:`Moteur arrêté, attendez l'arrêt complet de l'arbre. Verrouillez l'arbre, démontez l'outil en place et montez ${name}, flèche ↺ dessus (sens de rotation de la machine). Déverrouillez l'arbre et faites tourner l'outil à la main : rien ne doit toucher.`,
+  checks:[[`${name[0].toUpperCase()+name.slice(1)} montée, flèche ↺ dessus`,()=>toolIs(id)],['Arbre déverrouillé',()=>!st.lock]],
   done:s=>s.checks.every(c=>c[1]())});
 const pieceStep=(c,dn,back,what)=>({k:'Pièce', t:'Poser la pièce, régler les presseurs', c,
   checks:[[what,()=>orientOk(lot.a,dn,back)],['Presseurs réglés sur la pièce (0,5 à 6 mm sous ses dimensions)',()=>pressOk(lot.a)],['Poussoir en main pour la fin de passe',()=>st.push]],
@@ -98,7 +98,7 @@ export const STEPS={
     prep('Traverse de chêne corroyée (700 × 70 × 27, SR1 et SR2 repérés) : quart de rond de 10 mm sur l\'arête entre SR1 (parement) et le chant opposé à SR2. Avant tout : EPI (protection auditive, lunettes, pas de vêtements flottants ni de bijoux, pas de gants près de l\'outil), poste dégagé, aspiration en marche.'),
     mount('quart','la fraise à quart de rond R 10'),
     {k:'Réglages', t:'Vitesse, bague de table, hauteur',
-      c:'Lisez le marquage de l\'outil (Ø 125, n max 10 000) : vitesse de coupe Vc = π × D × n / 60 000 entre 40 et 70 m/s, jamais plus que n max. Réduisez la lumière de table (bague la plus petite qui laisse passer l\'outil). Hauteur : bas du tranchant au ras de la table (0 mm, réglage toujours en montant), puis bloquez la hauteur. Inverseur sur ↺.',
+      c:'Lisez le marquage de l\'outil (Ø 125, n max 10 000) : vitesse de coupe Vc = (π × D × N) / 60 (Vc en m/s, D en m, N en tr/min) entre 40 et 70 m/s, jamais plus que n max. Réduisez la lumière de table (bague la plus petite qui laisse passer l\'outil). Hauteur : bas du tranchant au ras de la table (0 mm, réglage toujours en montant), puis bloquez la hauteur. Inverseur sur ↺.',
       checks:[['Vitesse adaptée à l\'outil (n max, Vc de 40 à 70 m/s)',speedOk],['Lumière de table réduite (bague adaptée)',ringOk],['Hauteur 0 mm : outil au ras de la table',()=>near(st.h,0,0.2)],['Hauteur bloquée',()=>st.hlock],['Inverseur sur ↺ (anti-horaire)',()=>st.dir===1]],
       done:s=>s.checks.every(c=>c[1]())},
     {k:'Guide', t:'Saillie, demi-guides, lamelles',
@@ -155,7 +155,7 @@ export const STEPS={
 
 /* ---------- parcours évalué : 3 scénarios, 5 critères de 4 points ---------- */
 export const SCENS=[
-  {mode:'quart', view:'vop', t:'Quart de rond', intro:'Quart de rond de 10 mm sur une traverse corroyée : montage de l\'outil machine consignée, vitesse, hauteur, saillie, demi-guides alignés, presseurs, puis contrôle du profil.'},
+  {mode:'quart', view:'vop', t:'Quart de rond', intro:'Quart de rond de 10 mm sur une traverse corroyée : montage de l\'outil moteur arrêté et arbre verrouillé, vitesse, hauteur, saillie, demi-guides alignés, presseurs, puis contrôle du profil.'},
   {mode:'feuillure', view:'vop', t:'Feuillure en deux passes', intro:'Feuillure de 12 × 15 mm sur un montant corroyé, outil en partie sous la table, en deux passes, puis contrôle.'},
   {mode:'serie', view:'vop', t:'Série et machine à contrôler', intro:'Série de trois baguettes moulurées sur toute la rive. La machine a été préparée par un autre groupe et le lot contient une pièce à ne pas usiner au guide : vérifiez tout.'},
 ];

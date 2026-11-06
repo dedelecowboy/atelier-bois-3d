@@ -140,12 +140,13 @@ function debitSvg(it){ const xs=it.pts.map(q=>q[0]), zs=it.pts.map(q=>q[1]); con
   return `<svg viewBox="0 0 60 40" aria-hidden="true">${g}</svg>`; }
 function renderDebit(){ const key=JSON.stringify([debit.map(d=>d.id+d.kind),pieces.length,st.s>=1400]); if(key===debitKey) return; debitKey=key;
   const np=debit.filter(d=>d.kind==='piece').length; $('debitN').textContent=debit.length?`${np} pièce${np>1?'s':''} · ${debit.length-np} chute${debit.length-np>1?'s':''}`:'';
-  const canTake=pieces.length===0 && st.s>=1400;
+  const canTake=st.s>=1400;
   $('debit').innerHTML= debit.length? debit.map(it=>{ const d=obb(it.pts), ns=it.meta.filter(m=>m.sawn).length, fl=it.bands.length?' · flache':'';
     return `<li data-k="${it.kind}">${debitSvg(it)}<div><b>${Math.round(d.L)} × ${Math.round(d.W)}</b><small>ép. ${Math.round(it.T*1000)} · ${ns} chant${ns>1?'s':''} scié${ns>1?'s':''}${fl}</small></div>
-      <div class="d-act"><button class="toggle mini" type="button" data-d="kind" data-id="${it.id}" aria-pressed="${it.kind==='piece'}">${it.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-d="take" data-id="${it.id}" ${canTake?'':'disabled title="Libérez d\'abord la machine (« Mettre de côté ») et ramenez le chariot"'}>Reprendre</button></div></li>`; }).join('')
+      <div class="d-act"><button class="toggle mini" type="button" data-d="kind" data-id="${it.id}" aria-pressed="${it.kind==='piece'}">${it.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-d="take" data-id="${it.id}" ${canTake?'':'disabled title="Libérez d\'abord la machine (« Ranger comme pièce ») et ramenez le chariot"'}>Reprendre</button></div></li>`; }).join('')
     : '<li class="debit-empty" style="display:block;border:0;background:none;padding:0">Les pièces évacuées ou mises de côté apparaissent ici.</li>'; }
-function takeBack(id){ const k=debit.findIndex(d=>d.id===id); if(k<0) return; if(pieces.length||st.s<1400){ app.ex.flash.msg='Libérez d\'abord la machine (« Mettre de côté ») et ramenez le chariot.'; app.ex.flash.level='warn'; app.ex.invalidate(); app.apply(); return; }
+function takeBack(id){ const k=debit.findIndex(d=>d.id===id); if(k<0) return; if(st.s<1400){ app.ex.flash.msg='Ramenez d\'abord le chariot en position de départ.'; app.ex.flash.level='warn'; app.ex.invalidate(); app.apply(); return; }
+  { const k0=A(); pieces.forEach(q=>toDebit(q,q===k0?'piece':'chute')); pieces=[]; }   // la machine est libérée toute seule : ce qui y était part dans la liste
   const it=debit.splice(k,1)[0]; const p={id:++pieceSeq,kind:it.pkind,T:it.T,pts:it.pts,meta:it.meta,bands:it.bands,theta:0,flip:false,tx:0,tz:0}; pieces.push(p); activeId=p.id;
   toFence(p); const S=sPts(p); p.tz+=0.30-Math.min(...S.map(q=>q[1])); cut.max=null; cut.relocated=false; cut.needEvac=false; app.ex.flash.msg=''; rebuildAll(); debitKey=''; app.ex.invalidate(); app.apply(); }
 function setActive(id){ activeId=id; rebuildAll(); const p=A(); if(p) $('info').innerHTML=`<b>Pièce active</b><span>${pieceInfo(p)}</span>`; app.ex.invalidate(); app.apply(); }
@@ -227,6 +228,7 @@ function doOp(op){
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
   const p=A(); if(!p) return;
   if(cut.inProgress){ app.ex.flash.msg='Terminez la passe en cours avant de déplacer la pièce.'; app.ex.invalidate(); app.apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ toDebit(p,op==='rangeP'?'piece':'chute'); pieces=pieces.filter(q=>q!==p); activeId=pieces[0]?.id??null; if(pieces.length<2) cut.needEvac=false; if(!pieces.length) cut.max=null; app.ex.flash.msg=''; rebuildAll(); debitKey=''; app.ex.invalidate(); app.apply(); return; }
   if(op==='aside'){ pieces.filter(q=>q!==p).forEach(q=>toDebit(q,'chute')); toDebit(p,'piece'); pieces=[]; activeId=null; cut.needEvac=false; cut.max=null; app.ex.flash.msg=''; rebuildAll(); debitKey=''; app.ex.invalidate(); app.apply(); return; }
   if(op==='evac'){ pieces.filter(q=>q!==p).forEach(q=>toDebit(q,'chute')); pieces=[p]; debitKey=''; cut.needEvac=false; app.ex.flash.msg=''; rebuildAll(); app.ex.invalidate(); app.apply(); return; }
   if(st.s<1400){ app.ex.flash.msg=cut.needEvac? 'Évacuez la chute, puis ramenez le chariot avant de replacer la pièce.' : 'Ramenez d\'abord le chariot en position de départ (« Retour du chariot »).'; app.ex.invalidate(); app.apply(); return; }

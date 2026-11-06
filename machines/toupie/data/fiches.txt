@@ -28,7 +28,7 @@ Après : la même pièce avec un profil régulier sur toute sa rive (quart de ro
 
 ## Les organes principaux | table, arbre, outil, bagues, guide_entree, guide_sortie, lamelles, capot_guide, protecteur, pupitre
 - Table avec bagues de table autour de l'arbre ; rallonges.
-- Arbre vertical Ø 30, réglable en hauteur, outil serré dessus.
+- Arbre vertical Ø 50, réglable en hauteur, outil serré dessus.
 - Guide en deux demi-guides (entrée et sortie) à lamelles, capot d'aspiration.
 - Protège-mains à presseurs (vertical et horizontal), poussoir.
 - Pupitre : afficheurs hauteur et vitesse, marche / arrêt, inverseur de sens, arrêt d'urgence ; verrou de l'arbre, sectionneur cadenassable.
@@ -39,12 +39,12 @@ Après : la même pièce avec un profil régulier sur toute sa rive (quart de ro
 L'outil tourne en opposition : ses dents vont à la rencontre de la pièce, qui avance de droite à gauche. Travailler en avalant (outil dans l'autre sens) à la main est interdit : la pièce serait arrachée.
 - L'outil est monté dans le bon sens (flèche gravée) et l'inverseur réglé en conséquence.
 - Vitesse de rotation : jamais plus que la vitesse maximale gravée sur l'outil (n max).
-- Vitesse de coupe Vc = π × D × n / 60 000, entre 40 et 70 m/s.
+- Vitesse de coupe Vc = (π × D × N) / 60, avec Vc en m/s, D en m, N en tr/min : entre 40 et 70 m/s.
 - La vitesse se change par les poulies, arbre arrêté, porte ouverte.
 > Cours « La toupie » du lycée ; OPPBTP « Toupie : les points clés ».
 
 ## Les réglages avant de travailler | outil, verrou, sectionneur, guide_entree, guide_sortie, lamelles, presseur_v, presseur_h, bagues
-L'outil se monte machine consignée (sectionneur sur 0 et cadenas), arbre verrouillé. Tous les réglages se font arbre arrêté.
+L'outil se monte moteur arrêté, arbre à l'arrêt complet et verrouillé. Tous les réglages se font arbre arrêté.
 - Hauteur de l'arbre et saillie de l'outil (position du guide) selon le profil ; bloquer la hauteur.
 - Demi-guide de sortie aligné, ou avancé de la profondeur de passe si toute la rive est usinée.
 - Lamelles fermées au plus près de l'outil, une fois la hauteur et la saillie réglées.
@@ -53,7 +53,7 @@ L'outil se monte machine consignée (sectionneur sur 0 et cadenas), arbre verrou
 > Procédure de réglage de l'atelier ; cours « La toupie » du lycée.
 
 ## Le mode opératoire | protecteur, poussoir, pupitre, marche
-1. Déconsigner, démarrer, attendre la pleine vitesse.
+1. Démarrer, attendre la pleine vitesse.
 2. Engager la pièce sous les presseurs, contre le guide, de droite à gauche, d'un mouvement régulier.
 3. Mains à plat, jamais devant l'outil ; finir la passe au poussoir.
 4. Faire une pièce d'essai, contrôler le profil, corriger si besoin (arbre arrêté).
@@ -68,7 +68,7 @@ L'outil se monte machine consignée (sectionneur sur 0 et cadenas), arbre verrou
 > INRS A646 ; OPPBTP « Toupie : les points clés » ; INRS ED 974 (poussières de bois).
 
 ## Les règles d'or | sectionneur, lamelles, protecteur, poussoir, arret
-- Outil monté machine consignée ; vitesse jamais au-dessus de n max.
+- Outil monté moteur arrêté, arbre verrouillé ; vitesse jamais au-dessus de n max.
 - Toujours en opposition : jamais en avalant à la main.
 - Lamelles fermées, presseurs sur la pièce, poussoir en fin de passe (ou entraîneur).
 - Pas de pièce de moins de 300 mm au guide ; passe de 10 mm au plus.

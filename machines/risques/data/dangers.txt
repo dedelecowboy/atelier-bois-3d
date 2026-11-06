@@ -95,8 +95,8 @@ D: machine_allee | La déligneuse déborde sur l'allée de circulation (marquage
 P: p_epi | Un élève à la scie à format : lunettes, casque antibruit, cheveux attachés, tenue fermée
 = C'est la bonne tenue pour travailler à une machine.
 
-P: p_aspirateur | Un élève nettoie le sol à l'aspirateur industriel, avec masque et lunettes
+P: p_aspirateur | Un élève nettoie le sol à l'aspirateur industriel, avec masque, lunettes et casque antibruit
 = C'est la bonne façon de nettoyer l'atelier : jamais de soufflette ni de balai.
 
-P: p_chariot | Un élève déplace des panneaux avec un chariot, en portant des gants de manutention
+P: p_chariot | Un élève déplace des panneaux avec un chariot, équipé : lunettes, casque antibruit, gants de manutention
 = Le chariot évite de porter à bout de bras ; les gants protègent des échardes et des chants, loin des machines en marche.

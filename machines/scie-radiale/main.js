@@ -13,7 +13,7 @@ import { TABLE_Y, FENCE_Z, ZONE, STOP_MIN, STOP_MAX, STROKE, TABLE_X0, TABLE_X1,
 import { SCIE, DURETE } from '../../engine/sons/scie.js';
 import { st, head, parked, ctx, bladeX, stopX, $ } from './state.js';
 import { buildModel } from './model.js';
-import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, measure, label, fmt, sawThrough, strokeNeeded, setKeep, setKind, evacuate, bringBack, aside, take, toGuide, endForEnd, nudge, clampPiece } from './piece.js';
+import { initPieces, pieces, cut, onTable, cur, extent, toScene, defectsIn, measure, label, fmt, sawThrough, strokeNeeded, setKeep, setKind, evacuate, bringBack, aside, range, take, toGuide, endForEnd, nudge, clampPiece } from './piece.js';
 import { computeAlerts, passBlock, protOk, zonePoly, handXZ, handOk, handOnWood, nearestDefect } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -99,12 +99,12 @@ stage.controls.addEventListener('change',updateNudge);
 let debitKey='';
 const endTxt=m=>{ if(m.ends.some(e=>e.raw)) return 'bout brut'; if(m.square) return 'bouts d\'équerre';
   return m.ends.map(e=> e.beta? `biais ${e.beta}°` : e.alpha? `onglet ${Math.abs(e.alpha)}°` : 'équerre').join(' / '); };
-function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!onTable().length && parked();
+function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=parked();
   const key=JSON.stringify([list.map(q=>[q.id,q.kind]),free]); if(key===debitKey) return; debitKey=key;
   const np=list.filter(q=>q.kind==='piece').length; $('debitN').textContent=list.length?`${np} pièce${np>1?'s':''} · ${list.length-np} chute${list.length-np>1?'s':''}`:'';
   $('debit').innerHTML= list.length? list.map(q=>{ const m=measure(q);
       return `<li data-k="${q.kind}"><div><b>${fmt(m.L)} mm</b> <small>${m.defNames.length?'avec '+m.defNames.join(', ')+' · ':''}${endTxt(m)} · ${q.prof.T} × ${fmt(m.W,0)}</small></div>
-        <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Libérez d\'abord la table, lame en position arrière"'}>Reprendre</button></div></li>`; }).join('')
+        <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Ramenez d\'abord la lame en position arrière"'}>Reprendre</button></div></li>`; }).join('')
     : '<li class="debit-empty">Les pièces évacuées ou mises de côté apparaissent ici.</li>';
   document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(!guardHands()) return; const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; renderDebit(); }); }
@@ -139,9 +139,10 @@ function doOp(op){
   if(!guardHands()) return;
   if(op==='evac'){ const why=evacuate(); if(why) return say(why,'info'); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='back'){ const why=bringBack(); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ const why=range(op==='rangeP'?'piece':'chute'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   const t=onTable(); if(!t.length) return say('Pas de pièce sur la table : « Reprendre » une pièce dans « Pièces débitées », ou « Nouvelle pièce ».');
-  if(t.length>1) return say('Deux pièces sur la table : gardez la pièce utile (contour orange) et « Évacuer les chutes » d\'abord.');
+  if(t.length>1) return say('Deux pièces sur la table : gardez la pièce utile (contour orange) et « Ranger comme chute » d\'abord.');
   const p=t[0]; F.msg='';
   if(op==='guide') toGuide(p);
   else if(op==='end') endForEnd(p);
@@ -166,7 +167,7 @@ function setProt(v){ if(!stillBlade()){ say('Arrêtez la lame avant de régler l
 $('prot').addEventListener('input',e=>setProt(+e.target.value));
 $('prot-n').addEventListener('change',e=>setProt(num($('prot'),e.target.value)));
 function setStop(v){ v=Math.max(STOP_MIN,Math.min(STOP_MAX,v)); const t=onTable();
-  if(st.stopOn && t.length>1){ say('Dégagez d\'abord la table (« Évacuer les chutes ») avant de déplacer la butée.'); return; }
+  if(st.stopOn && t.length>1){ say('Dégagez d\'abord la table (« Ranger comme chute ») avant de déplacer la butée.'); return; }
   st.stopL=v; if(st.stopOn && t.length===1) clampPiece(t[0]); apply(); }
 $('stop').addEventListener('input',e=>setStop(+e.target.value));
 $('stop-n').addEventListener('change',e=>setStop(num($('stop'),e.target.value)));
@@ -187,7 +188,7 @@ function moveHead(dt){
   if(head.mode==='pull'){ head.s=Math.min(head.target,head.s+PULL*dt);
     if(head.s>=head.target){ const out=sawThrough(handXZ()); head.mode='front';
       const ms=out.map(q=>measure(q)).sort((a,b)=>b.L-a.L);
-      cut.lastMsg= out.length? `Coupe faite : ${out.length} pièce${out.length>1?'s':''} (${ms.map(label).join(' ; ')}). Ramenez la lame en arrière`+(out.length>1?', puis gardez la pièce utile (contour orange) et « Évacuer les chutes ».':'.') : 'La lame n\'a rien coupé. Ramenez-la en arrière.';
+      cut.lastMsg= out.length? `Coupe faite : ${out.length} pièce${out.length>1?'s':''} (${ms.map(label).join(' ; ')}). Ramenez la lame en arrière`+(out.length>1?', puis gardez la pièce utile (contour orange) et « Ranger comme chute ».':'.') : 'La lame n\'a rien coupé. Ramenez-la en arrière.';
       cut.msgSeq++; } return true; }
   if(head.mode==='back'){ head.s=Math.max(0,head.s-BACK*dt); if(head.s<=0){ head.mode='park'; cut.blocked=''; } return true; }
   return false; }

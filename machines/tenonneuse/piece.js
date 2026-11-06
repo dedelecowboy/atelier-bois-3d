@@ -241,7 +241,8 @@ export function returnChariot(){ if(cut.inProgress) return 'Passe en cours.'; if
 const toStock=q=>{ q.state='stock'; dispose(q); };
 export function aside(){ const q=chariotPiece(); if(!q) return 'Aucune pièce sur le chariot.'; toStock(q); refreshMeshes(); return ''; }
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cut.inProgress) return '';
-  if(chariotPiece()) return 'Une pièce est déjà sur le chariot : usinez-la, ou mettez-la de côté avant d\'en reprendre une autre.';
+  if(chariotPiece()) aside();   // le chariot est libéré tout seul : ce qui y était part dans la liste
   q.state='chariot'; placeDefault(q); build(q); return ''; }
+export function range(kind){ const q=chariotPiece(); if(!q) return 'Aucune pièce sur le chariot.'; q.kind=kind; toStock(q); refreshMeshes(); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'interdite':'piece'; }
 export function orient(q,op){ if(op==='rot') q.k+=1; else if(op==='flip') q.k+=2; else if(op==='end') q.flip=!q.flip; placeDefault(q); build(q); }

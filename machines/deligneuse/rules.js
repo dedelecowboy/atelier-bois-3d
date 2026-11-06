@@ -40,7 +40,7 @@ export function computeAlerts(){ const out=[]; if(cut.blocked) out.push(['danger
   if(!st.motor) out.push(['info','Lames arrêtées.']);
   if(cut.inProgress && !st.tapis) out.push(['warn','Tapis arrêté : la pièce est immobilisée sous les lames. Remettez le tapis en marche pour la faire sortir.','avance']);
   else if(!st.tapis) out.push(['info','Tapis arrêté.']);
-  if(!cut.inProgress && exitPieces().length) out.push(['info','Pièces à la sortie : gardez la pièce utile (contour orange), « Évacuer les chutes », puis « Ramener la pièce » ou « Mettre de côté ».']);
+  if(!cut.inProgress && exitPieces().length) out.push(['info','Pièces à la sortie : gardez la pièce utile (contour orange), « Ranger comme chute », puis « Ramener la pièce » ou « Ranger comme pièce ».']);
   if(cut.inProgress) out.push(['info','Sciage en cours : restez sur le côté, hors de l\'axe de la pièce. Ne touchez jamais une pièce engagée.']);
   return out; }
 

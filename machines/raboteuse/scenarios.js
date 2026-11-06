@@ -32,7 +32,7 @@ const prep=(c)=>({k:'Préparation', t:'Préparer la machine', c,
   checks:[['Aspiration en marche',()=>st.asp],['Capot fermé',()=>!st.capot],['Vitesse d\'avance de 8 à 12 m/min (bois dur)',()=>st.v>=8&&st.v<=12]],
   done:s=>s.checks.every(c=>c[1]())});
 const fin={k:'Fin', t:'Ranger et arrêter',
-  c:'Le travail est fini : mettez les pièces de côté (« Mettre de côté »), arrêtez l\'avance, puis le moteur. Ne vous éloignez qu\'à l\'arrêt complet de l\'arbre ; nettoyez à l\'aspirateur, jamais à la soufflette.',
+  c:'Le travail est fini : mettez les pièces de côté (« Ranger comme pièce »), arrêtez l\'avance, puis le moteur. Ne vous éloignez qu\'à l\'arrêt complet de l\'arbre ; nettoyez à l\'aspirateur, jamais à la soufflette.',
   checks:[['Aucune pièce sur la machine',()=>!onMachine().length],['Avance arrêtée',()=>!st.feed],['Moteur arrêté',()=>!st.motor]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler au pied à coulisse', c, checks:[], results, done:()=>false});
@@ -120,7 +120,7 @@ export const STEPS={
   controle:[
     prep('Un lot de deux pièces à mettre à épaisseur. Objectif : un frêne (déjà à largeur) à 22,0 mm sans arrachement. Avant de raboter, contrôlez le lot : seule une pièce dégauchie (SR1 et SR2 dressés, repérés au crayon) passe à la raboteuse.'),
     {k:'Contrôle du lot', t:'Contrôler les pièces avant de raboter',
-      c:'Regardez chaque pièce : cliquez-la, ou « Reprendre » pour la poser sur la table et la tourner. Une pièce brute de sciage, cintrée, sans repères n\'a pas été dégauchie : la raboteuse recopierait sa forme (elle ne redresse pas) et, posée sur son bombé, elle bascule et peut être rejetée. Rangez-la (« Mettre de côté ») et passez-la en « À dégauchir » dans « Pièces débitées ».',
+      c:'Regardez chaque pièce : cliquez-la, ou « Reprendre » pour la poser sur la table et la tourner. Une pièce brute de sciage, cintrée, sans repères n\'a pas été dégauchie : la raboteuse recopierait sa forme (elle ne redresse pas) et, posée sur son bombé, elle bascule et peut être rejetée. Rangez-la (« Ranger comme pièce ») et passez-la en « À dégauchir » dans « Pièces débitées ».',
       checks:[['Pièce non dégauchie mise à part, « À dégauchir »',()=>renvoi().ok]],
       done:()=>renvoi().ok},
     {k:'Réglage', t:'Poser SR1 sur la table, lire le fil',

@@ -21,7 +21,7 @@ async def main():
             check(all(row[2] == '✓' for row in r['res']), 'toutes les lignes du contrôle sont cochées')
             m = r['msgs']
             if mode == 'quart':
-                check('montage refusé non consignée:true' in m, 'outil non changé machine non consignée')
+                check('montage refusé non consignée:true' in m, 'outil non changé tant que l\'arbre n\'est pas verrouillé')
                 check('poussoir absent signalé:true' in m, 'sans poussoir : alerte rouge « mains près de l\'outil en fin de passe »')
             if mode == 'feuillure':
                 check('passe de 15 mm signalée:true' in m, 'feuillure de 15 mm en une passe : alerte rouge « passe trop forte »')

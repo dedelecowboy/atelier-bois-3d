@@ -98,13 +98,13 @@ export function createApp(config, raw){
           sw.textContent= on? 'Passer l\'évaluation' : 'S\'entraîner';
           if(on){ parc.setActive(false); ex.setMode(config.modes[0].id); app.setUI('pres'); } else parc.setActive(true); };
         $('chTitle').textContent=config.title;
-        if(P.done){ $('chEvalT').textContent='Voir mon résultat'; $('chEvalS').textContent=`Évaluation terminée : ${P.total} / 100, ${P.passed?'machine validée':'machine non validée'}.`; }
-        else if(P.ph!=='rep' || P.rk.length){ $('chEvalT').textContent='Reprendre l\'évaluation'; }
+        if(P.done){ $('chEvalT').textContent='Voir mon résultat'; $('chEvalS').textContent=`Évaluation terminée : ${P.total} / 100, ${P.passed?'machine validée':'machine non validée, vous pouvez repasser ce qui est raté'}.`; }
+        else if(P.ph!=='rep' || P.rk.length || P.todo){ $('chEvalT').textContent='Reprendre l\'évaluation'; }
         /* évaluation fermée (l'entraînement reste ouvert) : version avec verrous, tant que l'élément précédent n'est pas réussi ;
            et tant que les fiches de la machine ne sont pas toutes lues (lecture obligatoire, demandé par l'enseignant le 29/10/2026).
            Une évaluation déjà commencée ou terminée n'est jamais bloquée. */
         const def={ t:$('chEvalT').textContent, s:$('chEvalS').textContent };
-        const evalLock=()=>{ if(P.done || P.ph!=='rep' || P.rk.length) return null;
+        const evalLock=()=>{ if(P.done || P.ph!=='rep' || P.rk.length || P.todo) return null;
           const lockBy=pkgLock(config.id);
           if(lockBy){ const n=(pkg().titles[lockBy]||lockBy).replace(/^\d+\.\s*/,'');
             return { t:'🔒 Évaluation verrouillée', s:`Réussissez d'abord l'évaluation « ${n} ». Vous pouvez vous entraîner sur cette machine en attendant.` }; }
@@ -121,7 +121,7 @@ export function createApp(config, raw){
       stage.run((dt,now)=>{ hooks.tick?.(dt,now); app.bruit?.tick(); });
       stage.onContext(()=>{ hooks.onContextRestored?.(); app.apply(); });
       /* poignée pour les tests automatiques */
-      window.__atelier={ app, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
+      window.__atelier={ app, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, retry:parc.retry, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
       window.__ready=true; } };
   return app;
 }

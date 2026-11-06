@@ -160,7 +160,8 @@ function finish(){ const q=onTable(), last=cyc.log[cyc.log.length-1]; if(last) l
 const toStock=q=>{ q.state='stock'; dispose(q); };
 export function aside(){ const q=onTable(); if(!q) return 'Aucune pièce sur la table.'; toStock(q); refreshMeshes(); return ''; }
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cyc.on) return '';
-  if(onTable()) return 'Une pièce est déjà sur la table : mortaisez-la, ou mettez-la de côté avant d\'en reprendre une autre.';
+  if(onTable()) aside();   // la table est libérée toute seule : ce qui y était part dans la liste
   q.state='table'; q.ref= st.butD&&!st.butG? 'D' : 'G'; build(q); return ''; }
+export function range(kind){ const q=onTable(); if(!q) return 'Aucune pièce sur la table.'; q.kind=kind; toStock(q); refreshMeshes(); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'interdite':'piece'; }
 export function orient(q,op){ if(op==='rot') q.k+=1; else if(op==='flip') q.k+=2; else if(op==='end') q.flip=!q.flip; build(q); }

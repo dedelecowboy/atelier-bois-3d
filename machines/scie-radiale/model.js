@@ -94,7 +94,7 @@ export function buildModel({ root, tagPart, partMeshes }){
   add(butee, cyl(0.012,0.03,M.red,12,'z'), 0.06,TABLE_Y+FENCE_H+0.03,FENCE_Z+0.012);
   add(butee, rbox(0.004,0.004,0.03,M.red,0), 0.0,TABLE_Y+FENCE_H+0.0195,FENCE_Z-FENCE_T/2);            // index sur la règle
   const flip = new THREE.Group(); flip.position.set(0,TABLE_Y+FENCE_H+0.02,FENCE_Z+0.002); butee.add(flip);
-  add(flip, rbox(0.014,0.085,0.10,M.dark,0.003), 0.007,-0.0425-0.003,0.05);
+  add(flip, rbox(0.014,FENCE_H+0.015,0.10,M.dark,0.003), 0.007,-(FENCE_H+0.015)/2-0.003,0.05);   // patte de butée : descend au ras de la table
   add(flip, rbox(0.03,0.016,0.02,M.steel,0.003), 0.015,0,0.005);
   tagPart(butee,'butee');
 

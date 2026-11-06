@@ -46,7 +46,7 @@ export function motorBlock(){ if(st.cad) return 'Machine consignée : retirez vo
   return ''; }
 export function feedBlock(spin){ const p=cur(), t=onTable();
   if(!t.length) return 'Pas de pièce sur la table : « Nouvelle pièce » ou « Reprendre » dans « Pièces débitées ».';
-  if(t.length>1 && !cut.entered) return 'Dégagez d\'abord les chutes (« Évacuer les chutes », lame arrêtée, ou « Dégager au poussoir ») : seule la pièce gardée (contour orange) reste sur la table.';
+  if(t.length>1 && !cut.entered) return 'Dégagez d\'abord les chutes (« Ranger comme chute », lame arrêtée, ou « Dégager au poussoir ») : seule la pièce gardée (contour orange) reste sur la table.';
   if(!st.motor||spin<0.95) return 'Attendez que la lame tourne à sa vitesse avant d\'engager la pièce.';
   if(st.inv) return 'La lame ne coupe pas : elle est montée à l\'envers (dents vers le haut). Arrêtez, consignez et retournez-la.';
   if(p && st.hg<p.H) return `Le guide-lame (à ${st.hg} mm) bute contre la pièce (${fmt(p.H,0)} mm de haut) : remontez-le 3 à 10 mm au-dessus de la pièce, lame arrêtée.`;

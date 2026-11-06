@@ -1,7 +1,7 @@
 /*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
 /* Scénarios guidés de la scie à ruban (notés au parcours : 5 critères de 4 points dont « aucune faute grave »).
    1. Changer la lame et régler la machine : lame à chantourner de 10 mm montée → lame de 30 mm pour la refente
-      (consignation, lame sans crique, dents vers le bas, tension, dévers, guide-lames, essai à vide).
+      (consignation, lame sans crique, dents vers le bas, tension, essai à vide ; galets et dévers automatiques).
    2. Chantourner une pièce suivant un tracé : panneau de hêtre de 22 mm, tracé en S dont le plus petit rayon fait 60 mm ;
       la lame de 20 mm montée ne le suit pas : il faut la changer (10 mm ou moins).
    3. Refendre un avivé au guide parallèle : chêne 900 × 120 × 45 sur chant → lame de 20 mm ; puis un rondin
@@ -64,16 +64,10 @@ const machineOk=()=>!st.cad&&st.main&&!st.doors;
 function changeSteps(target, what){ return [
   { k:'Consigner', t:'Arrêter et consigner la machine', c:'Lame arrêtée (attendez l\'arrêt complet). Sectionneur sur 0, puis votre cadenas : personne ne peut redémarrer pendant que vous intervenez. Mettez les gants de manutention pour manipuler la lame.',
     checks:[consigne,['Gants mis',()=>st.gants]], done:all },
-  { k:'Démonter', t:'Démonter la lame en place', c:'Ouvrez les portes des volants (machine consignée). Détendez la lame (volant de tension jusqu\'à 0), sortez-la des guide-lames et des volants : « Démonter la lame ».',
-    checks:[['Portes ouvertes',()=>st.doors],['Lame détendue et démontée',()=>ev.demonte]], done:all },
-  { k:'Monter', t:'Choisir et monter la lame', c:what+' Examinez la lame avant de la monter (criques à la soudure et en fond de dent). Dents vers le bas, côté opérateur : « Monter la lame ».',
-    checks:[['Lame adaptée montée',()=>st.blade===target],['Lame sans crique',()=>!lame()?.crack],['Dents vers le bas',()=>!!lame()&&!st.inv]], done:all },
-  { k:'Tendre', t:'Tendre la lame', c:'Portes ouvertes, tendez la lame avec le volant de tension : l\'indicateur se règle sur la largeur de la lame montée (mesurée du fond de la dent au dos).',
+  { k:'Monter', t:'Choisir et monter la lame', c:'Ouvrez les portes des volants (machine consignée), « Démonter la lame » (elle se détend en la démontant). '+what+' Examinez la lame avant de la monter (criques à la soudure et en fond de dent). Dents vers le bas, côté opérateur : « Monter la lame ».',
+    checks:[['Portes ouvertes',()=>st.doors],['Ancienne lame démontée',()=>ev.demonte],['Lame adaptée montée',()=>st.blade===target],['Lame sans crique',()=>!lame()?.crack],['Dents vers le bas',()=>!!lame()&&!st.inv]], done:all },
+  { k:'Tendre', t:'Tendre la lame', c:'Portes ouvertes, tendez la lame avec le volant de tension : l\'indicateur se règle sur la largeur de la lame montée (mesurée du fond de la dent au dos). Les galets et la position sur les volants se règlent seuls : regardez le schéma du réglage.',
     checks:[['Indicateur de tension sur la largeur de la lame (± 2)',tensionOk]], done:all },
-  { k:'Dévers', t:'Placer la lame sur les volants', c:'Tournez le volant à la main (« Tourner le volant à la main ») et réglez le dévers : lame large (20 mm et plus), dents en dehors du bandage ; lame à chantourner, au milieu du bandage. Regardez le schéma du réglage et la fenêtre de contrôle.',
-    checks:[['Position de la lame vérifiée en tournant le volant',()=>st.posOk],['Lame bien placée sur le bandage',rimOk]], done:all },
-  { k:'Guides', t:'Régler les guide-lames', c:'Guide-lame supérieur et inférieur : galets latéraux à quelques dixièmes de la lame (0,1 à 0,3 mm), en arrière du fond de denture (1 à 4 mm) ; galet arrière juste derrière le dos de la lame (0,5 à 2 mm). Les cotes sont comptées depuis la pointe des dents.',
-    checks:[['Guide-lame supérieur réglé',()=>guidesOk(true)],['Guide-lame inférieur réglé',()=>guidesOk(false)]], done:all },
   { k:'Essai', t:'Fermer, déconsigner, essai à vide', c:'Fermez les portes, retirez votre cadenas, sectionneur sur I. Démarrez la lame à vide (I), écoutez : pas de bruit strident, pas de battement. Puis arrêtez (O).',
     checks:[['Portes fermées, machine déconsignée',machineOk],['Essai à vide fait',()=>ev.essai]], done:all },
 ]; }
@@ -81,15 +75,15 @@ export const ev={ demonte:false, essai:false };   // événements du mode en cou
 export const STEPS={
   lame:[
     ...changeSteps('r30','Prochain travail : refente de pièces de chêne de 120 mm de haut. Choisissez une lame large pour les sciages droits, au pas adapté (au moins 3 dents dans l\'épaisseur), d\'épaisseur 0,8 mm au plus pour des volants de 800 mm.'),
-    ctrl('Lame large de 30 mm sans crique, dents vers le bas ; tension sur 30 ; dents en dehors du bandage ; guide-lames supérieur et inférieur réglés.',resLame) ],
+    ctrl('Lame large de 30 mm sans crique, dents vers le bas ; machine consignée pour intervenir ; tension sur 30 ; essai à vide fait.',resLame) ],
   chant:[
     { k:'Préparation', t:'Lire le tracé, choisir la lame', c:'Console en hêtre de 22 mm : le tracé en S a un rayon de 60 mm au plus serré. La lame de 20 mm montée ne suit pas un rayon de moins de 140 mm : choisissez dans le râtelier une lame étroite qui suit 60 mm, au pas adapté à 22 mm (au moins 3 dents en prise), puis « Changer la lame : procédure complète » (la procédure pas à pas est l\'exercice « Lame »). Mettez l\'aspiration en marche.',
       checks:[['Aspiration en marche',()=>st.asp],['Lame qui suit un rayon de 60 mm, pas adapté',()=>!!lame()&&rmin(lame())<=60&&22/lame().p>=3]], done:all },
-    { k:'Réglages', t:'Régler la lame neuve et le protecteur', c:'Lame changée et réglée (tension, milieu du bandage, guide-lames), machine déconsignée. Guide parallèle retiré. Descendez le guide-lame supérieur et le protecteur 3 à 10 mm au-dessus de la pièce. Mains derrière la pointe des dents, de part et d\'autre de la lame.',
+    { k:'Réglages', t:'Régler la lame neuve et le protecteur', c:'Lame changée et tendue, machine déconsignée. Guide parallèle retiré. Descendez le guide-lame supérieur et le protecteur 3 à 10 mm au-dessus de la pièce. Mains derrière la pointe des dents, de part et d\'autre de la lame.',
       checks:[['Lame tendue et bien placée sur le bandage',()=>tensionOk()&&rimOk()],['Guide-lames réglés',()=>guidesOk(true)&&guidesOk(false)],['Machine déconsignée, portes fermées',machineOk],[`Protecteur à ${PROT_GAP[0]} à ${PROT_GAP[1]} mm au-dessus de la pièce`,()=>protOk(cur())],['Mains de part et d\'autre de la lame',()=>st.mains==='cote']], done:all },
     { k:'Présenter', t:'Présenter la pièce au départ du tracé', c:'« Au départ du tracé » amène le trait devant la lame. La lame doit passer côté chute (hachurée), le bord du trait de scie juste contre le trait de crayon : décalez la pièce de 1 mm vers la pièce (« → 1 mm » ou « ← 1 mm ») jusqu\'à « trait côté chute » sur le schéma.',
       checks:[['Pièce au départ du tracé, lame côté chute',()=>{ const p=cur(); if(!p||!p.origin.trace||feedMode(p)!=='free') return false; return startGap(p)!==null&&startGap(p)>=-0.2&&startGap(p)<=1.2; }]], done:all },
-    { k:'Chantourner', t:'Chantourner suivant le trait', c:'Démarrez la lame. « Avance » pousse la pièce ; ↺ et ↻ (ou les flèches du clavier) la font tourner pour suivre le trait, avance lente dans les courbes. Pour un premier essai, « Aide : suivre le trait » (panneau Mains et avance) tourne la pièce pour vous ; pas d\'aide dans le parcours noté. Si vous sortez du trait : arrêtez l\'avance, arrêtez la lame et attendez l\'arrêt complet avant de reculer. Ne forcez jamais la lame dans une courbe.',
+    { k:'Chantourner', t:'Chantourner suivant le trait', c:'Démarrez la lame. « Avance » pousse la pièce ; ↺ et ↻ (ou les flèches du clavier) la font tourner pour suivre le trait, avance lente dans les courbes. « Aide : suivre le trait » (panneau Mains et avance) tourne la pièce pour vous. Si vous sortez du trait : arrêtez l\'avance, arrêtez la lame et attendez l\'arrêt complet avant de reculer. Ne forcez jamais la lame dans une courbe.',
       checks:[['Tracé scié en entier, pièce détachée',()=>{ const s=chantStats(); return !!s&&s.split&&s.cov>=0.95; }]], done:all },
     fin(),
     ctrl('Lame qui suit le rayon de 60 mm ; protecteur au plus près à chaque coupe ; coupe côté chute, jamais dans la pièce ; écart moyen au trait de 1 mm au plus.',resChant) ],
@@ -113,9 +107,9 @@ export function startGap(p){ const T=p.origin.trace; if(!T) return null;
 /* ---------- contrôle final et critères ---------- */
 function resLame(){ const b=lame();
   return { rows:[['Lame montée',b? `${b.w} mm, pas ${b.p}${b.crack?', fissurée':''}${st.inv?', à l\'envers':''}` : 'aucune', blade30()],
+    ['Machine consignée pour intervenir',ev.demonte?'oui':'non',ev.demonte],
     ['Tension (indicateur)',b? `${st.ten} pour ${b.w} mm` : '—', tensionOk()],
-    ['Lame sur le bandage',b&&st.posOk? (rimOk()?'dents hors du bandage':'mal placée') : 'pas vérifiée', rimOk()],
-    ['Guide-lames supérieur et inférieur',guidesOk(true)&&guidesOk(false)?'réglés':'à régler', !!b&&guidesOk(true)&&guidesOk(false)]] }; }
+    ['Essai à vide',ev.essai?'fait':'pas fait',ev.essai&&machineOk()]] }; }
 function resChant(){ const s=chantStats(); if(!s||!s.n) return { msg:'Aucune coupe faite le long du tracé.' };
   const okB=s.blades.length&&s.blades.every(b=>rmin(b)<=60);
   return { rows:[['Lame qui suit le rayon de 60 mm',s.blades.map(b=>`${b.w} mm (R mini ${rmin(b)})`).join(', ')||'—', !!okB],
@@ -129,7 +123,7 @@ function resRefente(){ const {s,rec,rondOk}=refStats(); if(!s) return { msg:'Auc
     ['Servante en place, rondin écarté',`${rec.serv?'servante':'sans servante'} · ${rondOk?'rondin écarté':'rondin pas écarté'}`, !!rec.serv&&rondOk]] }; }
 
 export const SCENS=[
-  { mode:'lame', view:'v34', t:'Changer et régler la lame', intro:'Changement de lame avant une refente : consignation, choix et contrôle de la lame, montage, tension, position sur les volants, guide-lames, essai à vide.' },
+  { mode:'lame', view:'v34', t:'Changer et régler la lame', intro:'Changement de lame avant une refente : consignation, choix et contrôle de la lame, montage, tension, essai à vide.' },
   { mode:'chant', view:'vop', t:'Chantourner suivant un tracé', intro:'Console en hêtre : choisir une lame qui suit le plus petit rayon, régler le protecteur, puis scier côté chute, au plus près du trait, les mains hors de l\'axe de la lame.' },
   { mode:'refente', view:'vop', t:'Refendre au guide parallèle', intro:'Refente d\'un avivé de chêne sur chant en une lame de 20 mm : table à 0°, guide, servante, protecteur, poussoir en fin de passe ; puis un rondin à traiter sans danger.' },
 ];

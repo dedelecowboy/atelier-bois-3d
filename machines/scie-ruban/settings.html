@@ -17,19 +17,20 @@
     <button class="toggle mini quick" type="button" id="quick" hidden style="grid-column:1/-1;width:100%" title="Fait toute la procédure avec la lame choisie : consigner, ouvrir, détendre, démonter, monter, tendre, placer sur le bandage, régler les guide-lames, fermer, déconsigner">Changer la lame : procédure complète</button>
     <p class="g-i" id="bladeInfo"></p></div>
   <div class="ctl"><label for="ten">Tension : indicateur (largeur de lame, mm)</label><input class="num" id="ten-n" type="number" min="0" max="50" step="1" aria-label="Indicateur de tension en mm de largeur de lame"><input id="ten" type="range" min="0" max="50" step="1" value="10"></div>
-  <div class="ctl dv" role="group" aria-labelledby="l-dv"><span id="l-dv" style="font-weight:500">Dévers du volant supérieur</span><output id="o-dv"></output>
+  <div class="ctl dv" hidden role="group" aria-labelledby="l-dv"><span id="l-dv" style="font-weight:500">Dévers du volant supérieur</span><output id="o-dv"></output>
     <div class="row" style="grid-column:1/-1"><button class="toggle mini" type="button" id="devM" title="Un quart de tour : la lame recule sur le bandage">− ¼ tour</button><button class="toggle mini" type="button" id="devP" title="Un quart de tour : la lame avance sur le bandage (dents vers l'avant)">+ ¼ tour</button><button class="toggle mini" type="button" id="hwheel" title="Machine consignée, portes ouvertes : tourner le volant inférieur à la main, la lame se place sur le bandage">Tourner le volant à la main</button></div>
     <p class="g-i" id="rimInfo"></p></div>
   </section>
   <section class="fam" data-fam="guidage" data-key="guides" data-title="Guide-lames">
+  <p class="g-i">Les galets et la position de la lame sur les volants se règlent seuls à la lame montée. Le schéma montre le réglage.</p>
   <p class="g-i">Cotes depuis la pointe des dents (avant des galets, galet arrière) et jeu des galets latéraux de chaque côté de la lame.</p>
-  <div class="ctl"><label for="gL">Haut : jeu des galets latéraux (mm)</label><input class="num" id="gL-n" type="number" min="0" max="1" step="0.05"><input id="gL" type="range" min="0" max="1" step="0.05" value="0.2"></div>
-  <div class="ctl"><label for="gF">Haut : avant des galets (mm)</label><input class="num" id="gF-n" type="number" min="0" max="20" step="0.5"><input id="gF" type="range" min="0" max="20" step="0.5" value="4"></div>
-  <div class="ctl"><label for="gB">Haut : galet arrière (mm)</label><input class="num" id="gB-n" type="number" min="0" max="45" step="0.5"><input id="gB" type="range" min="0" max="45" step="0.5" value="11"></div>
-  <button class="toggle mini" type="button" id="gCopy" title="Reporte les trois cotes du guide-lame supérieur sur le guide-lame inférieur">Bas réglé comme le haut</button>
-  <div class="ctl"><label for="gLi">Bas : jeu des galets latéraux (mm)</label><input class="num" id="gLi-n" type="number" min="0" max="1" step="0.05"><input id="gLi" type="range" min="0" max="1" step="0.05" value="0.2"></div>
-  <div class="ctl"><label for="gFi">Bas : avant des galets (mm)</label><input class="num" id="gFi-n" type="number" min="0" max="20" step="0.5"><input id="gFi" type="range" min="0" max="20" step="0.5" value="4"></div>
-  <div class="ctl"><label for="gBi">Bas : galet arrière (mm)</label><input class="num" id="gBi-n" type="number" min="0" max="45" step="0.5"><input id="gBi" type="range" min="0" max="45" step="0.5" value="11"></div>
+  <div class="ctl" hidden><label for="gL">Haut : jeu des galets latéraux (mm)</label><input class="num" id="gL-n" type="number" min="0" max="1" step="0.05"><input id="gL" type="range" min="0" max="1" step="0.05" value="0.2"></div>
+  <div class="ctl" hidden><label for="gF">Haut : avant des galets (mm)</label><input class="num" id="gF-n" type="number" min="0" max="20" step="0.5"><input id="gF" type="range" min="0" max="20" step="0.5" value="4"></div>
+  <div class="ctl" hidden><label for="gB">Haut : galet arrière (mm)</label><input class="num" id="gB-n" type="number" min="0" max="45" step="0.5"><input id="gB" type="range" min="0" max="45" step="0.5" value="11"></div>
+  <button class="toggle mini" type="button" hidden id="gCopy" title="Reporte les trois cotes du guide-lame supérieur sur le guide-lame inférieur">Bas réglé comme le haut</button>
+  <div class="ctl" hidden><label for="gLi">Bas : jeu des galets latéraux (mm)</label><input class="num" id="gLi-n" type="number" min="0" max="1" step="0.05"><input id="gLi" type="range" min="0" max="1" step="0.05" value="0.2"></div>
+  <div class="ctl" hidden><label for="gFi">Bas : avant des galets (mm)</label><input class="num" id="gFi-n" type="number" min="0" max="20" step="0.5"><input id="gFi" type="range" min="0" max="20" step="0.5" value="4"></div>
+  <div class="ctl" hidden><label for="gBi">Bas : galet arrière (mm)</label><input class="num" id="gBi-n" type="number" min="0" max="45" step="0.5"><input id="gBi" type="range" min="0" max="45" step="0.5" value="11"></div>
   </section>
   <section class="fam" data-fam="protection" data-key="protection" data-title="Protecteur">
   <div class="ctl"><label for="hg">Guide-lame supérieur et protecteur : hauteur au-dessus de la table (mm)</label><input class="num" id="hg-n" type="number" min="0" max="500" step="1" aria-label="Hauteur du bas du guide-lame supérieur en mm"><input id="hg" type="range" min="0" max="500" step="1" value="60"></div>
