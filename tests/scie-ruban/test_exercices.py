@@ -87,10 +87,10 @@ async def main():
             check(r['res'] and all(row[2] == '✓' for row in r['res']), 'toutes les lignes du contrôle sont cochées : ' + str(r['res']))
             m = r['msgs']
             if mode == 'lame':
-                check('démontage refusé tendue:true' in m, 'démontage refusé tant que la lame est tendue')
+                check('démontée sans détendre:true' in m, 'la lame se détend en la démontant')
                 check('crique vue:true' in m, 'la lame n° 2 examinée : crique à la soudure')
                 check('dents vers le haut annoncées:true' in m, 'la lame n° 1 est accrochée dents vers le haut : à retourner avant de la monter')
-                check('dents sur le bandage:true' in m, 'lame large au milieu du bandage : alerte « dents sur le bandage »')
+                check('galets et volants réglés seuls:true' in m, 'galets et position sur les volants réglés seuls')
             if mode == 'chant':
                 check('alertes rouges au départ:2' in m, 'au départ : protecteur trop haut, main dans l\'axe de la lame')
                 print('   ', [x for x in m if x.startswith('écart')])

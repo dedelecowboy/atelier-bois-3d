@@ -67,7 +67,7 @@ REFENTE = BASE + r"""
 """
 
 ATTENDU = {
-  'lame': [['Lame montée', '30 mm, pas 15'], ['Tension (indicateur)', '30 pour 30 mm']],
+  'lame': [['Lame montée', '30 mm, pas 15'], ['Machine consignée pour intervenir', 'oui'], ['Tension (indicateur)', '30 pour 30 mm'], ['Essai à vide', 'fait']],
   'chant': [],
   'refente': [['Guide à 20 mm, table à 0°', '20,0 mm · 0°']],
 }
