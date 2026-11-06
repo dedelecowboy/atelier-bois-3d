@@ -70,7 +70,12 @@ async def paquet(br):
     check(st['lbl']['deligneuse'] == '' and st['lbl']['raboteuse'] == '', 'déligneuse échouée (faute grave, note 69) et raboteuse non validée (bilan du navigateur) : pas de badge')
     check(all(v == '' for k, v in st['lbl'].items() if k != 'scie-radiale'), 'aucun autre badge posé')
     check(st['n'] == '2/10', f'en-tête : « Mon permis {st["n"]} »')
-    check(sorted(st['anim']) == ['obtenu:risques', 'obtenu:scie-radiale'] and sorted(st['poses']) == sorted(st['anim']), f'animation de pose des 2 badges ({st["anim"]})')
+    check(sorted(st['poses']) == ['obtenu:risques', 'obtenu:scie-radiale'], f'2 badges mémorisés comme posés ({st["poses"]})')
+    # l'atelier a pu poser les badges avant le clic sur « Atelier » (selon la vitesse de chargement) : animation contrôlée ici, sans dépendre de ce moment
+    await f.evaluate("()=>{ localStorage.removeItem('atelier.permis.poses'); __atelier.permis.animes.length=0; }")
+    await pg.evaluate("setSt('0. Risques généraux','fa-check','Réussi',96)"); await pg.wait_for_timeout(1200)
+    anim = await f.evaluate("()=>__atelier.permis.animes.slice()")
+    check(sorted(anim) == ['obtenu:risques', 'obtenu:scie-radiale'], f'animation de pose des 2 badges ({anim})')
     await pg.screenshot(path=os.path.join(OUT, 'permis_atelier.png'))
     # rechargement : plus d'animation (une seule fois par badge)
     await f.evaluate("()=>location.reload()"); await pg.wait_for_timeout(600); f = await frame_ready(); await pg.wait_for_timeout(1800)
