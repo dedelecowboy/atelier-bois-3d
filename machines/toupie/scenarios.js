@@ -31,7 +31,7 @@ function needE(q,dn,back){ const r={...C.makePiece(C.pieceJSON(q)), log:[]}; for
 /* ---------- étapes communes ---------- */
 const prep=c=>({k:'Préparation', t:'Préparer le poste', c, checks:[['Aspiration en marche',()=>st.asp]], done:s=>s.checks.every(c=>c[1]())});
 const fin={k:'Fin', t:'Ranger et arrêter',
-  c:'Le travail est fini : mettez les pièces de côté (« Mettre de côté »), arrêtez le moteur (O). Ne quittez le poste qu\'à l\'arrêt complet de l\'arbre ; démontez et rangez l\'outil machine consignée, nettoyez à l\'aspirateur, jamais à la soufflette.',
+  c:'Le travail est fini : mettez les pièces de côté (« Ranger comme pièce »), arrêtez le moteur (O). Ne quittez le poste qu\'à l\'arrêt complet de l\'arbre ; démontez et rangez l\'outil machine consignée, nettoyez à l\'aspirateur, jamais à la soufflette.',
   checks:[['Aucune pièce sur la machine',()=>!onMachine().length],['Moteur arrêté',()=>!st.motor],['Arbre arrêté (frein)',()=>!!ctx.model&&ctx.model.spin<0.03]],
   done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler le profil', c, checks:[], results, done:()=>false});

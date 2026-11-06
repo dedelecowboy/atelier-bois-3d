@@ -18,7 +18,7 @@ import { LIB, toolById, Rmax, Dmm, marking, profilePts, speedCheck, advisedRpm }
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cut, entryPiece, exitPieces, butePiece, onMachine, selPiece, startPass, tickPass, placeAll, topAt, frontAt,
-  measure, profileStats, setSel, bringBack, release, aside, take, setKind, orient, fmt, dims, appui, haut, sr1, sr2, newPiece, predict, FACE_NAME } from './piece.js';
+  measure, profileStats, setSel, bringBack, release, aside, range, take, setKind, orient, fmt, dims, appui, haut, sr1, sr2, newPiece, predict, FACE_NAME } from './piece.js';
 import { ENT_ROLL_OFF, ENT_CLR, lamBand, LAM_D, closeLamelles, chordAtGuide, lamStatus, placeEntr, stowEntr, ENT_SPEEDS, ENT_DOWN, ENT_ANGLE } from './guide.js';
 import { computeAlerts, passBlock, guideInfo, contacts, INTERV, CHOC, HANDS, prediction } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
@@ -231,10 +231,12 @@ function doOp(op){
   if(op==='back'){ if(butePiece()){ if(st.motor||spinning()){ app.recordDangers([['danger',HANDS]]); return say('Geste refusé : '+HANDS+'.','danger'); }
       const why=release(); if(why) return say(why); info('Pièce dégagée et remise à l\'entrée. Réglez le demi-guide de sortie avant de repasser.'); return; }
     const why=bringBack(); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ if(butePiece()) return say('La pièce est arrêtée contre le demi-guide de sortie : machine arrêtée, « Ramener la pièce » pour la dégager.');
+    const why=range(op==='rangeP'?'piece':'interdite'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ if(butePiece()) return say('La pièce est arrêtée contre le demi-guide de sortie : machine arrêtée, « Ramener la pièce » pour la dégager.');
     const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   const q=entryPiece();
-  if(!q) return say(exitPieces().length? 'La pièce est à la sortie : « Ramener la pièce » pour la remettre à l\'entrée, ou « Mettre de côté ».' : 'Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées ».');
+  if(!q) return say(exitPieces().length? 'La pièce est à la sortie : « Ramener la pièce » pour la remettre à l\'entrée, ou « Ranger comme pièce ».' : 'Pas de pièce à l\'entrée : « Reprendre » une pièce dans « Pièces débitées ».');
   orient(q,op); F.msg=''; app.ex.invalidate(); apply(); }
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 $('resetPres').onclick=()=>{ if(cut.inProgress) return say('Passe en cours : attendez la sortie de la pièce.'); app.ex.setMode(app.ex.mode); info('Pièce de départ remise à l\'entrée, machine arrêtée.'); };

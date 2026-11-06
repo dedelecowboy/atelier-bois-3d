@@ -40,7 +40,7 @@ const prep=k=>[[`Protecteur réglé au plus près (${T_OF[k]+1} à ${T_OF[k]+10}
 const handChk=['Main gauche sur la planche, hors de la zone rouge',()=>handOk()];
 const backChk=['Lame ramenée en position arrière',()=>parked()];
 const fin={k:'Fin', t:'Ranger et arrêter',
-  c:'Mettez de côté la dernière pièce restée sur la table (« Mettre de côté »), lame en position arrière. Arrêtez la lame et attendez son arrêt complet avant de quitter le poste.',
+  c:'Mettez de côté la dernière pièce restée sur la table (« Ranger comme pièce »), lame en position arrière. Arrêtez la lame et attendez son arrêt complet avant de quitter le poste.',
   checks:[backChk,['Table dégagée',()=>!onTable().length],['Lame arrêtée',()=>!st.motor]], done:s=>s.checks.every(c=>c[1]())};
 const ctrl=(c,results)=>({k:'Contrôle', t:'Contrôler les pièces', c, checks:[], results, done:()=>false});
 const stopStep=L=>({k:'Butée', t:`Régler la butée à ${L} mm`, c:`Réglez la butée de longueur à ${L} mm et mettez-la en service (abaissée). « Mettre la pièce en butée » la pousse contre le guide et contre la butée.`,
@@ -74,7 +74,7 @@ export const STEPS={
       checks:[...prep('serie'),['Planche contre le guide',()=>againstGuide(cur())]], done:s=>s.checks.every(c=>c[1]())},
     purgeStep('serie'),
     stopStep(550),
-    {k:'Débit', t:'Débiter les 4 montants', c:'Pour chaque montant : planche contre le guide et la butée, main gauche à plat sur la planche, hors de la zone rouge (la planche raccourcit : rapprochez la main, entre 150 et 200 mm du trait), tirez la lame en la retenant, ramenez-la en arrière, puis « Évacuer les chutes » : le montant est rangé dans « Pièces débitées ». « Mettre la pièce en butée » repousse la planche contre la butée pour le montant suivant.',
+    {k:'Débit', t:'Débiter les 4 montants', c:'Pour chaque montant : planche contre le guide et la butée, main gauche à plat sur la planche, hors de la zone rouge (la planche raccourcit : rapprochez la main, entre 150 et 200 mm du trait), tirez la lame en la retenant, ramenez-la en arrière, puis « Ranger comme chute » : le montant est rangé dans « Pièces débitées ». « Mettre la pièce en butée » repousse la planche contre la butée pour le montant suivant.',
       checks:[['Montants de 550 mm',()=>goodOf(550).length>=4],backChk,['Table dégagée : la planche seule',single]], done:s=>s.checks.every(c=>c[1]())},
     {...fin, c:'Le reste de planche fait moins de 350 mm : trop court pour la raboteuse, c\'est une chute. ' + fin.c},
     ctrl('Fiche de débit : 4 montants de 550 mm ± 1, bouts sciés d\'équerre, identiques ; bout brut affranchi en perdant 50 mm au plus.',resSerie)],

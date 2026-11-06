@@ -249,16 +249,18 @@ export function endForEnd(q){ const a=extent(q), cx=(a.x0+a.x1)/2, cz=(a.z0+a.z1
 const toStock=(q,kind)=>{ q.state='stock'; q.kind=kind; dispose(q); };
 export function setKeep(id){ const t=onTable(); if(t.length<2||!t.some(q=>q.id===id)) return false; cut.keep=id; for(const q of t) build(q); return true; }
 /* retire de la table toutes les pièces sauf la pièce gardée */
-export function evacuate(){ const k=keepPiece(), t=onTable(); if(t.length<2) return 'Une seule pièce sur la table : rien à évacuer. « Mettre de côté » pour la ranger.';
+export function evacuate(){ const k=keepPiece(), t=onTable(); if(t.length<2) return 'Une seule pièce sur la table : rien à évacuer. « Ranger comme pièce » pour la ranger.';
   for(const q of t) if(q!==k) toStock(q,autoKind(q)); cut.keep=null; if(k) build(k); return ''; }
 /* remet la pièce gardée en position de coupe : contre le guide, et contre la butée si elle est en service */
 export function bringBack(){ const t=onTable(); if(!t.length) return 'Aucune pièce sur la table.';
-  if(t.length>1) return 'Évacuez d\'abord les chutes (« Évacuer les chutes ») : seule la pièce gardée (contour orange) reste sur la table.';
+  if(t.length>1) return 'Évacuez d\'abord les chutes (« Ranger comme chute ») : seule la pièce gardée (contour orange) reste sur la table.';
   const q=t[0]; toGuide(q); if(st.stopOn) toStop(q); clampPiece(q); return ''; }
 export function aside(){ const t=onTable(); if(!t.length) return 'Aucune pièce sur la table.'; for(const q of t) toStock(q,autoKind(q)); cut.keep=null; return ''; }
+/* range la pièce sélectionnée (contour orange) ; les autres restent sur la table */
+export function range(kind){ const t=onTable(), k=keepPiece()||t[0]; if(!k) return 'Aucune pièce sur la table.'; toStock(k,kind); cut.keep=null; for(const q of onTable()) build(q); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'chute':'piece'; }
 /* reprend une pièce rangée : table libre ; posée contre le guide, son bout droit juste à gauche de la lame */
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q) return '';
-  if(onTable().length) return 'Libérez d\'abord la table (« Mettre de côté »).';
+  if(onTable().length) aside();   // la table est libérée toute seule : ce qui y était part dans la liste
   q.state='table'; q._f=null; q._m=null; const e=extent(q); q.tx+=-0.04-e.x1; q.tz+=FENCE_Z-e.z0; build(q); clampPiece(q); return ''; }
 export const produced=()=>pieces.filter(q=>q.gen>0);

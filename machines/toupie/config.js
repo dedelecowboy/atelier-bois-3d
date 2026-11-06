@@ -13,7 +13,7 @@ export default {
   modes: [
     { id: 'libre', label: 'Libre', title: 'Travail au guide libre',
       free: { k: 'Toupillage libre', t: 'Avivé de sapin corroyé 1 000 × 70 × 27, une cale de 220 mm et un frêne au fil incliné',
-        c: 'Choisissez l\'outil (moteur arrêté, arbre verrouillé), la vitesse, la hauteur, la saillie, les demi-guides, les lamelles et les presseurs, puis « Passer la pièce ». La pièce sortie : « Ramener la pièce » pour une autre passe, « Mettre de côté » pour la ranger ; « Reprendre » une pièce de « Pièces débitées ». Le profil obtenu s\'affiche à droite, en coupe.' } },
+        c: 'Choisissez l\'outil (moteur arrêté, arbre verrouillé), la vitesse, la hauteur, la saillie, les demi-guides, les lamelles et les presseurs, puis « Passer la pièce ». La pièce sortie : « Ramener la pièce » pour une autre passe, « Ranger comme pièce » pour la ranger ; « Reprendre » une pièce de « Pièces débitées ». Le profil obtenu s\'affiche à droite, en coupe.' } },
     { id: 'quart', label: 'Quart de rond', title: 'Quart de rond R 10 sur une traverse corroyée' },
     { id: 'feuillure', label: 'Feuillure', title: 'Feuillure 12 × 15 en deux passes' },
     { id: 'serie', label: 'Série', title: 'Série de baguettes moulurées, machine et lot à contrôler' },

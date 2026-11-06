@@ -18,7 +18,7 @@ import { st, lame, voie, rmin, dents, rimPos, rimOk, wide, tensionOk, ctx, $ } f
 import { BLADES, bladeById, rmin as rminOf, toothH } from './lame.js';
 import { buildModel } from './model.js';
 import { initPieces, pieces, cut, onTable, cur, extent, measure, label, fmt, feedMode, feedStep, backStep, finishCut, inCurve, build, place,
-  toTrace, toFence, toGab, toMiter, setChant, nudge, chutes, nearBlade, distToBlade, woodAt, evacuate, aside, reject, setKeep, setKind, take, traceDist, toLocal } from './piece.js';
+  turn, toTrace, toFence, toGab, toMiter, setChant, nudge, chutes, nearBlade, distToBlade, woodAt, evacuate, aside, range, reject, setKeep, setKind, take, traceDist, toLocal } from './piece.js';
 import { computeAlerts, motorBlock, feedBlock, drift, remaining, broken, guideIssues, guidesOk, protOk } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria, ev, startGap } from './scenarios.js';
 
@@ -54,6 +54,9 @@ function syncBlade(){ const k=(broken.on?'X':'')+st.blade+'|'+st.inv; if(k===bla
 
 /* ---------- schéma : guide-lame vu de dessus (jeux exagérés), lame sur le bandage ; protecteur vu de côté ---------- */
 let guideKey='';
+/* galets de guidage et position de la lame sur les volants réglés tout seuls à la lame montée (demandé par l'enseignant le 06/11/2026) ; le schéma reste visible */
+function autoReglage(){ const b=lame(); if(!b) return; st.gL=st.gLi=0.2; st.gF=st.gFi=dents()+2.5; st.gB=st.gBi=b.w+1; st.posOk=true;
+  if(!rimOk()) for(let n=0;n<=16;n++) for(const v of [n,-n]){ st.dev=st.posDev=v; if(rimOk()) return; } }
 function drawGuide(){ const b=lame(), r=rimPos(), key=JSON.stringify([st.blade,st.inv,st.gL,st.gF,st.gB,st.posDev,st.posOk,st.dev]); if(key===guideKey) return; guideKey=key;
   let g='';
   if(!b){ $('guideSvg').innerHTML='<text x="150" y="70" text-anchor="middle" font-size="11" fill="var(--muted)">aucune lame montée</text>'; return; }
@@ -123,13 +126,13 @@ function drawPlan(force){ const p=cur(), t=onTable(), b=lame(); const now=perfor
 /* ---------- pièces débitées ---------- */
 let debitKey='';
 const KIND={ piece:'Pièce', chute:'Chute', rond:'À scier', gabarit:'Gabarit nécessaire' };
-function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!onTable().length;
+function renderDebit(){ const list=pieces.filter(q=>q.state==='stock'), free=!cut.inWood;
   const key=JSON.stringify([list.map(q=>[q.id,q.kind]),free]); if(key===debitKey) return; debitKey=key;
   const np=list.filter(q=>q.kind==='piece').length; $('debitN').textContent=list.length?`${np} pièce${np>1?'s':''} · ${list.length-np} autre${list.length-np>1?'s':''}`:'';
   $('debit').innerHTML= list.length? list.map(q=>`<li data-k="${q.kind}"><div><b>${q.name||'Pièce'}</b> <small>${label(q)} · ${KIND[q.kind]||q.kind}</small></div>
-        <div class="d-act">${q.kind==='piece'||q.kind==='chute'?`<button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button>`:''}<button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="Libérez d\'abord la table"'}>Reprendre</button></div></li>`).join('')
+        <div class="d-act">${q.kind==='piece'||q.kind==='chute'?`<button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='piece'}">${q.kind==='piece'?'Pièce':'Chute'}</button>`:''}<button class="toggle mini" type="button" data-take="${q.id}" ${free?'':'disabled title="La lame est dans la pièce"'}>Reprendre</button></div></li>`).join('')
     : '<li class="debit-empty">Les pièces évacuées ou mises de côté apparaissent ici.</li>';
-  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(cut.inWood) return say('La lame est dans la pièce : finissez la coupe.'); const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
+  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(cut.inWood) return say('La lame est dans la pièce : finissez la coupe.'); if(spin()>0.02&&onTable().some(nearBlade)){ app.recordDangers([['danger',CHUTE_FAULT]]); return say('Refusé : '+CHUTE_FAULT,'danger'); } const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; renderDebit(); }); }
 
 /* ---------- mains et poussoir (repère de la table) ---------- */
@@ -151,7 +154,7 @@ function handsPose(){ const p=cur(); if(!p) return { hands:[], pouss:null }; con
   return { hands:[{x:xm,z:zt+0.10,y:Math.min(y,0.06),bad},left], pouss:null, gab:null }; }
 
 /* ---------- mise à jour complète ---------- */
-function update(){
+function update(){ autoReglage();
   syncBlade();
   const b=lame(), H=handsPose();
   model.update({ hg:st.hg, tilt:st.tilt, fence:st.fence, fx:(voie()/2+st.fx)/1000, mitOn:st.mitOn, mit:st.mit, serv:st.serv, doors:st.doors, cad:st.cad, main:st.main, au:st.au, ten:st.ten,
@@ -208,11 +211,11 @@ $('exam').onclick=()=>{ const b=bladeById($('bladeSel').value); if(!b) return;
 $('flip').onclick=()=>{ if(st.blade){ if(!bladeGuard()) return; if(st.ten>2) return say('Détendez d\'abord la lame pour la retourner.'); st.inv=!st.inv; st.posOk=false; info(`Lame retournée : dents ${st.inv?'vers le haut':'vers le bas'}.`+gloveTip()); return; }
   const id=$('bladeSel').value; rackInv[id]=!rackInv[id]; info(`Lame ${bladeById(id).n} retournée : montée ainsi, dents ${rackInv[id]?'vers le haut':'vers le bas'}.`); };
 $('unmount').onclick=()=>{ if(!st.blade) return say('Aucune lame montée.'); if(!bladeGuard()) return;
-  if(st.ten>2) return say('Détendez d\'abord la lame (volant de tension jusqu\'à 0).');
+  st.ten=0;   // la lame se détend en la démontant (simplifié, demandé par l'enseignant le 06/11/2026)
   const was=lame(); rackInv[was.id]=st.inv; st.blade=null; st.inv=false; st.posOk=false; ev.demonte=true; broken.on=false; info(`Lame de ${was.w} mm démontée et rangée.`+gloveTip()); };
 $('mount').onclick=()=>{ if(st.blade) return say('Démontez d\'abord la lame en place.'); if(!bladeGuard()) return;
   const id=$('bladeSel').value; st.blade=id; st.inv=!!rackInv[id]; st.ten=0; st.posOk=false;
-  info(`Lame ${bladeById(id).n} montée sur les volants, dents ${st.inv?'VERS LE HAUT':'vers le bas'}. Tendez-la, tournez le volant à la main, réglez les guide-lames.`+gloveTip()); };
+  info(`Lame ${bladeById(id).n} montée sur les volants, dents ${st.inv?'VERS LE HAUT':'vers le bas'}. Tendez-la : les galets et la position sur les volants se règlent seuls.`+gloveTip()); };
 function setTen(v){ if(!settingGuard()) return; if(!st.blade) return say('Aucune lame montée.'); st.ten=v; apply(); }
 $('ten').addEventListener('input',e=>setTen(+e.target.value)); $('ten-n').addEventListener('change',e=>setTen(num($('ten'),e.target.value)));
 function setDev(d){ if(!settingGuard()) return; st.dev=Math.max(-DEV_MAX,Math.min(DEV_MAX,st.dev+d)); st.posOk=false; F.msg=''; apply(); }
@@ -237,13 +240,13 @@ $('quick').onclick=()=>{ if(spin()>0.02||st.motor) return say('Arrêtez la lame 
   info(`Lame changée${was?` (${was.w} mm démontée)`:''} : ${b.n}, dents vers le bas. Procédure faite pour vous : consigner (sectionneur sur 0, cadenas, gants), ouvrir les portes, détendre et démonter, monter, tendre sur ${b.w}, tourner le volant à la main (${b.w>=20?'dents hors du bandage':'lame au milieu du bandage'}), guide-lames (galets à 0,2 mm, avant à ${fmt(g.F)} mm, galet arrière à ${fmt(g.B)} mm), fermer, déconsigner.`); };
 $('gCopy').onclick=()=>{ if(!settingGuard()) return; st.gLi=st.gL; st.gFi=st.gF; st.gBi=st.gB; info('Guide-lame inférieur réglé comme le supérieur.'); };
 $('aide').onclick=()=>{ pilot.on=!pilot.on; pilot.aide=pilot.on; pilot.off=0.5; if(!pilot.on) st.steer=0;
-  info(pilot.on? 'Aide au suivi du trait : la pièce tourne seule pour suivre le trait. Gérez l\'avance (« Avance », vitesse lente dans les courbes) et arrêtez à la fin. Pas d\'aide dans le parcours noté.' : 'Aide au suivi du trait arrêtée : ↺ ↻ (ou les flèches) pour suivre le trait.'); };
+  info(pilot.on? 'Aide au suivi du trait : la pièce tourne seule pour suivre le trait. Gérez l\'avance (« Avance », vitesse lente dans les courbes) et arrêtez à la fin.' : 'Aide au suivi du trait arrêtée : ↺ ↻ (ou les flèches) pour suivre le trait.'); };
 /* boutons de la pièce utiles dans chaque exercice (tous en mode libre) */
-const OPS_OF={ chant:['trace','evac','pchute','aside','xm1','xp1','zm10','zp10','reset'], refente:['fence','chant','gab','reject','evac','pchute','aside','zm10','zp10','reset'] };
+const OPS_OF={ chant:['trace','evac','pchute','aside','rangeP','rangeC','xm1','xp1','zm10','zp10','reset'], refente:['fence','chant','gab','reject','evac','pchute','aside','rangeP','rangeC','zm10','zp10','reset'] };
 function syncTools(){ const m=app.ex?.mode||'libre', ui=$('app')?.dataset.ui, list=OPS_OF[m];
   document.querySelectorAll('#tools [data-op], #nudge [data-op]').forEach(b=>{ b.hidden= !!list && !list.includes(b.dataset.op); });
   $('quick').hidden= m==='lame';
-  const aideOk= ui==='ex' && m==='chant'; $('aideRow').hidden=!aideOk; if(!aideOk&&pilot.aide){ pilot.on=pilot.aide=false; st.steer=0; }
+  const aideOk= (ui==='ex'||ui==='parcours') && m==='chant'; $('aideRow').hidden=!aideOk; if(!aideOk&&pilot.aide){ pilot.on=pilot.aide=false; st.steer=0; }
   $('aide').setAttribute('aria-pressed',String(pilot.on)); }
 for(const k of ['gL','gF','gB','gLi','gFi','gBi','hg','tilt']){
   const fn=v=>{ if(!settingGuard()) return; if(k==='tilt'&&cut.inWood) return say('La lame est dans la pièce.'); st[k]=v; apply(); };
@@ -277,9 +280,15 @@ function startFeed(){ const p=cur(), why=feedBlock(spin()); if(why){ say(why); r
   app.recordDangers(); st.feed=true; F.msg=''; app.ex.invalidate(); apply(); return true; }
 const hold=(id,on,off)=>{ const b=$(id); b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.setAttribute('aria-pressed','true'); on(); });
   for(const ev_ of ['pointerup','pointerleave','pointercancel']) b.addEventListener(ev_,()=>{ b.setAttribute('aria-pressed','false'); off(); }); };
-hold('left',()=>st.steer=-1,()=>st.steer=0); hold('right',()=>st.steer=1,()=>st.steer=0);
+/* ↺ ↻ : pendant l'avance, la pièce tourne en avançant ; à l'arrêt, lame hors du bois, elle tourne sur place autour du point de coupe */
+let restOn=false;
+function restTurn(){ if(!st.steer){ restOn=false; return; } const p=cur();
+  if(p&&!st.feed&&!cut.inWood&&feedMode(p)==='free'&&!pilot.on){ turn(p,st.steer*1.5); stage.dirty?.(); planKey=''; apply(); }
+  requestAnimationFrame(restTurn); }
+const steerTo=v=>{ st.steer=v; const p=cur(); if(p&&!st.feed&&!cut.inWood&&feedMode(p)!=='free') info('La pièce suit le guide : elle ne tourne qu\'à main levée.'); if(p&&cut.inWood&&!st.feed) info('La lame est dans le bois : la pièce ne tourne qu\'en avançant.'); if(!restOn){ restOn=true; requestAnimationFrame(restTurn); } };
+hold('left',()=>steerTo(-1),()=>st.steer=0); hold('right',()=>steerTo(1),()=>st.steer=0);
 let backing=false; hold('back',()=>{ backing=true; },()=>{ backing=false; });
-addEventListener('keydown',e=>{ if(e.target.closest?.('input,select,textarea')) return; if(e.key==='ArrowLeft'){ st.steer=-1; e.preventDefault(); } if(e.key==='ArrowRight'){ st.steer=1; e.preventDefault(); } });
+addEventListener('keydown',e=>{ if(e.target.closest?.('input,select,textarea')) return; if(e.key==='ArrowLeft'){ steerTo(-1); e.preventDefault(); } if(e.key==='ArrowRight'){ steerTo(1); e.preventDefault(); } });
 addEventListener('keyup',e=>{ if(e.key==='ArrowLeft'||e.key==='ArrowRight') st.steer=0; });
 
 /* ---------- avance de la pièce : pas de 1 mm, trait de scie, fautes graves, fin de passe ---------- */
@@ -316,8 +325,12 @@ function back(mm){ const p=cur(); if(!p) return;
 const CHUTE_FAULT='CHUTE DÉGAGÉE À LA MAIN LAME EN MOUVEMENT : une chute contre la lame ne se prend qu\'à l\'arrêt complet, ou se dégage au poussoir.';
 function doOp(op){ const p=cur(), t=onTable();
   if(op==='reset'){ app.ex.setMode(app.ex.mode); return; }
-  if(op==='pchute'){ const c=chutes(); if(!c.length) return info('Pas de chute sur la table.'); evacuate(); info('Chutes dégagées au poussoir et retirées de la table.'); debitKey=''; return; }
+  if(op==='pchute'){ const c=chutes(); if(c.length){ evacuate(); info('Chutes dégagées au poussoir et rangées dans « Pièces débitées ».'); debitKey=''; return; }
+    if(!t.length) return info('Rien à dégager : la table est libre.'); if(st.feed||cut.inWood) return say('La lame est dans la pièce : finissez la coupe (ou arrêtez la lame et reculez la pièce).');
+    aside(); info('Pièce dégagée au poussoir et rangée dans « Pièces débitées ».'); debitKey=''; return; }
   if(st.feed||cut.inWood) return say('La lame est dans la pièce : finissez la coupe (ou arrêtez la lame et reculez la pièce).');
+  if(op==='rangeP'||op==='rangeC'){ if(spin()>0.02&&p&&nearBlade(p)){ app.recordDangers([['danger',CHUTE_FAULT]]); return say('Refusé : '+CHUTE_FAULT,'danger'); }
+    const why=range(op==='rangeP'?'piece':'chute'); if(why) return say(why,'info'); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='evac'||op==='aside'){ const hand=op==='evac'? chutes() : t;
     if(spin()>0.02 && hand.some(nearBlade)){ app.recordDangers([['danger',CHUTE_FAULT]]); return say('Refusé : '+CHUTE_FAULT,'danger'); }
     const why= op==='evac'? evacuate() : aside(); if(why) return say(why,'info'); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }

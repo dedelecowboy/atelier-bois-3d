@@ -194,7 +194,7 @@ function passMsg(q,R){ const m=[];
     if(R.tear) m.push('Arrachements : la pièce est passée contre le fil. Lisez le fil avant d\'usiner (depuis la face usinée, les fibres doivent entrer dans la pièce vers le bout qui passe en premier).');
     if(R.snipe>0) m.push(`Entaille en fin de passe (${fmt(R.snipe)} mm) : toute la rive est usinée et le demi-guide de sortie n'est pas avancé de la profondeur de passe (${fmt(R.eNeed)} mm). La pièce n'est plus soutenue après l'outil.`);
     if(climbing()) m.push('Travail en avalant : dans la réalité, la pièce est arrachée des mains et projetée, les mains sont entraînées vers l\'outil.'); }
-  return m.join(' ')+' La pièce est à la sortie : « Ramener la pièce » pour une autre passe, ou « Mettre de côté ».'; }
+  return m.join(' ')+' La pièce est à la sortie : « Ramener la pièce » pour une autre passe, ou « Ranger comme pièce ».'; }
 function endPass(msgs){ cut.inProgress=false; cut.mover=null; cut.passes++; cut.lastMsg=msgs.join(' '); cut.msgSeq++; refreshMeshes(); }
 
 /* ---------- manipulations ---------- */
@@ -209,8 +209,9 @@ export function release(){ const q=butePiece(); if(!q) return 'Aucune pièce arr
 /* range la pièce en main (entrée, sinon sortie) dans « Pièces débitées » */
 export function aside(){ const q=entryPiece()||selPiece(); if(!q) return 'Aucune pièce sur la machine.'; toStock(q); placeAll(); refreshMeshes(); return ''; }
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cut.inProgress) return '';
-  if(entryPiece()) return 'Une pièce est déjà à l\'entrée : passez-la, ou mettez-la de côté avant d\'en reprendre une autre.';
   if(butePiece()) return 'Dégagez d\'abord la pièce arrêtée contre le demi-guide de sortie.';
+  if(entryPiece()) aside();   // l'entrée est libérée toute seule : ce qui y était part dans la liste
   q.state='entry'; q.x=LEAD0; build(q); return ''; }
+export function range(kind){ const q=entryPiece()||selPiece(); if(!q) return 'Aucune pièce sur la machine.'; q.kind=kind; toStock(q); placeAll(); refreshMeshes(); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'interdite':'piece'; }
 export function orient(q,op){ if(op==='rot') q.k+=1; else if(op==='flip') q.k+=2; else if(op==='end') q.flip=!q.flip; build(q); }

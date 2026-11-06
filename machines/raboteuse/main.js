@@ -17,7 +17,7 @@ import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { initPieces, pieces, cut, entryPieces, exitPieces, stuckPieces, onMachine, selPiece, keepPiece, startPass, tickPass, topAt, placeAll,
-  measure, faceState, pressedH, passDepth, sr1, sr2, setSel, bringBack, aside, take, setKind, orient, pullOut, fmt, dims, FACE_NAME } from './piece.js';
+  measure, faceState, pressedH, passDepth, sr1, sr2, setSel, bringBack, aside, range, take, setKind, orient, pullOut, fmt, dims, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, wavePitch, HANDS } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
 
@@ -120,10 +120,12 @@ function doOp(op){
       if(st.H<pressedH(s)+1) return say('La pièce est encore serrée par les rouleaux : descendez la table (cote plus grande que la pièce d\'au moins 1 mm), puis ressortez-la.');
       pullOut(s); F.level='info'; F.msg=`Pièce ressortie par l'entrée. Elle est trop courte pour la raboteuse (${s.L} mm) : mettez-la de côté.`; app.ex.invalidate(); apply(); return; }
     const why=bringBack(); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); return; }
+  if(op==='rangeP'||op==='rangeC'){ if(stuckPieces().length) return say('Une pièce est coincée : ressortez-la d\'abord (machine arrêtée, table descendue, « Ramener la pièce »).');
+    const why=range(op==='rangeP'?'piece':'retour'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ if(stuckPieces().length) return say('Une pièce est coincée : ressortez-la d\'abord (machine arrêtée, table descendue, « Ramener la pièce »).');
     const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   const q=selPiece();
-  if(!q||q.state!=='entry') return say(exitPieces().length? 'La pièce est sur le capot : « Ramener la pièce » pour la poser sur la table d\'entrée, ou « Mettre de côté ».' : 'Pas de pièce sur la table d\'entrée : « Reprendre » une pièce dans « Pièces débitées ».');
+  if(!q||q.state!=='entry') return say(exitPieces().length? 'La pièce est sur le capot : « Ramener la pièce » pour la poser sur la table d\'entrée, ou « Ranger comme pièce ».' : 'Pas de pièce sur la table d\'entrée : « Reprendre » une pièce dans « Pièces débitées ».');
   orient(q,op); F.msg=''; app.ex.invalidate(); apply(); }
 document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
 /* présentation : remettre la pièce de départ à l'entrée (machine arrêtée) */
@@ -140,7 +142,7 @@ $('motor').onclick=()=>{
   st.motor=true; F.msg=''; apply(); };
 $('feed').onclick=()=>{ if(!st.feed && !st.motor) return say('Démarrez d\'abord le moteur de l\'arbre : l\'avance ne se met en marche que lames en rotation.'); st.feed=!st.feed; apply(); };
 $('asp').onclick=()=>{ st.asp=!st.asp; apply(); };
-$('capot').onclick=()=>{ if(!st.capot && exitPieces().length) return say('Des pièces sont posées sur le capot : rangez-les (« Mettre de côté ») ou ramenez-les à l\'entrée avant de l\'ouvrir.');
+$('capot').onclick=()=>{ if(!st.capot && exitPieces().length) return say('Des pièces sont posées sur le capot : rangez-les (« Ranger comme pièce ») ou ramenez-les à l\'entrée avant de l\'ouvrir.');
   if(!st.capot && (st.motor||model.spin>0.03)) return say('Arrêtez le moteur et attendez l\'arrêt complet de l\'arbre : le capot reste verrouillé tant qu\'il tourne.');
   if(cut.inProgress) return; st.capot=!st.capot; F.level='info'; F.msg= st.capot? 'Capot ouvert : arbre, rouleaux, presseurs et linguets visibles. Le moteur ne peut pas démarrer capot ouvert.' : ''; app.ex.invalidate(); apply(); };
 $('pass').onclick=()=>{ if(cut.inProgress) return;

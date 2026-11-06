@@ -180,7 +180,7 @@ function endPass(){ const done=cut.movers.filter(q=>q.state==='exit'); cut.inPro
   if(done.length){ cut.keep=done[0].id; for(const q of exitPieces()) build(q); }
   const parts=done.map(q=>{ const m=measure(q); return `${q.name.toLowerCase()} : ${fmt(m.T)} × ${fmt(m.W)} mm`; });
   const extra=done.flatMap(q=>q.doneMsgs||[]); const stuck=cut.movers.filter(q=>q.state==='stuck');
-  if(done.length){ cut.lastMsg=`Passe terminée (${parts.join(' ; ')}).`+(extra.length?' '+extra.join(' '):'')+(done.length>1?' Pièce en main : contour orange (cliquez une autre pièce pour la prendre).':'')+' L\'aide en sortie l\'a reposée sur le capot : « Ramener la pièce » pour une nouvelle passe, ou « Mettre de côté ».'; cut.msgSeq++; } cut.movers=[]; refreshMeshes(); }
+  if(done.length){ cut.lastMsg=`Passe terminée (${parts.join(' ; ')}).`+(extra.length?' '+extra.join(' '):'')+(done.length>1?' Pièce en main : contour orange (cliquez une autre pièce pour la prendre).':'')+' L\'aide en sortie l\'a reposée sur le capot : « Ramener la pièce » pour une nouvelle passe, ou « Ranger comme pièce ».'; cut.msgSeq++; } cut.movers=[]; refreshMeshes(); }
 
 /* ---------- manipulations ---------- */
 export function setSel(id){ const q=pieces.find(x=>x.id===id); if(!q||!(q.state==='entry'||q.state==='exit')) return false; cut.sel=id; if(q.state==='exit') cut.keep=id; placeAll(); return true; }
@@ -198,6 +198,8 @@ export function aside(){ const s=pieces.find(q=>q.id===cut.sel&&q.state==='entry
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cut.inProgress) return '';
   const z=freeZ(q); if(z===null) return 'Plus de place sur la table d\'entrée : mettez une pièce de côté.';
   q.state='entry'; q.x=LEAD0; q.z=z; cut.sel=q.id; build(q); placeAll(); return ''; }
+/* range la pièce en main (contour orange) ; les autres restent sur la machine */
+export function range(kind){ const s=pieces.find(q=>q.id===cut.sel&&q.state==='entry')||selPiece(); if(!s) return 'Aucune pièce sur la machine.'; s.kind=kind; toStock(s); cut.keep=null; placeAll(); refreshMeshes(); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'retour':'piece'; }
 /* orientation de la pièce en main (table d'entrée) ; la pièce reste à sa place en travers si elle tient */
 export function orient(q,op){ if(op==='rot') q.k+=1; else if(op==='flip') q.k+=2; else if(op==='end') q.flip=!q.flip;

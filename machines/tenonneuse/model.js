@@ -43,7 +43,7 @@ export function buildModel({ root, tagPart, partMeshes }){
     const g=new THREE.ExtrudeGeometry(s,{depth:X1-CAP_X1,bevelEnabled:false}); g.rotateY(-Math.PI/2); add(bati,new THREE.Mesh(g,WHITE),X1,0,0); }
   const kanak=(col)=>(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='rgba(255,255,255,.95)'; g.fillRect(0,0,w,h); g.fillStyle='#f2c200'; g.beginPath(); g.moveTo(w*0.36,h*0.08); g.lineTo(w*0.46,h*0.08); g.lineTo(w*0.41,h*0.42); g.fill();
     g.font=`italic 700 ${h*0.58}px "Barlow Condensed","Arial Narrow",sans-serif`; g.fillStyle=col; g.fillText('KANAK',w*0.06,h*0.66); g.font=`${h*0.2}px sans-serif`; g.fillStyle='#333'; g.fillText('Tenonneuse 160 TN',w*0.08,h*0.92); };
-  label(bati,0.26,0.10,kanak('#1d3a6e'),[X0+0.22,0.53,ZF+0.003]);
+  label(bati,0.34,0.13,kanak('#1d3a6e'),[X1+0.002,1.14,-0.46],[0,Math.PI/2,0]);          // sur le flanc du capot fixe, visible de l'opérateur (le chariot cachait le bâti)
   label(bati,0.14,0.06,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='rgba(255,255,255,.92)'; g.fillRect(0,0,w,h); g.font=`700 ${h*0.7}px "Barlow Condensed",sans-serif`; g.fillStyle='#2a2f34'; g.fillText('160 TN',w*0.12,h*0.76); },[X1-0.30,0.53,ZF+0.003]);
   label(bati,0.22,0.12,(g,w,h)=>{ g.fillStyle='#d4d7da'; g.fillRect(0,0,w,h); g.fillStyle='#1b2228'; g.font='italic 700 100px "Barlow Condensed",sans-serif'; g.fillText('KANAK',30,110);
     g.font='40px sans-serif'; g.fillText('Tenonneuse simple 160 TN',30,200); g.fillText('scie 3 000 · dérouleurs 6 000 tr/min',30,262); g.fillText('toupillage 6 000 tr/min · tenon 150 max.',30,324); g.fillText('400 V · 3 × 2,2 kW + 1,5 kW',30,386); },[X0-0.001,0.55,-0.45],[0,-Math.PI/2,0]);
@@ -249,10 +249,12 @@ export function buildModel({ root, tagPart, partMeshes }){
 
   /* ---------- Filin de sécurité et boîtier sectionneur ---------- */
   const fil=new THREE.Group(); root.add(fil);
-  add(fil, cyl(0.004,X1-X0+0.05,new THREE.MeshStandardMaterial({color:0xd8261c,roughness:0.5}),8,'x'), (X0+X1)/2,0.76,ZF+0.035);
-  for(const x of [X0+0.02,-0.6,0.0]) add(fil, rbox(0.01,0.03,0.04,M.steel,0.002), x,0.76,ZF+0.02);
+  /* devant toute la course du chariot, côté opérateur, sur de petits poteaux : hors de la machine et de la zone des outils (demandé par l'enseignant le 06/11/2026) */
+  const FX0=-2.0, FX1=0.95, FY=0.62, FZ=0.92;
+  add(fil, cyl(0.005,FX1-FX0,new THREE.MeshStandardMaterial({color:0xd8261c,roughness:0.5}),8,'x'), (FX0+FX1)/2,FY,FZ);
+  for(const x of [FX0,-1.0,0.0,FX1]){ add(fil, rbox(0.03,FY,0.03,M.dark,0.003), x,FY/2,FZ+0.03); add(fil, rbox(0.03,0.02,0.05,M.steel,0.002), x,FY,FZ+0.012); }
   tagPart(fil,'filin');
-  const boit=new THREE.Group(); boit.position.set(X1+0.06,0.76,ZF+0.03); root.add(boit);
+  const boit=new THREE.Group(); boit.position.set(FX1+0.05,FY,FZ); root.add(boit);
   add(boit, rbox(0.08,0.07,0.06,RED,0.008), 0,0,0); add(boit, rbox(0.05,0.07,0.05,M.dark,0.006), 0.07,0,0);
   const blue=cyl(0.011,0.025,new THREE.MeshStandardMaterial({color:0x2456c8,roughness:0.4}),18,'x'); blue.position.set(0.11,0,0); boit.add(blue);
   const greenR=cyl(0.012,0.006,new THREE.MeshStandardMaterial({color:0x2fbf4f,roughness:0.4}),18,'x'); greenR.position.set(0.098,0,0); boit.add(greenR);

@@ -17,7 +17,7 @@ import { libFor, toolById, marking, speedCheck, edgesOk } from './tools.js';
 import { buildModel } from './model.js';
 import * as C from '../../engine/corroyage.js';
 import { bruitCoupe } from './piece.js';
-import { initPieces, pieces, cut, chariotPiece, atHome, startPass, tickPass, returnChariot, placeAll, pieceTop, aside, take, setKind, orient,
+import { initPieces, pieces, cut, chariotPiece, atHome, startPass, tickPass, returnChariot, placeAll, pieceTop, aside, range, take, setKind, orient,
   setZ, zContact, overhang, endInfo, peKey, peRenew, fromFace, lenFace, betweenShoulders, vmap, predict, newPiece, H, D, fmt, dims, sr1, sr2, endName, FACE_NAME } from './piece.js';
 import { computeAlerts, passBlock, prediction, CHARGE, INTERV, spinning } from './rules.js';
 import { STEPS, LOADERS, SCENS, scenCriteria } from './scenarios.js';
@@ -103,7 +103,7 @@ function renderDebit(){ const list=pieces.filter(q=>q.state==='stock');
       return `<li data-k="${q.kind}"><div><b>${q.name} · ${dims(q)}</b> <small>${ends.length? 'usinée au bout '+ends.join(' et ') : 'bouts bruts'}${cut.chutes&&q===list[0]?'':''}</small></div>
         <div class="d-act"><button class="toggle mini" type="button" data-kind="${q.id}" aria-pressed="${q.kind==='interdite'}" title="Pièce à ne pas usiner à la tenonneuse (trop courte ou trop étroite)">${q.kind==='interdite'?'Pas à la tenonneuse':'Pièce'}</button><button class="toggle mini" type="button" data-take="${q.id}" ${cut.inProgress?'disabled':''}>Reprendre</button></div></li>`; }).join('')
     : '<li class="debit-empty">Les pièces du lot en attente et les pièces mises de côté apparaissent ici.</li>';
-  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(!loadGuard()) return; const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
+  document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{ if(!loadGuard()) return; if(st.presse) return say('Desserrez d\'abord la presse.'); const why=take(+b.dataset.take); if(why) return say(why); F.msg=''; app.ex.invalidate(); apply(); });
   document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ setKind(+b.dataset.kind); debitKey=''; app.ex.invalidate(); apply(); }); }
 function renderExtra(){ renderProfile(); renderDebit(); renderSvg(); }
 
@@ -268,6 +268,7 @@ function doOp(op){
   const q=chariotPiece();
   if(!q) return say('Pas de pièce sur le chariot : « Reprendre » une pièce dans « Pièces débitées ».');
   if(st.presse) return say('Desserrez d\'abord la presse.');
+  if(op==='rangeP'||op==='rangeC'){ const why=range(op==='rangeP'?'piece':'interdite'); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='aside'){ const why=aside(); if(why) return say(why); F.msg=''; debitKey=''; app.ex.invalidate(); apply(); return; }
   if(op==='butee'){ if(!st.butOn) return say('Butée relevée : abaissez-la d\'abord (outils arrêtés).'); q.zEnd=zContact(q); F.msg=''; apply(); return; }
   orient(q,op); F.msg=''; app.ex.invalidate(); apply(); }

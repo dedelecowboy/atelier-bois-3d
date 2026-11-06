@@ -249,15 +249,17 @@ export function place(q){ if(q.group){ q.group.position.set(q.tx/1000,0,q.tz/100
 /* ---------- pièces sur la table ---------- */
 export function setKeep(id){ const t=onTable(); if(t.length<2||!t.some(q=>q.id===id)) return false; cut.keep=id; for(const q of t) build(q); return true; }
 export const chutes=()=>{ const k=keepPiece(); return onTable().filter(q=>q!==k); };
-export function evacuate(){ const k=keepPiece(), t=onTable(); if(t.length<2) return 'Une seule pièce sur la table : rien à évacuer. « Mettre de côté » pour la ranger.';
+export function evacuate(){ const k=keepPiece(), t=onTable(); if(t.length<2) return 'Une seule pièce sur la table : rien à évacuer. « Ranger comme pièce » pour la ranger.';
   for(const q of t) if(q!==k) toStock(q,'chute'); cut.keep=null; if(k) build(k); return ''; }
 function toStock(q,kind){ q.state='stock'; q.kind= q.kind==='rond'&&q.gen===0? 'rond' : kind; dispose(q); partMeshes.piece=pieces.filter(p=>p.group).flatMap(p=>p.group.children.filter(c=>c.isMesh)); }
 export function aside(){ const t=onTable(); if(!t.length) return 'Aucune pièce sur la table.'; for(const q of t) toStock(q,'piece'); cut.keep=null; return ''; }
+/* range la pièce sélectionnée (contour orange) ; les autres restent sur la table */
+export function range(kind){ const q=cur(); if(!q) return 'Aucune pièce sur la table.'; toStock(q,kind); cut.keep=null; for(const o of onTable()) build(o); return ''; }
 /* pièce ronde écartée : à scier dans un gabarit */
 export function reject(){ const q=cur(); if(!q) return 'Aucune pièce sur la table.'; toStock(q,'gabarit'); q.kind='gabarit'; return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q&&q.kind!=='rond'&&q.kind!=='gabarit') q.kind=q.kind==='piece'?'chute':'piece'; }
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q) return '';
-  if(onTable().length) return 'Libérez d\'abord la table (« Mettre de côté »).';
+  if(onTable().length) aside();   // la table est libérée toute seule : ce qui y était part dans la liste
   q.state='table'; q.gab=false; parkFront(q); build(q); return ''; }
 export const produced=()=>pieces.filter(q=>q.gen>0);
 /* encore sur la table (zone de la table) ? */

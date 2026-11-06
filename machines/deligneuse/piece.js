@@ -187,7 +187,7 @@ export function load(p=cur()){ if(!p) return 0; const n=bladesIn(p); if(!n) retu
 export const againstGuide=p=>!!p && st.guideUp && Math.abs(p.zPos-guideZ())<0.0008;
 export function startPass(blockWhy){ const p=entry(); cut.blocked='';
   if(cut.inProgress) return '';
-  if(exitPieces().length) return 'Dégagez d\'abord la sortie : « Évacuer les chutes » puis « Ramener la pièce », ou « Mettre de côté ».';
+  if(exitPieces().length) return 'Dégagez d\'abord la sortie : « Ranger comme chute » puis « Ramener la pièce », ou « Ranger comme pièce ».';
   if(!p) return 'Pas de pièce à l\'entrée : « Ramener la pièce », « Reprendre » dans « Pièces débitées », ou « Nouvelle pièce ».';
   const why=blockWhy(p); if(why) return why;
   cut.maxLoad=Math.max(cut.maxLoad,load(p));
@@ -210,7 +210,7 @@ export function tickPass(now){ const dt=Math.min(0.5,now-(cut.tPrev??now)); cut.
     const keep=(useful.length?useful:ms).slice().sort((a,b)=>b.m.Wmax-a.m.Wmax)[0];
     cut.keep=keep?keep.q.id:null; for(const q of cut.outs) build(q);
     cut.lastMsg=`Passe terminée : ${ms.length} pièce${ms.length>1?'s':''} sortie${ms.length>1?'s':''} (${ms.map(o=>label(o.m)).join(' ; ')}).`
-      + (ms.length>1? ` Pièce gardée : ${label(keep.m)} (contour orange) ; cliquez une autre pièce pour la garder. « Évacuer les chutes », puis « Ramener la pièce » pour une nouvelle passe, ou « Mettre de côté ».` : ' « Ramener la pièce » pour une nouvelle passe, ou « Mettre de côté ».');
+      + (ms.length>1? ` Pièce gardée : ${label(keep.m)} (contour orange) ; cliquez une autre pièce pour la garder. « Ranger comme chute », puis « Ramener la pièce » pour une nouvelle passe, ou « Ranger comme pièce ».` : ' « Ramener la pièce » pour une nouvelle passe, ou « Ranger comme pièce ».');
     cut.msgSeq++; cut.src=null; cut.outs=[]; partMeshes.piece=pieces.filter(q=>q.group).map(q=>q.mesh); }
   return d; }
 /* largeur affichée : sans flache pour un avivé, encombrement pour une délignure ou une pièce en flache */
@@ -225,17 +225,19 @@ export function setKeep(id){ if(!exitPieces().some(q=>q.id===id)) return false; 
 export function evacuate(){ const k=keepPiece(); for(const q of exitPieces()) if(q!==k) toStock(q,autoKind(q)); if(k) build(k); }
 /* ramène la pièce gardée à l'entrée (la sortie doit être dégagée des autres pièces) */
 export function bringBack(){ const k=keepPiece(); if(!k) return 'Aucune pièce à la sortie.';
-  if(exitPieces().length>1) return 'Évacuez d\'abord les chutes (« Évacuer les chutes ») : seule la pièce gardée (contour orange) est ramenée.';
+  if(exitPieces().length>1) return 'Évacuez d\'abord les chutes (« Ranger comme chute ») : seule la pièce gardée (contour orange) est ramenée.';
   if(entry()) return 'Une pièce est déjà sur la table d\'entrée : mettez-la de côté d\'abord.';
   k.state='entry'; k.role='in'; k.xLead=LEAD0; if(st.guideUp) k.zPos=guideZ(); cut.keep=null; build(k); return ''; }
 /* range la pièce gardée (et les autres pièces sorties), ou la pièce de l'entrée */
 export function aside(){ const ex=exitPieces();
   if(ex.length){ const k=keepPiece(); for(const q of ex) toStock(q, q===k?'piece':autoKind(q)); cut.keep=null; return ''; }
   const e=entry(); if(!e) return 'Aucune pièce sur la machine.'; toStock(e,'piece'); return ''; }
+/* range la pièce sélectionnée (contour orange à la sortie, sinon celle de l'entrée) ; les autres restent sur la machine */
+export function range(kind){ const k=keepPiece()||entry(); if(!k) return 'Aucune pièce sur la machine.'; toStock(k,kind); cut.keep=null; for(const q of exitPieces()) build(q); return ''; }
 export function setKind(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(q) q.kind=q.kind==='piece'?'chute':'piece'; }
 /* reprend une pièce rangée : machine libre (entrée et sortie dégagées) */
 export function take(id){ const q=pieces.find(x=>x.id===id&&x.state==='stock'); if(!q||cut.inProgress) return '';
-  if(entry()||exitPieces().length) return 'Libérez d\'abord la machine : entrée et sortie dégagées (« Mettre de côté »).';
+  if(exitPieces().length) aside(); if(entry()) aside();   // la machine est libérée toute seule : ce qui y était part dans la liste
   q.state='entry'; q.role='in'; q.xLead=LEAD0; if(st.guideUp) q.zPos=guideZ(); build(q); return ''; }
 export function flip(p){ p.flip=!p.flip; build(p); }
 export function endForEnd(p){ p.rev=!p.rev; build(p); }
