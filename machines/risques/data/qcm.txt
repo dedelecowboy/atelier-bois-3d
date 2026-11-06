@@ -85,9 +85,9 @@ Q: L'alarme d'évacuation sonne. Que faites-vous ?
 Q: Où jeter les chiffons imbibés de vernis, d'huile ou de solvant ?
 - Dans la poubelle ordinaire
 - En tas sur l'établi pour les réutiliser
-+ Dans la poubelle métallique à couvercle fermé
++ Humidifiés, dans la poubelle métallique à couvercle fermé
 - Dans le bac à copeaux de l'aspiration
-= Ces chiffons peuvent s'échauffer et s'enflammer seuls. Récipient métallique fermé, vidé chaque jour.
+= Ces chiffons (huile d'imprégnation, vernis, solvant) peuvent s'échauffer et s'enflammer seuls. On les humidifie, puis récipient métallique fermé, vidé chaque jour.
 
 Q: Pourquoi les poussières de bois peuvent-elles exploser ?
 - Elles ne peuvent pas exploser
@@ -150,4 +150,4 @@ Q: Un camarade se blesse à une machine. Quelle est la première chose à faire 
 - Continuer son travail, le professeur s'en occupera
 + Protéger : faire arrêter la machine (arrêt d'urgence) sans se mettre en danger, puis prévenir le professeur
 - Appeler ses parents
-= Protéger, examiner, faire alerter (professeur, 15 ou 18, 112), secourir. À l'appel : qui on est, où, ce qui s'est passé, l'état de la victime ; on ne raccroche pas le premier.
+= Protéger, examiner, faire alerter (professeur, vie scolaire, infirmière, puis 15, 18 ou 112 : dans les Vosges, le même centre, celui du SDIS 88), secourir. À l'appel : qui on est, où, ce qui s'est passé, l'état de la victime ; on ne raccroche pas le premier.

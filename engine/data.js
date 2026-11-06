@@ -150,15 +150,21 @@ export function parseEpi(txt, file = 'epi.txt') {
 }
 
 /* fiches.txt : fiches de la présentation.
-   ## Titre | codes d'équipements montrés dans l'atelier (facultatif, séparés par des virgules)
+   ### Partie | note (facultatif : titre de partie avant la fiche suivante)
+   ## Titre | codes d'équipements montrés dans l'atelier (facultatif, séparés par des virgules) | repère (facultatif)
    paragraphe ; « - » puce ; « > » source */
 export function parseFiches(txt, file = 'fiches.txt') {
-  const out = []; let cur = null;
+  const out = []; let cur = null, sec = null;
   for (const { s, n } of lines(txt)) {
     if (s.startsWith('#') && !s.startsWith('##')) continue;
     if (!s) continue;
-    if (s.startsWith('##')) { const [t, c = ''] = s.slice(2).split('|').map(x => x.trim()); if (!t) fail(file, n, 'titre de fiche vide.');
-      cur = { t, parts: c.split(',').map(x => x.trim()).filter(Boolean), blocks: [], n }; out.push(cur); continue; }
+    if (s.startsWith('###')) { const [t, ...r] = s.slice(3).split('|').map(x => x.trim()); if (!t) fail(file, n, 'titre de partie vide.');
+      sec = { t, note: r.join(' | ') }; continue; }
+    if (s.startsWith('##')) { const [t, c = '', tag = ''] = s.slice(2).split('|').map(x => x.trim()); if (!t) fail(file, n, 'titre de fiche vide.');
+      cur = { t, parts: c.split(',').map(x => x.trim()).filter(Boolean), blocks: [], n };
+      if (tag) cur.tag = tag;
+      if (sec) { cur.sec = sec.t; cur.secNote = sec.note; sec = null; }
+      out.push(cur); continue; }
     if (!cur) fail(file, n, 'chaque fiche commence par une ligne « ## Titre ».');
     if (s.startsWith('- ')) { const last = cur.blocks[cur.blocks.length - 1]; if (last?.ul) last.ul.push(s.slice(2).trim()); else cur.blocks.push({ ul: [s.slice(2).trim()] }); }
     else if (s.startsWith('>')) cur.blocks.push({ src: s.slice(1).trim() });

@@ -37,22 +37,22 @@ Bouton coup de poing rouge sur fond jaune : il coupe l'alimentation de toutes le
 Interrupteur général de la machine, à deux positions : 1 (sous tension) et 0 (séparée du réseau). En position 0, on peut le condamner avec son cadenas personnel : c'est le cœur de la consignation avant toute intervention.
 
 [trousse] 10 Trousse de premiers secours
-Boîte blanche à croix verte : pansements, compresses, gants, couverture de survie. On prévient toujours le professeur, même pour une petite blessure.
+Boîte blanche à croix verte : pansements, compresses, gants, couverture de survie. À côté, la boîte de secours « membre sectionné » de l'atelier (doigt coupé : suivre sa notice). On prévient toujours le professeur, même pour une petite blessure.
 
 [lave_oeil] 11 Lave-œil
 Flacons d'eau stérile pour rincer immédiatement un œil touché par un produit ou une poussière, puis prévenir le professeur.
 
 [affiche_urgence] 12 Affiche des numéros d'urgence
-15 SAMU, 18 pompiers, 112 numéro d'urgence européen, 114 par SMS (personnes sourdes ou malentendantes), et le numéro de l'infirmerie du lycée.
+D'abord prévenir le professeur, la vie scolaire (surveillant) et l'infirmière du lycée ; puis les secours : 15 SAMU, 18 pompiers, 112 numéro d'urgence européen (dans les Vosges, ces trois numéros arrivent au même centre, celui du SDIS 88), 114 par SMS (personnes sourdes ou malentendantes).
 
 [armoire_produits] 13 Armoire de sécurité des produits
 Armoire jaune ventilée pour les produits inflammables (vernis, solvants, colles) : produits fermés et étiquetés, rangés après usage, loin des machines et des sources de chaleur.
 
 [poubelle_metal] 14 Poubelle métallique à couvercle
-Pour les chiffons imbibés d'huile, de vernis ou de solvant : ils peuvent s'échauffer et s'enflammer seuls. Couvercle toujours fermé, vidée chaque jour.
+Pour les chiffons imbibés d'huile d'imprégnation, de vernis ou de solvant : ils peuvent s'échauffer et s'enflammer seuls. On les humidifie avant de les jeter ; couvercle toujours fermé, vidée chaque jour.
 
 [consignes_epi] 15 Panneaux d'obligation (EPI)
-Panneaux ronds bleus à l'entrée : port obligatoire des lunettes, des protections auditives, des chaussures de sécurité et du masque pour les travaux poussiéreux.
+Panneaux ronds bleus à l'entrée, dessinés selon la norme ISO 7010 : port obligatoire des lunettes (M004), de la protection auditive (M003), des chaussures de sécurité (M008) et du masque (M016) pour les travaux poussiéreux.
 
 [aspiration] 16 Réseau d'aspiration (descentes vers les machines)
 Capte les copeaux et les poussières à la source, sur chaque machine. On vérifie qu'il est en marche et on ouvre la trappe (le clapet) de sa machine avant d'usiner.

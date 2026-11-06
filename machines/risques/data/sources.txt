@@ -4,6 +4,11 @@
 # dangers.txt et epi.txt. Mettre à jour la date de vérification après chaque relecture.
 
 ## INRS (Institut national de recherche et de sécurité)
+INRS ED 840, « Évaluation des risques professionnels. Aide au repérage des risques dans les PME-PMI », 8e édition, 2023, révisée mai 2025 : les 20 fiches de risques. L'ordre et les intitulés des fiches « Risques » (fiches.txt) suivent cette brochure (vérifiée le 06/11/2026).
+  https://www.inrs.fr/media.html?refINRS=ED%20840
+Code du travail R4443-1 et R4443-2 (vibrations main-bras : valeur limite 5 m/s², valeur d'action 2,5 m/s² sur 8 h).
+Centres spécialisés de chirurgie de la main (anciennement POSU, réseau SOS Mains, FESUM) : l'orientation d'une victime est décidée par le SAMU.
+Organisation des secours du lycée (information de l'établissement) : professeur, vie scolaire, infirmerie ; dans les Vosges, 15, 18 et 112 aboutissent au même centre (SDIS 88).
 INRS ED 974, « Poussières de bois. Prévenir les risques », 2e édition, février 2021 : cancérogène quel que soit le bois, VLEP 1 mg/m³, aspiration, pas de soufflette ni de balai, demi-masque P2 ou FFP2 au minimum.
   https://www.inrs.fr/media.html?refINRS=ED%20974
 INRS ED 6192, « Poussières de bois. Protégeons-nous », 2015 (réimpr. 2018) : aspiration utilisée, nettoyage par aspiration, cancer naso-sinusien 20 ans après.

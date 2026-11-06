@@ -1,6 +1,6 @@
 # © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
 """Outil des attestations : lecture du rapport de base de Moodle (formats réels du 28/10/2026, avec et sans objectifs,
-avec l'élément « 0. Risques généraux »), une attestation par machine (ou module risques) validée (note ≥ 70), deux par feuille A4, pas de défilement horizontal sur téléphone."""
+avec l'élément « 0. Risques généraux », et paquetage actuel à 11 éléments du 30/10/2026), une attestation par machine (ou module risques) validée (note ≥ 70), deux par feuille A4, pas de défilement horizontal sur téléphone."""
 import asyncio, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from harness import ROOT, CHROMIUM, check, run
@@ -19,6 +19,10 @@ CAS = {  # rapport de base exporté par l'enseignant : sans objectif rempli (cel
   # paquetage avec « 0. Risques généraux » (élément ajouté le 28/10/2026)
   'avec risques généraux': (f"[[{T.replace("'Atelier',", "'Atelier','0. Risques généraux',")}],['B','z',1,'-','4 novembre 2026, 08:30',1,'Incomplet',85,{AT},{AT},{AT},{AT},{AT},{AT},{AT}]]",
                             {'risques': 85, 'scie-radiale': 'Aucune tentative'}, 1),
+  # paquetage actuel (30/10/2026) : 11 éléments, mortaiseuse avant la tenonneuse, scie à ruban en dernier
+  'paquetage à 11 éléments': ("[['Nom','Adresse de courriel','Tentative','Démarré le','Dernier accès le','Résultat','Atelier','0. Risques généraux','1. Scie radiale','2. Déligneuse multilames','3. Dégauchisseuse','4. Raboteuse','5. Toupie','6. Mortaiseuse','7. Tenonneuse','8. Scie à format','9. Scie à ruban'],"
+                              f"['C','c',1,'-','4 novembre 2026, 11:00',8,'Incomplet',90,null,88,null,76,null,81,null,74,null,72,null,91,null,62,null,{AT},null,80]]",
+                              {'risques': 90, 'raboteuse': 74, 'toupie': 72, 'mortaiseuse': 91, 'tenonneuse': 62, 'scie-format': 'Aucune tentative', 'scie-ruban': 80}, 8),
 }
 
 async def main():
@@ -29,7 +33,10 @@ async def main():
         await pg.route('**/*', lambda r: r.continue_() if r.request.url.startswith('file:') else r.abort())
         await pg.goto('file://' + PAGE); await pg.wait_for_timeout(500)
         n = await pg.eval_on_selector('#nAtt', 'e=>e.textContent')
-        check(n == '1', 'exemple chargé à l\'ouverture : 1 attestation (scie radiale 96)')
+        check(n == '2', 'exemple chargé à l\'ouverture : 2 attestations (risques généraux 95, scie radiale 96 ; déligneuse 69 non validée)')
+        th = await pg.evaluate("()=>[...document.querySelectorAll('#tbl thead th')].map(t=>t.textContent)")
+        check(th[1:11] == ['Risques généraux', 'Scie radiale', 'Déligneuse', 'Dégauchisseuse', 'Raboteuse', 'Toupie', 'Mortaiseuse', 'Tenonneuse', 'Scie à format', 'Scie à ruban'],
+              f'colonnes dans l\'ordre du paquetage (30/10/2026) : {th[1:11]}')
         for nom, (aoa, attendu, natt) in CAS.items():
             await pg.evaluate(f"()=>__att.load({aoa},'test',false)"); await pg.wait_for_timeout(200)
             r = await pg.evaluate("()=>[__att.data().rows.length, __att.data().rows[0].res, __att.data().rows[0].date, document.getElementById('nAtt').textContent, document.querySelectorAll('#preview .sheet').length]")

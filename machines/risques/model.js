@@ -23,6 +23,8 @@ const TOPZ=-10.69, LEFTX=-10.82;
 /* panneau dessiné (pictogramme) : plan vertical, face vers +Z du groupe */
 function sign(w,h,draw,px=256){ const H=Math.round(px*h/w); const t=canvasTex(px,H,(c,W,HH)=>draw(c,W,HH));
   const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({ map:t, toneMapped:false })); return m; }
+/* texte réduit si besoin pour tenir dans la largeur maxW */
+const fitText=(c,t,x,y,maxW,px,style='')=>{ let f=px; c.font=`${style} ${f}px sans-serif`; while(f>8 && c.measureText(t).width>maxW){ f--; c.font=`${style} ${f}px sans-serif`; } c.fillText(t,x,y); };
 const T={
   baes:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.fillStyle='#14904c'; c.fillRect(4,4,w-8,h-8); c.fillStyle='#fff';
     c.fillRect(w*0.62,h*0.18,w*0.2,h*0.64); c.fillStyle='#14904c'; c.fillRect(w*0.66,h*0.24,w*0.12,h*0.52); c.fillStyle='#fff';
@@ -41,22 +43,57 @@ const T={
   au:(c,w,h)=>{ c.fillStyle='#e9c22c'; c.fillRect(0,0,w,h); c.fillStyle='#111'; c.font=`bold ${Math.round(h*0.2)}px sans-serif`; c.textAlign='center'; c.fillText('ARRÊT',w/2,h*0.42); c.fillText('D\'URGENCE',w/2,h*0.68); c.font=`${Math.round(h*0.13)}px sans-serif`; c.fillText('général',w/2,h*0.88); },
   flamme:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.save(); c.translate(w/2,h/2); c.rotate(Math.PI/4); c.strokeStyle='#d0201c'; c.lineWidth=w*0.06; c.fillStyle='#fff'; c.fillRect(-w*0.3,-h*0.3,w*0.6,h*0.6); c.strokeRect(-w*0.3,-h*0.3,w*0.6,h*0.6); c.restore();
     c.fillStyle='#111'; c.beginPath(); c.moveTo(w*0.5,h*0.24); c.quadraticCurveTo(w*0.7,h*0.5,w*0.6,h*0.68); c.lineTo(w*0.4,h*0.68); c.quadraticCurveTo(w*0.32,h*0.46,w*0.5,h*0.24); c.fill(); c.fillRect(w*0.36,h*0.7,w*0.28,h*0.05); },
-  obl:icon=>(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.fillStyle='#1f5fae'; c.beginPath(); c.arc(w/2,w/2,w*0.44,0,7); c.fill(); c.fillStyle='#fff'; c.strokeStyle='#fff'; icon(c,w);
-    c.fillStyle='#111'; c.font=`bold ${Math.round(w*0.1)}px sans-serif`; c.textAlign='center'; },
+  /* panneau d'obligation : disque bleu (bleu de sécurité ISO 3864), pictogramme blanc, libellé sous le disque */
+  obl:(icon,lines=[])=>(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); const R=w*0.44, cx=w/2, cy=w/2;
+    c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,R+w*0.03,0,7); c.fill(); c.strokeStyle='#d8dde3'; c.lineWidth=w*0.006; c.stroke();
+    c.fillStyle=BLEU; c.beginPath(); c.arc(cx,cy,R,0,7); c.fill();
+    c.save(); c.beginPath(); c.arc(cx,cy,R,0,7); c.clip(); c.fillStyle='#fff'; c.strokeStyle='#fff'; icon(c,w); c.restore();
+    c.fillStyle='#111'; c.textAlign='center'; c.textBaseline='middle'; c.font=`bold ${Math.round(w*0.095)}px sans-serif`;
+    lines.forEach((t,i)=>fitText(c,t,w/2,w+(h-w)*(lines.length===1?0.5:0.3+i*0.42),w*0.96,Math.round(w*0.095),'bold')); },
   plan:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.fillStyle='#14904c'; c.fillRect(0,0,w,h*0.14); c.fillStyle='#fff'; c.font=`bold ${Math.round(h*0.09)}px sans-serif`; c.textAlign='center'; c.fillText('PLAN D\'ÉVACUATION',w/2,h*0.1);
     c.strokeStyle='#333'; c.lineWidth=3; c.strokeRect(w*0.1,h*0.22,w*0.8,h*0.68); c.fillStyle='#bbb'; for(const [x,y,a,b] of [[.2,.3,.12,.08],[.4,.3,.16,.08],[.65,.3,.1,.1],[.2,.5,.6,.15],[.3,.75,.1,.1],[.55,.72,.15,.12]]) c.fillRect(w*x,h*y,w*a,h*b);
     c.strokeStyle='#14904c'; c.lineWidth=6; c.beginPath(); c.moveTo(w*0.5,h*0.85); c.lineTo(w*0.5,h*0.42); c.lineTo(w*0.58,h*0.42); c.lineTo(w*0.58,h*0.24); c.stroke();
     c.fillStyle='#d0201c'; c.beginPath(); c.arc(w*0.52,h*0.62,h*0.04,0,7); c.fill(); c.fillStyle='#111'; c.font=`${Math.round(h*0.06)}px sans-serif`; c.fillText('Vous êtes ici',w*0.52,h*0.97); },
-  urgence:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.fillStyle='#c4261c'; c.fillRect(0,0,w,h*0.16); c.fillStyle='#fff'; c.font=`bold ${Math.round(h*0.09)}px sans-serif`; c.textAlign='center'; c.fillText('NUMÉROS D\'URGENCE',w/2,h*0.11);
-    c.textAlign='left'; c.fillStyle='#111'; const L=[['15','SAMU'],['18','Pompiers'],['112','Urgences (Europe)'],['114','Par SMS'],['','Infirmerie du lycée']]; L.forEach(([n,t],i)=>{ c.font=`bold ${Math.round(h*0.11)}px sans-serif`; c.fillStyle='#c4261c'; c.fillText(n,w*0.08,h*(0.32+i*0.15)); c.font=`${Math.round(h*0.08)}px sans-serif`; c.fillStyle='#111'; c.fillText(t,w*0.32,h*(0.31+i*0.15)); }); },
+  urgence:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.fillStyle='#c4261c'; c.fillRect(0,0,w,h*0.16); c.fillStyle='#fff'; c.textAlign='center'; fitText(c,'NUMÉROS D\'URGENCE',w/2,h*0.11,w*0.9,Math.round(h*0.09),'bold');
+    /* chaîne d'alerte du lycée (relecture de l'équipe, nov. 2026) : d'abord professeur, vie scolaire, infirmerie, puis les secours */
+    c.textAlign='left'; c.fillStyle='#111'; c.font=`bold ${Math.round(h*0.058)}px sans-serif`; c.fillText('1. Prévenir',w*0.07,h*0.23);
+    fitText(c,'professeur · vie scolaire · infirmerie',w*0.07,h*0.29,w*0.88,Math.round(h*0.05));
+    fitText(c,'2. Alerter les secours',w*0.07,h*0.38,w*0.88,Math.round(h*0.058),'bold');
+    const L=[['15','SAMU'],['18','Pompiers'],['112','Urgences (Europe)'],['114','Par SMS']]; L.forEach(([n,t],i)=>{ c.font=`bold ${Math.round(h*0.085)}px sans-serif`; c.fillStyle='#c4261c'; c.fillText(n,w*0.08,h*(0.48+i*0.11)); c.fillStyle='#111'; fitText(c,t,w*0.32,h*(0.475+i*0.11),w*0.64,Math.round(h*0.065)); });
+    c.fillStyle='#555'; c.textAlign='center'; fitText(c,'Vosges : 15, 18 et 112 → même centre (SDIS 88)',w/2,h*0.95,w*0.92,Math.round(h*0.045),'italic'); },
   nePas:(c,w,h)=>{ c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.strokeStyle='#c4261c'; c.lineWidth=h*0.07; c.strokeRect(h*0.04,h*0.04,w-h*0.08,h-h*0.08); c.fillStyle='#c4261c'; c.font=`bold ${Math.round(h*0.15)}px sans-serif`; c.textAlign='center';
     c.fillText('NE PAS MANŒUVRER',w/2,h*0.32); c.fillStyle='#111'; c.font=`bold ${Math.round(h*0.12)}px sans-serif`; c.fillText('Travaux en cours',w/2,h*0.55); c.font=`${Math.round(h*0.1)}px sans-serif`; c.fillText('Consigné par : l\'élève',w/2,h*0.78); },
 };
+/* pictogrammes d'obligation dessinés d'après la norme ISO 7010 (relecture de l'équipe, nov. 2026 : mêmes 4 panneaux
+   qu'avant, mais aux normes) : M004 protection des yeux, M003 protection de l'ouïe, M008 chaussures de sécurité,
+   M016 masque. Silhouette blanche de face (tête, cou, épaules), l'équipement découpé en bleu ou en blanc. */
+const BLEU='#1f5fae';
+function buste(c,w){ c.fillStyle='#fff';
+  c.beginPath(); c.ellipse(w*0.5,w*0.43,w*0.165,w*0.205,0,0,7); c.fill();                          // tête
+  c.fillRect(w*0.43,w*0.58,w*0.14,w*0.12);                                                         // cou
+  c.beginPath(); c.moveTo(w*0.14,w*1.0); c.quadraticCurveTo(w*0.16,w*0.71,w*0.5,w*0.69); c.quadraticCurveTo(w*0.84,w*0.71,w*0.86,w*1.0); c.closePath(); c.fill(); }
 const ICON={
-  lunettes:(c,w)=>{ c.fillRect(w*0.2,w*0.42,w*0.24,w*0.16); c.fillRect(w*0.56,w*0.42,w*0.24,w*0.16); c.fillRect(w*0.42,w*0.46,w*0.16,w*0.05); },
-  casque:(c,w)=>{ c.lineWidth=w*0.06; c.beginPath(); c.arc(w/2,w*0.52,w*0.22,Math.PI,0); c.stroke(); c.fillRect(w*0.22,w*0.48,w*0.12,w*0.18); c.fillRect(w*0.66,w*0.48,w*0.12,w*0.18); },
-  chaussure:(c,w)=>{ c.beginPath(); c.moveTo(w*0.3,w*0.3); c.lineTo(w*0.46,w*0.3); c.lineTo(w*0.48,w*0.52); c.lineTo(w*0.76,w*0.6); c.lineTo(w*0.76,w*0.7); c.lineTo(w*0.3,w*0.7); c.closePath(); c.fill(); },
-  masque:(c,w)=>{ c.beginPath(); c.ellipse(w/2,w*0.55,w*0.2,w*0.15,0,0,7); c.fill(); c.fillRect(w*0.2,w*0.42,w*0.6,w*0.03); },
+  /* M004 : lunettes, deux verres découpés en bleu et leurs branches */
+  lunettes:(c,w)=>{ buste(c,w); const y=w*0.41;
+    c.fillStyle=BLEU; for(const x of [0.415,0.585]){ c.beginPath(); c.ellipse(w*x,y,w*0.068,w*0.048,0,0,7); c.fill(); }   // deux verres
+    c.strokeStyle=BLEU; c.lineWidth=w*0.02; c.beginPath(); c.moveTo(w*0.335,y-w*0.005); c.lineTo(w*0.35,y-w*0.005); c.moveTo(w*0.65,y-w*0.005); c.lineTo(w*0.665,y-w*0.005); c.stroke(); },
+  /* M003 : casque antibruit, arceau sur la tête et deux coquilles sur les oreilles */
+  casque:(c,w)=>{ buste(c,w);
+    c.strokeStyle=BLEU; c.lineWidth=w*0.075; c.beginPath(); c.ellipse(w*0.5,w*0.43,w*0.215,w*0.255,0,Math.PI*1.08,Math.PI*1.92); c.stroke();
+    c.strokeStyle='#fff'; c.lineWidth=w*0.04; c.beginPath(); c.ellipse(w*0.5,w*0.43,w*0.215,w*0.255,0,Math.PI*1.08,Math.PI*1.92); c.stroke();
+    for(const x of [0.285,0.715]){ c.fillStyle=BLEU; c.beginPath(); c.ellipse(w*x,w*0.45,w*0.075,w*0.105,0,0,7); c.fill(); c.fillStyle='#fff'; c.beginPath(); c.ellipse(w*x,w*0.45,w*0.05,w*0.08,0,0,7); c.fill(); } },
+  /* M008 : chaussure montante de profil, semelle épaisse découpée en bleu */
+  chaussure:(c,w)=>{ c.fillStyle='#fff'; c.beginPath();
+    c.moveTo(w*0.3,w*0.2); c.lineTo(w*0.5,w*0.2); c.lineTo(w*0.52,w*0.48); c.quadraticCurveTo(w*0.6,w*0.52,w*0.76,w*0.56); c.quadraticCurveTo(w*0.86,w*0.6,w*0.86,w*0.7);
+    c.lineTo(w*0.86,w*0.76); c.lineTo(w*0.24,w*0.76); c.lineTo(w*0.24,w*0.56); c.quadraticCurveTo(w*0.24,w*0.42,w*0.3,w*0.38); c.closePath(); c.fill();
+    c.fillStyle=BLEU; c.fillRect(w*0.22,w*0.685,w*0.66,w*0.025);                                        // trait de semelle
+    c.strokeStyle=BLEU; c.lineWidth=w*0.02; for(let i=0;i<3;i++){ c.beginPath(); c.moveTo(w*0.36,w*(0.27+i*0.07)); c.lineTo(w*0.48,w*(0.27+i*0.07)); c.stroke(); } },
+  /* M016 : masque sur le nez et la bouche, avec ses élastiques */
+  masque:(c,w)=>{ buste(c,w);
+    c.strokeStyle=BLEU; c.lineWidth=w*0.018; c.beginPath(); c.moveTo(w*0.36,w*0.47); c.lineTo(w*0.34,w*0.38); c.moveTo(w*0.64,w*0.47); c.lineTo(w*0.66,w*0.38); c.stroke();
+    c.fillStyle=BLEU; c.beginPath(); c.moveTo(w*0.5,w*0.4); c.quadraticCurveTo(w*0.64,w*0.42,w*0.65,w*0.5); c.quadraticCurveTo(w*0.62,w*0.62,w*0.5,w*0.64); c.quadraticCurveTo(w*0.38,w*0.62,w*0.35,w*0.5); c.quadraticCurveTo(w*0.36,w*0.42,w*0.5,w*0.4); c.fill();
+    c.fillStyle='#fff'; c.beginPath(); c.moveTo(w*0.5,w*0.425); c.quadraticCurveTo(w*0.615,w*0.44,w*0.625,w*0.505); c.quadraticCurveTo(w*0.6,w*0.6,w*0.5,w*0.615); c.quadraticCurveTo(w*0.4,w*0.6,w*0.375,w*0.505); c.quadraticCurveTo(w*0.385,w*0.44,w*0.5,w*0.425); c.fill();
+    c.fillStyle=BLEU; c.beginPath(); c.arc(w*0.5,w*0.535,w*0.03,0,7); c.fill(); },
 };
 
 /* ---------- personnages dangereux / corrects du scénario « Repérer les dangers » ---------- */
@@ -133,8 +170,8 @@ export function buildModel({ root, tagPart }){
   { const p=new THREE.Group(); at(p,cyl(0.21,0.55,K.steel,22),0,0.28,0); at(p,cyl(0.225,0.04,K.red,22),0,0.57,0); at(p,cyl(0.03,0.04,K.black,8),0,0.6,0); at(p,cyl(0.05,0.06,K.black,10),0.24,0.06,0);
     const l=sign(0.2,0.1,T.label('CHIFFONS','#e9c22c'),256); l.position.set(0,0.35,0.212); p.add(l); at(root,p,7.3,0,10.25); tagPart(p,'poubelle_metal'); }
   /* consignes : port des EPI obligatoire (panneaux bleus) à l'entrée, près de la porte A */
-  { const g=new THREE.Group(); [ICON.lunettes,ICON.casque,ICON.chaussure,ICON.masque].forEach((ic,i)=>{ const s=sign(0.36,0.46,T.obl(ic)); s.position.set(i*0.44,0,0); g.add(s); });
-    { const l=sign(1.7,0.12,T.label('PORT OBLIGATOIRE DES EPI À L\'ATELIER','#fff'),900); l.position.set(0.66,-0.34,0); g.add(l); } wallTop(g,-3.9,1.95); g.position.z+=0.01; tagPart(g,'consignes_epi'); }
+  { const g=new THREE.Group(); [[ICON.lunettes,['Lunettes']],[ICON.casque,['Protection','auditive']],[ICON.chaussure,['Chaussures','de sécurité']],[ICON.masque,['Masque','(poussières)']]].forEach(([ic,t],i)=>{ const s=sign(0.36,0.48,T.obl(ic,t),384); s.position.set(i*0.44,0,0); g.add(s); });
+    { const l=sign(1.7,0.12,T.label('PORT OBLIGATOIRE DES EPI À L\'ATELIER','#fff'),900); l.position.set(0.66,-0.35,0); g.add(l); } wallTop(g,-3.9,1.95); g.position.z+=0.01; tagPart(g,'consignes_epi'); }
   /* allées de circulation : bandes jaunes au sol */
   { const g=new THREE.Group(), y=0.004, m=new THREE.MeshBasicMaterial({ color:0xf0c419, toneMapped:false, polygonOffset:true, polygonOffsetFactor:-2 });
     const strip=(x1,z1,x2,z2)=>{ const L=Math.hypot(x2-x1,z2-z1), s=new THREE.Mesh(new THREE.PlaneGeometry(L,0.1),m); s.rotation.x=-Math.PI/2; s.rotation.z=-Math.atan2(z2-z1,x2-x1); s.position.set((x1+x2)/2,y,(z1+z2)/2); s.receiveShadow=true; g.add(s); };
@@ -186,6 +223,8 @@ export function buildModel({ root, tagPart }){
     const d=dustCloud(16,0.6); d.position.set(0.1,0.8,-0.9); g.add(d); ticks.push(d.userData.tick); g.position.set(4.95,0,1.85); danger('soufflette',g); }
   { const g=new THREE.Group(); const pts=[[-9.9,0.02,-7.0],[-9.4,0.02,-6.4],[-8.9,0.02,-5.6],[-8.6,0.02,-4.9],[-8.0,0.02,-4.2]].map(p=>new THREE.Vector3(...p));
     g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,0.018,8),K.orange));
+    /* zone de clic invisible, plus large que le câble (relecture de l'équipe : câble difficile à toucher) */
+    { const hit=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,0.12,8),new THREE.MeshBasicMaterial({ visible:false })); hit.userData.hitZone=true; g.add(hit); }
     const sander=new THREE.Group(); at(sander,box(0.28,0.1,0.16,mat(0x2e7d32)),0,0.05,0); at(sander,box(0.1,0.12,0.1,K.black),0,0.14,0); sander.position.set(-7.85,0,-4.1); g.add(sander); danger('cable',g); }
   { const g=new THREE.Group(); const r=rag(); r.position.set(-0.3,0.9,0.05); g.add(r); const c=can(mat(0x7a4a1c),true); c.position.set(0.25,0.9,0.1); g.add(c); g.position.set(6.0,0,9.9); danger('chiffons',g); }
   { const b=boards(5,2.6,0.18,0.027); b.rotation.y=0.15; b.position.set(4.6,0,-5.5); danger('allee_encombree',b); }
@@ -207,6 +246,7 @@ export function buildModel({ root, tagPart }){
   { const g=new THREE.Group(); const p=fig({ pose:'machine', epi:['chaussures','tenue','gants_manut'], hair:'court' },0,0,0); g.add(p); g.position.set(5.1,0,6.9); g.rotation.y=Math.PI; danger('p_chariot',g); }
   /* armoire électrique ouverte : la porte de l'armoire elle-même, comptée comme danger dans ce scénario */
   DANG.armoire_ouverte=arm;
+  if(DEC.m21) DANG.machine_allee=DEC.m21.g;
 
   /* ---------- avatar du scénario « EPI » et départ de feu ---------- */
   const avatar=person({ pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true }); avatar.visible=false; root.add(avatar);
@@ -216,7 +256,9 @@ export function buildModel({ root, tagPart }){
   let spin=0, bladeA=0, dangersOn=false, armOpen=false;
   const api={ hall, DEC, DANG, EXT, avatar, fire:FIRE, doors:hall.doors, scieBox:sb,
     /* situations dangereuses visibles (scénario « Dangers ») ; l'armoire ouverte en fait partie */
-    showDangers(on){ dangersOn=on; dGroup.visible=on; api.setArmoire(on); },
+    showDangers(on){ dangersOn=on; dGroup.visible=on; api.setArmoire(on);
+      /* machine qui déborde sur l'allée (la déligneuse, posée comme dans l'atelier réel) : un danger à repérer, sans la déplacer */
+      DEC.m21?.g.traverse(o=>{ if(on) o.userData.danger='machine_allee'; else delete o.userData.danger; }); },
     setArmoire(open){ armOpen=open; door.rotation.y= open? -1.9 : 0; inside.visible=open; arm.traverse(o=>{ if(open) o.userData.danger='armoire_ouverte'; else delete o.userData.danger; }); },
     /* sectionneur : pos 0 (ouvert) / 1 (fermé), cadenas, panneau ; machine en marche (lame) */
     setConsign(c){ handle.rotation.z= c.sect? 0 : Math.PI/2; lock.visible=!!c.lock; tag.visible=!!c.tag; lampOn.material.color.setHex(c.sect?0xffffff:0x555555); spin=c.on?1:spin; api._on=c.on; },

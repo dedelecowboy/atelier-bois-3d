@@ -110,7 +110,7 @@ td.n{font-weight:600}
     <img id="logoTop" alt="Lycée André Malraux, Remiremont">
     <div>
       <h1>Attestations machines</h1>
-      <p>Une attestation pour chaque machine validée dans l'activité Moodle « Atelier bois 3D » : note de 70 / 100 ou plus (une faute grave ramène la note Moodle à 69).</p>
+      <p>Une attestation pour chaque module validé dans l'activité Moodle « Atelier bois 3D » (« 0. Risques généraux » et les 9 machines) : note de 70 / 100 ou plus (une faute grave ramène la note Moodle à 69).</p>
     </div>
   </header>
 
@@ -121,7 +121,7 @@ td.n{font-weight:600}
       <li>Déposez le fichier ici. Rien ne quitte cet ordinateur : le fichier est lu dans le navigateur.</li>
     </ol>
     <div class="drop" id="drop">
-      <div><b>Déposez le rapport (.xlsx, .ods ou .csv)</b><div class="src ex" id="src">Exemple chargé (élèves fictifs) : scie radiale validée à 96 / 100.</div></div>
+      <div><b>Déposez le rapport (.xlsx, .ods ou .csv)</b><div class="src ex" id="src">Exemple chargé (élèves fictifs) : risques généraux 95 et scie radiale 96 validés, déligneuse 69 (faute grave) non validée.</div></div>
       <label><input type="file" id="file" accept=".xlsx,.xls,.ods,.csv" hidden><button type="button" class="ghost" id="pick">Choisir le fichier…</button></label>
     </div>
     <p class="msg" id="msg" hidden></p>
@@ -155,6 +155,7 @@ td.n{font-weight:600}
 <script>
 const IMG = /*IMAGES*/{};
 const LOGO = '/*LOGO*/';
+/* ordre du paquetage depuis le 30/10/2026 (PKG_ORDER, tools/build.mjs) ; colonnes du rapport reconnues par leur nom (key) */
 const MACH = [
   { id:'risques', key:/risques/i, nom:'Risques généraux de l\'atelier', court:'Risques généraux', ref:'', sous:'Atelier menuiserie · module sécurité',
     pied:'Repérage des équipements · QCM · 4 situations notées (dangers, EPI, consignation, départ de feu)' },
@@ -163,21 +164,21 @@ const MACH = [
   { id:'degauchisseuse', key:/d[ée]gau/i, nom:'Dégauchisseuse', ref:'KANAK 520 D' },
   { id:'raboteuse', key:/rabot/i, nom:'Raboteuse', ref:'KANAK 630 E' },
   { id:'toupie', key:/toupie/i, nom:'Toupie', ref:'KANAK 130 T' },
+  { id:'mortaiseuse', key:/mortais/i, nom:'Mortaiseuse', ref:'KANAK 130 MB' },
   { id:'tenonneuse', key:/tenon/i, nom:'Tenonneuse', ref:'KANAK 160 TN' },
   { id:'scie-format', key:/format/i, nom:'Scie à format', ref:'KANAK 550' },
   { id:'scie-ruban', key:/ruban/i, nom:'Scie à ruban', ref:'KANAK 800 RB' },
-  { id:'mortaiseuse', key:/mortais/i, nom:'Mortaiseuse', ref:'KANAK 130 MB' },
 ];
 const SEUIL = 70;
 const $ = id => document.getElementById(id);
 const MOIS = {janvier:1,'février':2,fevrier:2,mars:3,avril:4,mai:5,juin:6,juillet:7,'août':8,aout:8,septembre:9,octobre:10,novembre:11,'décembre':12,decembre:12};
 let data = { rows:[], example:true }, pick = {};
 
-/* Exemple : format du rapport de base exporté le 28/10/2026 (noms remplacés) */
+/* Exemple : format du rapport de base de Moodle (relevé le 28/10/2026), paquetage actuel à 11 éléments (noms remplacés) */
 const EXEMPLE = [
-  ['Nom','Adresse de courriel','Tentative','Démarré le','Dernier accès le','Résultat','Atelier','1. Scie radiale','2. Déligneuse multilames','3. Dégauchisseuse','4. Raboteuse','5. Toupie','6. Tenonneuse','7. Scie à format','RADIALE'],
-  ['ÉLÈVE EXEMPLE 1','eleve1@exemple.fr',1,'27 octobre 2026, 20:25','28 octobre 2026, 10:22',1,'Incomplet',96,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
-  ['ÉLÈVE EXEMPLE 2','eleve2@exemple.fr','-','-','-','-','Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
+  ['Nom','Adresse de courriel','Tentative','Démarré le','Dernier accès le','Résultat','Atelier','0. Risques généraux','1. Scie radiale','2. Déligneuse multilames','3. Dégauchisseuse','4. Raboteuse','5. Toupie','6. Mortaiseuse','7. Tenonneuse','8. Scie à format','9. Scie à ruban'],
+  ['ÉLÈVE EXEMPLE 1','eleve1@exemple.fr',1,'3 novembre 2026, 14:05','4 novembre 2026, 10:22',2,'Incomplet',95,null,96,null,69,null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
+  ['ÉLÈVE EXEMPLE 2','eleve2@exemple.fr','-','-','-','-','Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative',null,'Aucune tentative'],
 ];
 
 const empty = v => v === null || v === undefined || String(v).trim() === '';
@@ -298,7 +299,7 @@ $('print').onclick = () => window.print();
 addEventListener('resize', fit);
 try { const s = JSON.parse(localStorage.getItem('attestations.reglages') || '{}'); if (s.niveau) $('niveau').value = s.niveau; if (s.classe) $('classe').value = s.classe; } catch (e) {}
 ['niveau','classe'].forEach(id => $(id).addEventListener('change', () => { try { localStorage.setItem('attestations.reglages', JSON.stringify({ niveau:$('niveau').value, classe:$('classe').value })); } catch (e) {} }));
-load(EXEMPLE, 'Exemple chargé (élèves fictifs) : scie radiale validée à 96 / 100.', true);
+load(EXEMPLE, 'Exemple chargé (élèves fictifs) : risques généraux 95 et scie radiale 96 validés, déligneuse 69 (faute grave) non validée.', true);
 window.__att = { parse, load, data:() => data };
 </script>
 </body>

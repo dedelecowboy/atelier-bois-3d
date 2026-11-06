@@ -27,10 +27,10 @@ D: cable | Un câble de rallonge traverse l'allée
 = On trébuche sur un câble, et en tombant on peut heurter une machine en marche. L'allée reste libre.
 
 D: chiffons | Des chiffons imbibés de vernis sont en tas sur l'établi
-+ Les mettre dans la poubelle métallique à couvercle fermé
++ Les humidifier, puis les mettre dans la poubelle métallique à couvercle fermé
 - Les étaler au soleil pour qu'ils sèchent vite
 - Les jeter dans la poubelle à papier
-= Des chiffons imbibés d'huile ou de vernis peuvent s'échauffer et s'enflammer seuls. Récipient métallique fermé, vidé chaque jour.
+= Des chiffons imbibés d'huile d'imprégnation ou de vernis peuvent s'échauffer et s'enflammer seuls. On les humidifie, puis récipient métallique fermé, vidé chaque jour.
 
 D: allee_encombree | Des planches sont posées en travers de l'allée
 + Les ranger au râtelier, hors des allées
@@ -86,11 +86,17 @@ D: manutention_dos | Un élève porte seul un grand panneau, le dos courbé
 - Mettre une ceinture et continuer seul
 = Les grands panneaux sont lourds et encombrants : lombalgies, chute, choc. On utilise les aides à la manutention.
 
+D: machine_allee | La déligneuse déborde sur l'allée de circulation (marquage jaune)
++ Prévenir le professeur : la machine est remise dans sa zone, l'allée doit rester entièrement libre
+- Passer quand même, en se serrant contre les autres postes
+- Poser un carton devant l'angle et continuer à circuler
+= Une allée sert à circuler et à évacuer : rien ne doit dépasser dessus, ni bois, ni câble, ni machine. Une table qui déborde fait heurter ou trébucher, et oblige à passer tout près des outils des autres postes (ED 840, fiches 1 et 19).
+
 P: p_epi | Un élève à la scie à format : lunettes, casque antibruit, cheveux attachés, tenue fermée
 = C'est la bonne tenue pour travailler à une machine.
 
 P: p_aspirateur | Un élève nettoie le sol à l'aspirateur industriel, avec masque et lunettes
 = C'est la bonne façon de nettoyer l'atelier : jamais de soufflette ni de balai.
 
-P: p_chariot | Un élève déplace des panneaux sur le chariot, avec des gants de manutention
+P: p_chariot | Un élève déplace des panneaux avec un chariot, en portant des gants de manutention
 = Le chariot évite de porter à bout de bras ; les gants protègent des échardes et des chants, loin des machines en marche.
