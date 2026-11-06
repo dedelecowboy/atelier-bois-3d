@@ -43,7 +43,9 @@ function texture(r){ const t=new THREE.Texture(); t.flipY=false; t.colorSpace=TH
 /* ---------- élèves : pièces partagées (géométries, matières) ---------- */
 const PIECES=['tete','corps','pieds','mains'];
 const EL={}; for(const [k,E] of Object.entries(D.J.eleves)){ const mat=new THREE.MeshStandardMaterial({ map:texture(E.tex), roughness:.8, metalness:0 });
-  EL[k]={ E, mat, geo:Object.fromEntries(PIECES.map(p=>[p,geometry(E[p])])) }; }
+  /* même tenue, chaussures repeintes dans l'autre style (sécurité ↔ baskets) : seuls les pixels des chaussures changent */
+  const matAutres=E.tex_autres? new THREE.MeshStandardMaterial({ map:texture(E.tex_autres), roughness:.8, metalness:0 }) : mat;
+  EL[k]={ E, mat, matAutres, geo:Object.fromEntries(PIECES.map(p=>[p,geometry(E[p])])) }; }
 const GANTS={ gants_manut:new THREE.MeshStandardMaterial({ color:0xe9dfc8, roughness:.95 }), gants_chim:new THREE.MeshStandardMaterial({ color:0x2f6fb5, roughness:.45 }) };
 
 /* ---------- EPI, écharpe, bracelet : posés par un RÉGLAGE par élève (machines/risques/reglages_epi.json, fait par
@@ -173,12 +175,14 @@ export function setPose(g,pose){ const P=g.userData.P, B=P.B, A=POSES[pose]||POS
 
 /* ---------- tenue, chaussures, gants, EPI ---------- */
 export function setEpi(g,o={}){ const P=g.userData.P, L=P.L, e=new Set(o.epi||[]);
-  const G=GRP[P.grp], tenue=e.has('tenue') || o.tenue===true ? G.ok : G.mal, pieds=e.has('chaussures')? G.ok : G.mal;
+  const G=GRP[P.grp], tenue=e.has('tenue') || o.tenue===true ? G.ok : G.mal, secu=e.has('chaussures');
   if(P.grp==='fille' && o.hair){ const q= o.hair==='attache'? G.ok : G.mal; if(q!==P.qui){ P.qui=q; placerObjets(g); } }
   const gant=e.has('gants_chim')? 'gants_chim' : e.has('gants_manut')? 'gants_manut' : null;
   for(const [n,m] of Object.entries(L)){ const [k,p]=n.split('|');
-    m.visible=(p==='tete' && k===P.qui) || (p==='corps' && k===tenue) || (p==='pieds' && k===pieds) || (p==='mains' && k===tenue);
-    if(p==='mains') m.material=gant? GANTS[gant] : EL[k].mat; }
+    m.visible=(p==='tete' && k===P.qui) || (p==='corps' && k===tenue) || (p==='pieds' && k===tenue) || (p==='mains' && k===tenue);
+    if(p==='mains') m.material=gant? GANTS[gant] : EL[k].mat;
+    /* chaussures de la tenue portée, dans le style choisi (pas de mélange de modèles à la cheville) */
+    if(p==='pieds') m.material= (EL[k].E.chaussures==='securite')===secu ? EL[k].mat : EL[k].matAutres; }
   for(const [code,k] of Object.entries(EPI)) if(P.epi[k]) P.epi[k].visible=e.has(code);
   P.face.mouth.visible=!e.has('masque') && !e.has('masque_a');
   P.scarf.visible=!!o.echarpe; P.bracelet.visible=!!o.bijoux && !gant; }

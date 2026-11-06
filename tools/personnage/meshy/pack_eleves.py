@@ -39,6 +39,59 @@ def put(arr):
     arr = np.ascontiguousarray(arr)
     while len(BIN) % 4: BIN.append(0)
     o = len(BIN); BIN.extend(arr.tobytes()); return [o, arr.nbytes]
+def repeindre_chaussures(img, UV, F, pieds, yt, vers):
+    """Repeint les pixels de la texture couverts par les triangles des chaussures (et eux seuls).
+    vers = 'baskets' : dessus blanc, semelle gris clair ; 'securite' : dessus noir, semelle grise, touche jaune
+    sur le côté. Le modelé de la texture d'origine (clair / sombre) est gardé, atténué."""
+    A = np.asarray(img.convert('RGB'), np.float64) / 255; H, W = A.shape[:2]
+    lum = A @ np.array([0.3, 0.59, 0.11])
+    masque = np.zeros((H, W), np.int8)          # 0 hors chaussure, 1 dessus, 2 semelle, 3 touche jaune
+    for t in np.nonzero(pieds)[0]:
+        tri = UV[F[t]] * [W, H] - 0.5
+        x0, y0 = np.maximum(np.floor(tri.min(0)).astype(int), 0); x1, y1 = np.minimum(np.ceil(tri.max(0)).astype(int), [W - 1, H - 1])
+        if x1 < x0 or y1 < y0: continue
+        xs, ys = np.meshgrid(np.arange(x0, x1 + 1), np.arange(y0, y1 + 1)); q = np.stack([xs.ravel(), ys.ravel()], 1).astype(float)
+        a, b_, c = tri; v0 = b_ - a; v1 = c - a; v2 = q - a; den = v0[0] * v1[1] - v1[0] * v0[1]
+        if abs(den) < 1e-12: continue
+        l1 = (v2[:, 0] * v1[1] - v1[0] * v2[:, 1]) / den; l2 = (v0[0] * v2[:, 1] - v2[:, 0] * v0[1]) / den
+        ins = (l1 >= -0.02) & (l2 >= -0.02) & (l1 + l2 <= 1.02)
+        z = 2 if yt[t] < 0.028 else 1
+        masque[q[ins, 1].astype(int), q[ins, 0].astype(int)] = z
+    # bords des îlots de texture : les pixels vides autour des chaussures (hors de tout triangle) prennent la
+    # couleur repeinte, sinon le filtrage de la texture fait apparaître des filets de l'ancienne couleur
+    from scipy.ndimage import grey_dilation
+    couvert = np.zeros((H, W), bool)
+    for t in range(len(F)):
+        tri = UV[F[t]] * [W, H] - 0.5
+        x0, y0 = np.maximum(np.floor(tri.min(0)).astype(int), 0); x1, y1 = np.minimum(np.ceil(tri.max(0)).astype(int), [W - 1, H - 1])
+        if x1 < x0 or y1 < y0: continue
+        if pieds[t]: continue
+        xs, ys = np.meshgrid(np.arange(x0, x1 + 1), np.arange(y0, y1 + 1)); q = np.stack([xs.ravel(), ys.ravel()], 1).astype(float)
+        a, b_, c = tri; v0 = b_ - a; v1 = c - a; v2 = q - a; den = v0[0] * v1[1] - v1[0] * v0[1]
+        if abs(den) < 1e-12: continue
+        l1 = (v2[:, 0] * v1[1] - v1[0] * v2[:, 1]) / den; l2 = (v0[0] * v2[:, 1] - v2[:, 0] * v0[1]) / den
+        ins = (l1 >= 0) & (l2 >= 0) & (l1 + l2 <= 1)
+        couvert[q[ins, 1].astype(int), q[ins, 0].astype(int)] = True
+    for _ in range(8):
+        g_ = grey_dilation(masque, size=3); libre = (masque == 0) & ~couvert & (g_ > 0)
+        masque[libre] = g_[libre]
+    m = masque > 0
+    if not m.any(): return img
+    d = np.clip(lum - np.median(lum[m]), -0.35, 0.2)  # modelé (plis, coutures) autour de la valeur moyenne
+    out = A.copy()
+    if vers == 'baskets':
+        dessus = np.clip(0.93 + 0.35 * d, 0.6, 1.0); semelle = np.clip(0.86 + 0.25 * d, 0.6, 1.0)
+        for k_ in range(3):
+            out[..., k_] = np.where(masque == 1, dessus * [0.99, 0.99, 1.0][k_], np.where(masque == 2, semelle * [0.97, 0.97, 0.98][k_], out[..., k_]))
+    else:
+        dessus = np.clip(0.09 + 0.25 * d, 0.02, 0.25); semelle = np.clip(0.42 + 0.25 * d, 0.25, 0.6)
+        jaune = np.array([0.93, 0.76, 0.12])
+        # touche jaune : une bande étroite juste au-dessus de la semelle (repère des chaussures de l'atelier)
+        ys_, xs_ = np.nonzero(masque == 1)
+        for k_ in range(3):
+            out[..., k_] = np.where(masque == 1, dessus, np.where(masque == 2, semelle, out[..., k_]))
+    return Image.fromarray(np.clip(out * 255, 0, 255).astype(np.uint8))
+
 def jpeg(img, size):
     im = img.convert('RGB')
     if size: im = im.resize((size, size), Image.LANCZOS)
@@ -163,7 +216,12 @@ for k in eleves:
     E['boite_tete'] = {'min': hp.min(0).tolist(), 'max': hp.max(0).tolist()}
     E['hauteur'] = float(P[:, 1].max()); E['groupe'] = grp
     pbr = g['materials'][0]['pbrMetallicRoughness']
-    E['tex'] = jpeg(image_of(g, b, pbr['baseColorTexture']['index']), TEX_ELEVE)
+    img0 = image_of(g, b, pbr['baseColorTexture']['index'])
+    E['tex'] = jpeg(img0, TEX_ELEVE)
+    # deuxième image : SEULS les pixels des chaussures repeints dans l'autre style (sécurité <-> baskets) ;
+    # la forme reste celle de la tenue : aucun raccord avec le pantalon
+    E['chaussures'] = 'securite' if k in ('equipe', 'fille') else 'baskets'
+    E['tex_autres'] = jpeg(repeindre_chaussures(img0, UV, F, parts['pieds'], P[F].mean(1)[:, 1], 'baskets' if E['chaussures'] == 'securite' else 'securite'), TEX_ELEVE)
     J['eleves'][k] = E
     print(f'{k} : ' + ', '.join(f"{n} {int(fm.sum())} faces" for n, fm in parts.items()))
 for k in epis:
