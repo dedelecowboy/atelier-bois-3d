@@ -21,7 +21,7 @@ ETAT = """()=>{ const p=__atelier.parc, S=__store, n=+S['cmi.interactions._count
 
 async def termine_qcm(pg):
     await pg.eval("""()=>{ const A=__atelier, Q=A.QCM, card=document.getElementById('parcCard');
-      for(let i=A.parc.qi;i<Q.length;i++){ card.querySelector(`[data-q="${Q[i].a}"]`).click(); document.getElementById('qNext').click(); } }""")
+      for(let i=A.parc.qi;i<Q.length;i++){ card.querySelector(`[data-q="${Q[i].a}"]`).click(); document.getElementById('qVal').click(); document.getElementById('qNext').click(); } }""")
     await pg.page.wait_for_timeout(150)
 
 async def fait_scenario(pg, fautes=()):
