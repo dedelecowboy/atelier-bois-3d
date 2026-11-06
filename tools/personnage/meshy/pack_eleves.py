@@ -102,7 +102,28 @@ for k in eleves:
     w8 = np.round(Wt * 255).astype(np.int64); w8[:, 0] += 255 - w8.sum(1)
     parts = {}
     ishead = np.isin(bn[dom], ['Head', 'HeadTop_End', 'headfront'])
-    for name, sel in (('pieds', isfoot[F].all(1)), ('mains', ishand[F].all(1)), ('tete', ishead[F].all(1))):
+    # chaussures : reconnues à leur couleur (pas le bleu du pantalon) et reliées au sol ; ainsi le bas du pantalon reste
+    # avec la tenue et la chaussure entière va avec les pieds (frontière identique d'une tenue à l'autre : pas de trou)
+    pbrc = g['materials'][0]['pbrMetallicRoughness']
+    Tc = np.asarray(image_of(g, b, pbrc['baseColorTexture']['index']).convert('RGB'), np.float64) / 255; Rc = Tc.shape[0]
+    uvt = UV[F].mean(1); ct = Tc[np.clip((uvt[:, 1] * Rc).astype(int), 0, Rc - 1), np.clip((uvt[:, 0] * Rc).astype(int), 0, Rc - 1)]
+    yt = P[F].mean(1)[:, 1]
+    pantalon = (ct[:, 2] > ct[:, 0] + 0.06) & (ct[:, 2] > 0.12)
+    cand = (~pantalon) & (yt < 0.22)
+    _, wv = np.unique(np.round(P, 5), axis=0, return_inverse=True); wv = wv.ravel()
+    Fw = wv[F]; nwv = wv.max() + 1
+    vt = [[] for _ in range(nwv)]
+    for ti_, (a0, a1, a2) in enumerate(Fw):
+        if cand[ti_]:
+            vt[a0].append(ti_); vt[a1].append(ti_); vt[a2].append(ti_)
+    pied = np.zeros(len(F), bool); pile = [t for t in np.nonzero(cand & (yt < 0.03))[0]]
+    for t in pile: pied[t] = True
+    while pile:
+        t = pile.pop()
+        for v in Fw[t]:
+            for u in vt[v]:
+                if not pied[u]: pied[u] = True; pile.append(u)
+    for name, sel in (('pieds', pied), ('mains', ishand[F].all(1)), ('tete', ishead[F].all(1))):
         parts[name] = sel
     parts['corps'] = ~(parts['pieds'] | parts['mains'] | parts['tete'])
     if k in CHEVEUX_LONGS:
