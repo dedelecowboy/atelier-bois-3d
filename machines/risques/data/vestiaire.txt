@@ -1,0 +1,100 @@
+# © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
+# Le « vestiaire » des risques généraux (demandé par l'enseignant le 06/11/2026) : avant les situations, l'élève voit
+# chaque équipement sur l'avatar, lit sa fiche et regarde la démonstration « sans protection / avec protection ».
+# Lecture OBLIGATOIRE avant l'évaluation, comme les fiches risques (trace RISQUES_vestiaire dans Moodle).
+#
+# Comment modifier ce fichier (même format que fiches.txt) :
+# - ### Partie | note        : un titre de partie (et une courte note, affichée sous le titre).
+# - ## Titre | code | repère : une fiche. Le CODE relie la fiche à l'avatar et à sa démonstration (ne pas le changer) :
+#                             chaussures, tenue, lunettes, auditif, masque, masque_a, gants_manut, gants_chim,
+#                             echarpe, bijoux, cheveux, sweat. Le repère s'affiche sous le titre (ici : la norme).
+# - une ligne de texte      : un paragraphe ;  - texte : une puce ;  > texte : la source (en petit, en bas).
+# - Les lignes qui commencent par un seul # sont des commentaires.
+# Après un changement de l'ordre ou du nombre des fiches, augmenter `vestiaireV` dans config.js (lecture à refaire).
+# Contenu rédigé d'après les fiches de référence du module (sources.txt) : À RELIRE par l'enseignant.
+
+### Les équipements de l'atelier | Touchez une fiche : l'élève l'enfile. « Voir sans » et « Voir avec » montrent à quoi il sert.
+
+## Chaussures de sécurité | chaussures | NF EN ISO 20345
+Elles protègent les pieds de la chute d'un panneau, d'une pièce de bois ou d'un outil, et évitent de glisser sur les copeaux.
+- Quand : toujours, dès l'entrée dans l'atelier.
+- Bien les porter : lacées, à la bonne taille, semelle en bon état.
+- Marquage : « S1 » à « S3 » ; embout résistant à un choc de 200 joules ; S3 = semelle anti-perforation en plus.
+- Limite : une basket ne protège de rien : ni de l'écrasement, ni d'une pointe.
+> INRS ED 6077 (EPI, règles d'utilisation) ; norme NF EN ISO 20345 ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Vêtement de travail | tenue | NF EN ISO 13688
+Fermé et ajusté, il protège la peau des échardes et des arêtes vives, et ne flotte pas près d'un outil qui tourne.
+- Quand : toujours, à l'atelier.
+- Bien le porter : fermé jusqu'en haut, manches boutonnées aux poignets, rien qui pend.
+- Limite : un vêtement large, ouvert ou à capuche peut être happé par un outil en rotation.
+> INRS ED 6077 ; CCHST, « Vêtements amples et machines » ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Lunettes de protection | lunettes | NF EN 166
+Elles protègent les yeux des copeaux, des éclats de bois et des poussières projetés par les machines.
+- Quand : à chaque machine, au ponçage, à l'affûtage, et avec un produit qui peut éclabousser.
+- Bien les porter : bien plaquées, branches sur les oreilles ; propres et sans rayure.
+- Marquage : « EN 166 » sur la monture ; « F » = résiste à un éclat à 45 m/s.
+- Limite : des lunettes de vue ne protègent pas : il faut des surlunettes ou des lunettes de sécurité à la vue.
+> INRS ED 798 (protection des yeux et du visage) ; INRS ED 6077 ; norme NF EN 166.
+
+## Casque antibruit | auditif | NF EN 352-1
+Il protège l'oreille du bruit des machines. La perte d'audition due au bruit est définitive et ne se soigne pas.
+- Quand : dès que le bruit dépasse 85 dB(A) (raboteuse, toupie, scies, dégauchisseuse…) ; il doit être à disposition dès 80 dB(A).
+- Bien le porter : coquilles bien sur les oreilles, cheveux et branches de lunettes dégagés ; tout le temps du bruit.
+- Marquage : « EN 352 » et un affaiblissement « SNR » en dB.
+- Limite : retiré quelques minutes dans le bruit, il perd une grande partie de son efficacité sur la journée.
+> INRS ED 133 (bruit, 2021) ; Code du travail R4431-2 et R4434-7 ; norme NF EN 352-1.
+
+## Masque anti-poussières FFP2 | masque | NF EN 149
+Il filtre les poussières fines de bois, que l'aspiration ne capte pas toutes. Les poussières de bois sont cancérogènes (cancer des fosses nasales).
+- Quand : au ponçage, au nettoyage, à toute machine sans aspiration efficace : FFP2 au minimum.
+- Bien le porter : pincé sur le nez, élastiques de part et d'autre de la tête ; un masque bien ajusté ne laisse pas passer d'air sur les côtés.
+- Marquage : « EN 149 FFP2 » ; « NR » = jetable, pour un poste de travail au plus.
+- Limite : il ne protège pas des vapeurs de solvants (vernis, colles) ; la barbe empêche l'étanchéité.
+> INRS ED 974 (poussières de bois, 2021) ; INRS ED 6106 (appareils de protection respiratoire) ; norme NF EN 149.
+
+## Demi-masque à cartouches | masque_a | NF EN 140 · EN 14387
+Ses cartouches retiennent les vapeurs de solvants des vernis, teintes et colles.
+- Quand : pour appliquer un produit à solvant, même dans la zone de finition ventilée.
+- Bien le porter : sangles serrées, test d'étanchéité à chaque pose ; cartouches à la date, changées comme le dit la notice.
+- Marquage : cartouche « A » (bande marron) = vapeurs organiques ; « A2P3 » = vapeurs et poussières.
+- Limite : une cartouche saturée ne protège plus ; le masque se range dans une boîte fermée.
+> INRS ED 6106 ; INRS ED 6207 (étiquetage CLP) ; normes NF EN 140 et NF EN 14387.
+
+## Gants de manutention | gants_manut | NF EN 388
+Ils protègent les mains des échardes, des arêtes vives et des chants coupants pendant la manutention.
+- Quand : pour porter, décharger, ranger des panneaux et du bois, machines arrêtées.
+- Marquage : « EN 388 » et le pictogramme du marteau, avec des chiffres (abrasion, coupure, déchirure, perforation).
+- INTERDITS près d'un outil qui tourne (toupie, scies, dégauchisseuse, perceuse…) : le gant est happé et entraîne la main.
+> INRS ED 6077 ; CCHST, « Gants et machines tournantes » ; norme NF EN 388.
+
+## Gants pour produits chimiques | gants_chim | NF EN ISO 374-1
+Ils protègent la peau des produits de finition, colles et solvants (brûlures, eczéma, produits qui passent la peau).
+- Quand : pour manipuler un produit chimique, d'après sa fiche de données de sécurité.
+- Bien les porter : le bon matériau pour le produit (souvent le nitrile), sans trou, retirés sans toucher l'extérieur.
+- Marquage : « EN ISO 374-1 » et le pictogramme de l'erlenmeyer.
+- Limite : un gant à usage unique se jette après usage ; jamais près d'une machine en marche.
+> INRS ED 112 (gants contre le risque chimique) ; INRS ED 6207 ; norme NF EN ISO 374-1.
+
+### Ce qui est dangereux à l'atelier | Rien ne doit pendre ni flotter près d'un outil qui tourne : il peut être happé et entraîner le corps vers l'outil.
+
+## Écharpe, foulard, cordon | echarpe | À retirer
+Une écharpe qui pend près d'un outil en rotation est happée en une fraction de seconde : le cou est entraîné vers la machine.
+- À faire : retirer l'écharpe, le foulard, le tour de cou et les cordons de capuche avant d'entrer à l'atelier.
+> CCHST, « Vêtements amples et machines » ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Bracelet, bague, montre | bijoux | À retirer
+Une bague ou un bracelet peut s'accrocher à une pièce ou à un outil et arracher un doigt ou blesser le poignet.
+- À faire : retirer bijoux, bagues et montre avant le travail (les ranger dans le casier).
+> CCHST, « Vêtements amples et machines » ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Cheveux longs | cheveux | À attacher
+Des cheveux longs détachés peuvent être happés par un outil ou un arbre en rotation (scalp).
+- À faire : attacher les cheveux longs (queue de cheval ou chignon), et les rentrer dans le col si besoin.
+> CCHST, « Vêtements amples et machines » ; fiche « Sécurité atelier » 2MB du lycée.
+
+## Sweat ouvert, vêtement large | sweat | À remplacer
+Un sweat ouvert, des manches larges ou une capuche flottent près des machines et peuvent être happés.
+- À faire : porter le vêtement de travail fermé et ajusté ; pas de sweat ouvert ni de capuche à l'atelier.
+> INRS ED 6077 ; CCHST, « Vêtements amples et machines ».
