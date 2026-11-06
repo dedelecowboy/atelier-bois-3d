@@ -5,7 +5,8 @@
    centre en (0, 0), X vers la droite du plan, Z vers le bas du plan (mur des portes en z = −10,8). */
 export default {
   id: 'risques',
-  fichesV: 2,                 // fiches réorganisées sur l'INRS ED 840 (nov. 2026) : lecture à refaire (engine/fiches.js)
+  fichesV: 2,
+  vestiaireV: 1,              // fiches du vestiaire (data/vestiaire.txt) : augmenter après un changement d'ordre ou de nombre                 // fiches réorganisées sur l'INRS ED 840 (nov. 2026) : lecture à refaire (engine/fiches.js)
   pageTitle: 'Risques généraux de l\'atelier bois 3D',
   title: 'Risques généraux',
   canvasLabel: 'Vue 3D de l\'atelier menuiserie, à faire pivoter à la souris ou au doigt',

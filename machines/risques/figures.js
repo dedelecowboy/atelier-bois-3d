@@ -142,7 +142,7 @@ export function person(o={}){
 /* ---------- poses ---------- */
 /* mêmes réglages que les anciennes poses : [épaule avant/arrière, écart], coude, dos, [hanche, genou] ; index 0 = bras G, 1 = bras D ;
    chaque os est orienté vers la direction voulue depuis sa direction au repos */
-const POSES={
+export const POSES={
   debout:     { sh:[[0.05,0.08],[0.05,-0.08]], el:[-0.15,-0.15], sp:0.02, leg:[0,0] },
   machine:    { sh:[[-0.55,0.12],[-0.55,-0.12]], el:[-0.85,-0.85], sp:0.14, leg:[-0.04,0.06] },
   soufflette: { sh:[[-0.35,0.12],[-1.25,-0.1]], el:[-0.9,-0.15], sp:0.12, leg:[-0.03,0.05], wr:[0,0.3] },
@@ -186,6 +186,9 @@ export function setEpi(g,o={}){ const P=g.userData.P, L=P.L, e=new Set(o.epi||[]
   for(const [code,k] of Object.entries(EPI)) if(P.epi[k]) P.epi[k].visible=e.has(code);
   P.face.mouth.visible=!e.has('masque') && !e.has('masque_a');
   P.scarf.visible=!!o.echarpe; P.bracelet.visible=!!o.bijoux && !gant; }
+
+/* repères du visage de l'élève porté (m, repère du personnage au repos : x vers sa gauche, y depuis le sol, z vers l'avant) */
+export const reperes=g=>D.J.eleves[g.userData.P.qui].reperes;
 
 /* ---------- objets tenus par les personnages ---------- */
 const std=(c,o={})=>new THREE.MeshStandardMaterial({ color:c, roughness:.78, metalness:0, ...o });

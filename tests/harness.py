@@ -40,6 +40,7 @@ HELPERS = r"""
 # fiches de la machine (engine/fiches.js) : toutes marquées lues, sans trace Moodle ni message (tests/fiches/ teste la lecture elle-même)
 LUES = """()=>{ const A=window.__atelier, F=A&&A.app&&A.app.fiches; if(!F||!F.list.length) return;
   const all=F.list.map((_,i)=>i); A.parc.lu=all; try{ localStorage.setItem('fiches.lues.'+A.app.config.id, JSON.stringify(all)); }catch(e){}
+  const V=A.app.vestiaire; if(V&&V.list.length){ const vall=V.list.map((_,i)=>i); A.parc.ve=vall; try{ localStorage.setItem('vestiaire.lues.'+A.app.config.id, JSON.stringify(vall)); }catch(e){} V.render(); }
   F.render(); A.app.parcours&&A.app.parcours.render(); const t=document.getElementById('lt-parts'); if(t&&!document.getElementById('ltabs').hidden) t.click(); }"""
 
 def js(body):

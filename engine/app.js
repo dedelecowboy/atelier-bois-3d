@@ -90,6 +90,11 @@ export function createApp(config, raw){
           tabs.hidden=false; tabs.querySelectorAll('.ltab').forEach(b=>b.onclick=()=>setLt(b.dataset.lt));
           app.fiches.mount($('fichesBox'), hooks.fiches||{}); setLt(app.fiches.need()?'fiches':'parts'); app.showFiches=()=>setLt('fiches'); }
         if(parc.PARC_ON){ app.fiches.onChange(()=>parc.render()); parc.render(); } }
+      /* 2e série à lecture obligatoire (hooks.vestiaire = { el, ...options de createFiches }) : risques généraux, le vestiaire */
+      app.lectures=[app.fiches];
+      if(hooks.vestiaire?.list?.length){ app.vestiaire=createFiches(app, parc, hooks.vestiaire); app.lectures.push(app.vestiaire);
+        app.vestiaire.mount($(hooks.vestiaire.el), hooks.vestiaire);
+        if(parc.PARC_ON){ app.vestiaire.onChange(()=>parc.render()); parc.render(); } }
       /* paquetage « Atelier bois 3D » : retour à l'atelier par le sommaire de Moodle (la progression est enregistrée à la sortie) */
       /* paquetage unique : à l'entrée, l'élève choisit S'entraîner (présentation + exercices, rien d'enregistré)
          ou l'évaluation (parcours noté) ; un bouton de l'en-tête passe de l'un à l'autre */
@@ -109,11 +114,12 @@ export function createApp(config, raw){
           if(lockBy){ const n=(pkg().titles[lockBy]||lockBy).replace(/^\d+\.\s*/,'');
             return { t:'🔒 Évaluation verrouillée', s:`Réussissez d'abord l'évaluation « ${n} ». Vous pouvez vous entraîner sur cette machine en attendant.` }; }
           if(app.fiches.need()) return { t:'🔒 Lisez d\'abord les fiches', s:`Fiches lues : ${app.fiches.count()} / ${app.fiches.list.length}. Choisissez « S'entraîner » : les fiches de la machine sont dans la présentation, onglet « Fiches ».` };
+          const V=app.vestiaire; if(V?.need()) return { t:hooks.vestiaire.lockT||'🔒 Voyez d\'abord le vestiaire', s:`${V.mots.lues} : ${V.count()} / ${V.list.length}. ${hooks.vestiaire.lockS||''}` };
           return null; };
         const refreshChoice=()=>{ const L=evalLock(); $('chEval').disabled=!!L; $('chEvalT').textContent=L?L.t:def.t; $('chEvalS').textContent=L?L.s:def.s; };
-        refreshChoice(); app.fiches.onChange(refreshChoice);
-        $('chTrain').onclick=()=>{ train(true); if(app.fiches.need()) app.showFiches?.(); }; $('chEval').onclick=()=>train(false);
-        sw.onclick=()=>{ refreshChoice(); if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); if(app.fiches.need()) app.showFiches?.(); return; } train(sw.dataset.train!=='true'); };
+        refreshChoice(); app.lectures.forEach(l=>l.onChange(refreshChoice));
+        $('chTrain').onclick=()=>{ train(true); if(app.fiches.need()) app.showFiches?.(); else if(app.vestiaire?.need()) app.showVestiaire?.(); }; $('chEval').onclick=()=>train(false);
+        sw.onclick=()=>{ refreshChoice(); if(sw.dataset.train==='true' && $('chEval').disabled){ stage.toast($('chEvalS').textContent); if(app.fiches.need()) app.showFiches?.(); else if(app.vestiaire?.need()) app.showVestiaire?.(); return; } train(sw.dataset.train!=='true'); };
         parc.setActive(false); $('choice').hidden=false; }
       if(window.ATELIER_LOCAL){ const b=$('toAtelier'); b.hidden=false; b.title='Revenir à l\'atelier'; b.onclick=()=>{ location.href='../index.html'; }; }   // dossier d'entraînement hors ligne
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;

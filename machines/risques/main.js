@@ -11,16 +11,34 @@ import reperage from './data/reperage.txt';
 import dangersTxt from './data/dangers.txt';
 import epiTxt from './data/epi.txt';
 import fichesTxt from './data/fiches.txt';
+import vestiaireTxt from './data/vestiaire.txt';
+import { createVestiaire } from './vestiaire.js';
+import { BRUIT as RBRUIT } from '../raboteuse/constants.js';
+import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
+import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
 import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria } from './scenarios.js';
 
-const data = ctx.data = { dangers:parseDangers(dangersTxt), epi:parseEpi(epiTxt), fiches:parseFiches(fichesTxt) };
+const data = ctx.data = { dangers:parseDangers(dangersTxt), epi:parseEpi(epiTxt), fiches:parseFiches(fichesTxt), vestiaire:parseFiches(vestiaireTxt,'vestiaire.txt') };
 const app = createApp(config, { organes, qcm, reperage, fiches:fichesTxt });
 const { stage, parts } = app;
 const THREE = stage.THREE;
 const model = ctx.model = buildModel({ root:stage.root, tagPart:parts.tagPart });
 ctx.app = app;
+/* ---------- vestiaire (demandé par l'enseignant le 06/11/2026) : onglet à côté des fiches risques, lecture obligatoire ---------- */
+const V = createVestiaire({ app, model, stage, list:data.vestiaire });
+let rtab='fiches';
+function setRtab(t){ rtab=t; $('fiches').hidden=t!=='fiches'; $('vestiaire').hidden=t!=='vest';
+  document.querySelectorAll('#rtabs .rtab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.rt===t))); syncVest(); }
+document.querySelectorAll('#rtabs .rtab').forEach(b=>b.onclick=()=>setRtab(b.dataset.rt));
+app.showVestiaire=()=>setRtab('vest');
+/* le vestiaire n'est actif qu'en présentation (visite), onglet « Vestiaire » ouvert */
+function syncVest(){ const want= rtab==='vest' && app.ex.mode==='libre' && $('app').dataset.ui==='pres';
+  if(want && !V.active){ V.enter(); } else if(!want && V.active){ V.leave(); stage.setView('v34'); } }
+$('vestiaire').addEventListener('click',e=>{ const b=e.target.closest('[data-vk]'); if(!b) return; const k=b.dataset.vk, d=b.dataset.vd;
+  if(!V.active) setRtab('vest'); if(d==='voir') V.dress(k); else V.play(k,d);
+  if(window.innerWidth<=900) document.querySelector('.stage')?.scrollIntoView({ behavior:'smooth', block:'start' }); });   // téléphone : la vue 3D est au-dessus des fiches
 /* situations retirées de dangers.txt par l'enseignant : cachées */
 for(const [k,o] of Object.entries(model.DANG)) if(k!=='armoire_ouverte' && k!=='machine_allee' && !data.dangers.some(d=>d.k===k)) o.userData.off=true;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -170,7 +188,7 @@ function fireLevel(now){ const F=st.f; if(!F) return 0;
 
 /* ---------- mise à jour ---------- */
 let lastMode='', posteKey='';
-function update(){ const m=mode();
+function update(){ const m=mode(); syncVest();
   if(m!==lastMode){ lastMode=m;
     model.showDangers(m==='dangers'); for(const o of Object.values(model.DANG)) if(o.userData.off) o.visible=false;
     if(m!=='epi') model.hideAvatar(); if(m!=='feu') model.fire.set(0);
@@ -200,6 +218,13 @@ function onPick(hit,hits){ const m=mode();
 let lastApply=0;
 app.start({
   update, alerts, renderExtra, fiches:{ el:'fiches', voir:'Voir dans l\'atelier' },
+  vestiaire:{ el:'vestiaire', list:data.vestiaire, key:'vestiaire', store:'ve', trace:'vestiaire', version:config.vestiaireV,
+    mots:{ lues:'Équipements vus', lire:'J\'ai vu cet équipement', lu:'Équipement vu ✓', tous:'Tous les équipements du vestiaire sont vus', trace:'équipements du vestiaire vus',
+      todo:'Ouvrez chaque équipement : l\'élève l\'enfile ; regardez la démonstration, puis « J\'ai vu cet équipement ». Obligatoire avant l\'évaluation dans Moodle.',
+      titre:'Passez au vestiaire', consigne:'Ouvrez chaque équipement : l\'élève l\'enfile, et la démonstration montre à quoi il sert. Touchez « J\'ai vu cet équipement » en bas de chaque fiche.' },
+    onOpen:f=>{ if(V.active) V.dress(f.parts[0]); }, extra:V.extra,
+    lockT:'🔒 Passez d\'abord au vestiaire', lockS:'Choisissez « S\'entraîner » : le vestiaire est à droite, onglet « Vestiaire », à côté des fiches risques.' },
+  bruit:{ niveaux:RBRUIT, echantillons:{ vide:sonRabVide, coupe:sonRabCoupe }, etat:()=>V.bruitEtat() },
   steps:buildSteps(),
   loadMode(m){ reset(m); F.msg=''; actKey=''; markKey=''; lastMode='';
     if(m==='consignation'){ st.c.on=true; syncMachine(); stage.setView('vmachine'); }
@@ -208,10 +233,13 @@ app.start({
     if(m==='libre') stage.setView('v34'); },
   panelKey:()=>[mode(),app.ex.step,JSON.stringify(st.c?.t),JSON.stringify(st.f?.t),Object.keys(st.d?.found||{}).length,st.faults.length],
   onPick,
-  tick(dt,now){ const anim=model.tick(dt,now); if(mode()==='feu') model.fire.set(fireLevel(performance.now()));
+  tick(dt,now){ V.tick(); const anim=model.tick(dt,now); if(mode()==='feu') model.fire.set(fireLevel(performance.now()));
     if(anim && now-lastApply>0.25){ lastApply=now; if(mode()==='consignation') apply(); } },
   parcours:{ scenarios:SCENS, criteria:scenCriteria, scenWeight:15, qcmTitle:'QCM risques généraux',
     labels:{ rep:'Repérage des équipements', item:'équipement', where:'dans l\'atelier',
       scenNote:'Suivez les étapes et vos actions dans le panneau « Actions ». À l\'étape « Contrôle », vos choix sont relevés, et toute faute grave de sécurité est relevée' } },
 });
-window.__risques={ st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };
+{ const so=$('sono'); if(so) so.hidden=true; }   // sonomètre : seulement pendant la démonstration du casque
+if(app.vestiaire){ const cnt=()=>{ const n=$('vestN'); if(n) n.textContent=`${app.vestiaire.count()}/${app.vestiaire.list.length}`; };
+  cnt(); app.vestiaire.onChange(()=>{ cnt(); const f=data.vestiaire[app.vestiaire.open]; if(V.active && f) V.dress(f.parts[0]); }); }
+window.__risques={ V, setRtab, st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };

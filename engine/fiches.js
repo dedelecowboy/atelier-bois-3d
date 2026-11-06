@@ -12,9 +12,16 @@
 import { noteFiches } from './permis.js';
 const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-export function createFiches(app, parc){
-  const F = app.data.fiches || [];
-  const id = app.config.id || 'machine', KEY = 'fiches.lues.'+id;
+/* O (facultatif) : une 2e série de fiches à lecture obligatoire, avec sa propre mémoire (risques généraux : le vestiaire,
+   demandé par l'enseignant le 06/11/2026) : { list (fiches lues par parseFiches), key (préfixe localStorage), store (champ de
+   suspend_data, 've' : ve, veD, veV), trace (suffixe de l'interaction CODE_<trace>), version, mots:{ lues, lire, lu, tous,
+   todo, trace }, onOpen(f, i) (fiche ouverte), extra(f, i) (boutons ajoutés en bas de la fiche, HTML) }. Sans O : comme avant. */
+export function createFiches(app, parc, O={}){
+  const F = O.list || app.data.fiches || [], MAIN = !O.list;
+  const W = { lues:'Fiches lues', lire:'J\'ai lu cette fiche', lu:'Fiche lue ✓', tous:'Toutes les fiches sont lues', trace:'fiches lues',
+    todo:'Lisez chaque fiche jusqu\'au bout, puis « J\'ai lu cette fiche ». Obligatoire avant l\'évaluation dans Moodle.', ...(O.mots||{}) };
+  const S = O.store || 'lu', SD = S+'D', SV = S+'V';
+  const id = app.config.id || 'machine', KEY = (O.key||'fiches')+'.lues.'+id;
   const P = parc?.PARC_ON ? parc.parc : null;
   const CODE = (app.config.scorm?.code||id).toUpperCase();
   const listeners = new Set(), mounts = [];
@@ -22,14 +29,14 @@ export function createFiches(app, parc){
   /* version des fiches (config.fichesV, 1 par défaut) : la lecture est mémorisée par numéro de fiche ; quand l'ordre ou
      le nombre des fiches change, l'enseignant augmente fichesV et l'ancienne lecture est oubliée (sinon de nouvelles
      fiches seraient marquées « lues » par erreur). Mémoire sans version = version 1. */
-  const V = +app.config.fichesV || 1;
-  if(P){ if((+P.luV||1)!==V){ P.lu=[]; delete P.luD; } if(V>1) P.luV=V; }
+  const V = +(O.list? O.version : app.config.fichesV) || 1;
+  if(P){ if((+P[SV]||1)!==V){ P[S]=[]; delete P[SD]; } if(V>1) P[SV]=V; }
   else try{ if((+localStorage.getItem(KEY+'.v')||1)!==V){ localStorage.removeItem(KEY); localStorage.setItem(KEY+'.v', V); } }catch(e){}
-  const get = ()=>{ if(P) return Array.isArray(P.lu)? P.lu.filter(i=>i<F.length) : [];
+  const get = ()=>{ if(P) return Array.isArray(P[S])? P[S].filter(i=>i<F.length) : [];
     try{ const a=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(a)? a.filter(i=>i<F.length) : []; }catch(e){ return []; } };
   /* repère « fiches lues » du permis machine (engine/permis.js) : aussi gardé dans le navigateur dans Moodle (indicatif, sans effet) */
-  const repere = ()=>noteFiches(id, count(), F.length);
-  const put = a=>{ if(P){ P.lu=a; parc.scorm.save(); repere(); return; } try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} repere(); };
+  const repere = ()=>{ if(MAIN) noteFiches(id, count(), F.length); };
+  const put = a=>{ if(P){ P[S]=a; parc.scorm.save(); repere(); return; } try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} repere(); };
   const isRead = i=>get().includes(i);
   const count = ()=>F.reduce((n,_,i)=>n+(isRead(i)?1:0),0);
   const all = ()=>F.length>0 && count()===F.length;
@@ -39,8 +46,8 @@ export function createFiches(app, parc){
   function mark(i){ if(isRead(i)) return; const was=all(); put([...get(), i].sort((a,b)=>a-b));
     if(!was && all()){
       const now=new Date(), d=now.toLocaleDateString('fr-FR')+' '+now.toTimeString().slice(0,5);
-      if(P){ P.luD=d; parc.scorm.inter(`${CODE}_lecture`, 'performance', `${F.length}/${F.length} fiches lues le ${d}`, 'correct'); parc.scorm.save(); }
-      app.toast?.(P? 'Toutes les fiches sont lues : l\'évaluation est ouverte.' : 'Toutes les fiches sont lues.'); }
+      if(P){ P[SD]=d; parc.scorm.inter(`${CODE}_${O.trace||'lecture'}`, 'performance', `${F.length}/${F.length} ${W.trace} le ${d}`, 'correct'); parc.scorm.save(); }
+      app.toast?.(W.tous+(P && !(app.lectures||[]).some(l=>l.need())? ' : l\'évaluation est ouverte.' : '.')); }
     const nx=F.findIndex((_,k)=>!isRead(k)); open=nx;   // la suivante non lue s'ouvre
     render(); listeners.forEach(f=>f()); }
 
@@ -48,25 +55,25 @@ export function createFiches(app, parc){
     const info=document.getElementById('info'); if(info) info.innerHTML=`<b>${esc(f.t)}</b><span>${f.parts.map(k=>P2.PARTS[k]?.n).filter(Boolean).join(' · ')}</span>`; }
 
   function html(o){ const n=count(), pc=F.length? Math.round(100*n/F.length) : 0;
-    return `<div class="fiches-prog" data-all="${all()}"><b>Fiches lues : ${n} / ${F.length}</b><span class="fbar"><i style="width:${pc}%"></i></span>`
-      + `<span class="fiches-msg">${all()? (o.doneMsg||'Toutes les fiches sont lues.') : (o.todoMsg||'Lisez chaque fiche jusqu\'au bout, puis « J\'ai lu cette fiche ». Obligatoire avant l\'évaluation dans Moodle.')}</span></div>`
+    return `<div class="fiches-prog" data-all="${all()}"><b>${W.lues} : ${n} / ${F.length}</b><span class="fbar"><i style="width:${pc}%"></i></span>`
+      + `<span class="fiches-msg">${all()? (o.doneMsg||W.tous+'.') : (o.todoMsg||W.todo)}</span></div>`
       + F.map((f,i)=>{ const lu=isRead(i);
         return (f.sec?`<h4 class="fiches-sec">${esc(f.sec)}</h4>${f.secNote?`<p class="fiches-secnote">${esc(f.secNote)}</p>`:''}`:'')
           + `<details class="fiche" data-i="${i}" data-lu="${lu}"${i===open?' open':''}><summary><span class="fnum">${lu?'✓':i+1}</span><span class="ft">${esc(f.t)}${f.tag?`<small class="ftag">${esc(f.tag)}</small>`:''}</span></summary>`
           + f.blocks.map(b=>b.p?`<p>${esc(b.p)}</p>`:b.ul?`<ul>${b.ul.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p class="src">${esc(b.src)}</p>`).join('')
-          + `<div class="fiche-act">${f.parts.length?`<button type="button" class="toggle mini" data-fshow="${i}">${o.voir||'Voir sur la machine'}</button>`:''}`
-          + `<button type="button" class="toggle fiche-lu" data-flu="${i}" ${lu?'disabled aria-pressed="true"':''}>${lu?'Fiche lue ✓':'J\'ai lu cette fiche'}</button></div></details>`; }).join(''); }
+          + `<div class="fiche-act">${O.extra? O.extra(f,i) : ''}${MAIN && f.parts.length?`<button type="button" class="toggle mini" data-fshow="${i}">${o.voir||'Voir sur la machine'}</button>`:''}`
+          + `<button type="button" class="toggle fiche-lu" data-flu="${i}" ${lu?'disabled aria-pressed="true"':''}>${lu?W.lu:W.lire}</button></div></details>`; }).join(''); }
 
   function render(){ for(const m of mounts){ const el=m.el; if(!el.isConnected) continue; el.innerHTML=html(m.o);
       el.querySelectorAll('details.fiche').forEach(d=>d.addEventListener('toggle',()=>{ if(d.open){ open=+d.dataset.i;
-        el.querySelectorAll('details.fiche[open]').forEach(o=>{ if(o!==d) o.open=false; }); } }));
+        el.querySelectorAll('details.fiche[open]').forEach(o=>{ if(o!==d) o.open=false; }); O.onOpen?.(F[open], open); } }));
       el.querySelectorAll('[data-fshow]').forEach(b=>b.onclick=()=>show(F[+b.dataset.fshow]));
       el.querySelectorAll('[data-flu]').forEach(b=>b.onclick=()=>mark(+b.dataset.flu)); }
-    const n=document.getElementById('fichesN'); if(n) n.textContent=F.length? `${count()}/${F.length}` : ''; }
+    const n=MAIN && document.getElementById('fichesN'); if(n) n.textContent=F.length? `${count()}/${F.length}` : ''; }
 
   /* el : conteneur ; o : { voir, todoMsg, doneMsg } */
   function mount(el, o={}){ if(!el || !F.length) return; for(let i=mounts.length-1;i>=0;i--) if(mounts[i].el===el || !mounts[i].el.isConnected) mounts.splice(i,1);
     mounts.push({ el, o }); repere(); if(open<0) open=Math.max(0, F.findIndex((_,k)=>!isRead(k))); render(); }
 
-  return { list:F, count, all, need, mark, mount, render, onChange:f=>listeners.add(f), get CODE(){ return CODE; } };
+  return { list:F, count, all, need, mark, mount, render, onChange:f=>listeners.add(f), get CODE(){ return CODE; }, get open(){ return open; }, mots:W };
 }

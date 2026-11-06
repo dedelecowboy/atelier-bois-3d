@@ -35,7 +35,7 @@ export function createParcours(app, { reperage, qcm }, P){
   const CODE=(app.config.scorm?.code||app.config.id||'M').toUpperCase();
   const txt=v=>String(v).replace(/±/g,'+/-').replace(/≤/g,'max').replace(/≥/g,'min').replace(/·/g,'|').replace(/[\u00a0\u202f]/g,' ').replace(/[^\p{L}\p{N}.,:;\/()×+%°'| -]/gu,' ').replace(/\s+/g,' ').trim();
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
-    state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV}; } });
+    state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}; } });
   /* parties de l'évaluation, dans l'ordre ; parc.todo = celles à refaire (null à la première tentative : toutes) */
   const KEYS=['rep','qcm',...SCENS.map((_,i)=>'s'+i)];
   const need=k=>!parc.todo||parc.todo.includes(k);
@@ -57,7 +57,7 @@ export function createParcours(app, { reperage, qcm }, P){
     enter(T[0]); scorm.save(); render(); }
   const repName=r=>r.name||parts.PARTS[r.k].n.toLowerCase();
   /* lecture des fiches avant le repérage (paquetage séparé ; dans le paquetage unique, « Passer l'évaluation » reste fermé tant qu'elles ne sont pas lues) */
-  const lec=()=>parc.ph==='rep' && !parc.rk.length && !!app.fiches?.need();
+  const lec=()=>parc.ph==='rep' && !parc.rk.length && !!(app.lectures||[app.fiches]).some(l=>l?.need());
   const curRep=()=>REP[Math.min(parc.ri,REP.length-1)];
 
   /* --- repérage --- */
@@ -129,6 +129,9 @@ export function createParcours(app, { reperage, qcm }, P){
     $('parcSteps').innerHTML=steps.map(([k,t],i)=>{ const state= i<cur?'done': i===cur?'cur': (k!=='lec'&&!need(k))?'done':'lock';
       return `<li data-s="${state}"><span>${state==='done'?'✓':state==='lock'?'🔒':i+1}</span>${t}</li>`; }).join('');
     const rs=sum(parc.rk), qs=sum(parc.qk);
+    if(lec() && !app.fiches?.need() && app.vestiaire){ const V=app.vestiaire;
+      el.innerHTML=`<p class="pk">Avant l'évaluation</p><h3>${V.mots.titre||'Voyez chaque fiche'}</h3><p>${V.mots.consigne||''}</p><div class="fiches-box" id="parcFiches"></div>`;
+      V.mount($('parcFiches'), { todoMsg:'Obligatoire avant le repérage.', doneMsg:V.mots.tous+'.' }); return; }
     if(lec()){ const F=app.fiches;
       el.innerHTML=`<p class="pk">Avant l'évaluation</p><h3>Lisez les fiches de la machine</h3><p>Ouvrez chaque fiche, lisez-la jusqu'au bout, puis touchez « J'ai lu cette fiche ». Le repérage des ${L.item}s commence quand les ${F.list.length} fiches sont lues.</p><div class="fiches-box" id="parcFiches"></div>`;
       F.mount($('parcFiches'), { todoMsg:'Lecture obligatoire avant le repérage.', doneMsg:'Toutes les fiches sont lues.' }); return; }
