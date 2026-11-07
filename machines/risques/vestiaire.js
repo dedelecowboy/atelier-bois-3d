@@ -240,7 +240,7 @@ export function createVestiaire({ app, model, stage, list }){
       else { demo.sc0=null; demo.reach= k==='bijoux' || mode==='toupie'; POSES.vest={ ...POSES.machine }; setPose(av,'vest');
         if(k==='cheveux' && !on){ const m=Object.entries(P().L).find(([n,o])=>n.endsWith('|tete') && o.visible)?.[1]; if(m) demo.cheveux=cheveuxPendants(m); }
         const a= demo.reach? bone('RightHand') : bone('Head'), c=sideCam(a,demo.P,demo.reach? 0.95 : 1.15,demo.reach? 0.25 : 0.1, demo.reach? T.w(1,0,0).sub(T.w(0,0,0)) : null);   // la main droite : vue du côté droit de l'élève
-        if(demo.reach) camTo(T.w(1.05,1.75,-0.15),T.w(0.0,0.95,0.25),1.2);   /* de l'autre côté de la table, au-dessus du guide : on voit la main et l'outil */ else camTo(c.pos,c.tgt.clone().lerp(demo.P,0.2),1.2); } }
+        if(k==='bijoux') camTo(T.w(0.55,1.50,0.45),T.w(0.0,0.90,0.09),1.2);   /* bracelet : de haut, côté droit de l'élève : la main le long du guide et l'outil dans la lumière */ else if(demo.reach) camTo(T.w(1.05,1.75,-0.15),T.w(0.0,0.95,0.25),1.2);   /* de l'autre côté de la table, au-dessus du guide : on voit la main et l'outil */ else camTo(c.pos,c.tgt.clone().lerp(demo.P,0.2),1.2); } }
     else if(kind==='chute'){ /* l'élève porte une planche EN TRAVERS devant lui, une main à chaque bout (corrigé le 07/11/2026 :
          elle traversait l'élève) ; elle glisse des mains et tombe à plat sur la pointe des pieds */
       const fwd=V3(Math.sin(HOME.ry),0,Math.cos(HOME.ry)), left=V3(Math.cos(HOME.ry),0,-Math.sin(HOME.ry));
@@ -325,6 +325,21 @@ export function createVestiaire({ app, model, stage, list }){
   function majCheveux(ch){ const inv=new THREE.Matrix4().copy(ch.m.matrixWorld).invert(), H=P().B.Head.getWorldPosition(V3()).add(V3(0,0.06,0));
     ch.root.copy(H).applyMatrix4(inv); ch.down.copy(V3(0,-1,0)).transformDirection(inv);
     ch.u.uRoot.value.copy(ch.root); ch.u.uDown.value.copy(ch.down); ch.u.uK.value=ch.k; }
+  /* distance (m) entre le bracelet et le cercle de coupe de l'outil (cylindre vertical d'axe x = z = 0 dans le repère de
+     la toupie, rayon 80 mm, de la table à 60 mm au-dessus) */
+  function braceletOutil(){ const b=P().bracelet; if(!b||!b.visible||!b.geometry) return 9; const pa=b.geometry.attributes.position, inv=new THREE.Matrix4().copy(T.g.matrixWorld).invert(); let d=9;
+    b.updateMatrixWorld(true);
+    for(let i=0;i<pa.count;i+=2){ _v.fromBufferAttribute(pa,i).applyMatrix4(b.matrixWorld).applyMatrix4(inv); if(_v.y<0.85||_v.y>0.95) continue; d=Math.min(d,Math.hypot(_v.x,_v.z)-0.08); } return d; }
+  /* bracelet au droit de l'outil : distance (m) qui reste à parcourir le long du guide (repère de la toupie) */
+  function braceletX(){ const b=P().bracelet; if(!b||!b.visible) return 9; const inv=new THREE.Matrix4().copy(T.g.matrixWorld).invert();
+    return Math.max(0,-b.getWorldPosition(V3()).applyMatrix4(inv).x); }
+  /* bracelet : vue de dessus, la main droite tournée de 90° (sens anti-horaire) autour du poignet, à plat, dans sa longueur
+     parallèle au guide, doigts vers la sortie (demandé par l'enseignant le 07/11/2026) */
+  function longerGuide(){ const h=P().B.RightHand, tip=h.userData.tip; if(!tip) return; h.updateMatrixWorld(true);
+    const w=h.getWorldPosition(V3()), d=tip.getWorldPosition(V3()).sub(w).setY(0), c=T.w(-1,0,0).sub(T.w(0,0,0)).setY(0);
+    if(d.lengthSq()<1e-8) return; d.normalize(); c.normalize(); const a=Math.atan2(d.z*c.x-d.x*c.z, d.x*c.x+d.z*c.z);
+    const pw=h.parent.getWorldQuaternion(new THREE.Quaternion()), R=new THREE.Quaternion().setFromAxisAngle(V3(0,1,0),a);
+    h.quaternion.premultiply(pw.clone()).premultiply(R).premultiply(pw.invert()); h.updateMatrixWorld(true); }
   function happeTarget(){ const p=P(), L=p.L, vis=s=>Object.entries(L).find(([n,m])=>n.endsWith('|'+s) && m.visible)?.[1];
     if(demo.key==='echarpe') return { m:p.scarf, thr:0.05, step:3 };
     if(demo.key==='bijoux'||demo.key==='toupie') return { m:vis('mains'), thr:0.025, step:2, P:T.w(0,0.895,0.085) };   // la main, au niveau de l'outil, s'arrête à 2 – 3 cm de ses tranchants
@@ -376,23 +391,31 @@ export function createVestiaire({ app, model, stage, list }){
       const lean=demo.key==='cheveux'? 1.15 : 0.8;
       /* mains posées sur la table de la toupie, devant l'élève (gauche du personnage = −X du modèle, il regarde vers −Z) ; la main droite avance seule (bracelet, gants) */
       P().cibles={ G:T.w(-0.20,0.889,0.22), D: demo.reach? null : T.w(0.20,0.889,0.22) };   // un peu au-dessus de la table (mains épaisses)
-      const pose=L=>{ if(demo.reach) P().cibles.D=T.w(0.20-0.17*L,0.889,0.30-0.20*L);     // la main droite glisse à plat sur la table vers l'outil
+      /* bracelet (demandé par l'enseignant le 07/11/2026) : la main droite est allée chercher la pièce côté sortie et revient
+         en GLISSANT LE LONG DU GUIDE vers la lumière ; le poignet passe devant la main : c'est le bracelet qui arrive le
+         premier au droit de l'outil, s'y accroche, et la main est tirée contre l'outil et dans la lumière du guide */
+      const glisse=demo.key==='bijoux', xG=L=>-0.24+0.36*L;
+      const pose=L=>{ if(glisse) P().cibles.D=T.w(xG(L)+(demo.tire||0)*0.03,0.889,0.05-(demo.tire||0)*0.02);
+        else if(demo.reach) P().cibles.D=T.w(0.20-0.17*L,0.889,0.30-0.20*L);     // la main droite glisse à plat sur la table vers l'outil
         if(demo.cheveux) demo.cheveux.k=0.5*Math.min(1,L*2.5);                                          // les mèches tombent à mesure qu'elle se penche
         if(demo.reach) POSES.vest={ ...POSES.machine, sp:0.14+0.25*L, sh:[[-0.4,0.28],[-0.55-0.75*L,-0.04]], el:[-1.05,-0.55+0.4*L], wr:[0,0.15] };
         else POSES.vest={ ...POSES.machine, sp:0.14+lean*L, hip:0.3*L, sh:[[-0.35-0.2*L,0.28],[-0.35-0.2*L,-0.28]], el:[-1.05,-1.05] };
-        setPose(av,'vest'); av.updateMatrixWorld(true); hang(); if(demo.cheveux) majCheveux(demo.cheveux); };
+        setPose(av,'vest'); av.updateMatrixWorld(true); if(glisse) longerGuide(); hang(); if(demo.cheveux) majCheveux(demo.cheveux); };
       if(!demo.sc0){ pose(0); }
-      const tg=happeTarget(), dist=()=>{ if(demo.cheveux) majCheveux(demo.cheveux); return distTo(tg.m,tg.P||demo.P,tg.step,tg.poids); };
+      const tg=happeTarget(), dist=()=>{ if(glisse) return braceletOutil(); if(demo.cheveux) majCheveux(demo.cheveux); return distTo(tg.m,tg.P||demo.P,tg.step,tg.poids); };
+      if(glisse) tg.thr=0.004;
       let L=ease((t-0.8)/3.0);
       /* cheveux : la tête s'arrête AVANT le capot et le guide (corrigé le 07/11/2026 : elle y entrait) ; ce sont les mèches
          qui pendent qui approchent de l'outil */
       const stop=()=>{ if(dist()<tg.thr) return true; if(demo.reach) return false; const H=bone('Head');          // toutes les scènes où l'élève se penche (corrigé le 07/11/2026 : la tête de l'élève noir entrait dans la toupie)
         return Math.hypot(H.x-demo.P.x,H.z-demo.P.z)<0.21 || H.y<demo.P.y+0.30; };
       if(!on){ if(demo.Lh==null){ pose(L); if(stop() || L>=1){ let a=0, b=L; for(let i=0;i<9;i++){ const m=(a+b)/2; pose(m); if(stop()) b=m; else a=m; } demo.Lh=b; demo.th=t; lastLh[demo.key]=b; } }
-        if(demo.Lh!=null) L=Math.min(L,demo.Lh); pose(L);
+        if(demo.Lh!=null) L=Math.min(L,demo.Lh);
+        if(glisse && demo.Lh!=null) demo.tire=ease((t-demo.th)/0.45);    // accroché : la main est tirée vers l'outil et la lumière du guide
+        pose(L);
         T.halo.material.opacity= demo.Lh!=null? 0.65+0.25*Math.sin(t*8) : 0;
-        if(demo.Lh!=null && t>demo.th+0.5) conclude(false); }
-      else { const cap=demo.reach? 0.12 : (lastLh[demo.key]??0.75);   // bracelet, gants : avec la bonne tenue, la main reste loin de l'outil
+        if(demo.Lh!=null && t>demo.th+(glisse? 1.0 : 0.5)) conclude(false); }
+      else { const cap=glisse? 0.15 : demo.reach? 0.12 : (lastLh[demo.key]??0.75);   // bracelet, gants : avec la bonne tenue, la main reste loin de l'outil
         pose(Math.min(L,cap)); if(t>4.0) conclude(true); } }
     else if(demo.kind==='chute'){
       /* la planche glisse des mains (0,9 s), puis tombe au ralenti, presque à plat, en travers des deux pointes de pied ;
@@ -454,7 +477,7 @@ export function createVestiaire({ app, model, stage, list }){
   function leave(){ if(!active) return; active=false; stopDemo(); clearTimeout(dressT); cur=null; model.hideAvatar(); showStations(false); move=null;
     if(saved){ ctl.minDistance=saved.min; } stage.dirty(); }
 
-  return { enter, leave, dress, play, stopDemo, tick, bruitEtat, freeze:t=>{ fixedT=t; }, get active(){ return active; }, get demo(){ return demo; },
+  return { enter, leave, dress, play, stopDemo, tick, bruitEtat, freeze:t=>{ fixedT=t; }, get active(){ return active; }, get demo(){ return demo; }, get T(){ return T; },
     extra:(f)=>{ const k=f.parts[0]; if(!DEMOS[k]) return `<button type="button" class="toggle mini" data-vk="${k}" data-vd="voir">Voir sur l'élève</button>`;
       const Bt=DANGER.has(k)? BTN_D : BTN;
       return `<button type="button" class="toggle mini vd-sans" data-vk="${k}" data-vd="sans">${Bt.sans}</button><button type="button" class="toggle mini vd-avec" data-vk="${k}" data-vd="avec">${Bt.avec}</button>`

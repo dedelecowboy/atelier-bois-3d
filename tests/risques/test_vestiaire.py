@@ -29,7 +29,7 @@ async def main():
                                 ('chaussures','sans',[3.0],'ko','Sans chaussures'),('chaussures','avec',[3.8],'ok','embout'),
                                 ('masque','sans',[4.4],'ko','Sans masque'),('masque_a','sans',[4.4],'ko','FFP2'),('masque_a','avec',[4.4],'ok','demi-masque'),
                                 ('gants_manut','sans',[3.2],'ko','écharde'),('gants_manut','toupie',[4,4.8],'ko','gant'),('gants_chim','sans',[2.6],'ko','vernis'),
-                                ('cheveux','sans',[4,4.8],'ko','cheveux'),('sweat','sans',[4,4.8],'ko','sweat'),('tenue','avec',[4.2],'ok','vêtement de travail'),('bijoux','sans',[4,4.8],'ko','bracelet')]:
+                                ('cheveux','sans',[4,4.8],'ko','cheveux'),('sweat','sans',[4,4.8],'ko','sweat'),('tenue','avec',[4.2],'ok','vêtement de travail'),('bijoux','sans',[4,5.3],'ko','bracelet')]:
             r = await pg.eval(DEMO, [k, m, t])
             check(not r['hidden'] and r['l'] == l and mot in r['t'], f'{k} {m} : carte « {r["t"]} » ({l})')
             if k == 'auditif': check(r['sono'], f'{k} {m} : sonomètre affiché pendant la démonstration')

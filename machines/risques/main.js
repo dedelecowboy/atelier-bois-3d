@@ -19,7 +19,7 @@ import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
 import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
-import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria } from './scenarios.js';
+import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria, ELEVE_POSTE } from './scenarios.js';
 
 const data = ctx.data = { dangers:parseDangers(dangersTxt), epi:parseEpi(epiTxt), fiches:parseFiches(fichesTxt), vestiaire:parseFiches(vestiaireTxt,'vestiaire.txt') };
 const app = createApp(config, { organes, qcm, reperage, fiches:fichesTxt });
@@ -175,8 +175,6 @@ function act(a,v){ const m=mode(); F.msg='';
 
 /* ---------- liens avec la 3D ---------- */
 /* poste de chaque tâche : x, z, orientation du personnage (il regarde son travail ; la caméra se place devant lui, de côté) */
-/* élève de chaque poste (répartition validée par l'enseignant le 07/11/2026) */
-const ELEVE_POSTE={ toupie:'fille', poncage:'noir', manutention:'garcon', vernis:'noir' };
 const POSTES={ toupie:[0.7,5.25,Math.PI], poncage:[6.0,9.05,0], manutention:[-9.55,6.9,-Math.PI/2], vernis:[8.6,9.05,0] };
 function dressAvatar(){ const t=data.epi.tasks[Math.min(app.ex.step,data.epi.tasks.length-1)]; if(!t) return; const sel=st.e.sel[t.k]||[], p=POSTES[t.k]||[3,0,0];
   model.placeAvatar(p[0],p[1],p[2],{ eleve:ELEVE_POSTE[t.k]||'fille', epi:sel, hair:sel.includes('cheveux')?'attache':'long', echarpe:!sel.includes('bijoux'), bijoux:!sel.includes('bijoux'), pose:t.k==='manutention'?'debout':'machine' }); }
