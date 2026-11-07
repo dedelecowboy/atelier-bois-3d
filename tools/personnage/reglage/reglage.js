@@ -6,10 +6,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { person, setEpi, setPose, REGLAGES, OBJETS, defaut, reglage, placerObjets } from '../../../machines/risques/figures.js';
 
-const ELEVES={ equipe:{ nom:'Garçon · tenue d’atelier', o:{ hair:'court', epi:['tenue','chaussures'] } },
-  mal:{ nom:'Garçon · mal équipé', o:{ hair:'court', epi:[] } },
-  fille:{ nom:'Fille · queue de cheval', o:{ hair:'attache', epi:['tenue','chaussures'] } },
-  fille_mal:{ nom:'Fille · cheveux détachés', o:{ hair:'long', epi:[] } } };
+/* les 12 versions : 3 élèves × (tenue d'atelier ou sweat) × (chaussures de sécurité ou baskets) */
+const QUI={ garcon:['Garçon',['equipe','equipe_b','mal','mal_s']], fille:['Fille',['fille','fille_b','fille_mal','fille_mal_s']], noir:['Élève noir',['noir','noir_b','noir_mal','noir_mal_s']] };
+const TENUES=[['tenue d’atelier, sécurité',['tenue','chaussures']],['tenue d’atelier, baskets',['tenue']],['sweat, baskets',[]],['sweat, sécurité',['chaussures']]];
+const ELEVES={}; for(const [e,[nom,v]] of Object.entries(QUI)) v.forEach((q,i)=>{ ELEVES[q]={ nom:`${nom} · ${TENUES[i][0]}${e==='fille'? (i<2? ' (queue de cheval)' : ' (cheveux détachés)') : ''}`, e,
+  o:{ eleve:e, hair:e==='fille'? (i<2? 'attache' : 'long') : 'court', epi:TENUES[i][1] } }; });
+ELEVES.fille_l={ nom:'Fille · tenue d’atelier, sécurité (cheveux détachés)', e:'fille', o:{ eleve:'fille', hair:'long', epi:['tenue','chaussures'] } }; QUI.fille[1].push('fille_l');
+ELEVES.fille_mq={ nom:'Fille · sweat, baskets (queue de cheval)', e:'fille', o:{ eleve:'fille', hair:'attache', epi:[] } }; QUI.fille[1].push('fille_mq');
 const NOMS={ casque:'Casque antibruit', lunettes:'Lunettes', ffp2:'Masque FFP2', demimasque:'Demi-masque', echarpe:'Écharpe', bracelet:'Bracelet' };
 const CODE={ casque:'auditif', lunettes:'lunettes', ffp2:'masque', demimasque:'masque_a' };
 const POSES={ debout:'Debout', machine:'À la machine', soufflette:'Soufflette', aspire:'Aspirateur', dos_courbe:'Dos courbé' };
@@ -72,8 +75,8 @@ sel('#eleve',ELEVES,'eleve'); sel('#objet',NOMS,'objet'); sel('#pose',POSES,'pos
 $('#autres').onchange=e=>{ etat.autres=e.target.checked; habiller(); };
 document.querySelectorAll('[data-vue]').forEach(b=>b.onclick=()=>vue(b.dataset.vue));
 $('#depart').onclick=()=>{ const q=perso.userData.P.qui; if(REGLAGES[q]) delete REGLAGES[q][etat.objet]; placerObjets(perso); garder(); remplir(); };
-$('#versAutre').onclick=()=>{ const q=perso.userData.P.qui, autre={ equipe:'mal', mal:'equipe', fille:'fille_mal', fille_mal:'fille' }[q];
-  (REGLAGES[autre]||(REGLAGES[autre]={}))[etat.objet]=lire(); garder(); msg(`Réglage copié sur « ${ELEVES[autre].nom} ».`); };
+$('#versAutre').onclick=()=>{ const q=perso.userData.P.qui, R=lire(), autres=QUI[ELEVES[q].e][1].filter(x=>x!==q);
+  for(const a of autres) (REGLAGES[a]||(REGLAGES[a]={}))[etat.objet]=JSON.parse(JSON.stringify(R)); garder(); msg(`Réglage copié sur les ${autres.length} autres versions de cet élève.`); };
 const msg=t=>{ $('#msg').textContent=t; clearTimeout(msg.t); msg.t=setTimeout(()=>$('#msg').textContent='',4000); };
 const texte=()=>'Réglages des EPI (outil de réglage) : '+JSON.stringify(REGLAGES);
 $('#copier').onclick=()=>{ const t=texte(); $('#sortie').value=t; $('#sortie').hidden=false; $('#sortie').select();

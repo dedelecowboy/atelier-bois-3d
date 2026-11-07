@@ -44,8 +44,12 @@ function dangerRows(){ const S=st.d, all=D(), found=all.filter(d=>S.found[d.k]),
 
 /* ---------- 2. Choisir ses EPI ---------- */
 export function toggleEpi(task,k){ const s=st.e.sel[task]||(st.e.sel[task]=[]); if(st.e.res[task]) return; const i=s.indexOf(k); if(i<0) s.push(k); else s.splice(i,1); }
+/* élève de chaque poste (répartition validée par l'enseignant le 07/11/2026) ; « cheveux attachés » n'est exigé que de la
+   fille (les garçons ont les cheveux courts : demandé par l'enseignant le 07/11/2026) */
+export const ELEVE_POSTE={ toupie:'fille', poncage:'noir', manutention:'garcon', vernis:'noir' };
+export const exigeCheveux=task=>(ELEVE_POSTE[task]||'fille')==='fille';
 export function validateEpi(task){ const t=T().find(x=>x.k===task), s=st.e.sel[task]||[]; if(!t||st.e.res[task]) return {};
-  const miss=t.req.filter(k=>!s.includes(k)), bad=t.bad.filter(k=>s.includes(k)), ok=!miss.length&&!bad.length;
+  const miss=t.req.filter(k=>!s.includes(k) && (k!=='cheveux' || exigeCheveux(task))), bad=t.bad.filter(k=>s.includes(k)), ok=!miss.length&&!bad.length;
   st.e.res[task]={ ok, miss, bad };
   st.e.fb={ level:ok?'ok':bad.length?'danger':'warn', html:`<b>${ok?'Tenue correcte.':bad.length?'Faute grave : EPI interdit pour cette tâche.':'Tenue incomplète.'}</b> ${miss.length?'Il manquait : '+miss.map(EPI).join(', ')+'. ':''}${bad.length?'Interdit ici : '+bad.map(EPI).join(', ')+'. ':''}${t.e}` };
   return bad.length? { fault:`EPI interdit pour la tâche « ${t.t} » : ${bad.map(EPI).join(', ').toLowerCase()}` } : {}; }

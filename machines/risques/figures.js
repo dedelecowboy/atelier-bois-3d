@@ -2,24 +2,26 @@
 /* Personnages de l'atelier (élèves), style « 3D cartoon », générés avec Meshy (demandé par l'enseignant le 06/11/2026 ;
    remplace le personnage fabriqué par programme du 05/11/2026).
    Modèle : machines/risques/eleves.glbz, fabriqué par tools/personnage/meshy/ (voir CLAUDE.md « Personnages des risques
-   généraux ») : un garçon et une fille, chacun en tenue d'atelier (« equipe », « fille » : veste, chaussures de sécurité,
-   queue de cheval pour la fille) et en élève mal équipé (« mal », « fille_mal » : sweat rouge, jean, baskets, cheveux
-   détachés pour la fille), un squelette Mixamo par groupe (24 os ; la 2e version de chaque élève y est recalée à la
-   fabrication), chaque version en quatre pièces (tête, corps, pieds, mains) qu'on combine ; quatre EPI (casque antibruit,
-   lunettes, FFP2, demi-masque), l'écharpe et le bracelet, posés sur le personnage.
+   généraux ») : trois élèves (garçon, fille, élève noir ; groupes garcon, fille, noir), quatre versions chacun (tenue
+   d'atelier ou sweat × chaussures de sécurité ou baskets ; fille : queue de cheval en tenue, cheveux détachés en sweat),
+   un squelette Mixamo par élève (24 os ; ses autres versions y sont recalées à la fabrication), maillages riggés de
+   Meshy (10 000 faces) arrondis ICI au premier usage (subdiv.js), chaque version en quatre pièces (tête, corps, pieds,
+   mains) qu'on combine ; quatre EPI (casque antibruit, lunettes, FFP2, demi-masque), l'écharpe et le bracelet.
    Lu ici sans chargeur asynchrone (le module construit ses personnages tout de suite) ; les textures arrivent juste après.
    person(o) rend un groupe debout sur y = 0, regardant vers +Z, environ 1,72 m.
+   o.eleve : 'garcon' | 'fille' | 'noir' (sinon d'après o.hair : long / attache = fille, sinon garçon)
    o.epi   : codes d'EPI portés (lunettes, auditif, masque, masque_a, chaussures, gants_manut, gants_chim, tenue)
-   o.hair  : 'court' (garçon) | 'long' (fille, cheveux détachés) | 'attache' (fille, queue de cheval) ; choisit l'élève à la
-             création ; pour la fille, la coiffure change ensuite avec setEpi
+   o.hair  : pour la fille, 'long' (cheveux détachés) | 'attache' (queue de cheval) : la tête de la version qui a cette
+             coiffure, posée sur la tenue portée
    o.echarpe, o.bijoux : écharpe, bracelet (le bracelet est caché sous les gants)
    o.pose  : 'debout' | 'machine' (mains au plan de travail) | 'soufflette' | 'aspire' | 'dos_courbe'
-   Sans « tenue » : tenue de l'élève « mal » ; avec : veste de travail. Sans « chaussures » : baskets ; avec : sécurité.
+   Sans « tenue » : sweat ; avec : veste de travail. Sans « chaussures » : baskets ; avec : sécurité (vraie version Meshy).
    setEpi(g, o), setPose(g, pose) : changent un personnage déjà construit (avatar du scénario « EPI »).
    g.userData.P : handR (repère de la main qui tient un objet : −Y le long de la main, +Z vers l'avant), arms[i].palm. */
 import * as THREE from 'three';
 import { unzlibSync } from 'fflate';
 import PACK from './eleves.glbz';
+import { loop, normales } from './subdiv.js';
 
 const HAUTEUR=1.72;
 
@@ -40,12 +42,25 @@ function texture(r){ const t=new THREE.Texture(); t.flipY=false; t.colorSpace=TH
     img.src=URL.createObjectURL(new Blob([D.view(Uint8Array,r)],{ type:'image/jpeg' })); }catch(e){}
   return t; }
 
-/* ---------- élèves : pièces partagées (géométries, matières) ---------- */
-const PIECES=['tete','corps','pieds','mains'];
-const EL={}; for(const [k,E] of Object.entries(D.J.eleves)){ const mat=new THREE.MeshStandardMaterial({ map:texture(E.tex), roughness:.8, metalness:0 });
-  /* même tenue, chaussures repeintes dans l'autre style (sécurité ↔ baskets) : seuls les pixels des chaussures changent */
-  const matAutres=E.tex_autres? new THREE.MeshStandardMaterial({ map:texture(E.tex_autres), roughness:.8, metalness:0 }) : mat;
-  EL[k]={ E, mat, matAutres, geo:Object.fromEntries(PIECES.map(p=>[p,geometry(E[p])])) }; }
+/* ---------- élèves : pièces partagées (géométries, matières), arrondies au premier usage (subdiv.js) ---------- */
+const PIECES=['tete','corps','pieds','mains','cou'];
+function pieces(E){ const q=D.view(Uint16Array,E.pos), n=E.n, P=new Float32Array(n*3);
+  for(let i=0;i<n;i++) for(let k=0;k<3;k++) P[i*3+k]=E.pmin[k]+q[i*3+k]*E.pscale[k];
+  const uq=D.view(Uint16Array,E.uv), UV=new Float32Array(n*2); for(let i=0;i<n*2;i++) UV[i]=uq[i]/65535;
+  const wq=D.view(Uint8Array,E.wgt), W=new Float32Array(n*4); for(let i=0;i<n*4;i++) W[i]=wq[i]/255;
+  const S=loop({ P, UV, J:D.view(Uint8Array,E.jnt), W, F:Uint32Array.from(D.view(Uint16Array,E.idx)), weld:Uint32Array.from(D.view(Uint16Array,E.weld)), part:D.view(Uint8Array,E.part) });
+  const N=normales(S.P,S.F,S.weld), nf=S.F.length/3, out={};
+  PIECES.forEach((p,pi)=>{ const map=new Int32Array(S.P.length/3).fill(-1), idx=[]; let m=0;
+    for(let f=0;f<nf;f++) if(S.part[f]===pi) for(let k=0;k<3;k++){ const v=S.F[f*3+k]; if(map[v]<0) map[v]=m++; idx.push(map[v]); }
+    const pos=new Float32Array(m*3), nor=new Float32Array(m*3), uv=new Float32Array(m*2), ji=new Uint8Array(m*4), jw=new Float32Array(m*4);
+    for(let v=0;v<map.length;v++){ const j=map[v]; if(j<0) continue; for(let d=0;d<3;d++){ pos[j*3+d]=S.P[v*3+d]; nor[j*3+d]=N[v*3+d]; } uv[j*2]=S.UV[v*2]; uv[j*2+1]=S.UV[v*2+1];
+      for(let d=0;d<4;d++){ ji[j*4+d]=S.J[v*4+d]; jw[j*4+d]=S.W[v*4+d]; } }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
+    g.setAttribute('uv',new THREE.BufferAttribute(uv,2)); g.setAttribute('skinIndex',new THREE.BufferAttribute(ji,4)); g.setAttribute('skinWeight',new THREE.BufferAttribute(jw,4));
+    g.setIndex(m<65536? new THREE.BufferAttribute(Uint16Array.from(idx),1) : new THREE.BufferAttribute(Uint32Array.from(idx),1)); g.computeBoundingSphere(); out[p]=g; });
+  return out; }
+const EL={}; for(const [k,E] of Object.entries(D.J.eleves)){ let mat=null, geo=null;
+  EL[k]={ E, get mat(){ return mat||(mat=new THREE.MeshStandardMaterial({ map:texture(E.tex), roughness:.8, metalness:0 })); }, get geo(){ return geo||(geo=pieces(E)); } }; }
 const GANTS={ gants_manut:new THREE.MeshStandardMaterial({ color:0xe9dfc8, roughness:.95 }), gants_chim:new THREE.MeshStandardMaterial({ color:0x2f6fb5, roughness:.45 }) };
 
 /* ---------- EPI, écharpe, bracelet : posés par un RÉGLAGE par élève (machines/risques/reglages_epi.json, fait par
@@ -92,8 +107,14 @@ export function placerObjets(g){ const P=g.userData.P;
       new THREE.Quaternion().setFromEuler(new THREE.Euler(...R.r.map(v=>v*Math.PI/180))),
       new THREE.Vector3(R.d[0]/1000/s[0],R.d[1]/1000/s[1],R.d[2]/1000/s[2]));
     _M.copy(P.osRepos[k]).multiply(M); _M.decompose(o.position,o.quaternion,o.scale); } }
-/* groupes : la tenue d'atelier et la tenue « mal » de chaque élève */
-const GRP={ garcon:{ ok:'equipe', mal:'mal' }, fille:{ ok:'fille', mal:'fille_mal' } };
+/* groupes : trois élèves, quatre versions chacun (tenue d'atelier ou sweat × chaussures de sécurité ou baskets) */
+const GRP={ garcon:{ ok:'equipe', ok_b:'equipe_b', mal:'mal', mal_s:'mal_s' },
+  fille:{ ok:'fille', ok_b:'fille_b', mal:'fille_mal', mal_s:'fille_mal_s', ok_l:'fille_l', mal_q:'fille_mq' },   // fille_l : tenue, sécurité, cheveux détachés ; fille_mq : sweat, baskets, queue de cheval
+  noir:{ ok:'noir', ok_b:'noir_b', mal:'noir_mal', mal_s:'noir_mal_s' } };
+export const ELEVES=Object.keys(GRP).filter(k=>D.J.eleves[GRP[k].ok]);
+/* version portée : tenue d'atelier ou non, chaussures de sécurité ou non */
+const version=(G,ok,secu)=>ok? (secu? G.ok : G.ok_b) : (secu? G.mal_s : G.mal);
+const groupeDe=o=>GRP[o.eleve]&&D.J.eleves[GRP[o.eleve].ok]? o.eleve : o.hair==='long'||o.hair==='attache'? 'fille' : 'garcon';
 
 /* ---------- squelette ---------- */
 function skeleton(grp){ const S=D.J.squelettes[grp], IBM=D.view(Float32Array,S.ibm), arm=new THREE.Object3D(); arm.position.fromArray(S.armature.t); arm.quaternion.fromArray(S.armature.r); arm.scale.fromArray(S.armature.s);
@@ -111,15 +132,17 @@ const _a=new THREE.Vector3(), _b=new THREE.Vector3();
 /* ---------- personnage ---------- */
 export function person(o={}){
   const g=new THREE.Group(), inner=new THREE.Group(); g.add(inner);
-  const e0=new Set(o.epi||[]), grp=o.hair==='long'||o.hair==='attache'? 'fille' : 'garcon', G=GRP[grp];
-  const qui= grp==='fille'? (o.hair==='attache'? G.ok : G.mal) : (e0.has('tenue')||o.tenue===true? G.ok : G.mal);
+  const e0=new Set(o.epi||[]), grp=groupeDe(o), G=GRP[grp];
+  const qui=version(G, grp==='fille'? o.hair==='attache' : e0.has('tenue')||o.tenue===true, true);
   inner.scale.setScalar(HAUTEUR/EL[G.ok].E.hauteur);
   const { arm, skel, B }=skeleton(grp); inner.add(arm);
-  const L={}; for(const k of [G.ok,G.mal]) for(const p of PIECES){ const m=new THREE.SkinnedMesh(EL[k].geo[p],EL[k].mat);
-    m.name=k+'|'+p; m.castShadow=true; m.receiveShadow=true; m.frustumCulled=false; m.bind(skel,new THREE.Matrix4()); inner.add(m); L[m.name]=m; }
+  /* pièces de chaque version, créées au premier usage (setEpi) */
+  const L={}; const piece=(k,p)=>{ const n=k+'|'+p; if(L[n]) return L[n]; const m=new THREE.SkinnedMesh(EL[k].geo[p],EL[k].mat);
+    m.name=n; m.castShadow=true; m.receiveShadow=true; m.frustumCulled=false; m.bind(skel,new THREE.Matrix4()); inner.add(m); return L[n]=m; };
+  for(const p of PIECES) piece(qui,p);
   g.updateMatrixWorld(true);
   /* au repos : direction de chaque main, bout virtuel de la main (pour l'orienter), repères des mains */
-  const rqi=wq(inner).invert(), P={ L, B, inner, qui, grp, face:{ mouth:{ visible:true } }, rest:{}, restW:{} };
+  const rqi=wq(inner).invert(), P={ L, piece, B, inner, qui, grp, face:{ mouth:{ visible:true } }, rest:{}, restW:{} };
   for(const [k,b] of Object.entries(B)){ P.rest[k]=b.quaternion.clone(); P.restW[k]=rqi.clone().multiply(wq(b)); }
   const hand=S=>{ const h=B[COTE[S].Main], f=B[COTE[S].AvantBras], hw=h.getWorldPosition(new THREE.Vector3()), dir=hw.clone().sub(f.getWorldPosition(new THREE.Vector3())).normalize();
     const tip=new THREE.Object3D(); tip.position.copy(h.worldToLocal(hw.clone().addScaledVector(dir,0.09))); h.add(tip); h.userData.tip=tip;
@@ -127,7 +150,7 @@ export function person(o={}){
     const r=new THREE.Object3D(); r.position.copy(hw); r.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)); inner.add(r); r.updateMatrixWorld(true); h.attach(r);
     const palm=new THREE.Object3D(); palm.position.set(0,-0.07,0); r.add(palm); return { r, palm }; };
   const hG=hand('G'), hD=hand('D');
-  P.handR=hD.r; P.arms=[{ palm:hG.palm },{ palm:hD.palm }];
+  P.handR=hD.r; P.arms=[{ palm:hG.palm, r:hG.r },{ palm:hD.palm, r:hD.r }];
   /* EPI posés sur la tête de l'élève (au repos), puis attachés à l'os de la tête */
   /* EPI, écharpe, bracelet : enfants de leur os ; P.osRepos[k] = inverse de la place de l'os au repos (repère du personnage) */
   const innerInv=inner.matrixWorld.clone().invert(); P.repos={}; for(const [k,b] of Object.entries(B)) P.repos[k]=inner.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
@@ -144,7 +167,7 @@ export function person(o={}){
    chaque os est orienté vers la direction voulue depuis sa direction au repos */
 export const POSES={
   debout:     { sh:[[0.05,0.08],[0.05,-0.08]], el:[-0.15,-0.15], sp:0.02, leg:[0,0] },
-  machine:    { sh:[[-0.55,0.12],[-0.55,-0.12]], el:[-0.85,-0.85], sp:0.14, leg:[-0.04,0.06] },
+  machine:    { sh:[[-0.55,0.12],[-0.55,-0.12]], el:[-0.85,-0.85], sp:0.14, leg:[-0.04,0.06], appui:true },
   soufflette: { sh:[[-0.35,0.12],[-1.25,-0.1]], el:[-0.9,-0.15], sp:0.12, leg:[-0.03,0.05], wr:[0,0.3] },
   aspire:     { sh:[[-0.7,0.15],[-0.45,-0.05]], el:[-0.6,-0.7], sp:0.35, leg:[-0.25,0.4] },
   dos_courbe: { sh:[[-1.45,0.16],[-1.45,-0.16]], el:[-0.2,-0.2], sp:0.7, hip:0.6, leg:[0,0.04] },
@@ -171,18 +194,85 @@ export function setPose(g,pose){ const P=g.userData.P, B=P.B, A=POSES[pose]||POS
   /* pieds au sol : le bassin descend quand les genoux plient (hauteur de référence : la pose debout) */
   g.updateMatrixWorld(true); const low=Math.min(B.LeftFoot.getWorldPosition(_a).y, B.RightFoot.getWorldPosition(_b).y);
   if(P.foot==null) P.foot=low; else { B.Hips.position.y=P.y0-(low-P.foot)/B.Hips.parent.getWorldScale(_a).y; g.updateMatrixWorld(true); }
+  if(A.appui) appuyer(g);
   g.userData.pose=pose; }
 
+/* ---------- mains posées sur la table (demandé par l'enseignant le 07/11/2026 : « les bras passent dans la table de la machine ») ----------
+   Poses « au travail » (appui:true) : si la main arrive sur ou sous le plateau d'un appui proche (machine, établi : P.appuis,
+   voir setAppuis), elle est posée À PLAT sur le plateau et le bras est recalculé (cinématique inverse à deux os : épaule,
+   coude) ; le coude part vers l'extérieur et le bas, ou plus haut si l'avant-bras traverserait le bord de la table. */
+const RC=new THREE.Raycaster(), V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const vu=o=>{ for(;o;o=o.parent) if(!o.visible) return false; return true; };
+/* hauteur du plateau sous le point p : le plus haut dessus à moins de 30 cm au-dessus de p (une main passée sous le plateau y remonte) et 25 cm au moins sous les épaules (pas le capot ni les presseurs de la machine) */
+function surface(P,p){ let best=null; const lim=Math.min(p.y+0.30, (P._epaule??9)-0.25); RC.set(V(p.x,p.y+0.5,p.z),DOWN); RC.near=0; RC.far=1.4;
+  for(const o of P.appuis){ if(!vu(o)) continue; for(const h of RC.intersectObject(o,true)){ if(!h.object.isMesh || h.object.material?.visible===false || !vu(h.object)) continue;
+    if(h.point.y<=lim){ if(best==null||h.point.y>best) best=h.point.y; break; } } } return best; }
+/* mains tenant un objet : { G, D } = point monde où poser la paume (null pour revenir à la table) */
+export function setCibles(g,c){ g.userData.P.cibles=c||null; if(g.userData.pose) setPose(g,g.userData.pose); }
+export function setAppuis(g,list){ const P=g.userData.P; P.appuis=(list||[]).filter(Boolean); if(g.userData.pose) setPose(g,g.userData.pose); }
+function appuyer(g){ const P=g.userData.P; if(!P.appuis?.length) return; g.updateMatrixWorld(true);
+  P._epaule=Math.min(P.B.LeftArm.getWorldPosition(V()).y, P.B.RightArm.getWorldPosition(V()).y);
+  const qg=wq(P.inner), X=V(1,0,0).applyQuaternion(qg).setY(0).normalize(), Z=V(0,0,1).applyQuaternion(qg).setY(0).normalize();
+  ['G','D'].forEach((S,i)=>{ const N=COTE[S], a=B_(P,N.Bras), f=B_(P,N.AvantBras), h=B_(P,N.Main);
+    /* paume, puis bout des doigts : une main au bord de la table a les doigts dans le plateau → elle avance dessus */
+    let palm=P.arms[i].palm.getWorldPosition(V()), ys=null;
+    const cible=P.cibles?.[S];
+    if(cible){ palm=cible.clone(); ys=cible.y-0.012; }                                 // main posée sur un objet tenu (ponceuse, pinceau)
+    else { /* paume et doigts (à 12 et 18 cm du poignet) : le plateau le plus haut qu'ils touchent ; la main s'y pose à plat */
+      const hw=h.getWorldPosition(V()), dh=h.userData.tip.getWorldPosition(V()).sub(hw).normalize();
+      let best=null;
+      const lat=V(-dh.z,0,dh.x).normalize().multiplyScalar(0.045);                    // pouce et petit doigt, de part et d'autre
+      for(const [q,k] of [[palm,0],[hw.clone().addScaledVector(dh,0.12),1],[hw.clone().addScaledVector(dh,0.18),2],[hw.clone().addScaledVector(dh,0.09).add(lat),1],[hw.clone().addScaledVector(dh,0.09).sub(lat),1]]){ const y=surface(P,q);
+        if(y!=null && q.y<y+(k? 0.03 : 0.04) && (best==null || y>best.y+0.01)) best={ y, q:k? q.clone().lerp(hw,k===2? 0.35 : 0.1) : q }; }
+      if(!best) return;                                                                // main au-dessus : rien à corriger
+      palm=best.q; ys=best.y; }
+    const S0=a.getWorldPosition(V()), E0=f.getWorldPosition(V()), H0=h.getWorldPosition(V()), la=E0.distanceTo(S0), lb=H0.distanceTo(E0);
+    const dirH=H0.clone().sub(E0).setY(0); if(dirH.lengthSq()<1e-6) dirH.copy(Z); dirH.normalize();
+    const W=V(palm.x,ys+0.055,palm.z).addScaledVector(dirH,-0.065);                     // poignet : la paume à plat sur le plateau
+    const side=X.clone().multiplyScalar(S==='G'? 1 : -1), back=Z.clone().negate();
+    const poles=[side.clone().multiplyScalar(0.7).add(V(0,-0.5,0)).addScaledVector(back,0.2), side.clone().add(back.clone().multiplyScalar(0.3)), side.clone().multiplyScalar(0.6).add(V(0,0.5,0))];
+    let ok=null;
+    for(const pole of poles){ const d=W.clone().sub(S0); let L=d.length(); L=Math.max(Math.abs(la-lb)*1.01,Math.min(L,(la+lb)*0.995)); const u=d.normalize();
+      const v=pole.clone().addScaledVector(u,-pole.dot(u)).normalize(), ca=(la*la+L*L-lb*lb)/(2*la*L), sa=Math.sqrt(Math.max(0,1-ca*ca));
+      const E=S0.clone().addScaledVector(u,la*ca).addScaledVector(v,la*sa), Wr=S0.clone().addScaledVector(u,L);
+      ok={ E, Wr };
+      /* l'avant-bras ne doit pas traverser le plateau (coude et points de l'avant-bras au-dessus de la table sous eux) */
+      let bad=false; for(const t of [0,0.33,0.66]){ const q=E.clone().lerp(Wr,t), y=surface(P,q); if(y!=null && q.y<y+0.02){ bad=true; break; } }
+      if(!bad) break; }
+    aim(a,ok.E.clone().sub(S0)); aim(f,ok.Wr.clone().sub(ok.E)); aim(h,dirH.clone().add(V(0,-0.07,0)));
+    /* paume vers le plateau : rotation de la main autour de son axe (au repos, les paumes regardent les cuisses) */
+    { const hw=h.getWorldPosition(V()), d=h.userData.tip.getWorldPosition(V()).sub(hw).normalize(), n=V(S==='G'? -1 : 1,0,0).applyQuaternion(wq(P.arms[i].r));
+      const pr=v=>v.clone().addScaledVector(d,-v.dot(d)), n1=pr(n), n2=pr(DOWN);
+      if(n1.lengthSq()>1e-6 && n2.lengthSq()>1e-6){ const q=new THREE.Quaternion().setFromUnitVectors(n1.normalize(),n2.normalize());
+        h.quaternion.copy(wq(h.parent).invert().multiply(q).multiply(wq(h))); h.updateMatrixWorld(true); } }
+  });
+  g.updateMatrixWorld(true); }
+const B_=(P,n)=>P.B[n];
+/* contrôle (tests) : enfoncement des bras sous le plateau, en m (négatif = sous la table) : coudes, avant-bras, poignets,
+   paumes, et sommets des mains (gants compris) */
+export function enfoncement(g,detail){ const P=g.userData.P; if(!P.appuis?.length) return null; g.updateMatrixWorld(true); P._epaule=Math.min(P.B.LeftArm.getWorldPosition(V()).y, P.B.RightArm.getWorldPosition(V()).y); let m=9; const w=V(), D=[];
+  const test=(p,lab)=>{ const y=surface(P,p); if(y!=null){ m=Math.min(m,p.y-y); if(detail&&lab) D.push([lab,+p.y.toFixed(3),+y.toFixed(3)]); } };
+  ['G','D'].forEach((S,i)=>{ const N=COTE[S], e=P.B[N.AvantBras].getWorldPosition(V()), h=P.B[N.Main].getWorldPosition(V());
+    for(const t of [0,0.25,0.5,0.75,1]) test(e.clone().lerp(h,t),S+'avb'+t); test(P.arms[i].palm.getWorldPosition(V()),S+'paume'); });
+  const mains=Object.values(P.L).find(x=>x.visible && x.name.endsWith('|mains'));
+  if(mains){ const pa=mains.geometry.attributes.position; for(let i=0;i<pa.count;i+=Math.max(1,Math.floor(pa.count/240))){ mains.getVertexPosition(i,w); w.applyMatrix4(mains.matrixWorld); const y=surface(P,w); if(detail && y!=null && w.y<y) D.push(['sommet',+w.x.toFixed(3),+w.y.toFixed(3),+w.z.toFixed(3),+y.toFixed(3)]); test(w.clone()); } }
+  if(detail) return D; return m===9? null : +m.toFixed(3); }
+
 /* ---------- tenue, chaussures, gants, EPI ---------- */
-export function setEpi(g,o={}){ const P=g.userData.P, L=P.L, e=new Set(o.epi||[]);
-  const G=GRP[P.grp], tenue=e.has('tenue') || o.tenue===true ? G.ok : G.mal, secu=e.has('chaussures');
-  if(P.grp==='fille' && o.hair){ const q= o.hair==='attache'? G.ok : G.mal; if(q!==P.qui){ P.qui=q; placerObjets(g); } }
+export function setEpi(g,o={}){ const P=g.userData.P, e=new Set(o.epi||[]);
+  const G=GRP[P.grp], ok=e.has('tenue') || o.tenue===true, secu=e.has('chaussures'); let V=version(G,ok,secu);
+  /* tête : celle de la version portée ; pour la fille, la coiffure demandée (queue de cheval = versions en tenue,
+     cheveux détachés = versions en sweat) : sinon la tête de l'autre tenue, mêmes chaussures */
+  let T=V; if(P.grp==='fille' && o.hair){ const queue=o.hair==='attache';
+    if(!queue && ok && secu && G.ok_l && EL[G.ok_l]){ V=T=G.ok_l; }          // tenue + cheveux détachés : la vraie version Meshy
+    else if(queue && !ok && !secu && G.mal_q && EL[G.mal_q]){ V=T=G.mal_q; }   // sweat ouvert + queue de cheval : la vraie version Meshy
+    else if(queue!==ok) T=version(G,queue,secu); }
+  if(T!==P.qui){ P.qui=T; placerObjets(g); }
+  for(const p of PIECES) P.piece(V,p); P.piece(T,'tete'); P.piece(T,'cou');
   const gant=e.has('gants_chim')? 'gants_chim' : e.has('gants_manut')? 'gants_manut' : null;
-  for(const [n,m] of Object.entries(L)){ const [k,p]=n.split('|');
-    m.visible=(p==='tete' && k===P.qui) || (p==='corps' && k===tenue) || (p==='pieds' && k===tenue) || (p==='mains' && k===tenue);
-    if(p==='mains') m.material=gant? GANTS[gant] : EL[k].mat;
-    /* chaussures de la tenue portée, dans le style choisi (pas de mélange de modèles à la cheville) */
-    if(p==='pieds') m.material= (EL[k].E.chaussures==='securite')===secu ? EL[k].mat : EL[k].matAutres; }
+  for(const [n,m] of Object.entries(P.L)){ const [k,p]=n.split('|');
+    m.visible= p==='tete'||p==='cou'? k===T : k===V;
+    if(p==='mains') m.material=gant? GANTS[gant] : EL[k].mat; }
   for(const [code,k] of Object.entries(EPI)) if(P.epi[k]) P.epi[k].visible=e.has(code);
   P.face.mouth.visible=!e.has('masque') && !e.has('masque_a');
   P.scarf.visible=!!o.echarpe; P.bracelet.visible=!!o.bijoux && !gant; }

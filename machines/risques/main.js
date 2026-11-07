@@ -13,12 +13,13 @@ import epiTxt from './data/epi.txt';
 import fichesTxt from './data/fiches.txt';
 import vestiaireTxt from './data/vestiaire.txt';
 import { createVestiaire } from './vestiaire.js';
+import { enfoncement } from './figures.js';
 import { BRUIT as RBRUIT } from '../raboteuse/constants.js';
 import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
 import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
 import { st, ctx, $ } from './state.js';
 import { buildModel } from './model.js';
-import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria } from './scenarios.js';
+import { reset, pickDanger, chooseMeasure, measureOrder, toggleEpi, validateEpi, consign, feu, FEU, buildSteps, SCENS, scenCriteria, ELEVE_POSTE } from './scenarios.js';
 
 const data = ctx.data = { dangers:parseDangers(dangersTxt), epi:parseEpi(epiTxt), fiches:parseFiches(fichesTxt), vestiaire:parseFiches(vestiaireTxt,'vestiaire.txt') };
 const app = createApp(config, { organes, qcm, reperage, fiches:fichesTxt });
@@ -176,7 +177,7 @@ function act(a,v){ const m=mode(); F.msg='';
 /* poste de chaque tâche : x, z, orientation du personnage (il regarde son travail ; la caméra se place devant lui, de côté) */
 const POSTES={ toupie:[0.7,5.25,Math.PI], poncage:[6.0,9.05,0], manutention:[-9.55,6.9,-Math.PI/2], vernis:[8.6,9.05,0] };
 function dressAvatar(){ const t=data.epi.tasks[Math.min(app.ex.step,data.epi.tasks.length-1)]; if(!t) return; const sel=st.e.sel[t.k]||[], p=POSTES[t.k]||[3,0,0];
-  model.placeAvatar(p[0],p[1],p[2],{ epi:sel, hair:sel.includes('cheveux')?'attache':'long', echarpe:!sel.includes('bijoux'), bijoux:!sel.includes('bijoux'), pose:t.k==='manutention'?'debout':'machine' }); }
+  model.placeAvatar(p[0],p[1],p[2],{ eleve:ELEVE_POSTE[t.k]||'fille', epi:sel, hair:sel.includes('cheveux')?'attache':'long', echarpe:!sel.includes('bijoux'), bijoux:!sel.includes('bijoux'), pose:t.k==='manutention'?'debout':'machine' }); }
 function syncMachine(){ const C=st.c; model.setConsign({ sect:C.sect, lock:C.lock, tag:C.tag, on:C.on }); }
 let fireT=0;
 function syncFire(){ const F=st.f; if(F.phase===1 && !F.exit){ fireT=performance.now(); } }
@@ -242,4 +243,4 @@ app.start({
 { const so=$('sono'); if(so) so.hidden=true; }   // sonomètre : seulement pendant la démonstration du casque
 if(app.vestiaire){ const cnt=()=>{ const n=$('vestN'); if(n) n.textContent=`${app.vestiaire.count()}/${app.vestiaire.list.length}`; };
   cnt(); app.vestiaire.onChange(()=>{ cnt(); const f=data.vestiaire[app.vestiaire.open]; if(V.active && f) V.dress(f.parts[0]); }); }
-window.__risques={ V, setRtab, st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };
+window.__risques={ V, setRtab, enfoncement, st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };

@@ -29,11 +29,16 @@ async def main():
                                 ('chaussures','sans',[3.0],'ko','Sans chaussures'),('chaussures','avec',[3.8],'ok','embout'),
                                 ('masque','sans',[4.4],'ko','Sans masque'),('masque_a','sans',[4.4],'ko','FFP2'),('masque_a','avec',[4.4],'ok','demi-masque'),
                                 ('gants_manut','sans',[3.2],'ko','écharde'),('gants_manut','toupie',[4,4.8],'ko','gant'),('gants_chim','sans',[2.6],'ko','vernis'),
-                                ('cheveux','sans',[4,4.8],'ko','cheveux'),('sweat','sans',[4,4.8],'ko','sweat'),('tenue','avec',[4.2],'ok','vêtement de travail'),('bijoux','sans',[4,4.8],'ko','bracelet')]:
+                                ('cheveux','sans',[4,4.8],'ko','cheveux'),('sweat','sans',[4,4.8],'ko','sweat'),('tenue','avec',[4.2],'ok','vêtement de travail'),('bijoux','sans',[4,5.3],'ko','bracelet')]:
             r = await pg.eval(DEMO, [k, m, t])
             check(not r['hidden'] and r['l'] == l and mot in r['t'], f'{k} {m} : carte « {r["t"]} » ({l})')
             if k == 'auditif': check(r['sono'], f'{k} {m} : sonomètre affiché pendant la démonstration')
             if m in ('sans','toupie'): print('   capture', await pg.shot(f'risques_vestiaire_{k}_{m}.png'))
+        print('Mains sur les tables (07/11/2026 : « les bras passent dans la table »)')
+        for k, m, t in [('lunettes','sans',0.5),('echarpe','sans',4.6),('cheveux','sans',4.6),('sweat','sans',4.6),('bijoux','sans',4.6),('masque','sans',3.0),('gants_chim','avec',3.3),('auditif','sans',4.0)]:
+            await pg.eval("([k,m,t])=>{ const V=window.__risques.V; V.freeze(null); V.play(k,m); V.freeze(t); }", [k, m, t]); await pg.page.wait_for_timeout(400)
+            e = await pg.eval("()=>window.__risques.enfoncement(window.__risques.model.avatar)")
+            check(e is None or e > -0.07, f'{k} {m} : mains et avant-bras pas dans la table ({e} m)')
         await pg.eval("()=>{ window.__risques.V.freeze(null); window.__risques.V.stopDemo(); }")
         await pg.eval(LIRE, '#vestiaire')
         n = await pg.eval("()=>document.getElementById('vestN').textContent")
@@ -45,6 +50,14 @@ async def main():
         await pg.page.click('#rtabs [data-rt="fiches"]'); await pg.page.wait_for_timeout(500)
         e = await pg.eval("()=>({ av:window.__risques.model.avatar.visible, act:window.__risques.V.active, dec:window.__risques.model.DEC.toupie.g.visible })")
         check(not e['av'] and not e['act'] and e['dec'], f'retour aux fiches risques : élève caché, modèle simplifié de la toupie remis {e}')
+    print('Personnages des dangers et postes de l\'exercice EPI : mains sur les tables')
+    async with Page('risques') as pg:
+        await pg.eval("()=>window.__risques.model.showDangers(true)")
+        figs = await pg.eval("()=>window.__risques.model.figs.map(f=>[f.userData.pose, window.__risques.enfoncement(f)])")
+        check(all(e is None or e > -0.03 for _, e in figs), f'personnages des dangers : rien dans les tables {figs}')
+        ep = await pg.eval("""()=>{ const M=window.__risques.model, P={ toupie:[0.7,5.25,Math.PI], poncage:[6.0,9.05,0], vernis:[8.6,9.05,0] }, r={};
+          for(const [k,q] of Object.entries(P)){ M.placeAvatar(q[0],q[1],q[2],{ epi:['tenue','chaussures'], hair:'attache', pose:'machine' }); r[k]=window.__risques.enfoncement(M.avatar); } M.hideAvatar(); return r; }""")
+        check(all(e is None or e > -0.03 for e in ep.values()), f'postes de l\'exercice EPI : mains posées sur les établis {ep}')
     print('Paquetage séparé (évaluation seule)')
     async with Page('risques', scorm=True, lues=False) as pg:
         await pg.eval(LIRE, '#parcFiches')

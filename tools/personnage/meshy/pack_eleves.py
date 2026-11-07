@@ -2,21 +2,24 @@
 """Assemble les élèves Meshy et les EPI en un seul fichier compact pour le module des risques généraux.
 
   python3 tools/personnage/meshy/pack_eleves.py machines/risques/eleves.glbz \
-      equipe=equipe_final.glb mal=mal_final.glb \
-      casque=epi_casque.glb lunettes=epi_lunettes.glb ffp2=epi_ffp2.glb demimasque=epi_demimasque.glb
+      equipe=rig.glb,fini.glb mal=… equipe_b=… mal_s=… fille=… … noir=… noir_mal=… noir_b=… noir_mal_s=… \
+      casque=epi_casque.glb lunettes=epi_lunettes.glb ffp2=epi_ffp2.glb demimasque=epi_demimasque.glb echarpe=… bracelet=…
 
-Les élèves sont les GLB finis par subdiv_rig.py puis recuire_texture.py (squelette Mixamo de Meshy, 24 os) ;
-les EPI ceux de epi_prep.py. Le PREMIER élève donne le squelette commun : les autres sont liés à ses os
-(mêmes noms, positions de repos à 2 cm près) avec ses matrices de liaison.
+Trois élèves (groupes garcon, fille, noir), quatre versions chacun : tenue d'atelier (ok) ou sweat (mal), chaussures de
+sécurité ou baskets (equipe / fille / noir = tenue + sécurité ; *_b = tenue + baskets ; mal / fille_mal / noir_mal =
+sweat + baskets ; *_s = sweat + sécurité). Chaque version = deux fichiers : le modèle RIGGÉ de Meshy (10 000 faces,
+squelette Mixamo 24 os) et le même arrondi par subdiv_rig.py puis recuit par recuire_texture.py (seule sa texture sert).
+Le fichier garde le maillage de 10 000 faces : la page l'arrondit au chargement (machines/risques/subdiv.js, même
+calcul que subdiv_rig.py, donc la texture recuite tombe juste). Les EPI sont ceux de epi_prep.py. Le PREMIER élève de
+chaque groupe donne le squelette du groupe : les autres versions y sont recalées (mêmes noms d'os).
 
-Chaque élève est découpé en quatre pièces d'après l'os qui commande chaque triangle :
-  tete (Head : visage et cheveux), corps (le reste : tenue), pieds (Foot / ToeBase : chaussures),
-  mains (Hand : nues ou gantées). On peut ainsi changer de tenue, de chaussures ou mettre des gants
-  sans changer le visage de l'élève.
+Chaque triangle reçoit une pièce d'après l'os qui le commande (part : 0 tête, 1 corps, 2 pieds, 3 mains, 4 cou) :
+  tete (Head : visage et cheveux, mèches longues reconnues à leur couleur), corps (la tenue), pieds (chaussure entière,
+  reconnue à sa couleur et reliée au sol), mains (nues ou gantées). On combine ainsi tête, tenue et gants.
 
-Format (lu par machines/risques/figures.js, sans chargeur asynchrone) : zlib( longueur JSON sur 4 octets,
-JSON, données ). Positions en entiers 16 bits (échelle et décalage dans le JSON), normales 8 bits,
-coordonnées de texture 16 bits, os et poids 8 bits, indices 16 bits, textures JPEG.
+Format (lu par machines/risques/figures.js, sans chargeur asynchrone) : zlib( longueur JSON sur 4 octets, JSON,
+données ). Positions en entiers 16 bits (échelle et décalage dans le JSON), coordonnées de texture 16 bits, os et
+poids 8 bits, indices et soudure 16 bits, pièce par face 8 bits, textures JPEG ; EPI avec normales 8 bits.
 """
 import io, json, os, struct, sys, zlib
 import numpy as np
@@ -26,12 +29,17 @@ from glbio import load, acc
 
 TEX_ELEVE = 1024   # px : les élèves sont vus de loin dans la salle
 TEX_EPI = 512
-CHEVEUX_LONGS = ('fille_mal',)
-Q = 86             # qualité JPEG
+CHEVEUX_LONGS = ('fille_mal', 'fille_mal_s', 'fille_l')
+Q = 84             # qualité JPEG
+GROUPES = {k: 'garcon' for k in ('equipe', 'mal', 'equipe_b', 'mal_s')}
+GROUPES.update({k: 'fille' for k in ('fille', 'fille_mal', 'fille_b', 'fille_mal_s', 'fille_l', 'fille_mq')})   # fille_l : tenue, cheveux détachés ; fille_mq : sweat, baskets, queue de cheval
+GROUPES.update({k: 'noir' for k in ('noir', 'noir_mal', 'noir_b', 'noir_mal_s')})
+_s = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'subdiv_rig.py'), encoding='utf-8').read()
+exec(_s[_s.index('def loop'):_s.index('for _ in range(A.niveaux)')])   # loop(P, UV, W, F) : la même subdivision que la page
 
 out_path = sys.argv[1]
 args = dict(a.split('=', 1) for a in sys.argv[2:])
-eleves = [k for k in args if k in ('equipe', 'mal', 'fille', 'fille_mal')]
+eleves = [k for k in args if k in GROUPES]
 epis = [k for k in args if k not in eleves]
 
 BIN = bytearray()
@@ -39,59 +47,6 @@ def put(arr):
     arr = np.ascontiguousarray(arr)
     while len(BIN) % 4: BIN.append(0)
     o = len(BIN); BIN.extend(arr.tobytes()); return [o, arr.nbytes]
-def repeindre_chaussures(img, UV, F, pieds, yt, vers):
-    """Repeint les pixels de la texture couverts par les triangles des chaussures (et eux seuls).
-    vers = 'baskets' : dessus blanc, semelle gris clair ; 'securite' : dessus noir, semelle grise, touche jaune
-    sur le côté. Le modelé de la texture d'origine (clair / sombre) est gardé, atténué."""
-    A = np.asarray(img.convert('RGB'), np.float64) / 255; H, W = A.shape[:2]
-    lum = A @ np.array([0.3, 0.59, 0.11])
-    masque = np.zeros((H, W), np.int8)          # 0 hors chaussure, 1 dessus, 2 semelle, 3 touche jaune
-    for t in np.nonzero(pieds)[0]:
-        tri = UV[F[t]] * [W, H] - 0.5
-        x0, y0 = np.maximum(np.floor(tri.min(0)).astype(int), 0); x1, y1 = np.minimum(np.ceil(tri.max(0)).astype(int), [W - 1, H - 1])
-        if x1 < x0 or y1 < y0: continue
-        xs, ys = np.meshgrid(np.arange(x0, x1 + 1), np.arange(y0, y1 + 1)); q = np.stack([xs.ravel(), ys.ravel()], 1).astype(float)
-        a, b_, c = tri; v0 = b_ - a; v1 = c - a; v2 = q - a; den = v0[0] * v1[1] - v1[0] * v0[1]
-        if abs(den) < 1e-12: continue
-        l1 = (v2[:, 0] * v1[1] - v1[0] * v2[:, 1]) / den; l2 = (v0[0] * v2[:, 1] - v2[:, 0] * v0[1]) / den
-        ins = (l1 >= -0.02) & (l2 >= -0.02) & (l1 + l2 <= 1.02)
-        z = 2 if yt[t] < 0.028 else 1
-        masque[q[ins, 1].astype(int), q[ins, 0].astype(int)] = z
-    # bords des îlots de texture : les pixels vides autour des chaussures (hors de tout triangle) prennent la
-    # couleur repeinte, sinon le filtrage de la texture fait apparaître des filets de l'ancienne couleur
-    from scipy.ndimage import grey_dilation
-    couvert = np.zeros((H, W), bool)
-    for t in range(len(F)):
-        tri = UV[F[t]] * [W, H] - 0.5
-        x0, y0 = np.maximum(np.floor(tri.min(0)).astype(int), 0); x1, y1 = np.minimum(np.ceil(tri.max(0)).astype(int), [W - 1, H - 1])
-        if x1 < x0 or y1 < y0: continue
-        if pieds[t]: continue
-        xs, ys = np.meshgrid(np.arange(x0, x1 + 1), np.arange(y0, y1 + 1)); q = np.stack([xs.ravel(), ys.ravel()], 1).astype(float)
-        a, b_, c = tri; v0 = b_ - a; v1 = c - a; v2 = q - a; den = v0[0] * v1[1] - v1[0] * v0[1]
-        if abs(den) < 1e-12: continue
-        l1 = (v2[:, 0] * v1[1] - v1[0] * v2[:, 1]) / den; l2 = (v0[0] * v2[:, 1] - v2[:, 0] * v0[1]) / den
-        ins = (l1 >= 0) & (l2 >= 0) & (l1 + l2 <= 1)
-        couvert[q[ins, 1].astype(int), q[ins, 0].astype(int)] = True
-    for _ in range(8):
-        g_ = grey_dilation(masque, size=3); libre = (masque == 0) & ~couvert & (g_ > 0)
-        masque[libre] = g_[libre]
-    m = masque > 0
-    if not m.any(): return img
-    d = np.clip(lum - np.median(lum[m]), -0.35, 0.2)  # modelé (plis, coutures) autour de la valeur moyenne
-    out = A.copy()
-    if vers == 'baskets':
-        dessus = np.clip(0.93 + 0.35 * d, 0.6, 1.0); semelle = np.clip(0.86 + 0.25 * d, 0.6, 1.0)
-        for k_ in range(3):
-            out[..., k_] = np.where(masque == 1, dessus * [0.99, 0.99, 1.0][k_], np.where(masque == 2, semelle * [0.97, 0.97, 0.98][k_], out[..., k_]))
-    else:
-        dessus = np.clip(0.09 + 0.25 * d, 0.02, 0.25); semelle = np.clip(0.42 + 0.25 * d, 0.25, 0.6)
-        jaune = np.array([0.93, 0.76, 0.12])
-        # touche jaune : une bande étroite juste au-dessus de la semelle (repère des chaussures de l'atelier)
-        ys_, xs_ = np.nonzero(masque == 1)
-        for k_ in range(3):
-            out[..., k_] = np.where(masque == 1, dessus, np.where(masque == 2, semelle, out[..., k_]))
-    return Image.fromarray(np.clip(out * 255, 0, 255).astype(np.uint8))
-
 def jpeg(img, size):
     im = img.convert('RGB')
     if size: im = im.resize((size, size), Image.LANCZOS)
@@ -111,17 +66,19 @@ def geom(P, N, UV, F, J=None, W=None):
     return G
 
 J = {'eleves': {}, 'epi': {}, 'squelettes': {}}
-GROUPES = {'equipe': 'garcon', 'mal': 'garcon', 'fille': 'fille', 'fille_mal': 'fille'}
 REF = {}            # groupe -> (noms des os, matrices monde de repos) de l'élève de référence (le premier du groupe)
 for k in eleves:
-    g, b = load(args[k]); pr = g['meshes'][0]['primitives'][0]; at = pr['attributes']
-    P = acc(g, b, at['POSITION']).astype(np.float64); N = acc(g, b, at['NORMAL']).astype(np.float64)
+    rig, fini = args[k].split(',')
+    g, b = load(rig); pr = g['meshes'][0]['primitives'][0]; at = pr['attributes']
+    P = acc(g, b, at['POSITION']).astype(np.float64)
     UV = acc(g, b, at['TEXCOORD_0']).astype(np.float64); F = acc(g, b, pr['indices']).reshape(-1, 3).astype(np.int64)
     Jn = acc(g, b, at['JOINTS_0']).astype(np.int64); Wt = acc(g, b, at['WEIGHTS_0'])
     Wt = (Wt.astype(np.float64) / (255 if Wt.dtype == np.uint8 else 1))
     sk = g['skins'][0]; names = [g['nodes'][j]['name'].replace('mixamorig:', '') for j in sk['joints']]
     grp = GROUPES[k]
     ibm_k = acc(g, b, sk['inverseBindMatrices']).reshape(-1, 4, 4).astype(np.float64)
+    # soudure (sommets de même position) AVANT le recalage : la page s'en sert pour la subdivision et les normales
+    _, weld = np.unique(np.round(P, 6), axis=0, return_inverse=True); weld = weld.ravel()
     if grp not in REF:
         # squelette commun : nœuds de l'armature (dont l'échelle 0,01 de Mixamo) et os
         par = {}
@@ -138,33 +95,45 @@ for k in eleves:
                                 'ibm': put(acc(g, b, sk['inverseBindMatrices']).astype(np.float32))}
         REF[grp] = (names, np.linalg.inv(ibm_k.transpose(0, 2, 1)))
     base, Wref = REF[grp]
-    # os de cet élève -> os du squelette commun (par nom)
     remap = np.array([base.index(n) for n in names])
-    # recalage sur le squelette de référence du groupe : chaque sommet suit ses os, placés aux positions de repos
-    # de la référence (habillage linéaire du repos de cet élève vers le repos de la référence)
-    Bk = ibm_k.transpose(0, 2, 1)                                   # matrices de liaison (colonnes)
-    M = np.einsum('nij,njk->nik', Wref[remap], Bk)                  # os i de cet élève -> os de même nom de la référence
-    Ph = np.c_[P, np.ones(len(P))]
-    P = np.einsum('vk,vkij,vj->vi', Wt, M[Jn], Ph)[:, :3]
-    N = np.einsum('vk,vkij,vj->vi', Wt, M[Jn][:, :, :3, :3], N); N /= np.linalg.norm(N, axis=1, keepdims=True) + 1e-12
+    # recalage sur le squelette de référence du groupe (habillage linéaire du repos de cet élève vers celui de la référence)
+    Bk = ibm_k.transpose(0, 2, 1)
+    M = np.einsum('nij,njk->nik', Wref[remap], Bk)
+    # un os orienté autrement (Meshy tourne parfois un os sur lui-même : la tête de deux versions de l'élève noir est
+    # tournée de 135°) : la pièce qu'il commande est seulement DÉPLACÉE sur l'articulation de la référence (même pose en
+    # A, même orientation du corps), sinon elle serait tournée avec l'os (visage vers l'arrière)
+    Wk = np.linalg.inv(Bk); tourne = {}
+    jp = {}
+    for i_, nd_ in enumerate(g['nodes']):
+        for c_ in nd_.get('children', []): jp[c_] = i_
+    for i_ in range(len(names)):
+        Ra = Wref[remap[i_]][:3, :3]; Rb = Wk[i_][:3, :3]
+        Ra = Ra / np.linalg.norm(Ra, axis=0); Rb = Rb / np.linalg.norm(Rb, axis=0)
+        ang = np.degrees(np.arccos(np.clip((np.trace(Ra @ Rb.T) - 1) / 2, -1, 1)))
+        if ang <= 45: continue
+        pj = jp.get(sk['joints'][i_]); pi_ = sk['joints'].index(pj) if pj in sk['joints'] else -1
+        if pi_ in tourne: M[i_] = M[pi_]     # bout de la tête : même déplacement que la tête (sa longueur diffère)
+        else: Mi = np.eye(4); Mi[:3, 3] = Wref[remap[i_]][:3, 3] - Wk[i_][:3, 3]; M[i_] = Mi
+        tourne[i_] = True
+        print(f'  {k} : os {names[i_]} tourné de {ang:.0f}° : déplacé sans rotation')
+    P = np.einsum('vk,vkij,vj->vi', Wt, M[Jn], np.c_[P, np.ones(len(P))])[:, :3]
     Jn = remap[Jn]
     dom = np.take_along_axis(Jn, np.argmax(Wt, 1)[:, None], 1)[:, 0]
     bn = np.array(base)
-    isfoot = np.isin(bn[dom], ['LeftFoot', 'LeftToeBase', 'RightFoot', 'RightToeBase'])
     ishand = np.isin(bn[dom], ['LeftHand', 'RightHand'])
-    w8 = np.round(Wt * 255).astype(np.int64); w8[:, 0] += 255 - w8.sum(1)
-    parts = {}
     ishead = np.isin(bn[dom], ['Head', 'HeadTop_End', 'headfront'])
-    # chaussures : reconnues à leur couleur (pas le bleu du pantalon) et reliées au sol ; ainsi le bas du pantalon reste
-    # avec la tenue et la chaussure entière va avec les pieds (frontière identique d'une tenue à l'autre : pas de trou)
-    pbrc = g['materials'][0]['pbrMetallicRoughness']
-    Tc = np.asarray(image_of(g, b, pbrc['baseColorTexture']['index']).convert('RGB'), np.float64) / 255; Rc = Tc.shape[0]
-    uvt = UV[F].mean(1); ct = Tc[np.clip((uvt[:, 1] * Rc).astype(int), 0, Rc - 1), np.clip((uvt[:, 0] * Rc).astype(int), 0, Rc - 1)]
-    yt = P[F].mean(1)[:, 1]
+    w8 = np.round(Wt * 255).astype(np.int64); w8[:, 0] += 255 - w8.sum(1)
+    # texture recuite (même atlas que le riggé)
+    gf, bf = load(fini)
+    img0 = image_of(gf, bf, gf['materials'][0]['pbrMetallicRoughness']['baseColorTexture']['index']).convert('RGB')
+    Tc = np.asarray(img0, np.float64) / 255; Rc = Tc.shape[0]
+    def couleur(uv): return Tc[np.clip((uv[:, 1] * Rc).astype(int), 0, Rc - 1), np.clip((uv[:, 0] * Rc).astype(int), 0, Rc - 1)]
+    # chaussures : reconnues à leur couleur (pas le bleu du pantalon) et reliées au sol ; le bas du pantalon reste avec la
+    # tenue et la chaussure entière va avec les pieds
+    ct = couleur(UV[F].mean(1)); yt = P[F].mean(1)[:, 1]
     pantalon = (ct[:, 2] > ct[:, 0] + 0.06) & (ct[:, 2] > 0.12)
     cand = (~pantalon) & (yt < 0.22)
-    _, wv = np.unique(np.round(P, 5), axis=0, return_inverse=True); wv = wv.ravel()
-    Fw = wv[F]; nwv = wv.max() + 1
+    Fw = weld[F]; nwv = weld.max() + 1
     vt = [[] for _ in range(nwv)]
     for ti_, (a0, a1, a2) in enumerate(Fw):
         if cand[ti_]:
@@ -176,54 +145,73 @@ for k in eleves:
         for v in Fw[t]:
             for u in vt[v]:
                 if not pied[u]: pied[u] = True; pile.append(u)
-    for name, sel in (('pieds', pied), ('mains', ishand[F].all(1)), ('tete', ishead[F].all(1))):
-        parts[name] = sel
+    parts = {'pieds': pied, 'mains': ishand[F].all(1) & ~pied, 'tete': ishead[F].all(1) & ~pied}
     parts['corps'] = ~(parts['pieds'] | parts['mains'] | parts['tete'])
     if k in CHEVEUX_LONGS:
-        # cheveux longs : les mèches dans le dos sont liées au dos par Meshy ; on les reconnaît à leur couleur
-        # (châtain : teinte 0,02 à 0,11, saturée, ni claire ni noire) au-dessus de la taille, pour qu'elles
-        # restent avec la tête quand l'élève change de tenue
-        pbr0 = g['materials'][0]['pbrMetallicRoughness']
-        T = np.asarray(image_of(g, b, pbr0['baseColorTexture']['index']).convert('RGB'), np.float64) / 255; R = T.shape[0]
-        uvc = UV[F].mean(1); c = T[np.clip((uvc[:, 1] * R).astype(int), 0, R - 1), np.clip((uvc[:, 0] * R).astype(int), 0, R - 1)]
-        mx = c.max(1); mn = c.min(1); sat = (mx - mn) / np.maximum(mx, 1e-6)
+        # cheveux longs : les mèches dans le dos sont liées au dos par Meshy ; reconnues à leur couleur (châtain : teinte
+        # 0,02 à 0,11, saturée, ni claire ni noire) au-dessus de la taille, elles restent avec la tête
+        c = ct; mx = c.max(1); mn = c.min(1); sat = (mx - mn) / np.maximum(mx, 1e-6)
         hue = np.where(mx == c[:, 0], ((c[:, 1] - c[:, 2]) / np.maximum(mx - mn, 1e-6)) / 6 % 1, 0.5)
-        mech = parts['corps'] & (hue > 0.02) & (hue < 0.11) & (sat > 0.35) & (mx > 0.15) & (mx < 0.75) & (P[F].mean(1)[:, 1] > 0.85)
+        mech = parts['corps'] & (hue > 0.02) & (hue < 0.11) & (sat > 0.35) & (mx > 0.15) & (mx < 0.75) & (yt > 0.85)
         parts['tete'] = parts['tete'] | mech; parts['corps'] = parts['corps'] & ~mech
         print(f'  {k} : {int(mech.sum())} triangles de cheveux rattachés à la tête')
-    E = {}
-    for name, fm in parts.items():
-        Fp = F[fm]; used = np.unique(Fp); m = -np.ones(len(P), np.int64); m[used] = np.arange(len(used))
-        E[name] = geom(P[used], N[used], UV[used], m[Fp], Jn[used], w8[used])
-    # boîte de la tête au repos (pour poser les EPI) et repères
-    hp = P[ishead]
-    if grp == 'fille':   # queue de cheval : boîte du visage seulement (moitié avant de la tête, au-dessus du menton)
+    # col et capuche liés à la tête par Meshy : le rouge du sweat et le bleu-gris de la veste vont avec la tenue (sinon des
+    # morceaux du col de l'autre tenue apparaissent aux épaules quand on change de tête ou de tenue)
+    tissu = (ct[:, 2] > ct[:, 0] + 0.02) | ((ct[:, 0] > 0.35) & (ct[:, 1] < 0.4 * ct[:, 0]) & (ct[:, 2] < 0.4 * ct[:, 0])) | (ct.min(1) > 0.78)
+    if grp != 'noir': tissu |= ct.max(1) < 0.2          # bleu marine très sombre (les cheveux noirs de l'élève noir restent)
+    col = parts['tete'] & tissu & (yt < np.percentile(yt[parts['tete']], 40))
+    parts['tete'] = parts['tete'] & ~col; parts['corps'] = parts['corps'] | col
+    if col.any(): print(f'  {k} : {int(col.sum())} triangles du col rendus à la tenue')
+    # cou : la peau de la tête sous le menton. Quand on pose la tête d'une autre version (coiffure de la fille), le cou
+    # vient avec la tête et son bas passe sous le col de la tenue (sinon deux bouts de cou mal raccordés dépassent du col)
+    cmx = ct.max(1); cmn = ct.min(1); csat = (cmx - cmn) / np.maximum(cmx, 1e-6)
+    if grp == 'noir': peau = (ct[:, 0] > 0.30) & (ct[:, 0] < 0.85) & (ct[:, 0] > ct[:, 2] + 0.12) & (csat > 0.30) & (csat < 0.75)
+    else: peau = (ct[:, 0] > 0.6) & (ct[:, 0] > ct[:, 2] + 0.08) & (csat < 0.5) & (cmx > 0.62)
+    pv = np.zeros(len(P), bool); pv[F[parts['tete'] & peau].ravel()] = True
+    hvv = np.isin(bn[dom], ['Head', 'HeadTop_End', 'headfront'])
+    # menton : sur la ligne du milieu, la peau la plus basse qui avance presque autant que le nez (le cou est en retrait)
+    mil = pv & (np.abs(P[:, 0]) < 0.03) & (P[:, 1] > np.percentile(P[:, 1], 55))
+    zf = P[mil, 2].max(); menton = P[mil & (P[:, 2] > zf - 0.06), 1].min()
+    ymx = P[F].max(1)[:, 1]
+    peau &= ct[:, 1] > 0.55 * ct[:, 0]                  # pas les reflets du sweat rouge
+    parts['cou'] = parts['tete'] & peau & (ymx < menton - 0.004) & (ymx > menton - 0.20)
+    parts['tete'] = parts['tete'] & ~parts['cou']
+    part = np.zeros(len(F), np.uint8)
+    for i, n in enumerate(('tete', 'corps', 'pieds', 'mains', 'cou')): part[parts[n]] = i
+    lo = P.min(0); hi = P.max(0); sc = (hi - lo) / 65535
+    E = {'n': int(len(P)), 'pmin': lo.tolist(), 'pscale': sc.tolist(),
+         'pos': put(np.round((P - lo) / sc).astype(np.uint16)),
+         'uv': put(np.round(np.clip(UV, 0, 1) * 65535).astype(np.uint16)),
+         'jnt': put(Jn.astype(np.uint8)), 'wgt': put(w8.astype(np.uint8)),
+         'idx': put(F.reshape(-1).astype(np.uint16)), 'weld': put(weld.astype(np.uint16)), 'part': put(part)}
+    # repères du visage et boîte de la tête, sur le maillage tel que la page l'arrondit
+    Pq = lo + np.round((P - lo) / sc) * sc
+    nj = len(base); Wd = np.zeros((len(P), nj)); np.add.at(Wd, (np.repeat(np.arange(len(P)), 4), Jn.ravel()), w8.ravel() / 255)
+    Ps, UVs, Ws, Fs = loop(Pq, np.round(np.clip(UV, 0, 1) * 65535) / 65535, Wd, F)
+    hv = np.isin(bn[np.argmax(Ws, 1)], ['Head', 'HeadTop_End', 'headfront'])
+    hp = Ps[hv]
+    if grp == 'fille':   # queue de cheval : boîte du visage seulement (moitié avant de la tête)
         hp = hp[hp[:, 2] > np.median(hp[:, 2])]
-    # repères du visage (pour poser les EPI) : peau = texture claire et rosée, blanc des yeux = texture presque blanche
-    pbr1 = g['materials'][0]['pbrMetallicRoughness']
-    T1 = np.asarray(image_of(g, b, pbr1['baseColorTexture']['index']).convert('RGB'), np.float64) / 255; R1 = T1.shape[0]
-    cv = T1[np.clip((UV[:, 1] * R1).astype(int), 0, R1 - 1), np.clip((UV[:, 0] * R1).astype(int), 0, R1 - 1)]
-    mxv = cv.max(1); mnv = cv.min(1); satv = (mxv - mnv) / np.maximum(mxv, 1e-6)
-    hv = np.isin(bn[np.take_along_axis(Jn, np.argmax(Wt, 1)[:, None], 1)[:, 0]], ['Head', 'HeadTop_End', 'headfront'])
-    sk_ = hv & (cv[:, 0] > 0.7) & (cv[:, 0] > cv[:, 2] + 0.08) & (satv < 0.45) & (mxv > 0.72); Sk = P[sk_]
+    cv = couleur(UVs); mxv = cv.max(1); mnv = cv.min(1); satv = (mxv - mnv) / np.maximum(mxv, 1e-6)
+    if grp == 'noir':    # peau foncée : brune, plus rouge que bleue, ni noire (cheveux) ni claire
+        sk_ = hv & (cv[:, 0] > 0.30) & (cv[:, 0] < 0.85) & (cv[:, 0] > cv[:, 2] + 0.12) & (satv > 0.30) & (satv < 0.75)
+    else:
+        sk_ = hv & (cv[:, 0] > 0.7) & (cv[:, 0] > cv[:, 2] + 0.08) & (satv < 0.45) & (mxv > 0.72)
+    Sk = Ps[sk_]
     ear = Sk[np.abs(Sk[:, 0]) > np.percentile(np.abs(Sk[:, 0]), 97)]
     nose = Sk[Sk[:, 2] > np.percentile(Sk[:, 2], 99.5)]
-    eye = P[hv & (mnv > 0.8) & (P[:, 2] > np.percentile(Sk[:, 2], 60))]
-    E['reperes'] = {k: round(float(v), 4) for k, v in dict(haut=P[hv, 1].max(), oreille_x=np.abs(ear[:, 0]).mean(), oreille_y=ear[:, 1].mean(),
+    eye = Ps[hv & (mnv > 0.8) & (Ps[:, 2] > np.percentile(Sk[:, 2], 60))]
+    E['reperes'] = {k_: round(float(v), 4) for k_, v in dict(haut=Ps[hv, 1].max(), oreille_x=np.abs(ear[:, 0]).mean(), oreille_y=ear[:, 1].mean(),
         oreille_z=ear[:, 2].mean(), oreille_bas=ear[:, 1].min(), oreille_haut=ear[:, 1].max(), nez_y=nose[:, 1].mean(), nez_z=nose[:, 2].max(),
         oeil_y=eye[:, 1].mean(), oeil_z=eye[:, 2].max(), menton=Sk[:, 1].min()).items()}
     print('  repères', E['reperes'])
     E['boite_tete'] = {'min': hp.min(0).tolist(), 'max': hp.max(0).tolist()}
-    E['hauteur'] = float(P[:, 1].max()); E['groupe'] = grp
-    pbr = g['materials'][0]['pbrMetallicRoughness']
-    img0 = image_of(g, b, pbr['baseColorTexture']['index'])
+    E['hauteur'] = float(Ps[:, 1].max()); E['groupe'] = grp
+    E['chaussures'] = 'securite' if k in ('equipe', 'fille', 'noir') or k.endswith('_s') else 'baskets'
+    E['tenue'] = 'mal' if '_mal' in k or k == 'mal' or k.startswith('mal') or k == 'fille_mq' else 'ok'
     E['tex'] = jpeg(img0, TEX_ELEVE)
-    # deuxième image : SEULS les pixels des chaussures repeints dans l'autre style (sécurité <-> baskets) ;
-    # la forme reste celle de la tenue : aucun raccord avec le pantalon
-    E['chaussures'] = 'securite' if k in ('equipe', 'fille') else 'baskets'
-    E['tex_autres'] = jpeg(repeindre_chaussures(img0, UV, F, parts['pieds'], P[F].mean(1)[:, 1], 'baskets' if E['chaussures'] == 'securite' else 'securite'), TEX_ELEVE)
     J['eleves'][k] = E
-    print(f'{k} : ' + ', '.join(f"{n} {int(fm.sum())} faces" for n, fm in parts.items()))
+    print(f'{k} : {len(P)} sommets, ' + ', '.join(f"{n} {int(fm.sum())} faces" for n, fm in parts.items()))
 for k in epis:
     g, b = load(args[k]); pr = g['meshes'][0]['primitives'][0]; at = pr['attributes']
     P = acc(g, b, at['POSITION']).astype(np.float64); N = acc(g, b, at['NORMAL']).astype(np.float64)
