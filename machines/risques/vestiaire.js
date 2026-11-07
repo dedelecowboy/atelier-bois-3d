@@ -158,7 +158,7 @@ export function createVestiaire({ app, model, stage, list }){
     tenue:'noir', auditif:'noir', gants_manut:'noir', echarpe:'noir' };
   const outfit=(k,on)=>{ const e=new Set(BASE); let hair='attache', echarpe=false, bijoux=false;
     if(EQUIP.includes(k)){ if(on) e.add(k); else e.delete(k); }
-    if(k==='echarpe') echarpe=on; if(k==='bijoux') bijoux=on; if(k==='cheveux' && on) hair='long'; if(k==='sweat' && on) e.delete('tenue');
+    if(k==='echarpe') echarpe=on; if(k==='bijoux') bijoux=on; if(k==='cheveux' && on) hair='long'; if(k==='sweat' && on){ e.delete('tenue'); e.delete('chaussures'); }   // sweat ouvert, baskets, queue de cheval : version Meshy fille_mq
     return { eleve:QUI[k]||'fille', epi:[...e], hair, echarpe, bijoux }; };
 
   /* ---------- caméra : glissement doux vers un cadrage (horloge réelle) ---------- */

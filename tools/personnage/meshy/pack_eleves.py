@@ -32,7 +32,7 @@ TEX_EPI = 512
 CHEVEUX_LONGS = ('fille_mal', 'fille_mal_s', 'fille_l')
 Q = 84             # qualité JPEG
 GROUPES = {k: 'garcon' for k in ('equipe', 'mal', 'equipe_b', 'mal_s')}
-GROUPES.update({k: 'fille' for k in ('fille', 'fille_mal', 'fille_b', 'fille_mal_s', 'fille_l')})   # fille_l : tenue, cheveux détachés
+GROUPES.update({k: 'fille' for k in ('fille', 'fille_mal', 'fille_b', 'fille_mal_s', 'fille_l', 'fille_mq')})   # fille_l : tenue, cheveux détachés ; fille_mq : sweat, baskets, queue de cheval
 GROUPES.update({k: 'noir' for k in ('noir', 'noir_mal', 'noir_b', 'noir_mal_s')})
 _s = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'subdiv_rig.py'), encoding='utf-8').read()
 exec(_s[_s.index('def loop'):_s.index('for _ in range(A.niveaux)')])   # loop(P, UV, W, F) : la même subdivision que la page
@@ -208,7 +208,7 @@ for k in eleves:
     E['boite_tete'] = {'min': hp.min(0).tolist(), 'max': hp.max(0).tolist()}
     E['hauteur'] = float(Ps[:, 1].max()); E['groupe'] = grp
     E['chaussures'] = 'securite' if k in ('equipe', 'fille', 'noir') or k.endswith('_s') else 'baskets'
-    E['tenue'] = 'mal' if '_mal' in k or k == 'mal' or k.startswith('mal') else 'ok'
+    E['tenue'] = 'mal' if '_mal' in k or k == 'mal' or k.startswith('mal') or k == 'fille_mq' else 'ok'
     E['tex'] = jpeg(img0, TEX_ELEVE)
     J['eleves'][k] = E
     print(f'{k} : {len(P)} sommets, ' + ', '.join(f"{n} {int(fm.sum())} faces" for n, fm in parts.items()))

@@ -12,6 +12,7 @@ const TENUES=[['tenue d’atelier, sécurité',['tenue','chaussures']],['tenue d
 const ELEVES={}; for(const [e,[nom,v]] of Object.entries(QUI)) v.forEach((q,i)=>{ ELEVES[q]={ nom:`${nom} · ${TENUES[i][0]}${e==='fille'? (i<2? ' (queue de cheval)' : ' (cheveux détachés)') : ''}`, e,
   o:{ eleve:e, hair:e==='fille'? (i<2? 'attache' : 'long') : 'court', epi:TENUES[i][1] } }; });
 ELEVES.fille_l={ nom:'Fille · tenue d’atelier, sécurité (cheveux détachés)', e:'fille', o:{ eleve:'fille', hair:'long', epi:['tenue','chaussures'] } }; QUI.fille[1].push('fille_l');
+ELEVES.fille_mq={ nom:'Fille · sweat, baskets (queue de cheval)', e:'fille', o:{ eleve:'fille', hair:'attache', epi:[] } }; QUI.fille[1].push('fille_mq');
 const NOMS={ casque:'Casque antibruit', lunettes:'Lunettes', ffp2:'Masque FFP2', demimasque:'Demi-masque', echarpe:'Écharpe', bracelet:'Bracelet' };
 const CODE={ casque:'auditif', lunettes:'lunettes', ffp2:'masque', demimasque:'masque_a' };
 const POSES={ debout:'Debout', machine:'À la machine', soufflette:'Soufflette', aspire:'Aspirateur', dos_courbe:'Dos courbé' };
