@@ -178,5 +178,5 @@ Code, modèles 3D, textes (fiches, QCM, nomenclatures, scénarios) et outils de 
 
 Éléments d'autres auteurs, sous leur propre licence :
 - three.js (bibliothèque 3D) : licence MIT, copiée dans les paquetages SCORM (`lib/LICENSE-three.txt`) ;
-- enregistrements sonores (`engine/sons/`, `machines/scie-ruban/sons/`) : fichiers de banques de sons (noms de type Pixabay / Freesound), licences à vérifier avant diffusion ;
+- enregistrements sonores (`engine/sons/`, `machines/scie-ruban/sons/`) : Pixabay, licence de contenu Pixabay (usage gratuit, sans redistribution des sons seuls) ; auteurs cités dans `COPYRIGHT.txt` ;
 - polices des attestations (Caveat, Barlow, Barlow Condensed) : SIL Open Font License.

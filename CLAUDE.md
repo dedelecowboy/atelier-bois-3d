@@ -13,7 +13,7 @@ Document : https://claude.ai/artifact/QJVS63cAao3NoAg7aQCTok (une ligne par poin
 - Vestiaire (À FAIRE) : l'élève n'est plus toujours dans l'allée ; il apparaît à différents endroits de l'atelier (proposé : près de la machine ou du poste de chaque démonstration).
 - Élastiques, doigts, mascotte : en réserve ; non simulés des risques généraux (déplacement, issue au clic, rassemblement, air comprimé) : à envisager.
 - Toupie : l'atelier a les deux systèmes (poulies et variateur) ; photos des outils à venir. Scie à ruban, mortaiseuse : OK en l'état.
-- Sons : préciser les sources et licences dans les crédits (À FAIRE) ; niveaux en dB(A) en suspens (l'enseignant vérifie).
+- Sons : tous crédités Pixabay (décidé par l'enseignant le 07/11/2026, licence de contenu Pixabay : gratuit, sans attribution obligatoire, pas de redistribution des sons seuls), auteurs dans COPYRIGHT.txt et README ; les « licences À VÉRIFIER » plus bas sont réglées ; niveaux en dB(A) en suspens (l'enseignant vérifie). Tout le reste du récapitulatif : validé par l'enseignant.
 - Règle du permis (`REGLE`, engine/permis.js) : l'utilisation de la vraie machine est autorisée après validation pratique à l'atelier (texte à écrire).
 - À éclaircir avec l'enseignant : note maximale en « Objets d'apprentissage » ; EPI des personnages de la partie Dangers. Accès aux risques généraux par l'atelier (sommaire) : confirmé, il fonctionne.
 
