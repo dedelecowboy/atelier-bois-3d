@@ -29,10 +29,10 @@ from glbio import load, acc
 
 TEX_ELEVE = 1024   # px : les élèves sont vus de loin dans la salle
 TEX_EPI = 512
-CHEVEUX_LONGS = ('fille_mal', 'fille_mal_s')
+CHEVEUX_LONGS = ('fille_mal', 'fille_mal_s', 'fille_l')
 Q = 84             # qualité JPEG
 GROUPES = {k: 'garcon' for k in ('equipe', 'mal', 'equipe_b', 'mal_s')}
-GROUPES.update({k: 'fille' for k in ('fille', 'fille_mal', 'fille_b', 'fille_mal_s')})
+GROUPES.update({k: 'fille' for k in ('fille', 'fille_mal', 'fille_b', 'fille_mal_s', 'fille_l')})   # fille_l : tenue, cheveux détachés
 GROUPES.update({k: 'noir' for k in ('noir', 'noir_mal', 'noir_b', 'noir_mal_s')})
 _s = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'subdiv_rig.py'), encoding='utf-8').read()
 exec(_s[_s.index('def loop'):_s.index('for _ in range(A.niveaux)')])   # loop(P, UV, W, F) : la même subdivision que la page

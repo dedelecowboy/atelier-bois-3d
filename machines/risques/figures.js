@@ -109,7 +109,7 @@ export function placerObjets(g){ const P=g.userData.P;
     _M.copy(P.osRepos[k]).multiply(M); _M.decompose(o.position,o.quaternion,o.scale); } }
 /* groupes : trois élèves, quatre versions chacun (tenue d'atelier ou sweat × chaussures de sécurité ou baskets) */
 const GRP={ garcon:{ ok:'equipe', ok_b:'equipe_b', mal:'mal', mal_s:'mal_s' },
-  fille:{ ok:'fille', ok_b:'fille_b', mal:'fille_mal', mal_s:'fille_mal_s' },
+  fille:{ ok:'fille', ok_b:'fille_b', mal:'fille_mal', mal_s:'fille_mal_s', ok_l:'fille_l' },   // fille_l : tenue et chaussures de sécurité, cheveux détachés
   noir:{ ok:'noir', ok_b:'noir_b', mal:'noir_mal', mal_s:'noir_mal_s' } };
 export const ELEVES=Object.keys(GRP).filter(k=>D.J.eleves[GRP[k].ok]);
 /* version portée : tenue d'atelier ou non, chaussures de sécurité ou non */
@@ -260,10 +260,12 @@ export function enfoncement(g,detail){ const P=g.userData.P; if(!P.appuis?.lengt
 
 /* ---------- tenue, chaussures, gants, EPI ---------- */
 export function setEpi(g,o={}){ const P=g.userData.P, e=new Set(o.epi||[]);
-  const G=GRP[P.grp], ok=e.has('tenue') || o.tenue===true, secu=e.has('chaussures'), V=version(G,ok,secu);
+  const G=GRP[P.grp], ok=e.has('tenue') || o.tenue===true, secu=e.has('chaussures'); let V=version(G,ok,secu);
   /* tête : celle de la version portée ; pour la fille, la coiffure demandée (queue de cheval = versions en tenue,
      cheveux détachés = versions en sweat) : sinon la tête de l'autre tenue, mêmes chaussures */
-  let T=V; if(P.grp==='fille' && o.hair){ const queue=o.hair==='attache'; if(queue!==ok) T=version(G,queue,secu); }
+  let T=V; if(P.grp==='fille' && o.hair){ const queue=o.hair==='attache';
+    if(!queue && ok && secu && G.ok_l && EL[G.ok_l]){ V=T=G.ok_l; }          // tenue + cheveux détachés : la vraie version Meshy
+    else if(queue!==ok) T=version(G,queue,secu); }
   if(T!==P.qui){ P.qui=T; placerObjets(g); }
   for(const p of PIECES) P.piece(V,p); P.piece(T,'tete'); P.piece(T,'cou');
   const gant=e.has('gants_chim')? 'gants_chim' : e.has('gants_manut')? 'gants_manut' : null;
