@@ -24,6 +24,10 @@ export const niveauDe = id=>NIVEAUX.find(v=>v.ids.includes(id)) || null;
 /* règle d'atelier liée au permis (vide pour l'instant : le permis ne donne aucun droit sur les vraies machines) */
 export const REGLE = '';
 export const SEUIL = 'validez l\'évaluation (70 / 100, aucune faute grave)';
+/* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs) : module à valider avant celui-ci ;
+   lus par la page atelier (aperçu « Moodle ») et par les « Premiers pas » (engine/premiers.js) */
+export const PREREQ = { 'scie-radiale':'risques', 'scie-format':'risques', 'scie-ruban':'risques', deligneuse:'scie-radiale', degauchisseuse:'deligneuse',
+  raboteuse:'degauchisseuse', toupie:'raboteuse', mortaiseuse:'raboteuse', tenonneuse:'raboteuse' };
 
 export const FAMILLES = {
   risques:{ nom:'Sécurité', col:'#c4261c' },

@@ -30,6 +30,7 @@ import { moodleNav, pkg, pkgLock } from './moodlenav.js';
 import { createBruit } from './audio.js';
 import { createLecture } from './lecture.js';
 import { noteExercice, celebrer, estEntraine } from './permis.js';
+import { createPremiers, cartesMachine } from './premiers.js';
 
 const $ = id=>document.getElementById(id);
 
@@ -124,10 +125,15 @@ export function createApp(config, raw){
       if(window.ATELIER_LOCAL){ const b=$('toAtelier'); b.hidden=false; b.title='Revenir à l\'atelier'; b.onclick=()=>{ location.href='../index.html'; }; }   // dossier d'entraînement hors ligne
       if(pkg()){ const b=$('toAtelier'); b.hidden=false;
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
+      /* premiers pas (engine/premiers.js) : à quoi sert le module, comment s'en servir, comment obtenir son badge du permis machine ;
+         ouverts seuls à la première visite de ce module, bouton « ? » de l'en-tête ensuite */
+      app.premiers=createPremiers({ cle:config.id, slot:'.top .views', entete:'.top',
+        cartes:cartesMachine({ config, fiches, rep:parc.REP.length, qcm:qcm.length, scen:hooks.parcours?.scenarios||[], vestiaire:app.vestiaire?.list.length||0 }) });
+      app.premiers.auto();
       stage.run((dt,now)=>{ hooks.tick?.(dt,now); app.bruit?.tick(); });
       stage.onContext(()=>{ hooks.onContextRestored?.(); app.apply(); });
       /* poignée pour les tests automatiques */
-      window.__atelier={ app, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, retry:parc.retry, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
+      window.__atelier={ app, premiers:app.premiers, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, retry:parc.retry, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
       window.__ready=true; } };
   return app;
 }

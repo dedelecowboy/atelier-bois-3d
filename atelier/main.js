@@ -15,6 +15,7 @@ import { moodleNav, pkg, tocInfo, pkgLock } from '../engine/moodlenav.js';
 import { toggleFs, fsOn, onFsChange } from '../engine/fullscreen.js';
 import { createLecture } from '../engine/lecture.js';
 import * as PM from '../engine/permis.js';
+import { createPremiers, cartesAtelier } from '../engine/premiers.js';
 
 const $ = id=>document.getElementById(id);
 /* confort de lecture (engine/lecture.js) : bouton « Aa » dans les outils de l'en-tête ; 🔈 lit la fiche du poste ouverte */
@@ -506,4 +507,8 @@ $('relaunch').onclick=()=>location.reload();
 if(PKG||LOCAL){ $('editBtn').hidden=true; document.querySelector('.vseg').hidden=true; }
 rewriteItems(); applyLocks(); resize(); { const h=home(); camera.position.copy(h.pos); controls.target.copy(h.tgt); } frame();
 window.__atelier={ flows:FLOWS.map((f,i)=>({ niv:f.niv, pts:flows[i].curve.getSpacedPoints(80).map(p=>[p.x,p.z]), col:'#'+flows[i].group.children[0].material.color.getHexString() })), lecture, permis:{ animes:pmAnimes, etat:badgeEtat, open:permisOpen, close:permisClose, mode:pmode, conseil:()=>conseilId() }, STATIONS, DECORS, lay, select, scene, camera, controls, setEditing, edSelect, edRotate, layoutJSON, get esel(){ return esel; } };
+/* premiers pas (engine/premiers.js) : comment marche l'atelier et comment obtenir le permis machine ; ouverts seuls à la
+   première visite, bouton « ? » de l'en-tête ensuite */
+const premiers=createPremiers({ cle:'atelier', slot:'.at-tools', entete:'.at-top', cartes:cartesAtelier() });
+window.__atelier.premiers=premiers; premiers.auto();
 window.__ready=true;
