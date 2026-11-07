@@ -142,7 +142,8 @@ async def main():
         await f.evaluate("()=>document.querySelector('#postes [data-id=risques]').click()"); await pg.wait_for_timeout(400)
         rk = await f.evaluate("()=>({ first:document.querySelector('#postes button').dataset.id, card:document.getElementById('card').textContent, go:!!document.getElementById('cardGo') })")
         check(rk['first'] == 'risques' and 'Risques généraux' in rk['card'] and rk['go'], 'atelier : « 0 Risques généraux » en tête de liste, fiche avec « Ouvrir le module »')
-        await f.evaluate("()=>document.getElementById('cardGo').click()"); await pg.wait_for_timeout(500); f = await frame_ready()
+        await f.evaluate("()=>document.getElementById('cardGo').click()")
+        await pg.wait_for_function("document.getElementById('scorm_object').contentWindow.location.pathname.includes('risques')", timeout=15000); await pg.wait_for_timeout(500); f = await frame_ready()
         check((await f.evaluate('location.pathname')).endswith('/risques/index.html'), '« Ouvrir le module » ouvre l\'élément « 0. Risques généraux »')
         ch = await f.evaluate("()=>({ choice:!document.getElementById('choice').hidden, back:!document.getElementById('toAtelier').hidden })")
         check(ch['choice'] and ch['back'], 'risques généraux : choix entraînement / évaluation et « ← Atelier »')
@@ -191,7 +192,7 @@ async def main():
         st = await f.evaluate("()=>Object.fromEntries([...document.querySelectorAll('#postes button')].map(b=>[b.dataset.id, b.querySelector('.st')?.textContent+'|'+b.dataset.done+'|'+b.dataset.locked]))")
         check(st['scie-radiale'] == 'validée · 100|true|false' and st['deligneuse'].startswith('à faire|false|false'), f'sans bilan dans le navigateur : état lu dans le sommaire (radiale {st["scie-radiale"]}, déligneuse {st["deligneuse"]})')
         await pg.evaluate("setSt('2. Déligneuse multilames','fa-check','',88)")
-        await pg.wait_for_timeout(1200)
+        await pg.wait_for_timeout(3000)
         st = await f.evaluate("()=>[...document.querySelectorAll('#postes button')].map(b=>b.dataset.id+':'+(b.querySelector('.st')?.textContent||'')+':'+b.dataset.locked).join(' ')")
         check('deligneuse:validée · 88:false' in st and 'degauchisseuse:à faire:false' in st, 'sommaire mis à jour par Moodle pendant que l\'atelier est ouvert : états relus')
         real = [e for e in errs if 'context' not in e.lower()]
