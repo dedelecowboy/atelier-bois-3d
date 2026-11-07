@@ -7,8 +7,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 # Sources : INRS ED 6019 « Déligneuses à lames multiples », cours « La déligneuse ».
 
@@ -131,3 +131,65 @@ Q: Quel équipement de protection individuelle est indispensable au poste de la 
 + Une protection auditive : la machine est très bruyante
 - Une cravate bien serrée
 = Protection auditive, chaussures de sécurité, pas de vêtements flottants. Les gants servent seulement à manipuler les lames, machine arrêtée.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Que fait le tapis de la déligneuse ?
++ Il entraîne la pièce à travers les lames, à vitesse réglée
+- Il évacue seulement les copeaux
+- Il presse la pièce contre le guide
+= L'opérateur ne pousse pas la pièce : c'est le tapis qui l'avance.
+
+Q: Où se trouve l'arbre porte-lames sur cette machine ?
++ Au-dessus du tapis
+- Sous le tapis
+- Sur le côté du guide
+= Machine mono-arbre : arbre au-dessus, dents du bas qui vont vers l'opérateur (opposition).
+
+Q: Combien de rangées de linguets protègent l'entrée ?
++ Plusieurs rangées de linguets à dents, une rangée de lamelles et une barrière inférieure
+- Une seule rangée de lamelles
+- Aucune : le tapis suffit
+= Les barrières anti-recul retiennent une pièce ou un éclat rejeté vers l'opérateur.
+
+Q: Quelle largeur règle-t-on avec le guide ?
++ La largeur entre la face du guide et la première lame
+- La largeur totale de la planche
+- L'écartement entre deux lames
+= Les manchons préréglés fixent l'écartement des lames ; le guide fixe la première largeur.
+
+Q: Quel est le trait de scie (épaisseur enlevée) des lames de la machine ?
++ 3,2 mm
+- 0,8 mm
+- 10 mm
+= L'entraxe entre deux lames vaut la largeur voulue + 3,2 mm.
+
+Q: Comment règle-t-on les rouleaux presseurs pour une pièce de 41 mm ?
++ Un peu plus bas que l'épaisseur : 37 à 40 mm
+- À 41 mm exactement
+- Plus haut que la pièce, pour qu'elle passe facilement
+= Presseurs à l'épaisseur ou plus haut : la pièce n'est plus tenue, c'est une faute grave.
+
+Q: Le tapis est arrêté pendant la passe. Que se passe-t-il ?
++ La pièce s'immobilise sous les lames
+- La pièce continue à avancer seule
+- Les lames s'arrêtent automatiquement
+= On arrête d'abord le tapis, puis les lames, quand la sortie est dégagée.
+
+Q: Un plateau a une rive en flache. Peut-on l'appuyer contre le guide ?
++ Non : une rive en flache contre le guide n'est pas guidée, c'est une faute grave
+- Oui, c'est la rive la plus droite
+- Oui, si l'on avance lentement
+= On délignera la flache au laser, guide escamoté.
+
+Q: Comment pose-t-on un plateau de chêne qui n'est pas plat ?
++ Sur sa grande face, la face creuse vers le bas pour qu'il ne bascule pas
+- Sur sa petite face, la flache vers le bas
+- Sur chant
+= Posé sur sa petite face, le plateau a un découvert dessous : il peut basculer.
+
+Q: Qui peut utiliser la vraie déligneuse de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui connaît les réglages
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

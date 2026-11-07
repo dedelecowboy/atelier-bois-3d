@@ -7,8 +7,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: À quoi sert le dégauchissage ?
@@ -130,3 +130,65 @@ Q: Pourquoi trace-t-on des repères au crayon sur SR1 et SR2 ?
 + Pour retrouver les faces de référence pendant la suite du corroyage
 - Pour mesurer l'épaisseur
 = Le repère de parement (boucle) et celui du chant (V vers l'arête) montrent l'angle droit de référence pour le rabotage.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Quelle face appelle-t-on SR1 ?
++ La première face dressée, surface de référence
+- Le chant d'équerre
+- La face rabotée à l'épaisseur
+= SR1 est le plat dressé en premier ; SR2 est le chant dressé d'équerre sur SR1.
+
+Q: Quel angle doit faire SR2 avec SR1 ?
++ 90°
+- 45°
+- Peu importe
+= Le guide est réglé à 90° ; on vérifie l'équerrage après la passe.
+
+Q: Où se trouve le cercle de coupe de l'arbre par rapport aux tables ?
++ Au niveau de la table de sortie
+- Au niveau de la table d'entrée
+- Sous les deux tables
+= La table d'entrée est abaissée de la profondeur de passe ; la table de sortie reçoit la face dressée.
+
+Q: Dans quel sens tournent les fers de l'arbre ?
++ Les fers du haut vont vers l'opérateur, contre l'avance
+- Les fers du haut vont dans le sens de l'avance
+- Le sens n'a pas d'importance
+= L'arbre travaille en opposition : la pièce est poussée contre la rotation.
+
+Q: Une pièce est posée sur son bombé. Pourquoi est-ce dangereux ?
++ Elle bascule pendant la passe
+- Elle est trop légère
+- Elle va trop vite
+= Une pièce cintrée se pose creux en dessous, sur ses deux bouts : elle est stable.
+
+Q: Quelle profondeur de passe déclenche une alerte « attention » ?
++ Plus de 2 mm
+- Plus de 0,5 mm
+- Plus de 10 mm
+= Petites passes : meilleur état de surface et moins de risque de rejet.
+
+Q: La passe n'a pas effacé tous les défauts d'une pièce cintrée. Que faites-vous ?
++ Une nouvelle passe, jusqu'à ce que la face soit entièrement dressée
+- On passe à la raboteuse
+- On accepte la face
+= Une pièce cintrée se dresse en plusieurs passes.
+
+Q: Pourquoi ne tire-t-on jamais la pièce en arrière sur l'arbre ?
++ Les mains passeraient au-dessus des fers et la pièce pourrait être rejetée
+- Cela use les fers
+- Cela salit la table
+= Après la passe, on soulève la pièce pour la ramener à l'entrée.
+
+Q: Le repère d'angle (le « V ») se trace :
++ À cheval sur l'arête entre SR1 et SR2
+- Au milieu de SR1
+- Sur un bout de la pièce
+= Un trait sur SR1 côté angle droit qui repart sur SR2 : les deux forment un petit V.
+
+Q: Qui peut utiliser la vraie dégauchisseuse de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

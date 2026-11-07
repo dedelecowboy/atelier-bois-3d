@@ -10,8 +10,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: À quoi sert la toupie ?
@@ -133,3 +133,65 @@ Q: Comment nettoie-t-on la toupie après le travail ?
 - Au balai
 + À l'aspirateur pour atelier bois (classe M), machine arrêtée
 = Les poussières de bois sont cancérogènes : jamais de soufflette ni de balai ; masque FFP2 si l'aspiration à la source est insuffisante.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Où est placé l'arbre de cette toupie ?
++ Vertical, fixe à 90°, au centre de la table
+- Horizontal, sous la table
+- Inclinable à 45°
+= L'arbre vertical porte l'outil ; on règle sa hauteur et la position du guide.
+
+Q: Entre quelles valeurs doit être la vitesse de coupe Vc d'un outil de toupie ?
++ Entre 40 et 70 m/s, et jamais au-dessus du n max de l'outil
+- Entre 5 et 10 m/s
+- Au-dessus de 100 m/s
+= Vc hors plage : alerte ; vitesse au-dessus de n max : faute grave.
+
+Q: À combien des demi-guides les lamelles sont-elles amenées par « Fermer les lamelles » ?
++ À environ 3 mm de l'outil
+- À 30 mm de l'outil
+- Contre l'outil
+= La lumière est fermée au maximum autour de l'outil, sans contact.
+
+Q: Pourquoi fait-on « Fermer les lamelles » après avoir réglé la hauteur et la saillie ?
++ La position des lamelles dépend de l'outil, de sa hauteur et de sa saillie
+- Les lamelles se règlent avant de monter l'outil
+- L'ordre n'a pas d'importance
+= Outil, hauteur ou saillie changés après : risque de contact ou lumière trop ouverte.
+
+Q: Quelle profondeur de passe maximale par passe ?
++ 10 mm
+- 2 mm
+- 30 mm
+= Au-delà, on fait plusieurs passes.
+
+Q: Quelle longueur minimale de pièce pour travailler au guide à la main ?
++ 300 mm
+- 100 mm
+- 800 mm
+= Plus courte : montage d'usinage ou pièce plus longue recoupée ensuite.
+
+Q: Avec l'entraîneur posé sur la pièce, que n'est-il plus obligatoire d'utiliser ?
++ Les presseurs du protège-mains et le poussoir
+- Les lunettes et le casque
+- L'aspiration
+= L'entraîneur tient et avance la pièce : les mains restent loin de l'outil.
+
+Q: Comment change-t-on l'outil de la toupie dans le simulateur ?
++ Moteur arrêté, arbre à l'arrêt complet et verrouillé
+- Moteur en marche, à vitesse lente
+- Dès que le moteur est coupé, même si l'arbre tourne encore
+= L'arbre se verrouille seulement à l'arrêt complet.
+
+Q: Que fait « Tourner à la main », moteur arrêté ?
++ Il vérifie que l'outil ne touche ni les lamelles ni la bague avant de démarrer
+- Il règle la vitesse
+- Il ferme les lamelles
+= Un outil contre les lamelles au démarrage : choc, démarrage refusé.
+
+Q: Qui peut utiliser la vraie toupie de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

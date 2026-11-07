@@ -88,7 +88,7 @@ export function cartesMachine(o, ver=version()){
       + etapes([ ...(o.fiches?.length? [['Les fiches', `${o.fiches.length} fiches à lire avant de commencer.`]] : []),
         ...(o.vestiaire? [['Le vestiaire', `${o.vestiaire} équipements à voir sur l'élève.`]] : []),
         ['Le repérage', `Touchez dans la 3D les ${o.rep} ${mot} demandés, puis « Valider ».`],
-        ['Le QCM sécurité', `${o.qcm} questions : choisissez, puis « Valider ma réponse ».`],
+        ['Le QCM sécurité', `${o.qcm} questions tirées au hasard : choisissez, puis « Valider ma réponse ».`],
         ['Les scénarios', `${(o.scen||[]).length} situations notées${ex.length?` : ${ex.map(t=>esc(t.toLowerCase())).join(' ; ')}`:''}.`] ])
       + gestes([['tourner','Glisser : tourner'], ['zoom','Molette ou pincement : zoomer'], ['toucher', risques? 'Toucher la 3D : choisir' : 'Toucher un organe : le choisir']]) });
   else C.push({ t:'Comment ça marche',

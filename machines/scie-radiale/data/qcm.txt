@@ -7,8 +7,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 # Sources : cours « La scie radiale » (Lycée André Malraux), fiche méthode « Débit des bois »,
 # fiche « Scie radiale » du CCHST (Centre canadien d'hygiène et de sécurité au travail).
@@ -132,3 +132,65 @@ Q: Quels équipements portez-vous au poste de la scie radiale ?
 + Protection auditive, lunettes de protection, chaussures de sécurité, pas de vêtements flottants
 - Une blouse ample
 = Les gants, bijoux et vêtements flottants peuvent être happés par la lame. Les gants servent seulement à manipuler les planches brutes, loin de la machine.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Qu'est-ce que la zone dangereuse peinte en rouge sur la table ?
++ La zone de 150 mm de chaque côté du trait de lame, où les mains ne doivent jamais être
+- La zone où l'on pose les chutes
+- La zone où la lame est la plus rapide
+= Main à moins de 150 mm du trait au moment de tirer la lame : c'est une faute grave.
+
+Q: Avant de tirer la lame, la tête et le bras doivent être :
++ Bloqués à l'angle voulu
+- Desserrés pour suivre la pièce
+- Réglés lame en marche
+= Bras et tête non bloqués : la lame peut dévier pendant la coupe. On règle et on bloque lame arrêtée.
+
+Q: À quelle hauteur règle-t-on le protecteur avant pour une planche de 27 mm ?
++ Au plus 10 mm au-dessus de la pièce
+- Au ras de la table
+- Tout en haut, pour bien voir la lame
+= Plus haut que 10 mm au-dessus de la pièce, la main peut passer sous le protecteur : faute grave.
+
+Q: Quelle longueur minimale de pièce peut-on couper à la scie radiale ?
++ 300 mm
+- 100 mm
+- 1 000 mm
+= Une pièce plus courte ne peut pas être tenue loin de la zone dangereuse.
+
+Q: La lame tend à « s'emballer » dans le bois. Pourquoi ?
++ Elle travaille en avalant : ses dents tirent la tête vers l'opérateur
+- Le moteur est trop puissant
+- La pièce n'est pas assez sèche
+= Avec une lame avalante, il faut accompagner et retenir la tête pendant toute la coupe.
+
+Q: Que faire si la lame n'est pas revenue en position arrière et qu'une chute gêne ?
++ Ramener d'abord la lame derrière le guide, puis dégager la chute
+- Dégager la chute à la main tout de suite
+- Repousser la chute avec la pièce suivante
+= Toucher une pièce lame en avant est une faute grave.
+
+Q: Pour couper à 45° en travers (onglet), que règle-t-on ?
++ L'angle du bras
+- L'inclinaison de la lame
+- La hauteur du protecteur
+= Le bras pivote autour de la colonne pour l'onglet ; l'inclinaison de la lame donne le biais (sifflet).
+
+Q: Pourquoi fait-on une coupe d'essai quand le bras est tourné ?
++ La butée est graduée pour la coupe d'équerre : à un autre angle, la longueur doit être vérifiée
+- Pour chauffer la lame
+- Pour vérifier l'aspiration
+= Aux autres angles, la coupe croise le guide plus loin : on contrôle la longueur sur une pièce d'essai.
+
+Q: Sur une planche, quelle chute garder au tronçonnage du bout brut ?
++ La plus petite possible, juste assez pour enlever le bout fendu et hors d'équerre
+- Au moins 300 mm
+- Aucune : on garde le bout brut
+= On affranchit le bout avec une chute de quelques centimètres (50 mm au plus dans le scénario).
+
+Q: Qui peut utiliser la vraie scie radiale de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

@@ -18,6 +18,12 @@ import { celebrer, NOM } from './permis.js';
 const $ = id=>document.getElementById(id);
 const sum=a=>a.reduce((x,y)=>x+y,0);
 const W_REP=20, W_QCM=20, PASS=70;
+/* QCM (décidé par l'enseignant le 07/11/2026) : chaque module a une BANQUE de questions (≈ 30, data/qcm.txt) ; à chaque
+   tentative, TIRAGE questions sont tirées au hasard, dans un ordre au hasard, et les réponses de chaque question sont
+   mélangées. Traces : CODE_qcm_NN = numéro de la question DANS LA BANQUE (stable d'une tentative à l'autre), réponse =
+   lettre de la réponse dans le fichier (a = la première du fichier). suspend_data : qs (questions tirées), qo (ordre des réponses). */
+const TIRAGE=20;
+const melange=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 
 export function createParcours(app, { reperage, qcm }, P){
   const { stage, parts, ex } = app;
@@ -35,14 +41,21 @@ export function createParcours(app, { reperage, qcm }, P){
   const CODE=(app.config.scorm?.code||app.config.id||'M').toUpperCase();
   const txt=v=>String(v).replace(/±/g,'+/-').replace(/≤/g,'max').replace(/≥/g,'min').replace(/·/g,'|').replace(/[\u00a0\u202f]/g,' ').replace(/[^\p{L}\p{N}.,:;\/()×+%°'| -]/gu,' ').replace(/\s+/g,' ').trim();
   const scorm=createScorm({ enabled:PARC_ON, t0:()=>parc.t0, restore:o=>Object.assign(parc,o),
-    state:()=>{ const {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}=parc; return {ph,ri,rk,qi,qk,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}; } });
+    state:()=>{ const {ph,ri,rk,qi,qk,qs,qo,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}=parc; return {ph,ri,rk,qi,qk,qs,qo,si,scens,dangers,done,total,note,passed,essai,todo,lu,luD,luV,ve,veD,veV}; } });
+  /* tirage du QCM ; une reprise d'avant la banque (pas de qs) garde l'ordre du fichier */
+  function tirage(){ const n=Math.min(TIRAGE,QCM.length); parc.qs=melange(QCM.map((_,i)=>i)).slice(0,n); parc.qo=parc.qs.map(i=>melange(QCM[i].o.map((_,j)=>j))); }
+  function qcmOk(){ if(!Array.isArray(parc.qs)||!parc.qs.length||parc.qs.some(i=>!QCM[i])){ const n=Math.min(TIRAGE,QCM.length);
+      if(parc.qi>0||parc.qk.length){ parc.qs=QCM.map((_,i)=>i).slice(0,n); parc.qo=parc.qs.map(i=>QCM[i].o.map((_,j)=>j)); } else tirage(); } }
+  const QN=()=>{ qcmOk(); return parc.qs.length; };
+  /* question k du tirage, réponses dans l'ordre affiché (a = bonne réponse dans cet ordre) */
+  function qcmQ(k){ qcmOk(); const i=parc.qs[k], Q=QCM[i], ord=(parc.qo&&parc.qo[k])||Q.o.map((_,j)=>j); return { i, ord, q:Q.q, o:ord.map(j=>Q.o[j]), a:ord.indexOf(Q.a), e:Q.e }; }
   /* parties de l'évaluation, dans l'ordre ; parc.todo = celles à refaire (null à la première tentative : toutes) */
   const KEYS=['rep','qcm',...SCENS.map((_,i)=>'s'+i)];
   const need=k=>!parc.todo||parc.todo.includes(k);
   const later=k=>KEYS.slice(KEYS.indexOf(k)+1).filter(need);
   function enter(k){ if(k==='rep') parc.ph='rep'; else if(k==='qcm') parc.ph='qcm'; else { parc.ph='scen-intro'; parc.si=+k.slice(1); } }
   function goNext(k){ const nx=later(k)[0]; if(!nx){ parc.si=SCENS.length; finish(); return; } enter(nx); scorm.save(); render(); }
-  const repPoints=()=>Math.round(W_REP*sum(parc.rk)/REP.length), qcmPoints=()=>Math.round(W_QCM*sum(parc.qk)/QCM.length);
+  const repPoints=()=>Math.round(W_REP*sum(parc.rk)/REP.length), qcmPoints=()=>Math.round(W_QCM*sum(parc.qk)/QN());
   /* parties ratées : faute grave, ou moins de 70 % des points de la partie (si toutes dépassent 70 % sans faute, le total dépasse 70 : la machine est validée) */
   function ratees(){ const R=PASS/100, out=[]; if(repPoints()<R*W_REP) out.push('rep'); if(qcmPoints()<R*W_QCM) out.push('qcm');
     SCENS.forEach((_,i)=>{ const s=parc.scens[i]; if(!s||s.dangers.length||s.pts<R*W_SCEN) out.push('s'+i); }); return out.length?out:KEYS.slice(); }
@@ -50,7 +63,7 @@ export function createParcours(app, { reperage, qcm }, P){
   const listeParties=K=>{ const t=K.map(nomPartie).join(', '); return t[0].toUpperCase()+t.slice(1); };
   /* nouvelle tentative : remet à zéro les parties ratées et garde les autres ; le statut Moodle ne bouge pas avant le nouveau résultat */
   function retry(){ if(!parc.done||parc.passed) return; const T=ratees(); parc.essai=(parc.essai||1)+1; parc.todo=T; parc.done=false; parc.dangers=[]; parc.cand=null;
-    if(T.includes('rep')){ parc.ri=0; parc.rk=[]; } if(T.includes('qcm')){ parc.qi=0; parc.qk=[]; parc.qAns=null; parc.qSel=null; }
+    if(T.includes('rep')){ parc.ri=0; parc.rk=[]; } if(T.includes('qcm')){ parc.qi=0; parc.qk=[]; parc.qAns=null; parc.qSel=null; tirage(); }   // nouvelles questions, nouvel ordre
     T.forEach(k=>{ if(k[0]==='s') parc.scens[+k.slice(1)]=null; });
     const now=new Date(); scorm.inter(`${CODE}_tentative_${parc.essai}`,'performance',txt(`Tentative ${parc.essai} commencée le ${now.toLocaleDateString('fr-FR')} ${now.toTimeString().slice(0,5)} : à refaire ${T.map(nomPartie).join(', ')}`).slice(0,250),'neutral');
     ex.setMode(app.config.modes[0].id); P.onStart?.(); app.setUI('parcours'); repCfgKey=null; repQKey=null; parcKey=''; parts.select(null);
@@ -76,9 +89,9 @@ export function createParcours(app, { reperage, qcm }, P){
     if(h) repPick(h.object.userData.part); return true; }
 
   /* --- QCM --- */
-  function qcmAnswer(i){ if(parc.ph!=='qcm'||parc.qAns!==null) return; const Q=QCM[parc.qi], ok=i===Q.a; parc.qAns=i; parc.qk.push(ok?1:0);
-    scorm.inter(`${CODE}_qcm_${String(parc.qi+1).padStart(2,'0')}`,'choice','abcdef'[i],ok?'correct':'wrong'); scorm.save(); render(); }
-  function qcmNext(){ parc.qAns=null; parc.qSel=null; parc.qi++; if(parc.qi>=QCM.length){ goNext('qcm'); return; } scorm.save(); render(); }
+  function qcmAnswer(i){ if(parc.ph!=='qcm'||parc.qAns!==null) return; const Q=qcmQ(parc.qi), ok=i===Q.a; parc.qAns=i; parc.qk.push(ok?1:0);
+    scorm.inter(`${CODE}_qcm_${String(Q.i+1).padStart(2,'0')}`,'choice','abcdef'[Q.ord[i]],ok?'correct':'wrong'); scorm.save(); render(); }
+  function qcmNext(){ parc.qAns=null; parc.qSel=null; parc.qi++; if(parc.qi>=QN()){ goNext('qcm'); return; } scorm.save(); render(); }
 
   /* --- scénarios --- */
   function startScen(){ parc.ph='scen'; /* les fautes d'une tentative interrompue sont conservées */ const S=SCENS[parc.si]; ex.setMode(S.mode); stage.setView(S.view||Object.keys(stage.VIEWS)[0]); scorm.save(); render(); }
@@ -99,7 +112,7 @@ export function createParcours(app, { reperage, qcm }, P){
     scorm.set('cmi.core.lesson_status',parc.passed?'passed':'failed');
     /* synthèse lisible dans les rapports : une ligne datée, et un objectif SCORM au nom de la machine */
     const now=new Date(), date=now.toLocaleDateString('fr-FR')+' '+now.toTimeString().slice(0,5);
-    const bilan=`${parc.passed?'VALIDÉE':'NON VALIDÉE'} ${parc.total}/100${parc.note!==parc.total?` (note Moodle ${parc.note}, faute grave)`:''} le ${date} · Tentative ${parc.essai||1} · Repérage ${sum(parc.rk)}/${REP.length} · QCM ${sum(parc.qk)}/${QCM.length} · `
+    const bilan=`${parc.passed?'VALIDÉE':'NON VALIDÉE'} ${parc.total}/100${parc.note!==parc.total?` (note Moodle ${parc.note}, faute grave)`:''} le ${date} · Tentative ${parc.essai||1} · Repérage ${sum(parc.rk)}/${REP.length} · QCM ${sum(parc.qk)}/${QN()} · `
       +parc.scens.map((s,i)=>`S${i+1} ${s?s.pts:0}/${W_SCEN}`).join(' · ')+` · Fautes graves ${fautes}`;
     scorm.inter(`${CODE}_bilan`,'performance',txt(bilan).slice(0,250),parc.passed?'correct':'wrong');
     scorm.set('cmi.objectives.0.id',CODE); scorm.set('cmi.objectives.0.score.min',0); scorm.set('cmi.objectives.0.score.max',100);
@@ -137,16 +150,16 @@ export function createParcours(app, { reperage, qcm }, P){
       F.mount($('parcFiches'), { todoMsg:'Lecture obligatoire avant le repérage.', doneMsg:'Toutes les fiches sont lues.' }); return; }
     if(parc.ph==='rep'){
       el.innerHTML=`<p class="pk">${L.rep.split(' ')[0]} ${Math.min(parc.ri+1,REP.length)} / ${REP.length}</p><h3>Trouvez : ${repName(R)}</h3><p>Touchez (ou cliquez) l'${L.item} : il passe en surbrillance. Vérifiez, puis <b>Valider</b>. Faites tourner et zoomez si besoin. Une seule réponse validée par ${L.item}.${wantX?' '+L.inside:''}</p>${repFeedback?`<p class="fb" data-ok="${repFeedback.startsWith('Exact')}">${repFeedback}</p>`:''}<p class="pk">Bonnes réponses : ${rs} / ${parc.rk.length}</p>`; }
-    else if(parc.ph==='qcm'){ const Q=QCM[parc.qi], ans=parc.qAns, sel=parc.qSel??null;
-      el.innerHTML=`<p class="pk">Question ${parc.qi+1} / ${QCM.length}</p><h3>${Q.q}</h3><div class="qopts">${Q.o.map((o,i)=>`<button type="button" class="qopt" data-q="${i}" ${ans!==null?'disabled':''} data-r="${ans===null?'':i===Q.a?'ok':i===ans?'ko':''}" data-sel="${ans===null&&i===sel?1:0}" aria-pressed="${ans===null&&i===sel}">${'ABCDEF'[i]}. ${o}</button>`).join('')}</div>${ans===null?`<button type="button" class="toggle qval" id="qVal" aria-pressed="${sel!==null}" ${sel===null?'disabled':''}>Valider ma réponse</button>`:''}${ans!==null?`<p class="fb" data-ok="${ans===Q.a}">${ans===Q.a?'Exact. ':'Non. '}${Q.e}</p><button type="button" class="toggle" id="qNext">${parc.qi<QCM.length-1?'Question suivante':'Terminer le QCM'}</button>`:''}`;
+    else if(parc.ph==='qcm'){ const Q=qcmQ(parc.qi), ans=parc.qAns, sel=parc.qSel??null;
+      el.innerHTML=`<p class="pk">Question ${parc.qi+1} / ${QN()}</p><h3>${Q.q}</h3><div class="qopts">${Q.o.map((o,i)=>`<button type="button" class="qopt" data-q="${i}" ${ans!==null?'disabled':''} data-r="${ans===null?'':i===Q.a?'ok':i===ans?'ko':''}" data-sel="${ans===null&&i===sel?1:0}" aria-pressed="${ans===null&&i===sel}">${'ABCDEF'[i]}. ${o}</button>`).join('')}</div>${ans===null?`<button type="button" class="toggle qval" id="qVal" aria-pressed="${sel!==null}" ${sel===null?'disabled':''}>Valider ma réponse</button>`:''}${ans!==null?`<p class="fb" data-ok="${ans===Q.a}">${ans===Q.a?'Exact. ':'Non. '}${Q.e}</p><button type="button" class="toggle" id="qNext">${parc.qi<QN()-1?'Question suivante':'Terminer le QCM'}</button>`:''}`;
       el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ parc.qSel=+b.dataset.q; render(); }); const v=$('qVal'); if(v) v.onclick=()=>{ if(parc.qSel!==null&&parc.qSel!==undefined) qcmAnswer(parc.qSel); }; const n=$('qNext'); if(n) n.onclick=qcmNext; }
     else if(parc.ph==='scen-intro'){ const S=SCENS[parc.si];
-      el.innerHTML=`<p class="pk">${parc.todo?`Tentative ${parc.essai} · à refaire : ${listeParties(parc.todo)}`:`Repérage ${rs}/${REP.length} · QCM ${qs}/${QCM.length}${parc.si?` · scénarios faits : ${parc.si}/${SCENS.length}`:''}`}</p><h3>Scénario ${parc.si+1} / ${SCENS.length} : ${S.t}</h3><p>${S.intro} ${L.scenNote} : <b>une seule faute grave fait échouer le module</b>.</p><button type="button" class="toggle" id="scenGo" aria-pressed="true">Commencer le scénario ${parc.si+1}</button>`; $('scenGo').onclick=startScen; }
+      el.innerHTML=`<p class="pk">${parc.todo?`Tentative ${parc.essai} · à refaire : ${listeParties(parc.todo)}`:`Repérage ${rs}/${REP.length} · QCM ${qs}/${QN()}${parc.si?` · scénarios faits : ${parc.si}/${SCENS.length}`:''}`}</p><h3>Scénario ${parc.si+1} / ${SCENS.length} : ${S.t}</h3><p>${S.intro} ${L.scenNote} : <b>une seule faute grave fait échouer le module</b>.</p><button type="button" class="toggle" id="scenGo" aria-pressed="true">Commencer le scénario ${parc.si+1}</button>`; $('scenGo').onclick=startScen; }
     else if(parc.ph==='scen'){ const last=ex.step===ex.STEPS.length-1;
       el.innerHTML=`<p class="pk">Scénario ${parc.si+1} / ${SCENS.length} · ${SCENS[parc.si].t}</p><p class="pk">Fautes graves relevées : <b>${parc.dangers.length}</b></p>${parc.dangers.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<button type="button" class="toggle" id="scenEnd" ${last?'':'disabled'} aria-pressed="${last}">${later('s'+parc.si).length?'Valider et passer au scénario suivant':'Terminer et envoyer le résultat'}</button>${last?'':'<p class="pk">Disponible à l\'étape « Contrôle ».</p>'}`; $('scenEnd').onclick=finishScen; }
     else if(parc.ph==='fin'){ const row=(l,v)=>`<tr><td>${l}</td><td>${v}</td></tr>`;
-      const repPts=Math.round(W_REP*rs/REP.length), qcmPts=Math.round(W_QCM*qs/QCM.length), all=parc.scens.flatMap(s=>s?s.dangers:[]);
-      el.innerHTML=`<h3 class="verdict" data-ok="${parc.passed}">${parc.passed?'Module réussi':'Module non validé'} · ${parc.total} / 100</h3>${parc.note!=null&&parc.note!==parc.total?`<p>Faute grave : la note enregistrée dans Moodle est ramenée à ${parc.note} / 100.</p>`:''}${parc.passed?'':`<div class="retry"><p><b>À refaire :</b> ${listeParties(ratees())}. Ce qui est réussi est gardé.</p><button type="button" class="toggle" id="parcRetry" aria-pressed="true">Repasser ce qui est raté</button></div>`}<table class="res">${row('Repérage ('+rs+'/'+REP.length+')',repPts+' / '+W_REP)}${row((P.qcmTitle||'QCM sécurité')+' ('+qs+'/'+QCM.length+')',qcmPts+' / '+W_QCM)}${SCENS.map((S,i)=>row('Scénario '+(i+1)+' : '+S.t,((parc.scens[i]||{}).pts??0)+' / '+W_SCEN)).join('')}${row('Fautes graves',String(all.length))}</table>
+      const repPts=Math.round(W_REP*rs/REP.length), qcmPts=Math.round(W_QCM*qs/QN()), all=parc.scens.flatMap(s=>s?s.dangers:[]);
+      el.innerHTML=`<h3 class="verdict" data-ok="${parc.passed}">${parc.passed?'Module réussi':'Module non validé'} · ${parc.total} / 100</h3>${parc.note!=null&&parc.note!==parc.total?`<p>Faute grave : la note enregistrée dans Moodle est ramenée à ${parc.note} / 100.</p>`:''}${parc.passed?'':`<div class="retry"><p><b>À refaire :</b> ${listeParties(ratees())}. Ce qui est réussi est gardé.</p><button type="button" class="toggle" id="parcRetry" aria-pressed="true">Repasser ce qui est raté</button></div>`}<table class="res">${row('Repérage ('+rs+'/'+REP.length+')',repPts+' / '+W_REP)}${row((P.qcmTitle||'QCM sécurité')+' ('+qs+'/'+QN()+')',qcmPts+' / '+W_QCM)}${SCENS.map((S,i)=>row('Scénario '+(i+1)+' : '+S.t,((parc.scens[i]||{}).pts??0)+' / '+W_SCEN)).join('')}${row('Fautes graves',String(all.length))}</table>
         ${SCENS.map((S,i)=>{ const s=parc.scens[i]; return s?`<details class="scdet"><summary>Détail scénario ${i+1}</summary><table class="res">${s.crit.map(c=>row((c[2]?'✓ ':'✗ ')+c[0],c[1])).join('')}</table></details>`:''; }).join('')}
         ${all.map(d=>`<p class="fb" data-ok="false">${d}</p>`).join('')}<p class="pk">${scorm.ok||scorm.api?'Résultat enregistré dans Moodle.':'Mode autonome : aucun Moodle détecté, le résultat n\'est pas enregistré.'} Seuil de réussite : ${PASS} / 100 sans faute grave.${(parc.essai||1)>1?` Tentative ${parc.essai}.`:''}</p>`;
       const rb=$('parcRetry'); if(rb) rb.onclick=retry; }
@@ -164,5 +177,5 @@ export function createParcours(app, { reperage, qcm }, P){
   function setActive(v){ if(!PARC_ON || v===on) return; on=v;
     if(!v){ $('repBar').hidden=true; parc.cand=null; parts.select(null); if(parts.xray) parts.setXray(false,false); return; }
     if(parc.ph==='scen') parc.ph='scen-intro'; repCfgKey=null; repQKey=null; parcKey=''; app.setUI('parcours'); if(parc.ph==='rep') parts.select(null); render(); }
-  return { PARC_ON, parc, inRep, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, retry, setActive, get active(){ return act(); }, QCM, REP };
+  return { PARC_ON, parc, inRep, scorm, start, render, refresh, pick, recordDangers, repAnswer, finishScen, retry, setActive, get active(){ return act(); }, QCM, get QCM_TIRE(){ return Array.from({ length:QN() },(_,k)=>qcmQ(k)); }, REP };
 }

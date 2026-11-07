@@ -9,8 +9,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: À quoi sert la mortaiseuse ?
@@ -132,3 +132,65 @@ Q: Pourquoi mettre l'aspiration en marche avant d'usiner ?
 + Parce que les poussières de bois sont cancérogènes et que les copeaux remplissent la mortaise
 - Parce que la machine ne démarre pas sans elle
 = Les poussières de bois sont classées cancérogènes (INRS ED 974) : on capte à la source et on nettoie à l'aspirateur, jamais à la soufflette.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Comment travaille le bédane de cette mortaiseuse ?
++ Il oscille horizontalement et avance en profondeur dans le chant de la pièce
+- Il tourne comme une mèche
+- Il descend verticalement
+= Bédane oscillant horizontal : la longueur d'oscillation se règle au vernier.
+
+Q: Que vaut la référence 0 de la règle de profondeur ?
++ 71 mm : le bédane touche la pièce
+- 0 mm : le bédane touche la pièce
+- 130 mm
+= Taquet d'arrêt = profondeur + 71 mm.
+
+Q: Le taquet de départ est placé à 71 mm ou plus. Que se passe-t-il ?
++ Le bédane attaque sans élan : la mortaise a les bords éclatés
+- La mortaise est plus profonde
+- Rien
+= Le taquet de départ se place AVANT 71 mm.
+
+Q: Où doit se trouver le taquet 1 de la règle de la table ?
++ Sur 0 : c'est l'origine, où la table se charge
+- Sur la distance de la mortaise
+- N'importe où
+= Un taquet 1 pas sur 0 décale toutes les mortaises.
+
+Q: À quelle distance minimale du bord de la pièce placer chaque vérin ?
++ 20 mm
+- 2 mm
+- 200 mm
+= Un vérin hors de la pièce ne la serre pas : faute grave.
+
+Q: Pourquoi un vérin ne doit-il pas être devant le bédane ?
++ Le bédane le toucherait pendant sa course
+- Il cacherait la mortaise
+- Il ferait trop de bruit
+= Patin de vérin à moins de 25 mm de la course du bédane : faute grave.
+
+Q: Quelle longueur minimale de pièce à la mortaiseuse ?
++ 300 mm
+- 50 mm
+- 1 000 mm
+= Plus courte, elle ne peut pas être bien serrée par les vérins.
+
+Q: La profondeur demandée vaut la largeur de la pièce. Que se passe-t-il en mortaise non débouchante ?
++ Le bédane traverserait la pièce : c'est refusé comme faute grave
+- La mortaise est parfaite
+- Le bédane s'arrête seul à mi-chemin
+= Profondeur au plus égale à la largeur moins 2 mm, sauf mortaise débouchante voulue.
+
+Q: Pourquoi fait-on la mortaise AVANT le tenon ?
++ On ajuste le tenon à la mortaise, plus facile à régler
+- La mortaise est plus rapide
+- C'est obligatoire pour la machine
+= On contrôle ensuite l'assemblage sur une pièce d'essai à la tenonneuse.
+
+Q: Qui peut utiliser la vraie mortaiseuse de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

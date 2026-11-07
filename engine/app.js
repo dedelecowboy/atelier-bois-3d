@@ -128,12 +128,12 @@ export function createApp(config, raw){
       /* premiers pas (engine/premiers.js) : à quoi sert le module, comment s'en servir, comment obtenir son badge du permis machine ;
          ouverts seuls à la première visite de ce module, bouton « ? » de l'en-tête ensuite */
       app.premiers=createPremiers({ cle:config.id, slot:'.tag', pastille:true, entete:'.top',
-        cartes:cartesMachine({ config, fiches, rep:parc.REP.length, qcm:qcm.length, scen:hooks.parcours?.scenarios||[], vestiaire:app.vestiaire?.list.length||0 }) });
+        cartes:cartesMachine({ config, fiches, rep:parc.REP.length, qcm:Math.min(20,qcm.length), scen:hooks.parcours?.scenarios||[], vestiaire:app.vestiaire?.list.length||0 }) });
       app.premiers.auto();
       stage.run((dt,now)=>{ hooks.tick?.(dt,now); app.bruit?.tick(); });
       stage.onContext(()=>{ hooks.onContextRestored?.(); app.apply(); });
       /* poignée pour les tests automatiques */
-      window.__atelier={ app, premiers:app.premiers, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, retry:parc.retry, QCM:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
+      window.__atelier={ app, premiers:app.premiers, get bruit(){ return app.bruit; }, get parc(){ return parc.parc; }, repAnswer:parc.repAnswer, finishScen:parc.finishScen, retry:parc.retry, get QCM(){ return parc.QCM_TIRE; }, BANQUE:parc.QCM, REP_TARGETS:parc.REP.map(r=>r.k) };
       window.__ready=true; } };
   return app;
 }

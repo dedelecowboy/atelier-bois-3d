@@ -9,8 +9,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: À quoi sert la tenonneuse ?
@@ -132,3 +132,65 @@ Q: Comment nettoie-t-on la machine après le travail ?
 + Machine arrêtée et hors tension, avec un aspirateur (classe M), pas de balai ni de soufflette
 - Outils en marche, pour que les copeaux s'en aillent
 = On attend l'arrêt complet, on coupe le contact, puis on nettoie à l'aspirateur.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Quelle face de la pièce reste toujours sur la table du chariot ?
++ SR1
+- SR2
+- La face non dressée
+= SR1 sur la table aux deux bouts ; au premier bout, SR2 contre le guide.
+
+Q: À quoi sert la scie d'affranchissement ?
++ À couper le bout de la pièce à longueur avant les dérouleurs
+- À faire l'enfourchement
+- À usiner l'épaulement
+= Elle donne la longueur du tenon (repère 25, position de la scie).
+
+Q: Quelle épaisseur minimale pour la chute d'affranchissement ?
++ 5 mm
+- 0,5 mm
+- 50 mm
+= Plus fine, elle se coince près de la lame.
+
+Q: La chute s'est coincée près de la lame. Comment la retirer ?
++ Scie arrêtée et capot ouvert
+- Lame en rotation, avec un poussoir
+- Avec le chariot avancé
+= Intervenir lame en rotation : faute grave, le geste est refusé.
+
+Q: Quelle profondeur de joue au plus par dérouleur ?
++ 20 mm
+- 2 mm
+- 60 mm
+= Au-delà, la passe est trop forte : faute grave.
+
+Q: À quelle hauteur règle-t-on le protecteur avant (bavette) ?
++ Au plus 10 mm au-dessus de la pièce
+- Au ras du chariot
+- Tout en haut
+= Plus haut, une main peut passer sous le protecteur : faute grave.
+
+Q: Pourquoi verrouille-t-on le chariot pendant le chargement de la pièce ?
++ Pour qu'il ne parte pas vers les outils pendant qu'on pose ou serre la pièce
+- Pour régler la scie
+- Pour ouvrir le capot
+= Charger une pièce chariot avancé : faute grave.
+
+Q: Que fait le sélecteur « Ouverture capot » sur 1 ?
++ Il arrête les outils et permet d'ouvrir le capot une fois qu'ils sont arrêtés
+- Il ouvre le capot outils en marche
+- Il lance la passe
+= Le capot ne s'ouvre qu'outils arrêtés (temporisation).
+
+Q: Une pièce présente des éclats sur le bout côté guide. Quelle en est la cause probable ?
++ Le pare-éclat est absent ou a été usiné pour d'autres réglages
+- La pièce est trop longue
+- Le chariot est trop lent
+= Renouveler le pare-éclat et l'usiner aux réglages en cours (passe à vide).
+
+Q: Qui peut utiliser la vraie tenonneuse de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

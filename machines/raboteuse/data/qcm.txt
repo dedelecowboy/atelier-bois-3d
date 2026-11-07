@@ -8,8 +8,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: À quoi sert la raboteuse ?
@@ -131,3 +131,65 @@ Q: Comment nettoyez-vous la machine après le travail ?
 - Au balai
 + Machine hors tension, à l'aspirateur de classe M
 = La soufflette et le balai remettent en suspension les poussières de bois, qui sont cancérogènes.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Sur cette raboteuse, qu'est-ce qui monte et descend pour régler la cote ?
++ La table
+- L'arbre porte-lames
+- Le capot
+= L'arbre est fixe au-dessus de la table ; la table monte ou descend : dessus de table = cote sous l'arbre.
+
+Q: Le rouleau d'entrée est monobloc. Que risque-t-on avec deux pièces de hauteurs différentes de front ?
++ La plus basse n'est pas tenue : elle peut être rejetée vers l'opérateur
+- Rien, le rouleau s'adapte à chaque pièce
+- La plus haute s'arrête
+= Écart de plus de 0,5 mm entre pièces de front : faute grave.
+
+Q: Avec quel outil contrôle-t-on l'épaisseur après la passe ?
++ Le pied à coulisse, au 1/10 mm
+- Le mètre ruban
+- L'équerre
+= La cote se contrôle au dixième ; tolérance de ± 0,1 mm dans les scénarios.
+
+Q: Quelle vitesse d'avance choisir pour du bois dur (chêne, hêtre) ?
++ Une vitesse réduite, autour de 8 à 12 m/min
+- La vitesse la plus rapide
+- Peu importe la vitesse
+= Plus le bois est dur, plus l'avance est réduite pour garder un bon état de surface.
+
+Q: Une pièce sur chant est très haute et étroite. Quelle règle respecter ?
++ Hauteur sur la table au plus 4 fois la largeur d'appui
+- Elle doit faire au moins 1 m de long
+- Aucune règle
+= Une pièce trop haute pour son appui bascule pendant la passe : faute grave.
+
+Q: Quand peut-on ouvrir le capot de la raboteuse ?
++ Seulement arbre arrêté
+- Arbre en rotation, si l'avance est arrêtée
+- À tout moment
+= Capot ouvert, le moteur ne peut pas démarrer ; il ne s'ouvre qu'arbre arrêté.
+
+Q: Une face non dégauchie est posée sur la table. Quel message donne la machine ?
++ « Section de pièce non rectangulaire, car rabotage en appui sur une surface non dégauchie »
+- « Pièce trop courte »
+- « Passe trop forte »
+= La raboteuse recopie la forme de la face posée : elle ne redresse pas.
+
+Q: La passe fait plus de 4 mm sur une pièce de 250 mm de large. Que se passe-t-il ?
++ Une alerte « attention » : la machine force, mieux vaut deux passes
+- Rien, c'est sous la passe maximale de 5 mm
+- La pièce est rejetée
+= Large pièce : on réduit la passe pour ne pas surcharger la machine.
+
+Q: Après la passe, qui reçoit la pièce à la sortie dans le simulateur ?
++ Un aide, qui la pose sur le capot sans la retourner
+- Personne : elle tombe
+- L'opérateur, qui va la chercher pendant la passe
+= On ne passe jamais devant la machine en marche pour récupérer une pièce.
+
+Q: Qui peut utiliser la vraie raboteuse de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

@@ -1,5 +1,5 @@
 # © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE.
-# QCM « Risques généraux de l'atelier » (parcours évalué), 20 questions.
+# QCM « Risques généraux de l'atelier » (parcours évalué) : banque de 30 questions, 20 tirées au hasard à chaque tentative.
 # Sources : voir sources.txt (INRS ED 974, ED 6192, ED 6054, ED 6021, ED 6109, ED 6077, ED 4471, ED 7000,
 # Code du travail R4412-149, R4431-2, R4434-7, R4227-29, R4541-9, R4153-52, R4223-4, fiches INRS RG 01 à RG 04,
 # fiche « Sécurité atelier » 2MB du lycée).
@@ -9,7 +9,8 @@
 # - Q: la question
 # - + la bonne réponse (une seule)      - une mauvaise réponse (2 à 5)
 # - = l'explication affichée après la réponse
-# - L'ordre des réponses est celui du fichier. La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - Les réponses sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse) ; 20 questions sont tirées au hasard,
+#   dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: Pourquoi les poussières de bois sont-elles dangereuses ?
@@ -151,3 +152,65 @@ Q: Un camarade se blesse à une machine. Quelle est la première chose à faire 
 + Protéger : faire arrêter la machine (arrêt d'urgence) sans se mettre en danger, puis prévenir le professeur
 - Appeler ses parents
 = Protéger, examiner, faire alerter (professeur, vie scolaire, infirmière, puis 15, 18 ou 112 : dans les Vosges, le même centre, celui du SDIS 88), secourir. À l'appel : qui on est, où, ce qui s'est passé, l'état de la victime ; on ne raccroche pas le premier.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Que signifie consigner une machine ?
++ La couper de son énergie, la bloquer (cadenas) et vérifier qu'elle ne peut pas redémarrer
+- Appuyer sur l'arrêt d'urgence
+- Débrancher l'aspiration
+= L'arrêt d'urgence seul ne suffit pas : sectionneur sur 0, cadenas, clé gardée, panneau, essai de démarrage.
+
+Q: Un masque FFP2 protège-t-il des vapeurs de solvant d'un vernis ?
++ Non : il faut un demi-masque à cartouches A (bande marron)
+- Oui, il arrête tout
+- Oui, s'il est neuf
+= Le FFP2 filtre les poussières, pas les vapeurs.
+
+Q: Pourquoi faut-il attacher les cheveux longs à l'atelier ?
++ Ils peuvent être happés par un outil en rotation
+- Pour voir le tableau
+- Pour porter le casque
+= Cheveux happés : arrachement du cuir chevelu (scalp).
+
+Q: Pourquoi retirer bracelets, bagues et montres avant le travail ?
++ Ils peuvent s'accrocher à un outil ou une pièce et entraîner la main
+- Ils gênent l'écriture
+- Ils rayent les pièces
+= Un bijou accroché par un outil entraîne la main en une fraction de seconde.
+
+Q: Que protègent les chaussures de sécurité ?
++ Les pieds, de la chute d'une pièce ou d'un panneau (embout résistant à 200 joules)
+- Seulement des copeaux
+- Rien de plus que des baskets
+= Une basket ne protège ni de l'écrasement ni d'une pointe.
+
+Q: Que doit-on garder libre en permanence dans l'atelier ?
++ Les allées, les issues de secours et l'accès aux extincteurs
+- Le dessus des établis
+- Le bureau du professeur
+= Une issue bloquée ou un extincteur masqué empêchent de fuir ou d'éteindre un départ de feu.
+
+Q: Feu entre vous et la sortie : que faites-vous ?
++ Vous ne l'attaquez pas : vous évacuez par une autre issue
+- Vous l'attaquez quand même
+- Vous attendez qu'il s'éteigne
+= Ne jamais avoir le feu entre soi et la sortie.
+
+Q: Pourquoi ne pas nettoyer les copeaux à la soufflette ?
++ Elle met les poussières fines en suspension dans l'air respiré
+- Elle use la machine
+- Elle est trop bruyante
+= On nettoie avec l'aspirateur ou l'aspiration de l'atelier (INRS ED 974).
+
+Q: À quoi sert le lave-œil ?
++ À rincer longuement un œil touché par un produit ou une poussière
+- À nettoyer les lunettes
+- À boire
+= Rincer au moins 15 minutes, puis prévenir et faire examiner l'œil.
+
+Q: Un élève a le badge du simulateur d'une machine. Peut-il l'utiliser seul à l'atelier ?
++ Non : il faut d'abord une validation pratique devant le professeur
+- Oui, le badge suffit
+- Oui, s'il a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique.
