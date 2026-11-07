@@ -127,7 +127,7 @@ export function createApp(config, raw){
         b.onclick=()=>{ parc.scorm?.save?.(); if(!moodleNav(pkg().atelier,{ before:()=>parc.scorm?.finish?.() })) stage.toast(`Choisissez « ${pkg().atelier} » dans le sommaire du cours.`); }; }
       /* premiers pas (engine/premiers.js) : à quoi sert le module, comment s'en servir, comment obtenir son badge du permis machine ;
          ouverts seuls à la première visite de ce module, bouton « ? » de l'en-tête ensuite */
-      app.premiers=createPremiers({ cle:config.id, slot:'.top .views', entete:'.top',
+      app.premiers=createPremiers({ cle:config.id, slot:'.tag', pastille:true, entete:'.top',
         cartes:cartesMachine({ config, fiches, rep:parc.REP.length, qcm:qcm.length, scen:hooks.parcours?.scenarios||[], vestiaire:app.vestiaire?.list.length||0 }) });
       app.premiers.auto();
       stage.run((dt,now)=>{ hooks.tick?.(dt,now); app.bruit?.tick(); });

@@ -125,6 +125,10 @@ function art(s){
 
 /* ---------- styles (injectés : communs à l'atelier et aux machines) ---------- */
 const CSS = `
+.pp-pill{pointer-events:auto;display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font:inherit;font-size:13px;font-weight:600;color:inherit;cursor:pointer;box-shadow:0 2px 10px rgb(0 0 0 / .08)}
+.pp-pill b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px}
+.pp-pill:hover{border-color:var(--accent)}
+.pp-pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pp-btn{min-width:32px;font-weight:700!important;letter-spacing:0!important;font-size:14px!important;border-radius:50%!important;padding:6px 0!important;width:32px;height:32px;line-height:1!important}
 .pp-fond{position:fixed;left:0;right:0;bottom:0;top:var(--pp-top,0px);z-index:55;display:grid;grid-template-columns:minmax(0,600px);justify-content:center;align-items:center;padding:14px;background:rgb(15 20 25 / .42)}
 .pp-box{position:relative;background:var(--panel,#fff);color:var(--fg,#1b2228);border-radius:12px;border-top:5px solid var(--accent,#c76a14);box-shadow:0 18px 50px rgb(0 0 0 / .32);
@@ -180,14 +184,15 @@ function ensureStyle(){ if(document.getElementById('premiersCss')) return; const
    cle : clé de la page (« atelier », id du module) ; cartes : [{ t, html, art, id, etat }] ;
    slot : sélecteur de la barre d'outils de l'en-tête (bouton « ? ») ; entete : sélecteur de l'en-tête (laissé visible) ;
    onClose : appelé à la fermeture. */
-export function createPremiers({ cle, cartes, slot, entete, onClose, titre='Premiers pas' }){
+export function createPremiers({ cle, cartes, slot, entete, onClose, titre='Premiers pas', pastille=false }){
   ensureStyle();
   const P={ cle, cartes, i:0, get ouvert(){ return !fond.hidden; } };
   const bar=document.querySelector(slot);
-  const btn=document.createElement('button'); btn.type='button'; btn.className='toggle pp-btn'; btn.id='ppBtn'; btn.textContent='?';
+  const btn=document.createElement('button'); btn.type='button'; btn.id='ppBtn';
+  if(pastille){ btn.className='pp-pill'; btn.innerHTML='<b>?</b> Premiers pas'; } else { btn.className='toggle pp-btn'; btn.textContent='?'; }
   btn.title='Premiers pas : comment marche cette page et comment obtenir le permis machine'; btn.setAttribute('aria-label','Premiers pas');
   btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-controls','ppFond');
-  if(bar) bar.prepend(btn);
+  if(bar){ if(pastille) bar.append(btn); else bar.prepend(btn); }
   const fond=document.createElement('div'); fond.className='pp-fond'; fond.id='ppFond'; fond.hidden=true;
   fond.innerHTML=`<div class="pp-box" role="dialog" aria-modal="true" aria-labelledby="ppK">
     <button type="button" class="pp-x" data-pp="x" aria-label="Fermer les premiers pas" title="Fermer (Échap)">×</button>
