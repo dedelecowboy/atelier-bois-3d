@@ -313,7 +313,8 @@ export function createVestiaire({ app, model, stage, list }){
     _d.divideScalar(l); _g.copy(_d).lerp(ch.down,Math.min(1,ch.k*w)).normalize(); return p.copy(ch.root).addScaledVector(_g,l); }
   function cheveuxPendants(m){ const g=m.geometry, pa=g.attributes.position, r=reperes(av), n=pa.count, w=new Float32Array(n);
     for(let i=0;i<n;i++){ const x=pa.getX(i), y=pa.getY(i), z=pa.getZ(i); if(Math.abs(x)<0.13 && z>r.oreille_z-0.01 && y<r.oeil_y) continue;   // visage, menton
-      w[i]=ease((r.oeil_y-y)/0.35); }
+      if(z<r.oreille_z-0.04) continue;                 // mèches du dos : elles restent (sinon la veste, non modelée dessous, se voit trouée)
+      w[i]=ease((r.oeil_y-y)/0.35)*ease((z-r.oreille_z+0.04)/0.06); }
     g.setAttribute('cheveu',new THREE.BufferAttribute(w,1));
     const ch={ w, k:0, root:V3(), down:V3(0,-1,0), m, mat0:m.material, u:{ uRoot:{ value:V3() }, uDown:{ value:V3(0,-1,0) }, uK:{ value:0 } } };
     const mat=m.material.clone(); mat.onBeforeCompile=sh=>{ Object.assign(sh.uniforms,ch.u);
@@ -374,9 +375,9 @@ export function createVestiaire({ app, model, stage, list }){
         new THREE.Matrix4().copy(sc.parent.matrixWorld).invert().multiply(Mw).decompose(sc.position,sc.quaternion,sc.scale); sc.updateMatrixWorld(true); };
       const lean=demo.key==='cheveux'? 1.15 : 0.8;
       /* mains posées sur la table de la toupie, devant l'élève (gauche du personnage = −X du modèle, il regarde vers −Z) ; la main droite avance seule (bracelet, gants) */
-      P().cibles={ G:T.w(-0.20,0.882,0.22), D: demo.reach? null : T.w(0.20,0.882,0.22) };
-      const pose=L=>{ if(demo.reach) P().cibles.D=T.w(0.20-0.17*L,0.882,0.30-0.20*L);     // la main droite glisse à plat sur la table vers l'outil
-        if(demo.cheveux) demo.cheveux.k=0.95*Math.min(1,L*2.5);                                          // les mèches tombent à mesure qu'elle se penche
+      P().cibles={ G:T.w(-0.20,0.889,0.22), D: demo.reach? null : T.w(0.20,0.889,0.22) };   // un peu au-dessus de la table (mains épaisses)
+      const pose=L=>{ if(demo.reach) P().cibles.D=T.w(0.20-0.17*L,0.889,0.30-0.20*L);     // la main droite glisse à plat sur la table vers l'outil
+        if(demo.cheveux) demo.cheveux.k=0.5*Math.min(1,L*2.5);                                          // les mèches tombent à mesure qu'elle se penche
         if(demo.reach) POSES.vest={ ...POSES.machine, sp:0.14+0.25*L, sh:[[-0.4,0.28],[-0.55-0.75*L,-0.04]], el:[-1.05,-0.55+0.4*L], wr:[0,0.15] };
         else POSES.vest={ ...POSES.machine, sp:0.14+lean*L, hip:0.3*L, sh:[[-0.35-0.2*L,0.28],[-0.35-0.2*L,-0.28]], el:[-1.05,-1.05] };
         setPose(av,'vest'); av.updateMatrixWorld(true); hang(); if(demo.cheveux) majCheveux(demo.cheveux); };
@@ -385,7 +386,7 @@ export function createVestiaire({ app, model, stage, list }){
       let L=ease((t-0.8)/3.0);
       /* cheveux : la tête s'arrête AVANT le capot et le guide (corrigé le 07/11/2026 : elle y entrait) ; ce sont les mèches
          qui pendent qui approchent de l'outil */
-      const stop=()=>{ if(dist()<tg.thr) return true; if(demo.key!=='cheveux') return false; const H=bone('Head');
+      const stop=()=>{ if(dist()<tg.thr) return true; if(demo.reach) return false; const H=bone('Head');          // toutes les scènes où l'élève se penche (corrigé le 07/11/2026 : la tête de l'élève noir entrait dans la toupie)
         return Math.hypot(H.x-demo.P.x,H.z-demo.P.z)<0.21 || H.y<demo.P.y+0.30; };
       if(!on){ if(demo.Lh==null){ pose(L); if(stop() || L>=1){ let a=0, b=L; for(let i=0;i<9;i++){ const m=(a+b)/2; pose(m); if(stop()) b=m; else a=m; } demo.Lh=b; demo.th=t; lastLh[demo.key]=b; } }
         if(demo.Lh!=null) L=Math.min(L,demo.Lh); pose(L);
