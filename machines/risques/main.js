@@ -175,9 +175,11 @@ function act(a,v){ const m=mode(); F.msg='';
 
 /* ---------- liens avec la 3D ---------- */
 /* poste de chaque tâche : x, z, orientation du personnage (il regarde son travail ; la caméra se place devant lui, de côté) */
+/* élève de chaque poste (répartition validée par l'enseignant le 07/11/2026) */
+const ELEVE_POSTE={ toupie:'fille', poncage:'noir', manutention:'garcon', vernis:'noir' };
 const POSTES={ toupie:[0.7,5.25,Math.PI], poncage:[6.0,9.05,0], manutention:[-9.55,6.9,-Math.PI/2], vernis:[8.6,9.05,0] };
 function dressAvatar(){ const t=data.epi.tasks[Math.min(app.ex.step,data.epi.tasks.length-1)]; if(!t) return; const sel=st.e.sel[t.k]||[], p=POSTES[t.k]||[3,0,0];
-  model.placeAvatar(p[0],p[1],p[2],{ epi:sel, hair:sel.includes('cheveux')?'attache':'long', echarpe:!sel.includes('bijoux'), bijoux:!sel.includes('bijoux'), pose:t.k==='manutention'?'debout':'machine' }); }
+  model.placeAvatar(p[0],p[1],p[2],{ eleve:ELEVE_POSTE[t.k]||'fille', epi:sel, hair:sel.includes('cheveux')?'attache':'long', echarpe:!sel.includes('bijoux'), bijoux:!sel.includes('bijoux'), pose:t.k==='manutention'?'debout':'machine' }); }
 function syncMachine(){ const C=st.c; model.setConsign({ sect:C.sect, lock:C.lock, tag:C.tag, on:C.on }); }
 let fireT=0;
 function syncFire(){ const F=st.f; if(F.phase===1 && !F.exit){ fireT=performance.now(); } }

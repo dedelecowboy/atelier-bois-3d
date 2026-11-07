@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import { canvasTex } from '../../engine/kit.js';
 import { buildHall, decorMachine } from '../../atelier/hall.js';
 import { LAYOUT, PORTES } from '../../atelier/plan.js';
-import { person, setEpi, setPose, setAppuis, soufflette, dustCloud } from './figures.js';
+import { person, setEpi, setPose, setAppuis, soufflette, dustCloud, ELEVES } from './figures.js';
 
 const mat=(c,o={})=>new THREE.MeshStandardMaterial({ color:c, roughness:.55, metalness:.1, ...o });
 const K={ red:mat(0xc4261c,{roughness:.4}), black:mat(0x1d1f22), grey:mat(0x9aa3aa), greyD:mat(0x5d646b,{metalness:.5}), white:mat(0xf1f1ee), green:mat(0x1f9455),
@@ -219,7 +219,7 @@ export function buildModel({ root, tagPart }){
   const FIGS=[];
   const fig=(o,x,z,ry)=>{ const p=person(o); p.position.set(x,0,z); p.rotation.y=ry||0; FIGS.push(p); return p; };
   const ticks=[];
-  { const g=new THREE.Group(); const p=fig({ pose:'soufflette', epi:['chaussures','tenue','lunettes','auditif','masque'], hair:'court' },0,0,Math.PI); g.add(p);
+  { const g=new THREE.Group(); const p=fig({ pose:'soufflette', epi:['chaussures','tenue','lunettes','auditif','masque'], eleve:'noir' },0,0,Math.PI); g.add(p);
     const s=soufflette(); p.userData.P.handR.add(s); s.position.set(0,-0.07,0.02); s.rotation.x=Math.PI/2;
     const d=dustCloud(16,0.6); d.position.set(0.1,0.8,-0.9); g.add(d); ticks.push(d.userData.tick); g.position.set(4.95,0,1.85); danger('soufflette',g); }
   { const g=new THREE.Group(); const pts=[[-9.9,0.02,-7.0],[-9.4,0.02,-6.4],[-8.9,0.02,-5.6],[-8.6,0.02,-4.9],[-8.0,0.02,-4.2]].map(p=>new THREE.Vector3(...p));
@@ -229,22 +229,22 @@ export function buildModel({ root, tagPart }){
     const sander=new THREE.Group(); at(sander,box(0.28,0.1,0.16,mat(0x2e7d32)),0,0.05,0); at(sander,box(0.1,0.12,0.1,K.black),0,0.14,0); sander.position.set(-7.85,0,-4.1); g.add(sander); danger('cable',g); }
   { const g=new THREE.Group(); const r=rag(); r.position.set(-0.3,0.9,0.05); g.add(r); const c=can(mat(0x7a4a1c),true); c.position.set(0.25,0.9,0.1); g.add(c); g.position.set(6.0,0,9.9); danger('chiffons',g); }
   { const b=boards(5,2.6,0.18,0.027); b.rotation.y=0.15; b.position.set(4.6,0,-5.5); danger('allee_encombree',b); }
-  { const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], hair:'court' },0.7,2.0,Math.PI); danger('gants_machine',p); }
-  { const p=fig({ pose:'machine', epi:['chaussures','lunettes','auditif'], hair:'long', echarpe:true, bijoux:true },-9.95,3.6,Math.PI/2); danger('cheveux_echarpe',p); }
+  { const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], eleve:'garcon' },0.7,2.0,Math.PI); danger('gants_machine',p); }
+  { const p=fig({ pose:'machine', epi:['chaussures','lunettes','auditif'], eleve:'fille', hair:'long', echarpe:true, bijoux:true },-9.95,3.6,Math.PI/2); danger('cheveux_echarpe',p); }
   { const g=new THREE.Group(); for(let i=0;i<4;i++){ const p=box(1.2,2.1,0.019,K.panel); p.position.set(0.32+i*0.03,1.02,0); p.rotation.z=-0.16; g.add(p); } g.rotation.y=Math.PI/2; g.position.set(LEFTX+0.05,0,6.0); danger('extincteur_masque',g); }
   { const g=new THREE.Group(); at(g,box(1.2,0.14,0.8,K.woodD),0,0.07,0); const b=boards(4,1.6,0.2,0.03); b.position.y=0.14; g.add(b); const p=box(1.25,1.0,0.6,mat(0xa0835a)); p.position.set(0.1,0.65,0); g.add(p);
     g.rotation.y=Math.PI/2; g.position.set(-10.15,0,-5.5); danger('issue_bloquee',g); }
   { const g=new THREE.Group(); const pile=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,10,0,Math.PI*2,0,Math.PI/2),K.chip); pile.scale.set(1.3,0.45,1); g.add(pile); g.position.set(-4.2,0,6.75); danger('copeaux_sol',g); }
   { const g=new THREE.Group(); const c=can(mat(0x3366aa),true); g.add(c); g.position.set(8.9,0.9,10.0); danger('solvant_ouvert',g); }
-  { const g=new THREE.Group(); const p=fig({ pose:'dos_courbe', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], hair:'court' },0,0,0); g.add(p);
+  { const g=new THREE.Group(); const p=fig({ pose:'dos_courbe', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], eleve:'noir' },0,0,0); g.add(p);
     /* panneau soulevé d'un bord, l'autre bord au sol : le bord haut dans les mains de l'élève (dos courbé, jambes tendues) */
     p.updateMatrixWorld(true); const h=p.userData.P.arms.map(a=>a.palm.getWorldPosition(new THREE.Vector3())).reduce((a,b)=>a.add(b)).multiplyScalar(0.5);
     const D=1.25, y=Math.max(0.15,h.y-0.03), ang=Math.asin(Math.min(0.9,y/D)); const pn=box(2.5,0.019,D,K.panel); pn.position.set(h.x,y/2,h.z-0.02+D/2*Math.cos(ang)); pn.rotation.x=ang; g.add(pn);
     g.position.set(8.0,0,1.2); g.rotation.y=-Math.PI/2; danger('manutention_dos',g); }
   /* situations correctes (pièges) */
-  { const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif'], hair:'attache' },sc.x,sb.max.z+0.45,Math.PI); danger('p_epi',p); }
-  { const g=new THREE.Group(); const p=fig({ pose:'aspire', epi:['chaussures','tenue','masque','lunettes','auditif'], hair:'court' },0,0,0); g.add(p); const v=vacuum(); v.position.set(-0.6,0,0.3); g.add(v); g.position.set(6.1,0,-6.0); g.rotation.y=Math.PI*0.75; danger('p_aspirateur',g); }
-  { const g=new THREE.Group(); const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], hair:'court' },0,0,0); g.add(p); g.position.set(5.1,0,6.3); danger('p_chariot',g);   /* debout devant le chariot (panneaux de z 6,8 à 9,2) */ }
+  { const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif'], eleve:'fille', hair:'attache' },sc.x,sb.max.z+0.45,Math.PI); danger('p_epi',p); }
+  { const g=new THREE.Group(); const p=fig({ pose:'aspire', epi:['chaussures','tenue','masque','lunettes','auditif'], eleve:'garcon' },0,0,0); g.add(p); const v=vacuum(); v.position.set(-0.6,0,0.3); g.add(v); g.position.set(6.1,0,-6.0); g.rotation.y=Math.PI*0.75; danger('p_aspirateur',g); }
+  { const g=new THREE.Group(); const p=fig({ pose:'machine', epi:['chaussures','tenue','lunettes','auditif','gants_manut'], eleve:'noir' },0,0,0); g.add(p); g.position.set(5.1,0,6.3); danger('p_chariot',g);   /* debout devant le chariot (panneaux de z 6,8 à 9,2) */ }
   /* armoire électrique ouverte : la porte de l'armoire elle-même, comptée comme danger dans ce scénario */
   DANG.armoire_ouverte=arm;
   if(DEC.m21) DANG.machine_allee=DEC.m21.g;
@@ -256,12 +256,15 @@ export function buildModel({ root, tagPart }){
   root.updateMatrixWorld(true);
   for(const p of FIGS) setAppuis(p, appuisPres(p.getWorldPosition(new THREE.Vector3())));
   /* ---------- avatar du scénario « EPI » et départ de feu ---------- */
-  const avatar=person({ pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true }); avatar.visible=false; root.add(avatar);
+  /* un avatar par élève (fille, garçon, élève noir), construit au premier usage ; placeAvatar(…, { eleve }) choisit lequel */
+  const AV={}; let avatar=null;
+  const avatarDe=e=>{ e=ELEVES.includes(e)? e : 'fille'; if(!AV[e]){ AV[e]=person({ eleve:e, pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true }); AV[e].visible=false; root.add(AV[e]); } return AV[e]; };
+  avatar=avatarDe('fille');
   const FIRE=fire(); FIRE.group.position.set(-6.4,0,-6.75); root.add(FIRE.group); FIRE.set(0);
 
   /* ---------- état et animation ---------- */
   let spin=0, bladeA=0, dangersOn=false, armOpen=false;
-  const api={ hall, DEC, DANG, EXT, avatar, figs:FIGS, fire:FIRE, doors:hall.doors, scieBox:sb,
+  const api={ hall, DEC, DANG, EXT, get avatar(){ return avatar; }, avatars:AV, figs:FIGS, fire:FIRE, doors:hall.doors, scieBox:sb,
     /* situations dangereuses visibles (scénario « Dangers ») ; l'armoire ouverte en fait partie */
     showDangers(on){ dangersOn=on; dGroup.visible=on; api.setArmoire(on);
       /* machine qui déborde sur l'allée (la déligneuse, posée comme dans l'atelier réel) : un danger à repérer, sans la déplacer */
@@ -269,11 +272,11 @@ export function buildModel({ root, tagPart }){
     setArmoire(open){ armOpen=open; door.rotation.y= open? -1.9 : 0; inside.visible=open; arm.traverse(o=>{ if(open) o.userData.danger='armoire_ouverte'; else delete o.userData.danger; }); },
     /* sectionneur : pos 0 (ouvert) / 1 (fermé), cadenas, panneau ; machine en marche (lame) */
     setConsign(c){ handle.rotation.z= c.sect? 0 : Math.PI/2; lock.visible=!!c.lock; tag.visible=!!c.tag; lampOn.material.color.setHex(c.sect?0xffffff:0x555555); spin=c.on?1:spin; api._on=c.on; },
-    placeAvatar(x,z,ry,o){ avatar.visible=true; avatar.position.set(x,0,z); avatar.rotation.y=ry; avatar.updateMatrixWorld(true); setEpi(avatar,o);
+    placeAvatar(x,z,ry,o){ const a=avatarDe(o.eleve||'fille'); for(const v of Object.values(AV)) if(v!==a) v.visible=false; avatar=a; avatar.visible=true; avatar.position.set(x,0,z); avatar.rotation.y=ry; avatar.updateMatrixWorld(true); setEpi(avatar,o);
       avatar.userData.P.appuis=appuisPres(avatar.position); setPose(avatar,o.pose||'debout'); },
     /* objets sur lesquels les mains peuvent se poser (vestiaire : toupie, raboteuse, établi de démonstration) */
     addAppui(o){ if(!APPUIS.includes(o)) APPUIS.push(o); },
-    hideAvatar(){ avatar.visible=false; },
+    hideAvatar(){ for(const v of Object.values(AV)) v.visible=false; },
     get spin(){ return spin; },
     /* horloge réelle (t en secondes) : la lame met 4 s à s'arrêter, même à 1 image par seconde (headless) */
     tick(dt,t){ const rd=Math.min(1,Math.max(0,t-(api._t??t))); api._t=t; spin= api._on? Math.min(1,spin+rd*0.8) : Math.max(0,spin-rd/4); bladeA+=spin*dt*14; blade.rotation.z=-bladeA; for(const f of ticks) f(t); FIRE.tick(t); return spin>0 || FIRE.group.visible || dangersOn; } };
