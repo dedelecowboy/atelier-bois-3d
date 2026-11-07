@@ -13,6 +13,7 @@ import epiTxt from './data/epi.txt';
 import fichesTxt from './data/fiches.txt';
 import vestiaireTxt from './data/vestiaire.txt';
 import { createVestiaire } from './vestiaire.js';
+import { enfoncement } from './figures.js';
 import { BRUIT as RBRUIT } from '../raboteuse/constants.js';
 import sonRabVide from '../../engine/sons/rabotage-vide.mp3';
 import sonRabCoupe from '../../engine/sons/rabotage-coupe.mp3';
@@ -242,4 +243,4 @@ app.start({
 { const so=$('sono'); if(so) so.hidden=true; }   // sonomètre : seulement pendant la démonstration du casque
 if(app.vestiaire){ const cnt=()=>{ const n=$('vestN'); if(n) n.textContent=`${app.vestiaire.count()}/${app.vestiaire.list.length}`; };
   cnt(); app.vestiaire.onChange(()=>{ cnt(); const f=data.vestiaire[app.vestiaire.open]; if(V.active && f) V.dress(f.parts[0]); }); }
-window.__risques={ V, setRtab, st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };
+window.__risques={ V, setRtab, enfoncement, st, data, model, act, pickDanger:c=>{ pickDanger(c); app.ex.invalidate(); apply(); }, frame, frameNomen, instances, nomen };

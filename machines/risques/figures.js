@@ -127,7 +127,7 @@ export function person(o={}){
     const r=new THREE.Object3D(); r.position.copy(hw); r.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z)); inner.add(r); r.updateMatrixWorld(true); h.attach(r);
     const palm=new THREE.Object3D(); palm.position.set(0,-0.07,0); r.add(palm); return { r, palm }; };
   const hG=hand('G'), hD=hand('D');
-  P.handR=hD.r; P.arms=[{ palm:hG.palm },{ palm:hD.palm }];
+  P.handR=hD.r; P.arms=[{ palm:hG.palm, r:hG.r },{ palm:hD.palm, r:hD.r }];
   /* EPI posés sur la tête de l'élève (au repos), puis attachés à l'os de la tête */
   /* EPI, écharpe, bracelet : enfants de leur os ; P.osRepos[k] = inverse de la place de l'os au repos (repère du personnage) */
   const innerInv=inner.matrixWorld.clone().invert(); P.repos={}; for(const [k,b] of Object.entries(B)) P.repos[k]=inner.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
@@ -144,7 +144,7 @@ export function person(o={}){
    chaque os est orienté vers la direction voulue depuis sa direction au repos */
 export const POSES={
   debout:     { sh:[[0.05,0.08],[0.05,-0.08]], el:[-0.15,-0.15], sp:0.02, leg:[0,0] },
-  machine:    { sh:[[-0.55,0.12],[-0.55,-0.12]], el:[-0.85,-0.85], sp:0.14, leg:[-0.04,0.06] },
+  machine:    { sh:[[-0.55,0.12],[-0.55,-0.12]], el:[-0.85,-0.85], sp:0.14, leg:[-0.04,0.06], appui:true },
   soufflette: { sh:[[-0.35,0.12],[-1.25,-0.1]], el:[-0.9,-0.15], sp:0.12, leg:[-0.03,0.05], wr:[0,0.3] },
   aspire:     { sh:[[-0.7,0.15],[-0.45,-0.05]], el:[-0.6,-0.7], sp:0.35, leg:[-0.25,0.4] },
   dos_courbe: { sh:[[-1.45,0.16],[-1.45,-0.16]], el:[-0.2,-0.2], sp:0.7, hip:0.6, leg:[0,0.04] },
@@ -171,7 +171,69 @@ export function setPose(g,pose){ const P=g.userData.P, B=P.B, A=POSES[pose]||POS
   /* pieds au sol : le bassin descend quand les genoux plient (hauteur de référence : la pose debout) */
   g.updateMatrixWorld(true); const low=Math.min(B.LeftFoot.getWorldPosition(_a).y, B.RightFoot.getWorldPosition(_b).y);
   if(P.foot==null) P.foot=low; else { B.Hips.position.y=P.y0-(low-P.foot)/B.Hips.parent.getWorldScale(_a).y; g.updateMatrixWorld(true); }
+  if(A.appui) appuyer(g);
   g.userData.pose=pose; }
+
+/* ---------- mains posées sur la table (demandé par l'enseignant le 07/11/2026 : « les bras passent dans la table de la machine ») ----------
+   Poses « au travail » (appui:true) : si la main arrive sur ou sous le plateau d'un appui proche (machine, établi : P.appuis,
+   voir setAppuis), elle est posée À PLAT sur le plateau et le bras est recalculé (cinématique inverse à deux os : épaule,
+   coude) ; le coude part vers l'extérieur et le bas, ou plus haut si l'avant-bras traverserait le bord de la table. */
+const RC=new THREE.Raycaster(), V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const vu=o=>{ for(;o;o=o.parent) if(!o.visible) return false; return true; };
+/* hauteur du plateau sous le point p : le plus haut dessus à moins de 30 cm au-dessus de p (une main passée sous le plateau y remonte) et 25 cm au moins sous les épaules (pas le capot ni les presseurs de la machine) */
+function surface(P,p){ let best=null; const lim=Math.min(p.y+0.30, (P._epaule??9)-0.25); RC.set(V(p.x,p.y+0.5,p.z),DOWN); RC.near=0; RC.far=1.4;
+  for(const o of P.appuis){ if(!vu(o)) continue; for(const h of RC.intersectObject(o,true)){ if(!h.object.isMesh || h.object.material?.visible===false || !vu(h.object)) continue;
+    if(h.point.y<=lim){ if(best==null||h.point.y>best) best=h.point.y; break; } } } return best; }
+/* mains tenant un objet : { G, D } = point monde où poser la paume (null pour revenir à la table) */
+export function setCibles(g,c){ g.userData.P.cibles=c||null; if(g.userData.pose) setPose(g,g.userData.pose); }
+export function setAppuis(g,list){ const P=g.userData.P; P.appuis=(list||[]).filter(Boolean); if(g.userData.pose) setPose(g,g.userData.pose); }
+function appuyer(g){ const P=g.userData.P; if(!P.appuis?.length) return; g.updateMatrixWorld(true);
+  P._epaule=Math.min(P.B.LeftArm.getWorldPosition(V()).y, P.B.RightArm.getWorldPosition(V()).y);
+  const qg=wq(P.inner), X=V(1,0,0).applyQuaternion(qg).setY(0).normalize(), Z=V(0,0,1).applyQuaternion(qg).setY(0).normalize();
+  ['G','D'].forEach((S,i)=>{ const N=COTE[S], a=B_(P,N.Bras), f=B_(P,N.AvantBras), h=B_(P,N.Main);
+    /* paume, puis bout des doigts : une main au bord de la table a les doigts dans le plateau → elle avance dessus */
+    let palm=P.arms[i].palm.getWorldPosition(V()), ys=null;
+    const cible=P.cibles?.[S];
+    if(cible){ palm=cible.clone(); ys=cible.y-0.012; }                                 // main posée sur un objet tenu (ponceuse, pinceau)
+    else { /* paume et doigts (à 12 et 18 cm du poignet) : le plateau le plus haut qu'ils touchent ; la main s'y pose à plat */
+      const hw=h.getWorldPosition(V()), dh=h.userData.tip.getWorldPosition(V()).sub(hw).normalize();
+      let best=null;
+      const lat=V(-dh.z,0,dh.x).normalize().multiplyScalar(0.045);                    // pouce et petit doigt, de part et d'autre
+      for(const [q,k] of [[palm,0],[hw.clone().addScaledVector(dh,0.12),1],[hw.clone().addScaledVector(dh,0.18),2],[hw.clone().addScaledVector(dh,0.09).add(lat),1],[hw.clone().addScaledVector(dh,0.09).sub(lat),1]]){ const y=surface(P,q);
+        if(y!=null && q.y<y+(k? 0.03 : 0.04) && (best==null || y>best.y+0.01)) best={ y, q:k? q.clone().lerp(hw,k===2? 0.35 : 0.1) : q }; }
+      if(!best) return;                                                                // main au-dessus : rien à corriger
+      palm=best.q; ys=best.y; }
+    const S0=a.getWorldPosition(V()), E0=f.getWorldPosition(V()), H0=h.getWorldPosition(V()), la=E0.distanceTo(S0), lb=H0.distanceTo(E0);
+    const dirH=H0.clone().sub(E0).setY(0); if(dirH.lengthSq()<1e-6) dirH.copy(Z); dirH.normalize();
+    const W=V(palm.x,ys+0.055,palm.z).addScaledVector(dirH,-0.065);                     // poignet : la paume à plat sur le plateau
+    const side=X.clone().multiplyScalar(S==='G'? 1 : -1), back=Z.clone().negate();
+    const poles=[side.clone().multiplyScalar(0.7).add(V(0,-0.5,0)).addScaledVector(back,0.2), side.clone().add(back.clone().multiplyScalar(0.3)), side.clone().multiplyScalar(0.6).add(V(0,0.5,0))];
+    let ok=null;
+    for(const pole of poles){ const d=W.clone().sub(S0); let L=d.length(); L=Math.max(Math.abs(la-lb)*1.01,Math.min(L,(la+lb)*0.995)); const u=d.normalize();
+      const v=pole.clone().addScaledVector(u,-pole.dot(u)).normalize(), ca=(la*la+L*L-lb*lb)/(2*la*L), sa=Math.sqrt(Math.max(0,1-ca*ca));
+      const E=S0.clone().addScaledVector(u,la*ca).addScaledVector(v,la*sa), Wr=S0.clone().addScaledVector(u,L);
+      ok={ E, Wr };
+      /* l'avant-bras ne doit pas traverser le plateau (coude et points de l'avant-bras au-dessus de la table sous eux) */
+      let bad=false; for(const t of [0,0.33,0.66]){ const q=E.clone().lerp(Wr,t), y=surface(P,q); if(y!=null && q.y<y+0.02){ bad=true; break; } }
+      if(!bad) break; }
+    aim(a,ok.E.clone().sub(S0)); aim(f,ok.Wr.clone().sub(ok.E)); aim(h,dirH.clone().add(V(0,-0.07,0)));
+    /* paume vers le plateau : rotation de la main autour de son axe (au repos, les paumes regardent les cuisses) */
+    { const hw=h.getWorldPosition(V()), d=h.userData.tip.getWorldPosition(V()).sub(hw).normalize(), n=V(S==='G'? -1 : 1,0,0).applyQuaternion(wq(P.arms[i].r));
+      const pr=v=>v.clone().addScaledVector(d,-v.dot(d)), n1=pr(n), n2=pr(DOWN);
+      if(n1.lengthSq()>1e-6 && n2.lengthSq()>1e-6){ const q=new THREE.Quaternion().setFromUnitVectors(n1.normalize(),n2.normalize());
+        h.quaternion.copy(wq(h.parent).invert().multiply(q).multiply(wq(h))); h.updateMatrixWorld(true); } }
+  });
+  g.updateMatrixWorld(true); }
+const B_=(P,n)=>P.B[n];
+/* contrôle (tests) : enfoncement des bras sous le plateau, en m (négatif = sous la table) : coudes, avant-bras, poignets,
+   paumes, et sommets des mains (gants compris) */
+export function enfoncement(g,detail){ const P=g.userData.P; if(!P.appuis?.length) return null; g.updateMatrixWorld(true); P._epaule=Math.min(P.B.LeftArm.getWorldPosition(V()).y, P.B.RightArm.getWorldPosition(V()).y); let m=9; const w=V(), D=[];
+  const test=(p,lab)=>{ const y=surface(P,p); if(y!=null){ m=Math.min(m,p.y-y); if(detail&&lab) D.push([lab,+p.y.toFixed(3),+y.toFixed(3)]); } };
+  ['G','D'].forEach((S,i)=>{ const N=COTE[S], e=P.B[N.AvantBras].getWorldPosition(V()), h=P.B[N.Main].getWorldPosition(V());
+    for(const t of [0,0.25,0.5,0.75,1]) test(e.clone().lerp(h,t),S+'avb'+t); test(P.arms[i].palm.getWorldPosition(V()),S+'paume'); });
+  const mains=Object.values(P.L).find(x=>x.visible && x.name.endsWith('|mains'));
+  if(mains){ const pa=mains.geometry.attributes.position; for(let i=0;i<pa.count;i+=Math.max(1,Math.floor(pa.count/240))){ mains.getVertexPosition(i,w); w.applyMatrix4(mains.matrixWorld); const y=surface(P,w); if(detail && y!=null && w.y<y) D.push(['sommet',+w.x.toFixed(3),+w.y.toFixed(3),+w.z.toFixed(3),+y.toFixed(3)]); test(w.clone()); } }
+  if(detail) return D; return m===9? null : +m.toFixed(3); }
 
 /* ---------- tenue, chaussures, gants, EPI ---------- */
 export function setEpi(g,o={}){ const P=g.userData.P, L=P.L, e=new Set(o.epi||[]);

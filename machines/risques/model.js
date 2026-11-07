@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import { canvasTex } from '../../engine/kit.js';
 import { buildHall, decorMachine } from '../../atelier/hall.js';
 import { LAYOUT, PORTES } from '../../atelier/plan.js';
-import { person, setEpi, setPose, soufflette, dustCloud } from './figures.js';
+import { person, setEpi, setPose, setAppuis, soufflette, dustCloud } from './figures.js';
 
 const mat=(c,o={})=>new THREE.MeshStandardMaterial({ color:c, roughness:.55, metalness:.1, ...o });
 const K={ red:mat(0xc4261c,{roughness:.4}), black:mat(0x1d1f22), grey:mat(0x9aa3aa), greyD:mat(0x5d646b,{metalness:.5}), white:mat(0xf1f1ee), green:mat(0x1f9455),
@@ -216,7 +216,8 @@ export function buildModel({ root, tagPart }){
   /* ---------- situations du scénario « Repérer les dangers » ---------- */
   const DANG={}, dGroup=new THREE.Group(); root.add(dGroup);
   const danger=(code,obj)=>{ obj.traverse(o=>{ o.userData.danger=code; if(o.isMesh){ o.castShadow=true; } }); obj.userData.danger=code; dGroup.add(obj); DANG[code]=obj; return obj; };
-  const fig=(o,x,z,ry)=>{ const p=person(o); p.position.set(x,0,z); p.rotation.y=ry||0; return p; };
+  const FIGS=[];
+  const fig=(o,x,z,ry)=>{ const p=person(o); p.position.set(x,0,z); p.rotation.y=ry||0; FIGS.push(p); return p; };
   const ticks=[];
   { const g=new THREE.Group(); const p=fig({ pose:'soufflette', epi:['chaussures','tenue','lunettes','auditif','masque'], hair:'court' },0,0,Math.PI); g.add(p);
     const s=soufflette(); p.userData.P.handR.add(s); s.position.set(0,-0.07,0.02); s.rotation.x=Math.PI/2;
@@ -248,13 +249,19 @@ export function buildModel({ root, tagPart }){
   DANG.armoire_ouverte=arm;
   if(DEC.m21) DANG.machine_allee=DEC.m21.g;
 
+  /* ---------- appuis des personnages (07/11/2026) : machines, établis, chariot à moins de 1,3 m ; les mains s'y posent (figures.js) ---------- */
+  const APPUIS=[...Object.values(DEC).map(d=>d.g), B1, B2, ...root.children.filter(o=>o.userData.part==='chariot')];
+  const _bx=new THREE.Box3(), _pt=new THREE.Vector3();
+  const appuisPres=(p,r=1.3)=>APPUIS.filter(o=>{ _bx.setFromObject(o); _pt.copy(p).clamp(_bx.min,_bx.max); return Math.hypot(_pt.x-p.x,_pt.z-p.z)<r; });
+  root.updateMatrixWorld(true);
+  for(const p of FIGS) setAppuis(p, appuisPres(p.getWorldPosition(new THREE.Vector3())));
   /* ---------- avatar du scénario « EPI » et départ de feu ---------- */
   const avatar=person({ pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true }); avatar.visible=false; root.add(avatar);
   const FIRE=fire(); FIRE.group.position.set(-6.4,0,-6.75); root.add(FIRE.group); FIRE.set(0);
 
   /* ---------- état et animation ---------- */
   let spin=0, bladeA=0, dangersOn=false, armOpen=false;
-  const api={ hall, DEC, DANG, EXT, avatar, fire:FIRE, doors:hall.doors, scieBox:sb,
+  const api={ hall, DEC, DANG, EXT, avatar, figs:FIGS, fire:FIRE, doors:hall.doors, scieBox:sb,
     /* situations dangereuses visibles (scénario « Dangers ») ; l'armoire ouverte en fait partie */
     showDangers(on){ dangersOn=on; dGroup.visible=on; api.setArmoire(on);
       /* machine qui déborde sur l'allée (la déligneuse, posée comme dans l'atelier réel) : un danger à repérer, sans la déplacer */
@@ -262,7 +269,10 @@ export function buildModel({ root, tagPart }){
     setArmoire(open){ armOpen=open; door.rotation.y= open? -1.9 : 0; inside.visible=open; arm.traverse(o=>{ if(open) o.userData.danger='armoire_ouverte'; else delete o.userData.danger; }); },
     /* sectionneur : pos 0 (ouvert) / 1 (fermé), cadenas, panneau ; machine en marche (lame) */
     setConsign(c){ handle.rotation.z= c.sect? 0 : Math.PI/2; lock.visible=!!c.lock; tag.visible=!!c.tag; lampOn.material.color.setHex(c.sect?0xffffff:0x555555); spin=c.on?1:spin; api._on=c.on; },
-    placeAvatar(x,z,ry,o){ avatar.visible=true; avatar.position.set(x,0,z); avatar.rotation.y=ry; setEpi(avatar,o); setPose(avatar,o.pose||'debout'); },
+    placeAvatar(x,z,ry,o){ avatar.visible=true; avatar.position.set(x,0,z); avatar.rotation.y=ry; avatar.updateMatrixWorld(true); setEpi(avatar,o);
+      avatar.userData.P.appuis=appuisPres(avatar.position); setPose(avatar,o.pose||'debout'); },
+    /* objets sur lesquels les mains peuvent se poser (vestiaire : toupie, raboteuse, établi de démonstration) */
+    addAppui(o){ if(!APPUIS.includes(o)) APPUIS.push(o); },
     hideAvatar(){ avatar.visible=false; },
     get spin(){ return spin; },
     /* horloge réelle (t en secondes) : la lame met 4 s à s'arrêter, même à 1 image par seconde (headless) */

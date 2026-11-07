@@ -12,7 +12,7 @@
    gants à la toupie (happés par l'outil), chaussures (planche qui tombe), FFP2 (poussière de ponçage), demi-masque
    (vapeurs de vernis), gants de manutention (écharde), gants chimiques (goutte de vernis). */
 import * as THREE from 'three';
-import { setEpi, setPose, POSES, reperes, placerObjets } from './figures.js';
+import { setEpi, setPose, POSES, reperes, placerObjets, setCibles } from './figures.js';
 import { buildModel as toupieModel } from '../toupie/model.js';
 import { st as tst } from '../toupie/state.js';
 import { buildModel as rabotModel } from '../raboteuse/model.js';
@@ -129,6 +129,7 @@ export function createVestiaire({ app, model, stage, list }){
     B.splat=mesh(new THREE.CircleGeometry(0.012,20),std(0x9a5418,{ roughness:.08, transparent:true, opacity:.9 })); B.splat.visible=false; root.add(B.splat);
     /* écharde : une fine esquille qui dépasse du chant de la planche */
     B.spl=mesh(new THREE.ConeGeometry(0.0022,0.04,6),std(0xc49a62)); B.spl.visible=false; root.add(B.spl);
+    model.addAppui?.(T.g); model.addAppui?.(R.g); model.addAppui?.(B.g);   // les mains de l'élève se posent sur ces plateaux (figures.js)
     B.dust=cloud(420,0.012,0xeadfc6,0.55); B.vap=cloud(110,0.10,0xa9bccb,0.3);
     stage.dirty(); }
   function showStations(on){ if(!built) return; T.g.visible=on; R.g.visible=on; B.g.visible=on; model.DEC.toupie.g.visible=!on; model.DEC.rabot.g.visible=!on; stage.dirty(); }
@@ -183,6 +184,7 @@ export function createVestiaire({ app, model, stage, list }){
   /* ---------- démonstrations ---------- */
   function stopDemo(){ if(!demo) return; demo=null; card.hidden=true; setVig('');
     tst.motor=false; rst.motor=false; rst.feed=false; if(app.bruit) app.bruit.casque=false;
+    av.userData.P.cibles=null;
     if(built){ for(const o of [T.chip,T.trail,R.plank,B.board,B.panel,B.sander,B.pot,B.brush,B.drop,B.splat,B.spl,B.dust,B.vap]) o.visible=false;
       if(B.brush.parent!==root) root.attach(B.brush);
       T.halo.material.opacity=0; T.mark.material.opacity=0; POSES.vest={ ...POSES.machine }; placerObjets(av); tst.prot=true; T.m.update(()=>0,()=>0,null); T.strip(); }
@@ -192,7 +194,7 @@ export function createVestiaire({ app, model, stage, list }){
   function atBench(o){ B.g.position.set(BENCH.x+0.08,0,BENCH.z); B.g.rotation.y=Math.PI/2; B.g.visible=true; place(HOME.x,HOME.z,HOME.ry,{ ...o, pose:'machine' }); av.updateMatrixWorld(true); }
   const benchW=(x,y,z)=>B.g.localToWorld(V3(x,y,z));       // repère de l'établi : X le long, Z en travers (−Z vers l'élève)
 
-  function play(k,mode){ build(); showStations(true); stopDemo(); clearTimeout(dressT);
+  function play(k,mode){ build(); showStations(true); stopDemo(); clearTimeout(dressT); av.userData.P.cibles=null;
     const on=mode==='avec', kind=mode==='toupie'? 'happe' : DEMOS[k]; demo={ k, mode, kind, key:mode==='toupie'? 'toupie' : k, t0:performance.now()/1000, end:false };
     card.hidden=true; setVig('dim'); B.g.visible=false;
     if(kind==='bruit'){
@@ -218,7 +220,7 @@ export function createVestiaire({ app, model, stage, list }){
         const c=sideCam(eye,demo.from,1.25,0.10); camTo(c.pos,c.tgt.clone().lerp(eye,0.18),1.2); }
       else { demo.sc0=null; demo.reach= k==='bijoux' || mode==='toupie'; POSES.vest={ ...POSES.machine }; setPose(av,'vest');
         const a= demo.reach? bone('RightHand') : bone('Head'), c=sideCam(a,demo.P,demo.reach? 0.95 : 1.15,demo.reach? 0.25 : 0.1, demo.reach? T.w(1,0,0).sub(T.w(0,0,0)) : null);   // la main droite : vue du côté droit de l'élève
-        if(demo.reach) camTo(T.w(0.62,1.42,0.62),T.w(0.04,0.93,0.16),1.2); else camTo(c.pos,c.tgt.clone().lerp(demo.P,0.2),1.2); } }
+        if(demo.reach) camTo(T.w(1.05,1.75,-0.15),T.w(0.0,0.95,0.25),1.2);   /* de l'autre côté de la table, au-dessus du guide : on voit la main et l'outil */ else camTo(c.pos,c.tgt.clone().lerp(demo.P,0.2),1.2); } }
     else if(kind==='chute'){ /* l'élève porte une planche (mains devant lui) ; elle glisse et tombe vers son pied */
       place(HOME.x,HOME.z,HOME.ry,{ ...outfit('chaussures',on), pose:'machine' }); av.updateMatrixWorld(true);
       const pa=P().arms.map(a=>a.palm.getWorldPosition(V3())); demo.h0=pa[0].clone().add(pa[1]).multiplyScalar(0.5).add(V3(0,-0.02,0));
@@ -227,6 +229,7 @@ export function createVestiaire({ app, model, stage, list }){
       const c=sideCam(demo.toe,demo.h0,1.35,0.05,V3(Math.cos(av.rotation.y),0,-Math.sin(av.rotation.y)).negate()); camTo(c.pos,c.tgt.clone().lerp(demo.toe,0.3),1.2); }
     else if(kind==='poussiere'){ /* ponçage d'un panneau sur l'établi, ponceuse raccordée mais poussière fine qui monte vers le visage */
       atBench({ ...outfit('masque',on) }); B.panel.visible=true; B.panel.position.set(0,0.89,-0.08); B.sander.visible=true; B.sander.position.set(0,0.9,-0.08);
+      setCibles(av,{ D:benchW(0,1.0,-0.10) });                                       // main droite sur la ponceuse
       demo.src=benchW(0,0.93,-0.08); demo.mouth=mouthW(); B.dust.visible=true;
       const c=sideCam(demo.mouth,demo.src,0.95,0.12,V3(Math.cos(av.rotation.y),0,-Math.sin(av.rotation.y)).negate()); camTo(c.pos,c.tgt.clone().lerp(demo.mouth,0.35),1.2); }
     else if(kind==='vapeur'){ /* vernis au pinceau : vapeurs qui montent du pot ; sans = FFP2 (inefficace), avec = demi-masque */
@@ -238,6 +241,7 @@ export function createVestiaire({ app, model, stage, list }){
       const hand=bone('LeftHand'), up=V3(0,1,0); demo.hand=hand.clone().add(V3(0,0.035,0));
       B.brush.visible=true; B.brush.position.copy(demo.hand).add(V3(0.02,0.2,0)); B.brush.rotation.set(0,0,0.25);
       demo.tip=B.brush.position.clone().add(V3(-0.012,-0.048,0)); B.drop.visible=false;
+      setCibles(av,{ D:B.brush.position.clone().add(V3(0,0.12,0)) });                // main droite qui tient le pinceau
       const c=sideCam(demo.hand,demo.tip,0.8,0.18,V3(Math.cos(av.rotation.y),0,-Math.sin(av.rotation.y)).negate()); camTo(c.pos,c.tgt,1.2); }
     else if(kind==='echarde'){ /* l'élève tient une planche brute par son chant : elle glisse dans la main, l'écharde vers la paume */
       place(HOME.x,HOME.z,HOME.ry,{ ...outfit('gants_manut',on), pose:'machine' }); av.updateMatrixWorld(true);
@@ -267,8 +271,7 @@ export function createVestiaire({ app, model, stage, list }){
     for(let i=0;i<pa.count;i+=step){ if(m.isSkinnedMesh) m.getVertexPosition(i,_v); else _v.fromBufferAttribute(pa,i); _v.applyMatrix4(m.matrixWorld); d=Math.min(d,_v.distanceTo(Pt)); } return d; }
   function happeTarget(){ const p=P(), L=p.L, vis=s=>Object.entries(L).find(([n,m])=>n.endsWith('|'+s) && m.visible)?.[1];
     if(demo.key==='echarpe') return { m:p.scarf, thr:0.05, step:3 };
-    if(demo.key==='bijoux') return { m:p.bracelet, thr:0.06, step:2 };
-    if(demo.key==='toupie') return { m:vis('mains'), thr:0.06, step:3 };
+    if(demo.key==='bijoux'||demo.key==='toupie') return { m:vis('mains'), thr:0.04, step:3, P:T.w(0,0.92,0.17) };   // la main s'arrête devant la lumière du guide, sans y entrer
     if(demo.key==='cheveux') return { m:vis('tete'), thr:0.07, step:5 };
     return { m:vis('corps'), thr:0.06, step:4 }; }
 
@@ -312,11 +315,13 @@ export function createVestiaire({ app, model, stage, list }){
         const Mw=new THREE.Matrix4().makeTranslation(N.x-demo.sc0.N.x,N.y-demo.sc0.N.y,N.z-demo.sc0.N.z).multiply(demo.sc0.Mw);
         new THREE.Matrix4().copy(sc.parent.matrixWorld).invert().multiply(Mw).decompose(sc.position,sc.quaternion,sc.scale); sc.updateMatrixWorld(true); };
       const lean=demo.key==='cheveux'? 1.15 : 0.8;
+      /* mains posées sur la table de la toupie, devant l'élève (gauche du personnage = −X du modèle, il regarde vers −Z) ; la main droite avance seule (bracelet, gants) */
+      P().cibles={ G:T.w(-0.20,0.882,0.22), D: demo.reach? null : T.w(0.20,0.882,0.22) };
       const pose=L=>{ if(demo.reach) POSES.vest={ ...POSES.machine, sp:0.14+0.25*L, sh:[[-0.4,0.28],[-0.55-0.75*L,-0.04]], el:[-1.05,-0.55+0.4*L], wr:[0,0.15] };
         else POSES.vest={ ...POSES.machine, sp:0.14+lean*L, hip:0.3*L, sh:[[-0.35-0.2*L,0.28],[-0.35-0.2*L,-0.28]], el:[-1.05,-1.05] };
         setPose(av,'vest'); av.updateMatrixWorld(true); hang(); };
       if(!demo.sc0){ pose(0); }
-      const tg=happeTarget(), dist=()=>distTo(tg.m,demo.P,tg.step);
+      const tg=happeTarget(), dist=()=>distTo(tg.m,tg.P||demo.P,tg.step);
       let L=ease((t-0.8)/3.0);
       if(!on){ if(demo.Lh==null){ pose(L); if(dist()<tg.thr || L>=1){ let a=0, b=L; for(let i=0;i<9;i++){ const m=(a+b)/2; pose(m); if(dist()<tg.thr) b=m; else a=m; } demo.Lh=b; demo.th=t; lastLh[demo.key]=b; } }
         if(demo.Lh!=null) L=Math.min(L,demo.Lh); pose(L);
