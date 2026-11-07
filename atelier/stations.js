@@ -77,6 +77,6 @@ export const FLOWS = [
   { niv:2, pts:[[-1.75,6.0],[-2.7,6.6],[-3.6,6.95],[-4.6,7.2]] },                                 // → tenonneuse
   { niv:2, pts:[[-1.6,6.3],[-1.3,7.1],[-0.9,7.7]] },                                              // → scie à format
 ];
-/* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs), pour l'aperçu « Moodle » de cette page */
-export const PREREQ = { 'scie-radiale':'risques', 'scie-format':'risques', 'scie-ruban':'risques', deligneuse:'scie-radiale', degauchisseuse:'deligneuse',
-  raboteuse:'degauchisseuse', toupie:'raboteuse', mortaiseuse:'raboteuse', tenonneuse:'raboteuse' };
+/* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs), pour l'aperçu « Moodle » de cette page :
+   une seule source, engine/permis.js (aussi lue par les « Premiers pas » des machines) */
+export { PREREQ } from '../engine/permis.js';

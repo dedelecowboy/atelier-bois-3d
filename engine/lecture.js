@@ -90,6 +90,7 @@ export function createLecture(opts={}){
   /* la consigne en cours : ce que l'élève a sous les yeux, du plus précis au plus général */
   const vis=el=>!!el && !el.hidden && el.offsetParent!==null && (el.innerText||'').trim().length>0;
   function consigne(){
+    const pp=document.querySelector('#ppFond:not([hidden]) .pp-slide:not([hidden]) .pp-body'); if(vis(pp)) return { el:pp, t:texte(pp) };   // premiers pas (engine/premiers.js)
     const rep=$('repBar'); if(vis(rep)) return { el:$('repQ'), t:$('repQ').innerText };
     const ch=$('choice'); if(vis(ch)) return { el:ch.querySelector('.choice-card'), t:texte(ch) };
     const pc=$('parcCard'); if(vis(pc)&&vis($('parcoursPanel'))) return { el:pc, t:texte(pc) };
@@ -103,7 +104,7 @@ export function createLecture(opts={}){
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(L.parle) stop(); if(!panel.hidden){ open(false); btn.focus(); } } });
 
   /* clic sur un texte des panneaux (pas sur une commande) : il est lu */
-  const ZONES = opts.zones || '.left,.right,.dock,.repbar,.choice-card,.toast,.chip,.fiches-box,#fiches,.sono,.schema,.panel,.card,.fiche';
+  const ZONES = (opts.zones || '.left,.right,.dock,.repbar,.choice-card,.toast,.chip,.fiches-box,#fiches,.sono,.schema,.panel,.card,.fiche') + ',.pp-box';   // .pp-box : premiers pas
   const BLOCS = 'p,li,h1,h2,h3,h4,td,th,dt,dd,blockquote,figcaption,label,summary,legend,.chip,.toast';
   document.addEventListener('click',e=>{ if(!P.voix||!synth) return; const t=e.target;
     if(!t.closest || t.closest('button,a,input,select,textarea,canvas,[role=button],[role=tab],.lect,[contenteditable]')) return;
