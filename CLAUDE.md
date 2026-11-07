@@ -2,6 +2,21 @@
 
 À lire en entier avant toute modification. Ce fichier garde ce que l'enseignant (Julien ANDRE, métiers du bois) a corrigé ou décidé : ne pas le contredire sans lui demander.
 
+## Décisions du 07/11/2026 (récapitulatif « points à trancher », réponses de l'enseignant)
+
+Document : https://claude.ai/artifact/QJVS63cAao3NoAg7aQCTok (une ligne par point, colonne « Ta réponse »). Ces réponses priment sur les « À VALIDER » plus bas.
+- Validés tels quels : règle « partie ratée » (faute grave ou < 70 %) ; « Repasser ce qui est raté » (fonctionne) ; clic du sommaire et verrous (fonctionnent) ; 19 fiches risques et 12 fiches du vestiaire (relues, OK) ; cartes des démonstrations ; les 12 démonstrations ; raccord du cou (ça passe) ; valeurs des 9 machines et nouveaux schémas du réglage ; atténuation du casque (25 dB) ; alerte « casque » dès la marche à vide ; poste de chaque module dans la page atelier ; permis, badges, chemins ; badge « Entraîné » ; premiers pas ; confort de lecture ; pièces et chutes.
+- Verrous : PAS de verrou de plus (mortaiseuse inchangée) ; l'enseignant s'oriente plutôt vers le paquetage SANS verrous, plus souple.
+- QCM (À FAIRE) : banque d'environ 30 questions par module, tirage aléatoire des questions ET ordre aléatoire (à chaque tentative).
+- Bilan : les attestations (« diplôme ») suffisent pour l'instant ; un bilan de compétences est à imaginer plus tard ; l'outil est fait pour que tous les élèves finissent par obtenir les permis.
+- Emplacements des équipements des risques généraux : gardés pour l'instant ; l'outil a vocation à servir dans d'autres établissements (rester générique).
+- Vestiaire : idée de l'enseignant, l'élève pourrait se tenir à différents endroits de l'atelier (à préciser).
+- Élastiques, doigts, mascotte : en réserve ; non simulés des risques généraux (déplacement, issue au clic, rassemblement, air comprimé) : à envisager.
+- Toupie : l'atelier a les deux systèmes (poulies et variateur) ; photos des outils à venir. Scie à ruban, mortaiseuse : OK en l'état.
+- Sons : préciser les sources et licences dans les crédits (À FAIRE) ; niveaux en dB(A) en suspens (l'enseignant vérifie).
+- Règle du permis (`REGLE`, engine/permis.js) : l'utilisation de la vraie machine est autorisée après validation pratique à l'atelier (texte à écrire).
+- À éclaircir avec l'enseignant : note maximale en « Objets d'apprentissage » ; EPI des personnages de la partie Dangers ; une phrase coupée sur l'accès aux risques généraux (« se fait par la… »).
+
 ## Le projet
 
 Simulateurs 3D web de machines à bois pour élèves de bac pro (et BTS DRB). Objectif : un atelier virtuel, une machine par module. Déploiement Moodle (décidé par l'enseignant le 27/10/2026, EN TEST) : UN SEUL paquetage SCORM 1.2 à plusieurs éléments, l'atelier, puis « 0. Risques généraux » (ajouté le 28/10/2026, voir « Risques généraux »), puis une machine par élément (voir « Paquetage unique »). Chaque machine reste aussi livrée en paquetage séparé (solution de secours, ou un collègue qui ne veut qu'une machine).
