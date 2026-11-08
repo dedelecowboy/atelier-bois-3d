@@ -16,6 +16,7 @@ Document : https://claude.ai/artifact/QJVS63cAao3NoAg7aQCTok (une ligne par poin
 - Sons : tous crédités Pixabay (décidé par l'enseignant le 07/11/2026, licence de contenu Pixabay : gratuit, sans attribution obligatoire, pas de redistribution des sons seuls), auteurs dans COPYRIGHT.txt et README ; les « licences À VÉRIFIER » plus bas sont réglées ; niveaux en dB(A) en suspens (l'enseignant vérifie). Tout le reste du récapitulatif : validé par l'enseignant.
 - Règle du permis (`REGLE`, engine/permis.js, FAIT) : « Le badge du simulateur ne suffit pas : la vraie machine de l'atelier s'utilise seulement après validation pratique, devant le professeur. » (carte du permis, premiers pas).
 - À éclaircir avec l'enseignant : note maximale en « Objets d'apprentissage » ; EPI des personnages de la partie Dangers. Accès aux risques généraux par l'atelier (sommaire) : confirmé, il fonctionne.
+- Tests (08/11/2026) : toute la batterie passe, sauf `tests/scie-format/test_bruit.py`, instable : le relevé du sonomètre toutes les 50 ms rate parfois une passe (tenonneuse ou déligneuse selon l'essai). Il échoue aussi sur la version d'avant le 07/11 : test à rendre plus tolérant, pas un défaut du son. Lancer les tests un par un (deux séries en même temps font échouer des captures).
 
 ## Le projet
 
