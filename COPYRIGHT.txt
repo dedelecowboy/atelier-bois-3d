@@ -10,5 +10,15 @@ Il est distribué SANS AUCUNE GARANTIE, sans même la garantie implicite de qual
 Toute copie, modification ou rediffusion doit conserver la mention :
 « Julien ANDRE - Lycée André MALRAUX - REMIREMONT ».
 
-Éléments d'autres auteurs, sous leur propre licence : three.js (MIT), enregistrements sonores (licences de
-leurs auteurs, à vérifier), polices des attestations (SIL Open Font License).
+Éléments d'autres auteurs, sous leur propre licence : three.js (MIT), polices des attestations (SIL Open Font
+License), enregistrements sonores (ci-dessous).
+
+Enregistrements sonores : Pixabay (https://pixabay.com), licence de contenu Pixabay (usage gratuit, commercial
+ou non ; découpés, mis en boucle et intégrés au simulateur, jamais redistribués seuls). Merci à leurs auteurs :
+- audiopapkin : « Cutting wood on a band saw » (scie à ruban), « Mobile extraction in the carpentry workshop »
+  (aspiration), « Table saw switch on off » (scies circulaires : marche, régime, arrêt) ;
+- Freesound community : « Bandsaw start » (scie à ruban), « Circ saw 03 » (scies circulaires : coupe) ;
+- « Woodworking machinery sound effect – timber planer thicknesser machine » (raboteuse, dégauchisseuse,
+  dérouleurs de la tenonneuse) ;
+- « Bedanatrice MasterWood OMB 1 » (mortaiseuse) ;
+- « Usinage d'une feuillure à la toupie » (toupie).

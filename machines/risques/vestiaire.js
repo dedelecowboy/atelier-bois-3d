@@ -107,8 +107,9 @@ export function createVestiaire({ app, model, stage, list }){
     /* établi de démonstration, devant l'élève (allée), avec ses accessoires */
     B={ g:new THREE.Group() }; root.add(B.g); B.g.visible=false;
     const top=mesh(new THREE.BoxGeometry(1.4,0.06,0.62),wood); top.position.set(0,0.85,0); B.g.add(top);
-    for(const [x,z] of [[-0.62,-0.25],[0.62,-0.25],[-0.62,0.25],[0.62,0.25]]){ const l=mesh(new THREE.BoxGeometry(0.07,0.82,0.07),wood); l.position.set(x,0.41,z); B.g.add(l); }
-    const rail=mesh(new THREE.BoxGeometry(1.24,0.06,0.04),wood); rail.position.set(0,0.2,0.25); B.g.add(rail); const rail2=rail.clone(); rail2.position.z=-0.25; B.g.add(rail2);
+    B.base=[top];
+    for(const [x,z] of [[-0.62,-0.25],[0.62,-0.25],[-0.62,0.25],[0.62,0.25]]){ const l=mesh(new THREE.BoxGeometry(0.07,0.82,0.07),wood); l.position.set(x,0.41,z); B.g.add(l); B.base.push(l); }
+    const rail=mesh(new THREE.BoxGeometry(1.24,0.06,0.04),wood); rail.position.set(0,0.2,0.25); B.g.add(rail); const rail2=rail.clone(); rail2.position.z=-0.25; B.g.add(rail2); B.base.push(rail,rail2);
     B.board=mesh(new THREE.BoxGeometry(0.9,0.022,0.22),woodL); B.board.visible=false; root.add(B.board);          // planche (chute, écharde)
     B.panel=mesh(new THREE.BoxGeometry(0.6,0.019,0.4),woodL); B.panel.visible=false; B.g.add(B.panel);         // panneau à poncer
     /* ponceuse orbitale */
@@ -150,8 +151,21 @@ export function createVestiaire({ app, model, stage, list }){
   function showStations(on){ if(!built) return; T.g.visible=on; R.g.visible=on; B.g.visible=on; model.DEC.toupie.g.visible=!on; model.DEC.rabot.g.visible=!on; stage.dirty(); }
 
   /* ---------- l'élève dans l'allée jaune, établi devant lui ---------- */
-  const HOME={ x:-2.6, z:-5.5, ry:Math.PI/2 };     // dans l'allée jaune devant la corroyeuse, tourné le long de l'allée (vers +X)
-  const BENCH={ x:HOME.x+0.62, z:HOME.z };          // établi de démonstration (pas dans le champ des fiches : écarté pendant l'habillage)
+  /* l'élève À DIFFÉRENTS ENDROITS de l'atelier (demandé par l'enseignant le 07/11/2026) : chaque fiche se passe là où
+     l'équipement sert : à la toupie (lunettes, écharpe, cheveux, sweat, tenue, bracelet), à la raboteuse (casque), à
+     l'établi de ponçage (FFP2), à l'établi de finition (demi-masque, gants chimiques), devant le râtelier à panneaux
+     (chaussures, gants de manutention). Établis de ponçage et de finition : les VRAIS établis de la salle (model.js B1, B2),
+     l'établi de démonstration n'y garde que ses accessoires. HOME = l'endroit de la fiche en cours. */
+  let HOME={ x:-2.6, z:-5.5, ry:Math.PI/2 };       // (allée jaune : valeur de départ)
+  const OU={ lunettes:'toupie', echarpe:'toupie', cheveux:'toupie', sweat:'toupie', tenue:'toupie', bijoux:'toupie', auditif:'rabot',
+    masque:'poncage', masque_a:'finition', gants_chim:'finition', chaussures:'ratelier', gants_manut:'ratelier' };
+  function spot(k){ const o=OU[k];
+    if(o==='toupie'){ const p=T.w(0,0,0.56); return { x:p.x, z:p.z, ry:T.yaw+Math.PI }; }
+    if(o==='rabot'){ const p=R.w(1.32,0,0); return { x:p.x, z:p.z, ry:R.yaw-Math.PI/2 }; }
+    if(o==='poncage') return { x:6.0, z:9.12, ry:0, banc:[6.0,9.9,0] };          // établi B1, comme le poste « ponçage » de l'exercice EPI
+    if(o==='finition') return { x:8.6, z:9.12, ry:0, banc:[8.6,9.9,0] };         // établi B2 (zone de finition)
+    if(o==='ratelier') return { x:-9.3, z:6.9, ry:Math.PI/2 };                    // devant le râtelier (mur de gauche), tourné vers la salle
+    return { x:-2.6, z:-5.5, ry:Math.PI/2 }; }
   function place(x,z,ry,o){ model.placeAvatar(x,z,ry,o); av=model.avatar; }
   /* élève de chaque fiche (répartition validée par l'enseignant le 07/11/2026 : trois élèves, quatre fiches chacun) */
   const QUI={ lunettes:'fille', masque_a:'fille', cheveux:'fille', sweat:'fille', chaussures:'garcon', masque:'garcon', gants_chim:'garcon', bijoux:'garcon',
@@ -174,15 +188,17 @@ export function createVestiaire({ app, model, stage, list }){
     if(['lunettes','auditif','masque','masque_a'].includes(k)){ t=bone('Head').add(V3(0,0.06,0)); p=around(t,0.55,0.85,0.05); }
     else if(k==='cheveux'){ t=bone('Head').add(V3(0,0.02,0)); p=around(t,2.5,0.95,0.15); }
     else if(k==='chaussures'){ t=bone('LeftFoot').add(bone('RightFoot')).multiplyScalar(0.5).add(V3(0,0.02,0)); p=around(t,0.6,1.05,0.45); }
-    else if(k==='gants_manut'||k==='gants_chim'||k==='bijoux'){ t=bone('RightHand'); p=around(t,-0.7,0.85,0.25); }
+    else if(k==='gants_manut'||k==='gants_chim'||k==='bijoux'){ t=bone('RightHand'); p=around(t,-1.3,0.9,0.35); }   // côté droit, un peu au-dessus : pas à travers la table de la toupie ou l'établi
     else if(k==='echarpe'){ t=bone('Spine2'); p=around(t,0.45,1.05,0.1); }
     else { t=V3(av.position.x,0.95,av.position.z); p=around(t,0.4,2.9,0.45); }
     camTo(p,t); }
 
   /* ---------- habiller l'élève pour une fiche : sans l'équipement, puis il l'enfile ---------- */
   let dressT=null;
-  function dress(k){ stopDemo(); cur=k; const d=DANGER.has(k); if(built) B.g.visible=false;
+  function dress(k){ stopDemo(); cur=k; const d=DANGER.has(k); build(); B.g.visible=false; HOME=spot(k); for(const a of Object.values(model.avatars||{})) a.userData.P.cibles=null;
     place(HOME.x,HOME.z,HOME.ry,{ ...outfit(k, d), pose:k==='gants_manut'||k==='gants_chim'? 'machine' : 'debout' });
+    if(HOME.banc && k==='gants_chim'){ const f=V3(Math.sin(HOME.ry),0,Math.cos(HOME.ry)), l=V3(Math.cos(HOME.ry),0,-Math.sin(HOME.ry)), c=V3(HOME.banc[0],0.902,HOME.banc[1]).addScaledVector(f,-0.22);
+      setCibles(av,{ G:c.clone().addScaledVector(l,0.18), D:c.clone().addScaledVector(l,-0.18) }); }   // mains posées à plat sur l'établi
     if(!d){ setEpi(av,outfit(k,false)); clearTimeout(dressT); dressT=setTimeout(()=>{ if(cur===k && !demo) setEpi(av,outfit(k,true)); stage.dirty(); },650); }
     const f=list.find(x=>x.parts[0]===k), info=$('info'); if(info&&f) info.innerHTML=`<b>Vestiaire · ${f.t}</b><span>${DANGER.has(k)? 'Ce qui est dangereux à l\'atelier' : 'L\'élève l\'enfile'} : faites tourner et zoomez pour bien voir.</span>`;
     frameFor(k); stage.dirty(); }
@@ -208,10 +224,13 @@ export function createVestiaire({ app, model, stage, list }){
     const s=$('sono'); if(s) s.hidden=true; const info=$('info'); if(info) info.style.visibility=''; stage.dirty(); }
 
   /* l'élève à l'établi (dans l'allée) : établi devant lui, pose « machine » (mains sur le plan de travail) */
-  function atBench(o){ B.g.position.set(BENCH.x+0.08,0,BENCH.z); B.g.rotation.y=Math.PI/2; B.g.visible=true; place(HOME.x,HOME.z,HOME.ry,{ ...o, pose:'machine' }); av.updateMatrixWorld(true); }
+  function atBench(o){ const b=HOME.banc;
+    if(b){ B.g.position.set(b[0],0.02,b[1]); B.g.rotation.y=b[2]; }               // sur un vrai établi (plateau à 0,90 m) : seulement les accessoires
+    else { B.g.position.set(HOME.x+Math.sin(HOME.ry)*0.70,0,HOME.z+Math.cos(HOME.ry)*0.70); B.g.rotation.y=HOME.ry; }
+    for(const m of B.base) m.visible=!b; B.g.visible=true; place(HOME.x,HOME.z,HOME.ry,{ ...o, pose:'machine' }); av.updateMatrixWorld(true); }
   const benchW=(x,y,z)=>B.g.localToWorld(V3(x,y,z));       // repère de l'établi : X le long, Z en travers (−Z vers l'élève)
 
-  function play(k,mode){ build(); showStations(true); stopDemo(); clearTimeout(dressT); av.userData.P.cibles=null;
+  function play(k,mode){ build(); showStations(true); stopDemo(); clearTimeout(dressT); av.userData.P.cibles=null; HOME=spot(mode==='toupie'? 'bijoux' : k);
     const on=mode==='avec', kind=mode==='toupie'? 'happe' : DEMOS[k]; demo={ k, mode, kind, key:mode==='toupie'? 'toupie' : k, t0:performance.now()/1000, end:false };
     card.hidden=true; setVig('dim'); B.g.visible=false;
     if(kind==='bruit'){

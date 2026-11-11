@@ -21,8 +21,8 @@ export const NIVEAUX = [
   { n:2, nom:'Permis niveau 2', sous:'Usinage et panneaux', col:'#b4460c', ids:['toupie', 'mortaiseuse', 'tenonneuse', 'scie-format'] },
 ];
 export const niveauDe = id=>NIVEAUX.find(v=>v.ids.includes(id)) || null;
-/* règle d'atelier liée au permis (vide pour l'instant : le permis ne donne aucun droit sur les vraies machines) */
-export const REGLE = '';
+/* règle d'atelier liée au permis (écrite le 07/11/2026 : le badge seul ne donne aucun droit sur les vraies machines) */
+export const REGLE = 'Le badge du simulateur ne suffit pas : la vraie machine de l\'atelier s\'utilise seulement après validation pratique, devant le professeur.';   // décidé par l'enseignant le 07/11/2026 : « après validation pratique »
 export const SEUIL = 'validez l\'évaluation (70 / 100, aucune faute grave)';
 /* verrous du paquetage Moodle (les mêmes que PKG_PREREQ dans tools/build.mjs) : module à valider avant celui-ci ;
    lus par la page atelier (aperçu « Moodle ») et par les « Premiers pas » (engine/premiers.js) */

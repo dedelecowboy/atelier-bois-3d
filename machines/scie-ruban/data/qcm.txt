@@ -7,8 +7,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 # Sources : INRS ED 6316 « Scies à ruban à table » (2018), fiche OPPBTP « Scie à ruban » (C1 F 10 11, 2011),
 # fiche CFB TB 2 « Scie à ruban », cours « La scie à ruban » (Lycée André Malraux), fiche accident OPPBTP
@@ -133,3 +133,65 @@ Q: Que fait-on à la fin du travail ?
 + On arrête, attend l'arrêt complet, détend la lame et le signale, nettoie à l'aspirateur
 - On souffle la machine à la soufflette
 = Détendre la lame (surtout avant un week-end) et le signaler par un écriteau ; nettoyer à l'aspirateur, jamais à la soufflette (INRS ED 6316, cours du lycée).
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Quel rayon minimal peut-on chantourner avec une lame de 10 mm ?
++ Environ 40 mm
+- Environ 400 mm
+- Aucun : une lame de 10 mm ne fait que des coupes droites
+= Plus la lame est étroite, plus le rayon peut être petit (6 mm → 20 mm, 20 mm → 140 mm).
+
+Q: Une lame présente une crique (fissure) à la soudure. Que faites-vous ?
++ On ne la monte pas : on la met de côté
+- On la monte et on scie lentement
+- On la monte à l'envers
+= Une lame fissurée peut casser pendant la coupe : faute grave au démarrage.
+
+Q: Les portes des volants peuvent s'ouvrir :
++ Seulement lame à l'arrêt complet
+- Pendant la marche, pour regarder la lame
+- Dès qu'on appuie sur O
+= Les portes sont interverrouillées : le frein arrête la lame avant.
+
+Q: Au chantournage, où ne doit jamais se trouver la main ?
++ Dans l'axe de la lame, devant elle
+- Sur la pièce, sur le côté
+- Sur le pupitre
+= Si la pièce glisse, la main dans l'axe avance vers la lame : faute grave.
+
+Q: Combien de temps au plus le frein met-il pour arrêter la lame ?
++ 10 secondes
+- 1 minute
+- Il n'y a pas de frein
+= On attend l'arrêt complet avant toute intervention.
+
+Q: Pendant un chantournage, peut-on reculer dans une courbe lame en marche ?
++ Non : la lame peut sortir des guides et se déchausser des volants
+- Oui, c'est la façon normale de sortir
+- Oui, si l'on recule vite
+= En ligne droite, on peut reculer prudemment ; dans une courbe, on arrête la machine.
+
+Q: Comment pose-t-on un avivé de 120 × 45 pour le refendre en lames de 20 mm ?
++ Sur chant, contre le guide parallèle
+- À plat, à main levée
+- Debout sur le bout
+= Une pièce sur chant ne doit pas dépasser 4 fois sa largeur d'appui en hauteur.
+
+Q: La table est restée inclinée à 5° d'un travail précédent. Avant une refente droite :
++ On la remet à 0°
+- On garde 5°, cela ne change rien
+- On incline encore plus
+= Une table inclinée donne une coupe biaise.
+
+Q: Quel est le rôle de la servante pour une pièce longue ?
++ Soutenir la pièce à la sortie pour qu'elle ne bascule pas
+- Pousser la pièce
+- Tendre la lame
+= Pièce de plus de 650 mm : la servante est conseillée.
+
+Q: Qui peut utiliser la vraie scie à ruban de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.

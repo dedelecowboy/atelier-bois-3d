@@ -7,8 +7,8 @@
 # - +   la bonne réponse (une seule par question)
 # - -   une mauvaise réponse
 # - =   l'explication affichée après la réponse de l'élève
-# - Les réponses s'affichent dans l'ordre du fichier (A, B, C…), 2 à 6 réponses.
-# - La note du QCM reste sur 20, quel que soit le nombre de questions.
+# - 2 à 6 réponses par question ; elles sont MÉLANGÉES à l'affichage (pas de « A et B » dans une réponse).
+# - Banque d'environ 30 questions : 20 sont tirées au hasard, dans un ordre au hasard, à chaque tentative ; la note reste sur 20.
 # - Les lignes qui commencent par # sont des commentaires : elles sont ignorées.
 
 Q: Pour scier un panneau de 19 mm, à quelle hauteur réglez-vous la lame ?
@@ -130,3 +130,65 @@ Q: Qu'est-ce que le rejet ?
 - Le refus de la machine de démarrer
 - La chute qui tombe derrière la machine
 = Les dents arrière remontent : si la pièce les touche (trait qui se referme, pièce coincée), elle est projetée vers l'avant, vers l'opérateur.
+
+# --- Questions ajoutées le 07/11/2026 (banque d'environ 30 questions : 20 tirées au hasard à chaque tentative) : À RELIRE ---
+
+Q: Dans quel sens tournent les dents du haut de la lame ?
++ Vers l'opérateur
+- Vers l'arrière de la machine
+- Le sens dépend de la pièce
+= C'est pourquoi une pièce mal tenue peut être rejetée vers l'opérateur.
+
+Q: Une pièce étroite de 80 mm doit être délignée au guide parallèle. Que faut-il ?
++ Pousser la fin de la pièce avec un poussoir, règle du guide en position longue
+- Pousser la pièce à la main jusqu'au bout
+- Mettre la règle du guide en position courte
+= Pièce étroite (moins de 120 mm) contre la règle courte : faute grave.
+
+Q: Quand met-on la règle du guide parallèle en position courte ?
++ Pour un tronçonnage au chariot, afin que la chute ne se coince pas entre la lame et le guide
+- Pour tout délignage
+- Jamais
+= Règle courte : la pièce sciée n'est plus serrée entre la lame et le guide après le trait.
+
+Q: Après l'aller du chariot, que fait-on avant le retour ?
++ On évacue la chute, puis on ramène le chariot
+- On ramène le chariot avec la chute contre la lame
+- On remet la machine en marche
+= Pas d'aller-retour automatique : la chute est retirée avant le retour.
+
+Q: Comment déligne-t-on la rive en flache d'une planche ?
++ Au chariot, la planche tenue par le sabot (butée à griffes)
+- Contre le guide parallèle
+- À main levée
+= Une rive en flache ne peut pas s'appuyer contre le guide parallèle.
+
+Q: Pour une coupe en biais (lame inclinée à 45°), comment régler la hauteur de lame ?
++ Plus haut qu'en coupe droite : épaisseur / cos(angle) + quelques mm
+- À la même hauteur qu'en coupe droite
+- Au plus bas
+= La lame traverse la pièce en diagonale : il lui faut plus de hauteur.
+
+Q: Quelle est la vitesse de rotation de la lame Ø 400 de la scie à format ?
++ Environ 4 000 tr/min
+- Environ 400 tr/min
+- Environ 40 000 tr/min
+= On vérifie que la vitesse ne dépasse pas le n max gravé sur la lame.
+
+Q: Où se place le couteau diviseur par rapport à la lame ?
++ Derrière la lame, dans son plan
+- Devant la lame, côté opérateur
+- Sous la table
+= Il empêche le trait de scie de se refermer sur la lame.
+
+Q: Pourquoi met-on l'aspiration en marche avant de démarrer la lame ?
++ Pour capter les poussières dès la première coupe
+- Pour refroidir le moteur
+- Pour faire tourner la lame plus vite
+= Les poussières de bois sont cancérogènes : l'aspiration fonctionne pendant tout le sciage.
+
+Q: Qui peut utiliser la vraie scie à format de l'atelier ?
++ L'élève autorisé par le professeur après une validation pratique
+- Tout élève qui a le badge du simulateur
+- Tout élève qui a lu les fiches
+= Le simulateur prépare ; la vraie machine s'utilise après validation pratique devant le professeur.
