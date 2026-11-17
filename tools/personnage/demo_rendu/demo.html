@@ -1,0 +1,43 @@
+<!-- © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. -->
+<title>Rendu des élèves</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* une seule scène plein écran, coupée en deux par une réglette : à gauche le rendu actuel, à droite le rendu proposé */
+:root{ --fond:#dfe3e7; --fond2:#f3f5f7; --panneau:#ffffff; --texte:#1d2430; --doux:#5b6676; --trait:#cfd5dc; --veste:#4d5f78; --jaune:#e2b416;
+  --titre:'Barlow Condensed','Arial Narrow',sans-serif; --corps:'Barlow','Segoe UI',system-ui,sans-serif; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --fond:#12161c; --fond2:#262d38; --panneau:#1d242e; --texte:#e7ebf0; --doux:#9aa6b6; --trait:#323c4a; --veste:#9db2d0; --jaune:#e8c03a; color-scheme:dark } }
+:root[data-theme="dark"]{ --fond:#12161c; --fond2:#262d38; --panneau:#1d242e; --texte:#e7ebf0; --doux:#9aa6b6; --trait:#323c4a; --veste:#9db2d0; --jaune:#e8c03a; color-scheme:dark }
+html,body{ height:100% } body{ background:var(--fond); color:var(--texte); font:15px/1.4 var(--corps); overflow:hidden }
+.app{ position:relative; height:100%; background:radial-gradient(ellipse at 50% 38%,var(--fond2),var(--fond) 70%) }
+#vue{ width:100%; height:100%; display:block; touch-action:none }
+.tete{ position:absolute; left:max(16px,env(safe-area-inset-left,0px)); right:max(16px,env(safe-area-inset-right,0px)); top:12px; display:flex; gap:12px; align-items:flex-start; justify-content:space-between; pointer-events:none }
+h1{ font:700 24px/1 var(--titre); letter-spacing:.02em; margin:0; text-transform:uppercase; color:var(--veste) }
+h1 span{ display:block; width:44px; height:4px; background:var(--jaune); margin-top:5px }
+.tete p{ margin:6px 0 0; color:var(--doux); font-size:13px; max-width:34ch }
+.barre{ position:absolute; left:max(16px,env(safe-area-inset-left,0px)); right:max(16px,env(safe-area-inset-right,0px)); bottom:14px; display:flex; flex-wrap:wrap; gap:8px 14px; justify-content:center; pointer-events:none }
+.grp{ display:flex; gap:4px; background:var(--panneau); border:1px solid var(--trait); border-radius:8px; padding:4px; pointer-events:auto; box-shadow:0 4px 14px rgb(0 0 0 / .1) }
+.grp button{ font:600 13px var(--corps); border:0; background:none; color:var(--texte); border-radius:5px; padding:7px 10px; cursor:pointer }
+.grp button[aria-pressed="true"]{ background:var(--veste); color:var(--panneau) }
+.grp button:focus-visible{ outline:2px solid var(--jaune); outline-offset:1px }
+/* réglette avant / après */
+#coupe{ position:absolute; top:0; bottom:0; width:44px; margin-left:-22px; cursor:ew-resize; touch-action:none; display:flex; justify-content:center }
+#coupe::before{ content:""; width:2px; background:var(--jaune); box-shadow:0 0 0 1px rgb(0 0 0 / .15) }
+#coupe::after{ content:"◂ ▸"; position:absolute; top:50%; translate:0 -50%; background:var(--jaune); color:#1d2430; font:700 12px var(--corps); padding:8px 7px; border-radius:18px; white-space:nowrap; box-shadow:0 2px 8px rgb(0 0 0 / .25) }
+.etq{ position:absolute; top:74px; font:700 13px var(--titre); letter-spacing:.1em; text-transform:uppercase; background:var(--panneau); border:1px solid var(--trait); border-radius:4px; padding:3px 8px; pointer-events:none }
+#eA{ translate:calc(-100% - 14px) 0 } #eB{ translate:14px 0; border-color:var(--jaune) }
+@media (max-width:640px){ .tete p{ display:none } .etq{ top:56px } .grp button{ padding:7px 8px; font-size:12px } }
+</style>
+<div class="app">
+  <canvas id="vue" aria-label="Élève en 3D : faites glisser pour tourner, la réglette jaune compare les deux rendus"></canvas>
+  <div class="tete"><div><h1>Rendu des élèves<span></span></h1><p>Mêmes modèles, mêmes textures, même poids : seuls l'éclairage et les matières changent.</p></div></div>
+  <div class="etq" id="eA">Actuel</div><div class="etq" id="eB">Proposé</div>
+  <div id="coupe" role="slider" aria-label="Limite entre le rendu actuel et le rendu proposé" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"></div>
+  <div class="barre">
+    <div class="grp" id="gEleve"></div>
+    <div class="grp" id="gTenue"><button data-v="ok">Tenue et EPI</button><button data-v="mal">Sweat, sans EPI</button></div>
+    <div class="grp" id="gVue"><button data-v="visage">Visage</button><button data-v="buste">Buste</button><button data-v="pied">En pied</button></div>
+    <div class="grp" id="gPose"><button data-v="debout">Debout</button><button data-v="machine">Au poste</button></div>
+  </div>
+</div>
+<!--SCRIPT-->
