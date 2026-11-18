@@ -78,7 +78,9 @@ class Page:
     async def eval(self, expr, *a): return await self.page.evaluate(expr, *a)
     async def shot(self, name):
         os.makedirs(OUT, exist_ok=True); p = os.path.join(OUT, name)
-        await self.page.screenshot(path=p); return p
+        try: await self.page.screenshot(path=p, timeout=60000)
+        except Exception as e: print('   (capture impossible sur cette machine de test :', str(e).split(chr(10))[0][:80], ')')   # une capture n'est pas un contrôle
+        return p
     async def __aexit__(self, *exc):
         try: await asyncio.wait_for(self.browser.close(), 20)
         except Exception: pass

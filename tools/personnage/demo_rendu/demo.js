@@ -5,8 +5,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { person, setEpi, setPose, ELEVES } from '../../../machines/risques/figures.js';
-import { embellir, eclairage, majLumieres, REGL, FAITES } from './rendu.js';
+import { person, setEpi, setPose, ELEVES, reperes } from '../../../machines/risques/figures.js';
+import { embellir as soigner, eclairage, majLumieres, REGL, FAITES } from '../../../machines/risques/rendu.js';
+/* adaptateur : la démonstration retrouve la version, la tête et les repères d'après le nom du maillage */
+function embellir(mat,mesh){ const n=mesh.name||'', objet=n.startsWith('objet_')? n.slice(6) : null; if(objet) return soigner(mat,{ objet });
+  const [k]=n.split('|'), tete=mesh.parent?.children.find(c=>c.name===k+'|tete')?.geometry, perso=mesh.parent?.parent; return soigner(mat,{ k, tete, rep: perso?.userData.P?.qui===k? reperes(perso) : null }); }
 
 const $=id=>document.getElementById(id), cv=$('vue');
 const R=new THREE.WebGLRenderer({ canvas:cv, antialias:true, alpha:true, powerPreference:'high-performance' });

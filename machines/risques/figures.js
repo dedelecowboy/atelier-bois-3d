@@ -21,6 +21,7 @@
 import * as THREE from 'three';
 import { unzlibSync } from 'fflate';
 import PACK from './eleves.glbz';
+import { embellir } from './rendu.js';
 import { loop, normales } from './subdiv.js';
 
 const HAUTEUR=1.72;
@@ -61,6 +62,8 @@ function pieces(E){ const q=D.view(Uint16Array,E.pos), n=E.n, P=new Float32Array
   return out; }
 const EL={}; for(const [k,E] of Object.entries(D.J.eleves)){ let mat=null, geo=null;
   EL[k]={ E, get mat(){ return mat||(mat=new THREE.MeshStandardMaterial({ map:texture(E.tex), roughness:.8, metalness:0 })); }, get geo(){ return geo||(geo=pieces(E)); } }; }
+/* rendu soigné (rendu.js) pour les élèves en gros plan (person({ soigne:true }) : avatar du vestiaire et de l'exercice EPI) */
+const matEleve=(k,soigne)=> soigne? embellir(EL[k].mat,{ k, tete:EL[k].geo.tete, rep:D.J.eleves[k].reperes }) : EL[k].mat;
 const GANTS={ gants_manut:new THREE.MeshStandardMaterial({ color:0xe9dfc8, roughness:.95 }), gants_chim:new THREE.MeshStandardMaterial({ color:0x2f6fb5, roughness:.45 }) };
 
 /* ---------- EPI, écharpe, bracelet : posés par un RÉGLAGE par élève (machines/risques/reglages_epi.json, fait par
@@ -132,17 +135,17 @@ const _a=new THREE.Vector3(), _b=new THREE.Vector3();
 /* ---------- personnage ---------- */
 export function person(o={}){
   const g=new THREE.Group(), inner=new THREE.Group(); g.add(inner);
-  const e0=new Set(o.epi||[]), grp=groupeDe(o), G=GRP[grp];
+  const e0=new Set(o.epi||[]), grp=groupeDe(o), G=GRP[grp], soigne=!!o.soigne;
   const qui=version(G, grp==='fille'? o.hair==='attache' : e0.has('tenue')||o.tenue===true, true);
   inner.scale.setScalar(HAUTEUR/EL[G.ok].E.hauteur);
   const { arm, skel, B }=skeleton(grp); inner.add(arm);
   /* pièces de chaque version, créées au premier usage (setEpi) */
-  const L={}; const piece=(k,p)=>{ const n=k+'|'+p; if(L[n]) return L[n]; const m=new THREE.SkinnedMesh(EL[k].geo[p],EL[k].mat);
+  const L={}; const piece=(k,p)=>{ const n=k+'|'+p; if(L[n]) return L[n]; const m=new THREE.SkinnedMesh(EL[k].geo[p],matEleve(k,soigne));
     m.name=n; m.castShadow=true; m.receiveShadow=true; m.frustumCulled=false; m.bind(skel,new THREE.Matrix4()); inner.add(m); return L[n]=m; };
   for(const p of PIECES) piece(qui,p);
   g.updateMatrixWorld(true);
   /* au repos : direction de chaque main, bout virtuel de la main (pour l'orienter), repères des mains */
-  const rqi=wq(inner).invert(), P={ L, piece, B, inner, qui, grp, face:{ mouth:{ visible:true } }, rest:{}, restW:{} };
+  const rqi=wq(inner).invert(), P={ L, piece, B, inner, qui, grp, soigne, face:{ mouth:{ visible:true } }, rest:{}, restW:{} };
   for(const [k,b] of Object.entries(B)){ P.rest[k]=b.quaternion.clone(); P.restW[k]=rqi.clone().multiply(wq(b)); }
   const hand=S=>{ const h=B[COTE[S].Main], f=B[COTE[S].AvantBras], hw=h.getWorldPosition(new THREE.Vector3()), dir=hw.clone().sub(f.getWorldPosition(new THREE.Vector3())).normalize();
     const tip=new THREE.Object3D(); tip.position.copy(h.worldToLocal(hw.clone().addScaledVector(dir,0.09))); h.add(tip); h.userData.tip=tip;
@@ -154,7 +157,7 @@ export function person(o={}){
   /* EPI posés sur la tête de l'élève (au repos), puis attachés à l'os de la tête */
   /* EPI, écharpe, bracelet : enfants de leur os ; P.osRepos[k] = inverse de la place de l'os au repos (repère du personnage) */
   const innerInv=inner.matrixWorld.clone().invert(); P.repos={}; for(const [k,b] of Object.entries(B)) P.repos[k]=inner.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
-  P.epi={}; P.osRepos={}; for(const [k,{ g:geo, m }] of Object.entries(OBJ)){ const o2=new THREE.Mesh(geo,m); o2.castShadow=true; o2.frustumCulled=false; o2.name='objet_'+k;
+  P.epi={}; P.osRepos={}; for(const [k,{ g:geo, m }] of Object.entries(OBJ)){ const o2=new THREE.Mesh(geo,soigne? embellir(m,{ objet:k }) : m); o2.castShadow=true; o2.frustumCulled=false; o2.name='objet_'+k;
     const os=B[OS_OBJET[k]||'Head']; os.add(o2); P.osRepos[k]=innerInv.clone().multiply(os.matrixWorld).invert(); o2.visible=false; P.epi[k]=o2; }
   P.scarf=P.epi.echarpe||new THREE.Object3D(); P.bracelet=P.epi.bracelet||new THREE.Object3D();
   g.userData.P=P; placerObjets(g);
@@ -272,7 +275,7 @@ export function setEpi(g,o={}){ const P=g.userData.P, e=new Set(o.epi||[]);
   const gant=e.has('gants_chim')? 'gants_chim' : e.has('gants_manut')? 'gants_manut' : null;
   for(const [n,m] of Object.entries(P.L)){ const [k,p]=n.split('|');
     m.visible= p==='tete'||p==='cou'? k===T : k===V;
-    if(p==='mains') m.material=gant? GANTS[gant] : EL[k].mat; }
+    if(p==='mains') m.material=gant? GANTS[gant] : matEleve(k,P.soigne); }
   for(const [code,k] of Object.entries(EPI)) if(P.epi[k]) P.epi[k].visible=e.has(code);
   P.face.mouth.visible=!e.has('masque') && !e.has('masque_a');
   P.scarf.visible=!!o.echarpe; P.bracelet.visible=!!o.bijoux && !gant; }

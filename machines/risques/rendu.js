@@ -1,5 +1,5 @@
 /*! © 2026 Julien ANDRE - Lycée André MALRAUX - REMIREMONT. Licence GNU GPL v3 : voir le fichier LICENSE. */
-/* Rendu « soigné » des élèves (démonstration du 17/11/2026, À VALIDER) : mêmes maillages et mêmes textures que figures.js,
+/* Rendu « soigné » des élèves en gros plan (vestiaire, exercice EPI ; validé en démonstration le 17/11/2026) : mêmes maillages et mêmes textures que figures.js,
    aucun fichier en plus. Tout est calculé dans le navigateur :
    - texture agrandie et affinée (netteté) à l'arrivée de l'image, filtrage anisotrope ;
    - matière par zone, reconnue À LA COULEUR d'après la peau et les cheveux de l'élève (relevés sur son visage et le haut
@@ -9,8 +9,8 @@
    - éclairage à trois sources (principale chaude avec ombres fines, d'ambiance froide, contre-jour) et ombre de contact au sol.
    embellir(matiere, maillage) rend la matière soignée d'une matière de figures.js ; eclairage() rend le groupe de lumières. */
 import * as THREE from 'three';
-import { reperes } from '../../../machines/risques/figures.js';
 
+const PETIT=typeof innerWidth==='number' && Math.min(innerWidth,innerHeight)<=600;      // téléphone : textures moins grandes
 export const REGL={ rim:1.0, sss:1.0, relief:1.0, net:1.0, debug:0 };          // réglages communs (démonstration)
 const U={ uKey:{ value:new THREE.Vector3(0,1,0) }, uBack:{ value:new THREE.Vector3(0,0,-1) }, uRim:{ value:1 }, uSss:{ value:1 }, uDebug:{ value:0 },
   uRimCol:{ value:new THREE.Color(0xdbe8ff) } };
@@ -46,9 +46,9 @@ function releves(tete,img,rep){ const c=document.createElement('canvas'); c.widt
 
 /* ---------- matière soignée ---------- */
 export const FAITES=new Map();
-export function embellir(orig,mesh){
+export function embellir(orig,{ k, tete, rep, objet }={}){
   if(FAITES.has(orig)) return FAITES.get(orig);
-  const objet=(mesh.name||'').startsWith('objet_')? mesh.name.slice(6) : null;      // EPI, écharpe, bracelet : matière d'origine + liseré
+  // objet (casque, lunettes, écharpe…) : matière d'origine + liseré ; k, tete, rep : version de l'élève, sa tête (maillage) et ses repères
   const m=orig.clone(); m.envMapIntensity=0.7;
   if(objet) m.roughness={ casque:0.4, lunettes:0.3, bracelet:0.35 }[objet] ?? orig.roughness;
   const u={ uSkin:{ value:new THREE.Color(0,0,0) }, uHair:{ value:new THREE.Color(0,0,0) }, uZones:{ value:0 }, uEye:{ value:[new THREE.Vector4(9,9,9,1),new THREE.Vector4(9,9,9,1)] }, uVerre:{ value:objet==='lunettes'? 1 : 0 }, ...U };
@@ -88,11 +88,9 @@ export function embellir(orig,mesh){
   m.customProgramCacheKey=()=>'soigne|'+(objet||'eleve');
   FAITES.set(orig,m);
   /* quand l'image de la texture est là : relevés sur la tête de la même version, puis texture affinée */
-  const [k]=(mesh.name||'').split('|'), tete=mesh.parent?.children.find(c=>c.name===k+'|tete');
   const pret=()=>{ const img=orig.map?.image; if(!img||!img.width) return false;
-    const perso=mesh.parent?.parent, rep=perso?.userData.P?.qui===k? reperes(perso) : null;
-    if(tete&&rep){ const R=releves(tete.geometry,img,rep); if(R.peau){ u.uSkin.value.copy(lin(...R.peau)); u.uHair.value.copy(lin(...(R.cheveux||[0,0,0]))); u.uZones.value=1; R.yeux.forEach((e,i)=>e&&u.uEye.value[i].copy(e)); m.userData.releves=R; } }
-    const t=new THREE.CanvasTexture(affiner(img,2048)); t.flipY=false; t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=16; t.generateMipmaps=true; t.minFilter=THREE.LinearMipmapLinearFilter;
+    if(tete&&rep){ const R=releves(tete,img,rep); if(R.peau){ u.uSkin.value.copy(lin(...R.peau)); u.uHair.value.copy(lin(...(R.cheveux||[0,0,0]))); u.uZones.value=1; R.yeux.forEach((e,i)=>e&&u.uEye.value[i].copy(e)); m.userData.releves=R; } }
+    const t=new THREE.CanvasTexture(affiner(img,PETIT?1024:2048)); t.flipY=false; t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=16; t.generateMipmaps=true; t.minFilter=THREE.LinearMipmapLinearFilter;
     m.map=t; if(!objet){ m.bumpMap=t; m.bumpScale=0.5*REGL.relief; } m.needsUpdate=true; return true; };
   if(orig.map){ if(!pret()){ const it=setInterval(()=>{ if(pret()) clearInterval(it); },60); } }
   else m.roughness=Math.max(0.4,orig.roughness*0.9);

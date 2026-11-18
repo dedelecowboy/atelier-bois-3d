@@ -10,6 +10,7 @@ import { canvasTex } from '../../engine/kit.js';
 import { buildHall, decorMachine } from '../../atelier/hall.js';
 import { LAYOUT, PORTES } from '../../atelier/plan.js';
 import { person, setEpi, setPose, setAppuis, soufflette, dustCloud, ELEVES } from './figures.js';
+import { eclairage, majLumieres } from './rendu.js';
 
 const mat=(c,o={})=>new THREE.MeshStandardMaterial({ color:c, roughness:.55, metalness:.1, ...o });
 const K={ red:mat(0xc4261c,{roughness:.4}), black:mat(0x1d1f22), grey:mat(0x9aa3aa), greyD:mat(0x5d646b,{metalness:.5}), white:mat(0xf1f1ee), green:mat(0x1f9455),
@@ -258,8 +259,13 @@ export function buildModel({ root, tagPart }){
   /* ---------- avatar du scénario « EPI » et départ de feu ---------- */
   /* un avatar par élève (fille, garçon, élève noir), construit au premier usage ; placeAvatar(…, { eleve }) choisit lequel */
   const AV={}; let avatar=null;
-  const avatarDe=e=>{ e=ELEVES.includes(e)? e : 'fille'; if(!AV[e]){ AV[e]=person({ eleve:e, pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true }); AV[e].visible=false; root.add(AV[e]); } return AV[e]; };
+  const avatarDe=e=>{ e=ELEVES.includes(e)? e : 'fille'; if(!AV[e]){ AV[e]=person({ eleve:e, pose:'debout', epi:[], hair:'long', echarpe:true, bijoux:true, soigne:true }); AV[e].visible=false; root.add(AV[e]); } return AV[e]; };
   avatar=avatarDe('fille');
+  /* éclairage soigné (rendu.js) autour de l'avatar en gros plan : lumière principale chaude à ombres fines, lumière d'ambiance,
+     contre-jour et ombre de contact. Le soleil de la scène est baissé d'autant tant que l'avatar est visible. */
+  const STU=eclairage(); STU.amb.visible=false; STU.groupe.visible=false; root.add(STU.groupe); STU.key.intensity=1.05; let sun=null, sun0=1;
+  function studio(a){ if(!sun){ root.parent?.traverse(o=>{ if(o.isDirectionalLight && !sun && o.castShadow) sun=o; }); sun0=sun?.intensity||1; }
+    STU.groupe.visible=!!a; if(sun) sun.intensity=a? sun0*0.35 : sun0; if(a) STU.groupe.position.set(a.position.x,0,a.position.z); }
   const FIRE=fire(); FIRE.group.position.set(-6.4,0,-6.75); root.add(FIRE.group); FIRE.set(0);
 
   /* ---------- état et animation ---------- */
@@ -272,11 +278,12 @@ export function buildModel({ root, tagPart }){
     setArmoire(open){ armOpen=open; door.rotation.y= open? -1.9 : 0; inside.visible=open; arm.traverse(o=>{ if(open) o.userData.danger='armoire_ouverte'; else delete o.userData.danger; }); },
     /* sectionneur : pos 0 (ouvert) / 1 (fermé), cadenas, panneau ; machine en marche (lame) */
     setConsign(c){ handle.rotation.z= c.sect? 0 : Math.PI/2; lock.visible=!!c.lock; tag.visible=!!c.tag; lampOn.material.color.setHex(c.sect?0xffffff:0x555555); spin=c.on?1:spin; api._on=c.on; },
-    placeAvatar(x,z,ry,o){ const a=avatarDe(o.eleve||'fille'); for(const v of Object.values(AV)) if(v!==a) v.visible=false; avatar=a; avatar.visible=true; avatar.position.set(x,0,z); avatar.rotation.y=ry; avatar.updateMatrixWorld(true); setEpi(avatar,o);
+    placeAvatar(x,z,ry,o){ const a=avatarDe(o.eleve||'fille'); for(const v of Object.values(AV)) if(v!==a) v.visible=false; avatar=a; avatar.visible=true; avatar.position.set(x,0,z); studio(a); avatar.rotation.y=ry; avatar.updateMatrixWorld(true); setEpi(avatar,o);
       avatar.userData.P.appuis=appuisPres(avatar.position); setPose(avatar,o.pose||'debout'); },
     /* objets sur lesquels les mains peuvent se poser (vestiaire : toupie, raboteuse, établi de démonstration) */
     addAppui(o){ if(!APPUIS.includes(o)) APPUIS.push(o); },
-    hideAvatar(){ for(const v of Object.values(AV)) v.visible=false; },
+    hideAvatar(){ for(const v of Object.values(AV)) v.visible=false; studio(null); },
+    studioMaj(cam){ if(STU.groupe.visible) majLumieres(cam,STU); },
     get spin(){ return spin; },
     /* horloge réelle (t en secondes) : la lame met 4 s à s'arrêter, même à 1 image par seconde (headless) */
     tick(dt,t){ const rd=Math.min(1,Math.max(0,t-(api._t??t))); api._t=t; spin= api._on? Math.min(1,spin+rd*0.8) : Math.max(0,spin-rd/4); bladeA+=spin*dt*14; blade.rotation.z=-bladeA; for(const f of ticks) f(t); FIRE.tick(t); return spin>0 || FIRE.group.visible || dangersOn; } };

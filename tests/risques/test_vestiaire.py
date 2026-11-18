@@ -11,8 +11,11 @@ from harness import Page, check, run
 
 LIRE = """async (sel)=>{ const s=ms=>new Promise(r=>setTimeout(r,ms)); for(let k=0;k<30;k++){ const b=document.querySelector(sel+' [data-flu]:not([disabled])'); if(!b) break;
   b.closest('details').open=true; await s(30); document.querySelector(`${sel} [data-flu="${b.dataset.flu}"]`).click(); await s(30); } }"""
-DEMO = """async ([k,m,t])=>{ const V=window.__risques.V; V.freeze(null); V.play(k,m); for(const x of t){ V.freeze(x); await new Promise(r=>setTimeout(r,700)); }
-  const c=document.getElementById('vcard'); return { hidden:c.hidden, l:c.dataset.l, t:c.querySelector('b')?.textContent||'', sono:!document.getElementById('sono').hidden }; }"""
+DEMO = """async ([k,m,t])=>{ const V=window.__risques.V, c=document.getElementById('vcard'), avant=c.querySelector('b')?.textContent||''; V.freeze(null); V.play(k,m);
+  for(const x of t){ V.freeze(x); await new Promise(r=>setTimeout(r,2500)); }
+  /* machine de test sans carte graphique : on attend (15 s au plus) que la carte de CETTE démonstration remplace la précédente */
+  for(let i=0;i<30 && (c.hidden || (c.querySelector('b')?.textContent||'')===avant) ;i++) await new Promise(r=>setTimeout(r,500));
+  return { hidden:c.hidden, l:c.dataset.l, t:c.querySelector('b')?.textContent||'', sono:!document.getElementById('sono').hidden }; }"""
 
 async def main():
     print('Page web')
